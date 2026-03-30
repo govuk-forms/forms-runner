@@ -19,16 +19,27 @@ RSpec.describe "submissions.rake" do
       create :submission, :sent, reference: "test_ref"
     end
 
-    it "displays submission data when found" do
-      expect { task.invoke("test_ref") }.to output(a_string_including('reference: "test_ref"')).to_stdout
-    end
+    describe "given a submission reference" do
+      it "displays an error message when submission is not found" do
+        expect {
+          task.invoke("non_existent_ref")
+        }.to raise_error(SystemExit)
+         .and output("Submission with reference non_existent_ref not found\n").to_stderr
+      end
 
-    it "displays an error message when submission is not found" do
-      expect { task.invoke("non_existent_ref") }.to output("Submission with reference non_existent_ref not found.\n").to_stdout
-    end
+      it "displays submission data when found" do
+        expect { task.invoke("test_ref") }.to output(a_string_including('reference: "test_ref"')).to_stdout
+      end
 
-    it "displays the answers submitted by the user" do
-      expect { task.invoke("test_ref") }.to output(a_string_including("Option 1")).to_stdout
+      it "filters the answers" do
+        expect { task.invoke("test_ref") }.not_to output(a_string_including("Option 1")).to_stdout
+      end
+
+      describe "given a page slug" do
+        it "displays the answers submitted by the user" do
+          expect { task.invoke("test_ref", "1") }.to output(a_string_including("Option 1")).to_stdout
+        end
+      end
     end
   end
 
