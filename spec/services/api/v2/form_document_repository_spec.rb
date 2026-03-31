@@ -123,7 +123,7 @@ RSpec.describe Api::V2::FormDocumentRepository do
     it "returns a form model" do
       form_snapshot = described_class.find_with_mode(form_id: 1, mode: Mode.new("preview-draft"))
       expect(form_snapshot).to be_a Form
-      expect(form_snapshot.pages).to all be_a Page
+      expect(form_snapshot.form_document_steps).to all be_a FormDocumentStep
     end
 
     it "returns nil if the form does not exist" do

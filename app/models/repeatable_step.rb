@@ -114,8 +114,8 @@ class RepeatableStep < Step
     end
 
     {
-      question_id: page&.id,
-      question_text: page.question_text,
+      question_id: form_document_step&.id,
+      question_text: form_document_step.question_text,
       can_have_multiple_answers: true,
       **answer_hash,
     }

@@ -6,13 +6,13 @@ RSpec.describe Flow::Context do
     ActiveResource::HttpMock.disable_net_connection!
   end
 
-  let(:pages) do
+  let(:form_document_steps) do
     [
-      (build :page, :with_text_settings,
+      (build :form_document_step, :with_text_settings,
              id: 1,
              next_page: 2
       ),
-      (build :page, :with_text_settings,
+      (build :form_document_step, :with_text_settings,
              id: 2
       ),
     ]
@@ -25,7 +25,7 @@ RSpec.describe Flow::Context do
           privacy_policy_url: "http://www.example.gov.uk/privacy_policy",
           what_happens_next_markdown: "Good things come to those that wait",
           declaration_text: "agree to the declaration",
-          pages:)
+          form_document_steps:)
   end
 
   [
@@ -53,7 +53,7 @@ RSpec.describe Flow::Context do
         @step = @context.find_or_create(input[:request_step])
       end
 
-      it "can visit the start page" do
+      it "can visit the start form_document_step" do
         expect(@context.can_visit?("1")).to be true
       end
 
@@ -77,18 +77,18 @@ RSpec.describe Flow::Context do
     end
   end
 
-  context "with a page which changes question type mid-journey" do
+  context "with a step which changes question type mid-journey" do
     it "does not throw an error if the question type changes when an answer has already been submitted" do
       store = {}
 
-      # submit an answer to our page
+      # submit an answer
       context1 = described_class.new(form:, store:)
       current_step = context1.find_or_create("1")
       current_step.assign_question_attributes({ text: "This is a text answer" })
       context1.save_step(current_step)
 
-      # change the page's answer_type to another value
-      form.pages[0].answer_type = "number"
+      # change the step's answer_type to another value
+      form.form_document_steps[0].answer_type = "number"
 
       # build another context with the previous answers
       context2 = described_class.new(form:, store:)

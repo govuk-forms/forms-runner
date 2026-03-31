@@ -1,10 +1,10 @@
 require "rails_helper"
 
 RSpec.describe RepeatableStep, type: :model do
-  subject(:repeatable_step) { described_class.new(question:, page:) }
+  subject(:repeatable_step) { described_class.new(question:, form_document_step:) }
 
-  let(:form) { build :form, id: 1, form_slug: "form-slug", pages: [page, build(:page, id: 2)] }
-  let(:page) { build :page }
+  let(:form) { build :form, id: 1, form_slug: "form-slug", form_document_steps: [form_document_step, build(:form_document_step, id: 2)] }
+  let(:form_document_step) { build :form_document_step }
   let(:question) { build :name, is_optional: false }
   let(:submission_reference) { "abc123" }
 
@@ -236,18 +236,18 @@ RSpec.describe RepeatableStep, type: :model do
 
   describe "#show_answer_in_json" do
     context "when the step has multiple answers" do
-      let(:page) { build(:page, :with_name_settings, id: 2) }
+      let(:form_document_step) { build(:form_document_step, :with_name_settings, id: 2) }
       let(:questions) { [first_question, second_question] }
-      let(:first_question) { build :first_and_last_name_question, question_text: page.question_text }
-      let(:second_question) { build :first_and_last_name_question, question_text: page.question_text }
+      let(:first_question) { build :first_and_last_name_question, question_text: form_document_step.question_text }
+      let(:second_question) { build :first_and_last_name_question, question_text: form_document_step.question_text }
 
       before { repeatable_step.questions = questions }
 
       it "returns a hash containing arrays with every answer" do
         expect(repeatable_step.show_answer_in_json(submission_reference:, is_s3_submission: false)).to eq(
           {
-            question_id: page.id,
-            question_text: page.question_text,
+            question_id: form_document_step.id,
+            question_text: form_document_step.question_text,
             can_have_multiple_answers: true,
             first_name: [first_question.first_name, second_question.first_name],
             last_name: [first_question.last_name, second_question.last_name],
@@ -269,14 +269,14 @@ RSpec.describe RepeatableStep, type: :model do
     end
 
     context "when the question is optional and has no answers" do
-      let(:page) { build(:page, :with_name_settings, id: 2) }
-      let(:question) { build :first_and_last_name_question, :unanswered, question_text: page.question_text }
+      let(:form_document_step) { build(:form_document_step, :with_name_settings, id: 2) }
+      let(:question) { build :first_and_last_name_question, :unanswered, question_text: form_document_step.question_text }
 
       it "returns a hash with an array containing a blank answer" do
         expect(repeatable_step.show_answer_in_json(submission_reference:, is_s3_submission: false)).to eq(
           {
-            question_id: page.id,
-            question_text: page.question_text,
+            question_id: form_document_step.id,
+            question_text: form_document_step.question_text,
             can_have_multiple_answers: true,
             answer_text: [],
             first_name: [],

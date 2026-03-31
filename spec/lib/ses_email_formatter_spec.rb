@@ -91,14 +91,14 @@ RSpec.describe SesEmailFormatter do
 
     context "when there is an error formatting an answer" do
       before do
-        text_step.page.id = 99
+        text_step.form_document_step.id = 99
         allow(text_step).to receive(:show_answer_in_email).and_raise(NoMethodError, "undefined method 'strip' for an instance of Array")
       end
 
       it "raises an error with the page id" do
         expect {
           ses_email_formatter.build_question_answers_section_html
-        }.to raise_error(SesEmailFormatter::FormattingError, "could not format answer for question page 99")
+        }.to raise_error(SesEmailFormatter::FormattingError, "could not format answer for question step 99")
       end
     end
   end
@@ -170,14 +170,14 @@ RSpec.describe SesEmailFormatter do
 
     context "when there is an error formatting an answer" do
       before do
-        text_step.page.id = 99
+        text_step.form_document_step.id = 99
         allow(text_step).to receive(:show_answer_in_email).and_raise(NoMethodError, "undefined method 'strip' for an instance of Array")
       end
 
       it "raises an error with the page id" do
         expect {
           ses_email_formatter.build_question_answers_section_plain_text
-        }.to raise_error(SesEmailFormatter::FormattingError, "could not format answer for question page 99")
+        }.to raise_error(SesEmailFormatter::FormattingError, "could not format answer for question step 99")
       end
     end
   end

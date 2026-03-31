@@ -1,19 +1,19 @@
 require "rails_helper"
 
 RSpec.describe Question::DateComponent::View, type: :component do
-  let(:question_page) { build :page, :with_date_settings, input_type: }
+  let(:form_document_step) { build :form_document_step, :with_date_settings, input_type: }
   let(:input_type) { "other_date" }
   let(:question_attributes) { { date_day: nil, date_month: nil, date_year: nil } }
   let(:question) do
     Question::Date.new(question_attributes, {
-      question_text: question_page.question_text,
-      hint_text: question_page.hint_text,
+      question_text: form_document_step.question_text,
+      hint_text: form_document_step.hint_text,
       answer_settings:,
-      page_heading: question_page.page_heading,
-      guidance_markdown: question_page.guidance_markdown,
+      page_heading: form_document_step.page_heading,
+      guidance_markdown: form_document_step.guidance_markdown,
     })
   end
-  let(:answer_settings) { question_page.answer_settings }
+  let(:answer_settings) { form_document_step.answer_settings }
   let(:mode) { Mode.new("form") }
   let(:form_builder) do
     GOVUKDesignSystemFormBuilder::FormBuilder.new(:form, question,
@@ -52,7 +52,7 @@ RSpec.describe Question::DateComponent::View, type: :component do
     end
 
     context "when the question has hint text" do
-      let(:question_page) { build :page, :with_hints, :with_date_settings, input_type: }
+      let(:form_document_step) { build :form_document_step, :with_hints, :with_date_settings, input_type: }
 
       it "outputs the hint text" do
         expect(page.find(".govuk-hint")).to have_text(question.hint_text)
@@ -68,7 +68,7 @@ RSpec.describe Question::DateComponent::View, type: :component do
     end
 
     context "with unsafe question text" do
-      let(:question_page) { build :page, :with_date_settings, input_type:, question_text: "What is your name? <script>alert(\"Hi\")</script>" }
+      let(:form_document_step) { build :form_document_step, :with_date_settings, input_type:, question_text: "What is your name? <script>alert(\"Hi\")</script>" }
       let(:mode) { Mode.new("preview-draft") }
 
       it "returns the escaped title with the optional suffix" do
@@ -78,10 +78,10 @@ RSpec.describe Question::DateComponent::View, type: :component do
     end
 
     context "when question has guidance" do
-      let(:question_page) { build :page, :with_guidance, :with_date_settings }
+      let(:form_document_step) { build :form_document_step, :with_guidance, :with_date_settings }
 
       it "renders the question text as a legend" do
-        expect(page.find("legend.govuk-fieldset__legend--m")).to have_text(question_page.question_text)
+        expect(page.find("legend.govuk-fieldset__legend--m")).to have_text(form_document_step.question_text)
       end
     end
   end
@@ -116,7 +116,7 @@ RSpec.describe Question::DateComponent::View, type: :component do
     end
 
     context "when the question has hint text" do
-      let(:question_page) { build :page, :with_hints, :with_date_settings, input_type: }
+      let(:form_document_step) { build :form_document_step, :with_hints, :with_date_settings, input_type: }
 
       it "outputs the hint text" do
         expect(page.find(".govuk-hint")).to have_text(question.hint_text)
@@ -132,7 +132,7 @@ RSpec.describe Question::DateComponent::View, type: :component do
     end
 
     context "with unsafe question text" do
-      let(:question_page) { build :page, :with_date_settings, input_type:, question_text: "What is your name? <script>alert(\"Hi\")</script>" }
+      let(:form_document_step) { build :form_document_step, :with_date_settings, input_type:, question_text: "What is your name? <script>alert(\"Hi\")</script>" }
       let(:mode) { Mode.new("preview-draft") }
 
       it "returns the escaped title with the optional suffix" do
@@ -142,10 +142,10 @@ RSpec.describe Question::DateComponent::View, type: :component do
     end
 
     context "when question has guidance" do
-      let(:question_page) { build :page, :with_guidance, :with_date_settings }
+      let(:form_document_step) { build :form_document_step, :with_guidance, :with_date_settings }
 
       it "renders the question text as a legend" do
-        expect(page.find("legend.govuk-fieldset__legend--m")).to have_text(question_page.question_text)
+        expect(page.find("legend.govuk-fieldset__legend--m")).to have_text(form_document_step.question_text)
       end
     end
   end
@@ -170,10 +170,10 @@ RSpec.describe Question::DateComponent::View, type: :component do
     end
 
     context "when question has guidance" do
-      let(:question_page) { build :page, :with_guidance, answer_type: "date", answer_settings: }
+      let(:form_document_step) { build :form_document_step, :with_guidance, answer_type: "date", answer_settings: }
 
       it "renders the question text as a legend" do
-        expect(page.find("legend.govuk-fieldset__legend--m")).to have_text(question_page.question_text)
+        expect(page.find("legend.govuk-fieldset__legend--m")).to have_text(form_document_step.question_text)
       end
     end
   end

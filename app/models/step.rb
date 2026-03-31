@@ -1,29 +1,29 @@
 class Step
-  attr_accessor :page, :question
+  attr_accessor :form_document_step, :question
 
   GOTO_PAGE_ERROR_NAMES = %w[cannot_have_goto_page_before_routing_page goto_page_doesnt_exist].freeze
 
-  def initialize(page:, question:)
-    @page = page
+  def initialize(form_document_step:, question:)
+    @form_document_step = form_document_step
     @question = question
   end
 
   alias_attribute :id, :page_id
 
   def page_id
-    page&.id.to_s
+    form_document_step&.id.to_s
   end
 
   def page_number
-    page&.position
+    form_document_step&.position
   end
 
   def next_page_slug
-    page.has_next_page? ? page.next_page.to_s : CheckYourAnswersStep::CHECK_YOUR_ANSWERS_PAGE_SLUG
+    form_document_step.has_next_page? ? form_document_step.next_page.to_s : CheckYourAnswersStep::CHECK_YOUR_ANSWERS_PAGE_SLUG
   end
 
   def routing_conditions
-    page.respond_to?(:routing_conditions) ? page.routing_conditions : []
+    form_document_step.respond_to?(:routing_conditions) ? form_document_step.routing_conditions : []
   end
 
   def ==(other)
@@ -66,7 +66,7 @@ class Step
 
   def show_answer_in_json(submission_reference:, is_s3_submission:)
     {
-      question_id: page&.id,
+      question_id: form_document_step&.id,
       question_text: question_text,
       **question.show_answer_in_json(submission_reference:, is_s3_submission:),
     }

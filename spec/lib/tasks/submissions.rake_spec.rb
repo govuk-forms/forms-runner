@@ -35,7 +35,7 @@ RSpec.describe "submissions.rake" do
         expect { task.invoke("test_ref") }.not_to output(a_string_including("Option 1")).to_stdout
       end
 
-      describe "given a page slug" do
+      describe "given a step slug" do
         it "displays the answers submitted by the user" do
           expect { task.invoke("test_ref", "1") }.to output(a_string_including("Option 1")).to_stdout
         end

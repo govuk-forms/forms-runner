@@ -46,8 +46,8 @@ FactoryBot.define do
         pages_count { 5 }
       end
 
-      pages do
-        Array.new(pages_count) { association(:page) }
+      form_document_steps do
+        Array.new(pages_count) { association(:form_document_step) }
       end
 
       question_section_completed { true }
@@ -65,8 +65,8 @@ FactoryBot.define do
         pages_count { 5 }
       end
 
-      pages do
-        Array.new(pages_count) { association(:page, :with_selections_settings) }
+      form_document_steps do
+        Array.new(pages_count) { association(:form_document_step, :with_selections_settings) }
       end
     end
 

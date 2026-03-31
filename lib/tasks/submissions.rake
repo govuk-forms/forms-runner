@@ -29,7 +29,7 @@ namespace :submissions do
   # Print attributes for a submission
   #
   # Given just a submission reference, it prints the whole submission record, with the answers filtered out.
-  # If you need to see the actual answer data, provide one or more page slugs as well.
+  # If you need to see the actual answer data, provide one or more page_slugs as well.
   #
   # Example:
   #

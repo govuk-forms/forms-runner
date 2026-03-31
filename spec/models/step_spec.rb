@@ -4,7 +4,7 @@ RSpec.describe Step do
   subject(:step) do
     described_class.new(
       question:,
-      page:,
+      form_document_step:,
     )
   end
 
@@ -15,9 +15,9 @@ RSpec.describe Step do
   let(:fourth_page_id) { page_ids[3] }
 
   let(:question) { instance_double(Question::Text, serializable_hash: {}, attribute_names: %w[name], valid?: true, errors: []) }
-  let(:page) { build(:page, id: first_page_id, position: 1, next_page: second_page_id, routing_conditions: []) }
+  let(:form_document_step) { build(:form_document_step, id: first_page_id, position: 1, next_page: second_page_id, routing_conditions: []) }
   let(:answer_store) { instance_double(Store::SessionAnswerStore) }
-  let(:form) { build(:form, id: 3, form_slug: "test-form", pages: [page]) }
+  let(:form) { build(:form, id: 3, form_slug: "test-form", form_document_steps: [form_document_step]) }
 
   describe "#initialize" do
     it "sets the attributes correctly" do
@@ -33,7 +33,7 @@ RSpec.describe Step do
     it "returns true for steps with the same state" do
       other_step = described_class.new(
         question:,
-        page:,
+        form_document_step:,
       )
       expect(step).to eq(other_step)
     end
@@ -41,7 +41,7 @@ RSpec.describe Step do
     it "returns false for steps with different states" do
       other_step = described_class.new(
         question:,
-        page: build(:page),
+        form_document_step: build(:form_document_step),
       )
       expect(step == other_step).to be false
     end
@@ -50,7 +50,7 @@ RSpec.describe Step do
   describe "#state" do
     it "returns an array of instance variable values" do
       expected_state = [
-        step.page,
+        step.form_document_step,
         step.question,
       ]
 
@@ -59,7 +59,7 @@ RSpec.describe Step do
 
     it "changes when an instance variable is modified" do
       original_state = step.state.dup
-      step.page = build(:page, position: 2)
+      step.form_document_step = build(:form_document_step, position: 2)
       expect(step.state).not_to eq(original_state)
     end
   end
@@ -132,7 +132,7 @@ RSpec.describe Step do
     let(:selection) { "Yes" }
     let(:question) { instance_double(Question::Selection, selection:) }
     let(:routing_conditions) { [] }
-    let(:page) { build(:page, id: first_page_id, position: 1, next_page: default_next_page, routing_conditions:) }
+    let(:form_document_step) { build(:form_document_step, id: first_page_id, position: 1, next_page: default_next_page, routing_conditions:) }
 
     describe "basic routing" do
       context "without any routing conditions" do
@@ -355,13 +355,13 @@ RSpec.describe Step do
 
   describe "#show_answer_in_json" do
     let(:question) { build :first_and_last_name_question }
-    let(:page) { build(:page, :with_name_settings, id: first_page_id) }
+    let(:form_document_step) { build(:form_document_step, :with_name_settings, id: first_page_id) }
     let(:is_s3_submission) { false }
     let(:submission_reference) { "abc123" }
 
     it "returns a hash containing question and answer details" do
       expect(step.show_answer_in_json(submission_reference:, is_s3_submission:)).to eq({
-        question_id: page.id,
+        question_id: form_document_step.id,
         question_text: question.question_text,
         first_name: question.first_name,
         last_name: question.last_name,
@@ -386,7 +386,7 @@ RSpec.describe Step do
 
     context "when there are no routing conditions" do
       let(:routing_conditions) { [] }
-      let(:page) { build(:page, position: 1, routing_conditions: routing_conditions) }
+      let(:form_document_step) { build(:form_document_step, position: 1, routing_conditions: routing_conditions) }
 
       it "returns an empty array" do
         expect(step.conditions_with_goto_errors).to be_empty
@@ -396,7 +396,7 @@ RSpec.describe Step do
     context "when routing conditions have no errors" do
       let(:condition) { OpenStruct.new(validation_errors: []) }
       let(:routing_conditions) { [condition] }
-      let(:page) { build(:page, position: 1, routing_conditions: routing_conditions) }
+      let(:form_document_step) { build(:form_document_step, position: 1, routing_conditions: routing_conditions) }
 
       it "returns an empty array" do
         expect(step.conditions_with_goto_errors).to be_empty
@@ -407,7 +407,7 @@ RSpec.describe Step do
       let(:condition) { OpenStruct.new(validation_errors: [cannot_have_goto_page_before_routing_page_error]) }
       let(:second_condition) { OpenStruct.new(validation_errors: [goto_page_doesnt_exist_error]) }
       let(:routing_conditions) { [condition, second_condition] }
-      let(:page) { build(:page, position: 1, routing_conditions: routing_conditions) }
+      let(:form_document_step) { build(:form_document_step, position: 1, routing_conditions: routing_conditions) }
 
       it "returns conditions with specified errors" do
         expect(step.conditions_with_goto_errors).to contain_exactly(condition, second_condition)
@@ -417,7 +417,7 @@ RSpec.describe Step do
     context "when routing conditions have irrelevant errors" do
       let(:condition) { OpenStruct.new(validation_errors: [other_error]) }
       let(:routing_conditions) { [condition] }
-      let(:page) { build(:page, position: 1, routing_conditions: routing_conditions) }
+      let(:form_document_step) { build(:form_document_step, position: 1, routing_conditions: routing_conditions) }
 
       it "returns an empty array" do
         expect(step.conditions_with_goto_errors).to be_empty
@@ -429,7 +429,7 @@ RSpec.describe Step do
       let(:condition_other) { OpenStruct.new(validation_errors: [other_error]) }
       let(:condition_goto) { OpenStruct.new(validation_errors: [goto_page_doesnt_exist_error]) }
       let(:routing_conditions) { [condition_mixed, condition_other, condition_goto] }
-      let(:page) { build(:page, position: 1, routing_conditions: routing_conditions) }
+      let(:form_document_step) { build(:form_document_step, position: 1, routing_conditions: routing_conditions) }
 
       it "returns only conditions with specified errors" do
         expect(step.conditions_with_goto_errors).to contain_exactly(condition_mixed, condition_goto)
@@ -443,17 +443,17 @@ RSpec.describe Step do
     end
 
     it "returns false when first routing condition is not exit page" do
-      page.routing_conditions = [OpenStruct.new(answer_value: "Yes", goto_page_id: third_page_id)]
+      form_document_step.routing_conditions = [OpenStruct.new(answer_value: "Yes", goto_page_id: third_page_id)]
       expect(step.has_exit_page_condition?).to be false
     end
 
     it "returns false when first routing condition contains markdown exit_page_markdown" do
-      page.routing_conditions = [OpenStruct.new(exit_page_markdown: 12)]
+      form_document_step.routing_conditions = [OpenStruct.new(exit_page_markdown: 12)]
       expect(step.has_exit_page_condition?).to be false
     end
 
     it "returns true when first routing condition contains string markdown exit_page_markdown" do
-      page.routing_conditions = [OpenStruct.new(exit_page_markdown: "")]
+      form_document_step.routing_conditions = [OpenStruct.new(exit_page_markdown: "")]
       expect(step.has_exit_page_condition?).to be true
     end
   end
@@ -462,7 +462,7 @@ RSpec.describe Step do
     let(:selection) { "Yes" }
     let(:question) { instance_double(Question::Selection, selection:) }
     let(:routing_conditions) { [OpenStruct.new(answer_value: "Yes", exit_page_markdown: "string")] }
-    let(:page) { build(:page, position: 1, routing_conditions:) }
+    let(:form_document_step) { build(:form_document_step, position: 1, routing_conditions:) }
 
     it "returns true when condition matches and condition is an exit page" do
       expect(step.exit_page_condition_matches?).to be true
