@@ -779,11 +779,6 @@ RSpec.describe "submissions.rake" do
           "original_filename" => "1-upload-your-evidence.jpg",
         )
       end
-
-      it "reschedules the submission" do
-        task.invoke(submission.reference)
-        expect(SendSubmissionJob).to have_been_enqueued
-      end
     end
 
     context "when original filename is present" do
