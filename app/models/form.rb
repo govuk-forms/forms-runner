@@ -45,7 +45,7 @@ class Form < ActiveResource::Base
   end
 
   def page_by_id(page_id)
-    pages.find { |p| p.id == page_id.to_i }
+    pages.find { |p| p.id == page_id }
   end
 
   def payment_url_with_reference(reference)

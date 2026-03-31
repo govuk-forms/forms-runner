@@ -747,7 +747,7 @@ RSpec.describe "submissions.rake" do
         steps: [
           build(
             :v2_question_page_step,
-            id: 100,
+            id: "aB123z",
             answer_type: "file",
             question_text: "Upload your evidence",
             position: "1",
@@ -759,7 +759,7 @@ RSpec.describe "submissions.rake" do
     context "when original filename is missing" do
       let(:answers) do
         {
-          "100" => {
+          "aB123z" => {
             "file" => nil,
             "original_filename" => "",
             "uploaded_file_key" => "#{Faker::Internet.uuid}.jpg",
@@ -771,7 +771,7 @@ RSpec.describe "submissions.rake" do
       it "sets the original filename to the question text" do
         task.invoke(submission.reference)
         submission.reload
-        expect(submission.answers["100"]).to include(
+        expect(submission.answers["aB123z"]).to include(
           "original_filename" => "1-upload-your-evidence.jpg",
         )
       end
@@ -785,7 +785,7 @@ RSpec.describe "submissions.rake" do
     context "when original filename is present" do
       let(:answers) do
         {
-          "100" => {
+          "aB123z" => {
             "file" => nil,
             "original_filename" => "my-test-picture.jpg",
             "uploaded_file_key" => "#{Faker::Internet.uuid}.jpg",
@@ -797,7 +797,7 @@ RSpec.describe "submissions.rake" do
       it "does not modify the original filename" do
         task.invoke(submission.reference)
         submission.reload
-        expect(submission.answers["100"]).to include(
+        expect(submission.answers["aB123z"]).to include(
           "original_filename" => "my-test-picture.jpg",
         )
       end
@@ -815,7 +815,7 @@ RSpec.describe "submissions.rake" do
           steps: [
             build(
               :v2_question_page_step,
-              id: 100,
+              id: "a",
               answer_type: "file",
               question_text: "Upload your evidence",
               position: "1",
@@ -828,7 +828,7 @@ RSpec.describe "submissions.rake" do
       context "and the question has been skipped" do
         let(:answers) do
           {
-            "100" => {
+            "a" => {
               "file" => nil,
               "original_filename" => "",
               "uploaded_file_key" => nil,
@@ -840,7 +840,7 @@ RSpec.describe "submissions.rake" do
         it "does not modify the original filename" do
           task.invoke(submission.reference)
           submission.reload
-          expect(submission.answers["100"]).to include(
+          expect(submission.answers["a"]).to include(
             "original_filename" => "",
           )
         end
@@ -854,28 +854,28 @@ RSpec.describe "submissions.rake" do
           steps: [
             build(
               :v2_question_page_step,
-              id: 500,
+              id: "i",
               answer_type: "file",
               question_text: "Upload your evidence 1",
               position: "1",
             ),
             build(
               :v2_question_page_step,
-              id: 501,
+              id: "j",
               answer_type: "file",
               question_text: "Upload your evidence 2",
               position: "2",
             ),
             build(
               :v2_question_page_step,
-              id: 502,
+              id: "k",
               answer_type: "file",
               question_text: "Upload your evidence 2",
               position: "3",
             ),
             build(
               :v2_question_page_step,
-              id: 503,
+              id: "l",
               answer_type: "file",
               question_text: "Upload your evidence 4",
               position: "4",
@@ -887,25 +887,25 @@ RSpec.describe "submissions.rake" do
 
       let(:answers) do
         {
-          "500" => {
+          "i" => {
             "file" => nil,
             "original_filename" => "",
             "uploaded_file_key" => "#{Faker::Internet.uuid}.jpg",
             "filename_suffix" => "",
           },
-          "501" => {
+          "j" => {
             "file" => nil,
             "original_filename" => "",
             "uploaded_file_key" => "#{Faker::Internet.uuid}.jpg",
             "filename_suffix" => "",
           },
-          "502" => {
+          "k" => {
             "file" => nil,
             "original_filename" => "my-test-picture.jpg",
             "uploaded_file_key" => "#{Faker::Internet.uuid}.jpg",
             "filename_suffix" => "",
           },
-          "503" => {
+          "l" => {
             "file" => nil,
             "original_filename" => "",
             "uploaded_file_key" => nil,
@@ -918,10 +918,10 @@ RSpec.describe "submissions.rake" do
         task.invoke(submission.reference)
         submission.reload
         expect(submission.answers).to match({
-          "500" => a_hash_including("original_filename" => "1-upload-your-evidence-1.jpg"),
-          "501" => a_hash_including("original_filename" => "2-upload-your-evidence-2.jpg"),
-          "502" => a_hash_including("original_filename" => "my-test-picture.jpg"),
-          "503" => a_hash_including("original_filename" => ""),
+          "i" => a_hash_including("original_filename" => "1-upload-your-evidence-1.jpg"),
+          "j" => a_hash_including("original_filename" => "2-upload-your-evidence-2.jpg"),
+          "k" => a_hash_including("original_filename" => "my-test-picture.jpg"),
+          "l" => a_hash_including("original_filename" => ""),
         })
       end
     end
