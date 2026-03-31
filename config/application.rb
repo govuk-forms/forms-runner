@@ -77,6 +77,10 @@ module FormsRunner
     # Turn off logging from ActiveResource
     config.after_initialize { ActiveResource::Base.logger = nil }
 
+    # Turn off logging of job arguments for ActiveJob jobs
+    # Any information we want logged should be in the structured logging instead
+    config.active_job.log_arguments = false
+
     # custom configuration for the SES mailer delivery method
     config.x.aws_ses_form_submission_mailer.delivery_method = :aws_ses
 
