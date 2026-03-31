@@ -412,6 +412,13 @@ cy:
   govuk_components:
     govuk_summary_list:
       change: Newid
+  govuk_design_system_formbuilder:
+    govuk_file_field:
+      choose_files_button_text: Dewis ffeil
+      drop_instruction_text: neu gollwng ffeil
+      entered_drop_zone_text: Wedi mynd i mewn i’r man gollwng
+      left_drop_zone_text: Wedi gadael y man gollwng
+      no_file_chosen_text: Ffeil heb ei ddewis
   helpers:
     error:
       message_prefix: Gwall
