@@ -7,5 +7,11 @@
                                     text: question.hint_text,
                                     class: "govuk-!-margin-bottom-7"
                                   },
-                                  accept: Question::File::FILE_TYPES.join(", ")
+                                  choose_files_button_text: t("govuk_design_system_formbuilder.govuk_file_field.choose_files_button_text"),
+                                  drop_instruction_text: t("govuk_design_system_formbuilder.govuk_file_field.drop_instruction_text"),
+                                  no_file_chosen_text: t("govuk_design_system_formbuilder.govuk_file_field.no_file_chosen_text"),
+                                  entered_drop_zone_text: t("govuk_design_system_formbuilder.govuk_file_field.entered_drop_zone_text"),
+                                  left_drop_zone_text: t("govuk_design_system_formbuilder.govuk_file_field.left_drop_zone_text"),
+                                  accept: Question::File::FILE_TYPES.join(", "),
+                                  javascript: true
 %>
