@@ -56,8 +56,8 @@ RSpec.describe Forms::SubmittedController, type: :request do
         mock.get "/api/v2/forms/2/draft", req_headers, form_data.to_json, 200
       end
 
-      post save_form_page_path(mode: "preview-draft", form_id: 2, form_slug: form_data.form_slug, page_slug: 1), params: { question: store[:answers]["2"]["1"] }
-      post save_form_page_path(mode: "preview-draft", form_id: 2, form_slug: form_data.form_slug, page_slug: 2), params: { question: store[:answers]["2"]["2"] }
+      post save_form_page_path(mode: "preview-draft", form_id: 2, form_slug: form_data.form_slug, step_slug: 1), params: { question: store[:answers]["2"]["1"] }
+      post save_form_page_path(mode: "preview-draft", form_id: 2, form_slug: form_data.form_slug, step_slug: 2), params: { question: store[:answers]["2"]["2"] }
 
       # assert that we've set up the test correctly
       expect(controller.session[:answers].to_h).to match({ "2" => { "1" => a_hash_including(**store[:answers]["2"]["1"]), "2" => a_hash_including(**store[:answers]["2"]["2"]) } }) # rubocop: disable RSpec/ExpectInHook

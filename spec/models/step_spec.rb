@@ -23,7 +23,7 @@ RSpec.describe Step do
     it "sets the attributes correctly" do
       expect(step.question).to eq(question)
       expect(step.id).to eq(first_page_id)
-      expect(step.next_page_slug).to eq(second_page_id)
+      expect(step.next_step_slug).to eq(second_page_id)
       expect(step.page_number).to eq(1)
       expect(step.routing_conditions).to eq([])
     end
@@ -127,7 +127,7 @@ RSpec.describe Step do
     end
   end
 
-  describe "#next_page_slug_after_routing" do
+  describe "#next_step_slug_after_routing" do
     let(:default_next_page) { second_page_id }
     let(:selection) { "Yes" }
     let(:question) { instance_double(Question::Selection, selection:) }
@@ -138,14 +138,14 @@ RSpec.describe Step do
       context "without any routing conditions" do
         let(:selection) { "Any" }
 
-        it "returns the next_page_slug when routing_conditions is empty" do
-          expect(step.next_page_slug_after_routing).to eq(default_next_page)
+        it "returns the next_step_slug when routing_conditions is empty" do
+          expect(step.next_step_slug_after_routing).to eq(default_next_page)
         end
       end
 
       context "without conditions" do
-        it "returns the next_page_slug" do
-          expect(step.next_page_slug_after_routing).to eq(default_next_page)
+        it "returns the next_step_slug" do
+          expect(step.next_step_slug_after_routing).to eq(default_next_page)
         end
       end
     end
@@ -156,7 +156,7 @@ RSpec.describe Step do
         let(:routing_conditions) { [OpenStruct.new(answer_value: "Yes", goto_page_id: third_page_id)] }
 
         it "returns the goto_page_id of the condition" do
-          expect(step.next_page_slug_after_routing).to eq(third_page_id)
+          expect(step.next_step_slug_after_routing).to eq(third_page_id)
         end
       end
 
@@ -165,7 +165,7 @@ RSpec.describe Step do
         let(:routing_conditions) { [OpenStruct.new(answer_value: "none_of_the_above", goto_page_id: third_page_id)] }
 
         it "returns the goto_page_id of the condition" do
-          expect(step.next_page_slug_after_routing).to eq(third_page_id)
+          expect(step.next_step_slug_after_routing).to eq(third_page_id)
         end
       end
 
@@ -173,8 +173,8 @@ RSpec.describe Step do
         let(:selection) { "No" }
         let(:routing_conditions) { [OpenStruct.new(answer_value: "Yes", goto_page_id: third_page_id)] }
 
-        it "returns the next_page_slug" do
-          expect(step.next_page_slug_after_routing).to eq(default_next_page)
+        it "returns the next_step_slug" do
+          expect(step.next_step_slug_after_routing).to eq(default_next_page)
         end
       end
 
@@ -182,8 +182,8 @@ RSpec.describe Step do
         let(:question) { instance_double(Question::Text, :with_answer) }
         let(:routing_conditions) { [OpenStruct.new(answer_value: "", goto_page_id: third_page_id)] }
 
-        it "returns the next_page_slug" do
-          expect(step.next_page_slug_after_routing).to eq(third_page_id)
+        it "returns the next_step_slug" do
+          expect(step.next_step_slug_after_routing).to eq(third_page_id)
         end
       end
 
@@ -191,8 +191,8 @@ RSpec.describe Step do
         let(:question) { instance_double(Question::Text, :with_answer) }
         let(:routing_conditions) { [OpenStruct.new(answer_value: "something", goto_page_id: third_page_id)] }
 
-        it "returns the next_page_slug" do
-          expect(step.next_page_slug_after_routing).to eq(default_next_page)
+        it "returns the next_step_slug" do
+          expect(step.next_step_slug_after_routing).to eq(default_next_page)
         end
       end
     end
@@ -207,7 +207,7 @@ RSpec.describe Step do
         let(:selection) { "Yes" }
 
         it "returns the check your answers page slug" do
-          expect(step.next_page_slug_after_routing).to eq(CheckYourAnswersStep::CHECK_YOUR_ANSWERS_PAGE_SLUG)
+          expect(step.next_step_slug_after_routing).to eq(CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG)
         end
       end
 
@@ -220,7 +220,7 @@ RSpec.describe Step do
         let(:selection) { "Yes" }
 
         it "prioritizes goto_page_id over skip_to_end" do
-          expect(step.next_page_slug_after_routing).to eq(fourth_page_id)
+          expect(step.next_step_slug_after_routing).to eq(fourth_page_id)
         end
       end
     end
@@ -236,8 +236,8 @@ RSpec.describe Step do
         end
         let(:selection) { "Yes" }
 
-        it "returns the next_page_slug" do
-          expect(step.next_page_slug_after_routing).to eq(default_next_page)
+        it "returns the next_step_slug" do
+          expect(step.next_step_slug_after_routing).to eq(default_next_page)
         end
       end
 
@@ -251,8 +251,8 @@ RSpec.describe Step do
         end
         let(:selection) { "Something else" }
 
-        it "returns the next_page_slug" do
-          expect(step.next_page_slug_after_routing).to eq(default_next_page)
+        it "returns the next_step_slug" do
+          expect(step.next_step_slug_after_routing).to eq(default_next_page)
         end
       end
 
@@ -266,8 +266,8 @@ RSpec.describe Step do
         end
         let(:selection) { "Something Else" }
 
-        it "returns the next_page_slug" do
-          expect(step.next_page_slug_after_routing).to eq(default_next_page)
+        it "returns the next_step_slug" do
+          expect(step.next_step_slug_after_routing).to eq(default_next_page)
         end
       end
 
@@ -279,8 +279,8 @@ RSpec.describe Step do
         end
         let(:selection) { nil }
 
-        it "returns the next_page_slug" do
-          expect(step.next_page_slug_after_routing).to eq(default_next_page)
+        it "returns the next_step_slug" do
+          expect(step.next_step_slug_after_routing).to eq(default_next_page)
         end
       end
     end

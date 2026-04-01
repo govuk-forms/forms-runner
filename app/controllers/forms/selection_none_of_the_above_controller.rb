@@ -3,7 +3,7 @@ module Forms
     before_action :redirect_if_not_show_none_of_the_above_question
 
     def show
-      return redirect_to form_page_path(@form.id, @form.form_slug, current_context.next_page_slug) unless current_context.can_visit?(@step.id)
+      return redirect_to form_page_path(@form.id, @form.form_slug, current_context.next_step_slug) unless current_context.can_visit?(@step.id)
 
       setup_instance_vars_for_view
     end

@@ -29,7 +29,7 @@ namespace :submissions do
   # Print attributes for a submission
   #
   # Given just a submission reference, it prints the whole submission record, with the answers filtered out.
-  # If you need to see the actual answer data, provide one or more page_slugs as well.
+  # If you need to see the actual answer data, provide one or more step_slugs as well.
   #
   # Example:
   #
@@ -38,16 +38,16 @@ namespace :submissions do
   #
   desc "Fetch and display data for a specific submission given a reference"
   task :inspect_submission_data, [:reference] => :environment do |_t, args|
-    reference, *page_slugs = args.to_a
+    reference, *step_slugs = args.to_a
 
     submission = Submission.find_by(reference: reference)
     abort "Submission with reference #{reference} not found" if submission.nil?
 
-    if page_slugs.empty?
+    if step_slugs.empty?
       puts "Data for submission with reference #{reference}:"
       pp submission
     else
-      page_slugs.each do |slug|
+      step_slugs.each do |slug|
         question_text = submission.form.steps.find { it.id == slug }&.data&.question_text
         puts "Answer(s) to #{slug} (#{question_text}) for submission with reference #{reference}"
         pp submission.answers.slice(slug)

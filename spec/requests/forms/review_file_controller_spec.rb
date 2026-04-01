@@ -59,11 +59,11 @@ RSpec.describe Forms::ReviewFileController, type: :request do
 
   describe "#show" do
     before do
-      get review_file_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug, page_slug:, changing_existing_answer:)
+      get review_file_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug, step_slug:, changing_existing_answer:)
     end
 
     context "when the question is a file upload question" do
-      let(:page_slug) { file_upload_step.id }
+      let(:step_slug) { file_upload_step.id }
 
       context "when a file has been uploaded" do
         it "renders the review file template" do
@@ -75,7 +75,7 @@ RSpec.describe Forms::ReviewFileController, type: :request do
         end
 
         it "displays a back link to the file upload page" do
-          expect(response.body).to include(form_page_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug, page_slug: file_upload_step.id))
+          expect(response.body).to include(form_page_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug, step_slug: file_upload_step.id))
         end
       end
 
@@ -83,33 +83,33 @@ RSpec.describe Forms::ReviewFileController, type: :request do
         let(:store) { {} }
 
         it "redirects to the show page route" do
-          expect(response).to redirect_to form_page_path(form_data.form_id, form_data.form_slug, page_slug)
+          expect(response).to redirect_to form_page_path(form_data.form_id, form_data.form_slug, step_slug)
         end
       end
 
       it "includes the changing_existing_answer query parameter for the continue URL" do
         rendered = Capybara.string(response.body)
-        expected_url = review_file_continue_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug, page_slug:, changing_existing_answer:)
+        expected_url = review_file_continue_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug, step_slug:, changing_existing_answer:)
         expect(rendered).to have_css("form[action='#{expected_url}'][method='post']")
       end
     end
 
     context "when the question isn't a file upload question" do
-      let(:page_slug) { text_question_step.id }
+      let(:step_slug) { text_question_step.id }
 
       it "redirects to the show page route" do
-        expect(response).to redirect_to form_page_path(form_data.form_id, form_data.form_slug, page_slug)
+        expect(response).to redirect_to form_page_path(form_data.form_id, form_data.form_slug, step_slug)
       end
     end
   end
 
   describe "#continue" do
     before do
-      post review_file_continue_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug, page_slug:, changing_existing_answer:)
+      post review_file_continue_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug, step_slug:, changing_existing_answer:)
     end
 
     context "when the question is a file upload question" do
-      let(:page_slug) { file_upload_step.id.to_s }
+      let(:step_slug) { file_upload_step.id.to_s }
 
       context "when a file has been uploaded" do
         it "redirects to the next step in the form" do
@@ -129,16 +129,16 @@ RSpec.describe Forms::ReviewFileController, type: :request do
         let(:uploaded_file_key) { nil }
 
         it "redirects to the show page route" do
-          expect(response).to redirect_to form_page_path(form_data.form_id, form_data.form_slug, page_slug)
+          expect(response).to redirect_to form_page_path(form_data.form_id, form_data.form_slug, step_slug)
         end
       end
     end
 
     context "when the question isn't a file upload question" do
-      let(:page_slug) { text_question_step.id }
+      let(:step_slug) { text_question_step.id }
 
       it "redirects to the show page route" do
-        expect(response).to redirect_to form_page_path(form_data.form_id, form_data.form_slug, page_slug)
+        expect(response).to redirect_to form_page_path(form_data.form_id, form_data.form_slug, step_slug)
       end
     end
   end

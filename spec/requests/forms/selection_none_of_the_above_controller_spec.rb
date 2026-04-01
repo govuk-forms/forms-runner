@@ -4,7 +4,7 @@ RSpec.describe Forms::SelectionNoneOfTheAboveController, type: :request do
   let(:mode) { "form" }
   let(:req_headers) { { "Accept" => "application/json" } }
 
-  let(:page_slug) { selection_question_step.id }
+  let(:step_slug) { selection_question_step.id }
 
   let(:text_question_step) do
     build :v2_question_page_step, :with_text_settings, id: 1, next_step_id: selection_question_step.id
@@ -61,22 +61,22 @@ RSpec.describe Forms::SelectionNoneOfTheAboveController, type: :request do
 
   describe "#show" do
     before do
-      get selection_none_of_the_above_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug, page_slug:, changing_existing_answer:)
+      get selection_none_of_the_above_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug, step_slug:, changing_existing_answer:)
     end
 
     context "when the previous step is not answered" do
       let(:store) { { answers: {} } }
 
       it "redirects to the previous step" do
-        expect(response).to redirect_to(form_page_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug, page_slug: text_question_step.id))
+        expect(response).to redirect_to(form_page_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug, step_slug: text_question_step.id))
       end
     end
 
     context "when the step is not a selection question" do
-      let(:page_slug) { text_question_step.id }
+      let(:step_slug) { text_question_step.id }
 
       it "redirects to the step route" do
-        expect(response).to redirect_to(form_page_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug, page_slug:))
+        expect(response).to redirect_to(form_page_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug, step_slug:))
       end
     end
 
@@ -90,7 +90,7 @@ RSpec.describe Forms::SelectionNoneOfTheAboveController, type: :request do
         end
 
         it "redirects to the step route" do
-          expect(response).to redirect_to(form_page_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug, page_slug:))
+          expect(response).to redirect_to(form_page_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug, step_slug:))
         end
       end
 
@@ -109,11 +109,11 @@ RSpec.describe Forms::SelectionNoneOfTheAboveController, type: :request do
           end
 
           it "assigns a back link" do
-            expect(assigns(:back_link)).to eq(form_page_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug, page_slug:))
+            expect(assigns(:back_link)).to eq(form_page_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug, step_slug:))
           end
 
           it "assigns an question edit link" do
-            expect(assigns(:question_edit_link)).to eq("#{Settings.forms_admin.base_url}/forms/#{form_data.form_id}/pages-by-external-id/#{page_slug}/edit-question")
+            expect(assigns(:question_edit_link)).to eq("#{Settings.forms_admin.base_url}/forms/#{form_data.form_id}/pages-by-external-id/#{step_slug}/edit-question")
           end
 
           context "when changing an existing answer" do
@@ -129,7 +129,7 @@ RSpec.describe Forms::SelectionNoneOfTheAboveController, type: :request do
           let(:selection_options) { [{ name: "Option 1", value: "Option 1" }, { name: "Option 2", value: "Option 2" }] }
 
           it "redirects to the step route" do
-            expect(response).to redirect_to(form_page_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug, page_slug:))
+            expect(response).to redirect_to(form_page_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug, step_slug:))
           end
         end
       end
@@ -137,7 +137,7 @@ RSpec.describe Forms::SelectionNoneOfTheAboveController, type: :request do
   end
 
   describe "#save" do
-    let(:post_path) { save_selection_none_of_the_above_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug, page_slug:) }
+    let(:post_path) { save_selection_none_of_the_above_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug, step_slug:) }
 
     context "when the answer is valid" do
       before do
@@ -145,7 +145,7 @@ RSpec.describe Forms::SelectionNoneOfTheAboveController, type: :request do
       end
 
       it "redirects to the next page" do
-        expect(response).to redirect_to(form_page_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug, page_slug: final_step.id))
+        expect(response).to redirect_to(form_page_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug, step_slug: final_step.id))
       end
     end
 
@@ -160,11 +160,11 @@ RSpec.describe Forms::SelectionNoneOfTheAboveController, type: :request do
       end
 
       it "assigns a back link" do
-        expect(assigns(:back_link)).to eq(form_page_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug, page_slug:))
+        expect(assigns(:back_link)).to eq(form_page_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug, step_slug:))
       end
 
       it "assigns an question edit link" do
-        expect(assigns(:question_edit_link)).to eq("#{Settings.forms_admin.base_url}/forms/#{form_data.form_id}/pages-by-external-id/#{page_slug}/edit-question")
+        expect(assigns(:question_edit_link)).to eq("#{Settings.forms_admin.base_url}/forms/#{form_data.form_id}/pages-by-external-id/#{step_slug}/edit-question")
       end
     end
 

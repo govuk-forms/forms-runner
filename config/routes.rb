@@ -29,75 +29,75 @@ Rails.application.routes.draw do
       get "/" => "forms/base#redirect_to_friendly_url_start", as: :form
       get "/copy-of-answers" => "forms/copy_of_answers#show", as: :copy_of_answers
       post "/copy-of-answers" => "forms/copy_of_answers#save", as: :save_copy_of_answers
-      get "/#{CheckYourAnswersStep::CHECK_YOUR_ANSWERS_PAGE_SLUG}" => "forms/check_your_answers#show", as: :check_your_answers
-      post "/#{CheckYourAnswersStep::CHECK_YOUR_ANSWERS_PAGE_SLUG}" => "forms/check_your_answers#submit_answers", as: :form_submit_answers
+      get "/#{CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG}" => "forms/check_your_answers#show", as: :check_your_answers
+      post "/#{CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG}" => "forms/check_your_answers#submit_answers", as: :form_submit_answers
       get "/submitted" => "forms/submitted#submitted", as: :form_submitted
       get "/privacy" => "forms/privacy_page#show", as: :form_privacy
 
-      page_constraints = { page_slug: Regexp.union([UrlPatterns::STEP_ID_REGEX_FOR_ROUTES, Regexp.new(CheckYourAnswersStep::CHECK_YOUR_ANSWERS_PAGE_SLUG)]) }
+      page_constraints = { step_slug: Regexp.union([UrlPatterns::STEP_ID_REGEX_FOR_ROUTES, Regexp.new(CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG)]) }
       answer_constraints = { answer_index: /\d+/ }
       page_answer_defaults = { answer_index: 1 }
 
-      get "/:page_slug/exit" => "forms/exit_pages#show",
+      get "/:step_slug/exit" => "forms/exit_pages#show",
           as: :exit_page,
           constraints: page_constraints
 
-      get "/:page_slug/add-another-answer/change" => "forms/add_another_answer#change",
+      get "/:step_slug/add-another-answer/change" => "forms/add_another_answer#change",
           as: :change_add_another_answer,
           constraints: page_constraints,
           defaults: { changing_existing_answer: true }
-      get "/:page_slug/add-another-answer" => "forms/add_another_answer#show",
+      get "/:step_slug/add-another-answer" => "forms/add_another_answer#show",
           as: :add_another_answer,
           constraints: page_constraints
-      post "/:page_slug/add-another-answer" => "forms/add_another_answer#save",
+      post "/:step_slug/add-another-answer" => "forms/add_another_answer#save",
            as: :save_add_another_answer,
            constraints: page_constraints
 
       # We don't currently support adding another answer for file upload questions, so these routes don't include an
       # `answer_index` param
-      get "/:page_slug/review-file" => "forms/review_file#show",
+      get "/:step_slug/review-file" => "forms/review_file#show",
           as: :review_file,
           constraints: page_constraints
-      post "/:page_slug/review-file" => "forms/review_file#continue",
+      post "/:step_slug/review-file" => "forms/review_file#continue",
            as: :review_file_continue,
            constraints: page_constraints
-      get "/:page_slug/remove-file" => "forms/remove_file#show",
+      get "/:step_slug/remove-file" => "forms/remove_file#show",
           as: :remove_file_confirmation,
           constraints: page_constraints
-      delete "/:page_slug/remove-file" => "forms/remove_file#destroy",
+      delete "/:step_slug/remove-file" => "forms/remove_file#destroy",
              as: :remove_file,
              constraints: page_constraints
 
       # We don't currently support adding another answer for selection questions, so these routes don't include an
       # `answer_index` param
-      get "/:page_slug/none-of-the-above/change" => "forms/selection_none_of_the_above#show",
+      get "/:step_slug/none-of-the-above/change" => "forms/selection_none_of_the_above#show",
           as: :change_selection_none_of_the_above,
           constraints: page_constraints,
           defaults: { changing_existing_answer: true }
-      get "/:page_slug/none-of-the-above" => "forms/selection_none_of_the_above#show",
+      get "/:step_slug/none-of-the-above" => "forms/selection_none_of_the_above#show",
           as: :selection_none_of_the_above,
           constraints: page_constraints
-      post "/:page_slug/none-of-the-above" => "forms/selection_none_of_the_above#save",
+      post "/:step_slug/none-of-the-above" => "forms/selection_none_of_the_above#save",
            as: :save_selection_none_of_the_above,
            constraints: page_constraints
 
-      get "/:page_slug/(/:answer_index)/change" => "forms/page#change",
+      get "/:step_slug/(/:answer_index)/change" => "forms/page#change",
           as: :form_change_answer,
           defaults: page_answer_defaults.merge(changing_existing_answer: true),
           constraints: page_constraints.merge(answer_constraints)
-      get "/:page_slug(/:answer_index)" => "forms/page#show",
+      get "/:step_slug(/:answer_index)" => "forms/page#show",
           as: :form_page,
           constraints: page_constraints.merge(answer_constraints),
           defaults: page_answer_defaults
-      post "/:page_slug(/:answer_index)" => "forms/page#save",
+      post "/:step_slug(/:answer_index)" => "forms/page#save",
            as: :save_form_page,
            constraints: page_constraints,
            defaults: page_answer_defaults
 
-      get "/:page_slug/:answer_index/remove" => "forms/remove_answer#show",
+      get "/:step_slug/:answer_index/remove" => "forms/remove_answer#show",
           as: :form_remove_answer,
           constraints: page_constraints.merge(answer_constraints)
-      delete "/:page_slug/:answer_index/remove" => "forms/remove_answer#delete",
+      delete "/:step_slug/:answer_index/remove" => "forms/remove_answer#delete",
              as: :delete_form_remove_answer,
              constraints: page_constraints.merge(answer_constraints)
 

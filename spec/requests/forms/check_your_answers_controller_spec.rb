@@ -130,7 +130,7 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
         it "redirects to first incomplete page of form" do
           get check_your_answers_path(mode:, form_id:, form_slug: form_data.form_slug)
           expect(response).to have_http_status(:found)
-          expect(response.location).to eq(form_page_url(mode:, form_id:, form_slug: form_data.form_slug, page_slug: 1))
+          expect(response.location).to eq(form_page_url(mode:, form_id:, form_slug: form_data.form_slug, step_slug: 1))
         end
       end
     end

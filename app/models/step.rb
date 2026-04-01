@@ -18,8 +18,8 @@ class Step
     form_document_step&.position
   end
 
-  def next_page_slug
-    form_document_step.has_next_page? ? form_document_step.next_page.to_s : CheckYourAnswersStep::CHECK_YOUR_ANSWERS_PAGE_SLUG
+  def next_step_slug
+    form_document_step.has_next_page? ? form_document_step.next_page.to_s : CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG
   end
 
   def routing_conditions
@@ -73,23 +73,23 @@ class Step
   end
 
   def end_page?
-    next_page_slug.nil?
+    next_step_slug.nil?
   end
 
-  def next_page_slug_after_routing
+  def next_step_slug_after_routing
     if exit_page_condition_matches?
       return nil
     end
 
     if first_condition_default?
-      return goto_condition_page_slug(routing_conditions.first)
+      return goto_condition_step_slug(routing_conditions.first)
     end
 
     if first_condition_matches?
-      return goto_condition_page_slug(routing_conditions.first)
+      return goto_condition_step_slug(routing_conditions.first)
     end
 
-    next_page_slug
+    next_step_slug
   end
 
   def repeatable?
@@ -132,9 +132,9 @@ class Step
 
 private
 
-  def goto_condition_page_slug(condition)
+  def goto_condition_step_slug(condition)
     if condition.goto_page_id.nil? && condition.skip_to_end
-      CheckYourAnswersStep::CHECK_YOUR_ANSWERS_PAGE_SLUG
+      CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG
     else
       condition.goto_page_id.to_s
     end

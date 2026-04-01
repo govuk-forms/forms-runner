@@ -29,25 +29,25 @@ RSpec.describe Flow::Context do
   end
 
   [
-    ["no input", { answers: [], request_step: 1 }, { next_page_slug: "2", start_id: 1, next_incomplete_page_id: "1", current_step_id: "1", previous_step_id: nil }],
-    ["first question complete, request second step", { answers: [{ text: "q1 answer" }], request_step: 2 }, { next_page_slug: CheckYourAnswersStep::CHECK_YOUR_ANSWERS_PAGE_SLUG, start_id: 1, previous_step_id: "1", next_incomplete_page_id: "2", current_step_id: "2" }],
-    ["first question complete, request first step", { answers: [{ text: "q1 answer" }], request_step: 1 }, { next_page_slug: "2", start_id: 1, previous_step_id: nil, next_incomplete_page_id: "2", current_step_id: "1" }],
-    ["all questions complete, request second step", { answers: [{ text: "q1 answer" }, { text: "q2 answer" }], request_step: 2 }, { next_page_slug: CheckYourAnswersStep::CHECK_YOUR_ANSWERS_PAGE_SLUG, start_id: 1, previous_step_id: "1", next_incomplete_page_id: CheckYourAnswersStep::CHECK_YOUR_ANSWERS_PAGE_SLUG, current_step_id: "2" }],
+    ["no input", { answers: [], request_step: 1 }, { next_step_slug: "2", start_id: 1, next_incomplete_page_id: "1", current_step_id: "1", previous_step_id: nil }],
+    ["first question complete, request second step", { answers: [{ text: "q1 answer" }], request_step: 2 }, { next_step_slug: CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG, start_id: 1, previous_step_id: "1", next_incomplete_page_id: "2", current_step_id: "2" }],
+    ["first question complete, request first step", { answers: [{ text: "q1 answer" }], request_step: 1 }, { next_step_slug: "2", start_id: 1, previous_step_id: nil, next_incomplete_page_id: "2", current_step_id: "1" }],
+    ["all questions complete, request second step", { answers: [{ text: "q1 answer" }, { text: "q2 answer" }], request_step: 2 }, { next_step_slug: CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG, start_id: 1, previous_step_id: "1", next_incomplete_page_id: CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG, current_step_id: "2" }],
   ].each do |variation, input, expected_output|
     context "with #{variation}" do
       before do
         store = {}
         @context = described_class.new(form:, store:)
 
-        current_step = @context.find_or_create(@context.next_page_slug)
+        current_step = @context.find_or_create(@context.next_step_slug)
 
         input[:answers].each do |answer|
           current_step.assign_question_attributes(answer)
           @context.save_step(current_step)
-          next_page_slug = current_step.next_page_slug
-          break if next_page_slug.nil?
+          next_step_slug = current_step.next_step_slug
+          break if next_step_slug.nil?
 
-          current_step = @context.find_or_create(next_page_slug)
+          current_step = @context.find_or_create(next_step_slug)
         end
         @context = described_class.new(form:, store:)
         @step = @context.find_or_create(input[:request_step])
@@ -62,7 +62,7 @@ RSpec.describe Flow::Context do
       end
 
       it "has the correct next incomplete step" do
-        expect(@context.next_page_slug).to eq(expected_output[:next_incomplete_page_id])
+        expect(@context.next_step_slug).to eq(expected_output[:next_incomplete_page_id])
       end
 
       describe "step" do
@@ -70,8 +70,8 @@ RSpec.describe Flow::Context do
           expect(@step.id).to eq(expected_output[:current_step_id])
         end
 
-        it "has the correct next_page_slug" do
-          expect(@step.next_page_slug).to eq(expected_output[:next_page_slug])
+        it "has the correct next_step_slug" do
+          expect(@step.next_step_slug).to eq(expected_output[:next_step_slug])
         end
       end
     end

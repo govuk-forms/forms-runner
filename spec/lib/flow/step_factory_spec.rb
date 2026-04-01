@@ -7,7 +7,7 @@ RSpec.describe Flow::StepFactory do
   describe "#create_step" do
     context "when creating a CheckYourAnswersStep" do
       it "returns a CheckYourAnswersStep instance" do
-        step = factory.create_step(CheckYourAnswersStep::CHECK_YOUR_ANSWERS_PAGE_SLUG)
+        step = factory.create_step(CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG)
         expect(step).to be_a(CheckYourAnswersStep)
       end
     end
@@ -25,22 +25,22 @@ RSpec.describe Flow::StepFactory do
         step = factory.create_step("page-1")
         expect(step).to be_a(Step)
         expect(step.question).to eq(question)
-        expect(step.next_page_slug).to eq("page-2")
+        expect(step.next_step_slug).to eq("page-2")
         expect(step.id).to eq("page-1")
       end
 
       context "when it is the last step" do
         let(:form_document_step) { build :form_document_step, id: "page-1", has_next_page?: false }
 
-        it "sets next_page_slug to CHECK_YOUR_ANSWERS_PAGE_SLUG" do
+        it "sets next_step_slug to CHECK_YOUR_ANSWERS_STEP_SLUG" do
           step = factory.create_step("page-1")
-          expect(step.next_page_slug).to eq(CheckYourAnswersStep::CHECK_YOUR_ANSWERS_PAGE_SLUG)
+          expect(step.next_step_slug).to eq(CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG)
         end
       end
     end
 
     context "when creating a repeating step" do
-      let(:form_document_step) { build :form_document_step, :with_repeatable, page_slug: "page-1" }
+      let(:form_document_step) { build :form_document_step, :with_repeatable, step_slug: "page-1" }
       let(:question) { instance_double(Question) }
 
       before do

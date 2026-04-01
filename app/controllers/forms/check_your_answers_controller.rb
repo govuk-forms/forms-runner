@@ -8,7 +8,7 @@ module Forms
     end
 
     def show
-      return redirect_to form_page_path(current_context.form.id, current_context.form.form_slug, current_context.next_page_slug, nil) unless current_context.can_visit?(CheckYourAnswersStep::CHECK_YOUR_ANSWERS_PAGE_SLUG)
+      return redirect_to form_page_path(current_context.form.id, current_context.form.form_slug, current_context.next_step_slug, nil) unless current_context.can_visit?(CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG)
 
       setup_check_your_answers
       email_confirmation_input = EmailConfirmationInput.new
@@ -31,7 +31,7 @@ module Forms
 
       return redirect_to error_repeat_submission_path(@form.id) if current_context.form_submitted?
 
-      unless current_context.can_visit?(CheckYourAnswersStep::CHECK_YOUR_ANSWERS_PAGE_SLUG)
+      unless current_context.can_visit?(CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG)
         EventLogger.log_form_event("incomplete_or_repeat_submission_error")
         return render template: "errors/incomplete_submission", locals: { form: @form, current_context: }
       end
@@ -75,10 +75,10 @@ module Forms
       if FeatureService.enabled?("filler_answer_email_enabled")
         copy_of_answers_path(form_id: current_context.form.id, form_slug: current_context.form.form_slug)
       else
-        previous_step = current_context.previous_step(CheckYourAnswersStep::CHECK_YOUR_ANSWERS_PAGE_SLUG)
+        previous_step = current_context.previous_step(CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG)
 
         if previous_step.present?
-          previous_step.repeatable? ? add_another_answer_path(form_id: current_context.form.id, form_slug: current_context.form.form_slug, page_slug: previous_step.id) : form_page_path(current_context.form.id, current_context.form.form_slug, previous_step.id)
+          previous_step.repeatable? ? add_another_answer_path(form_id: current_context.form.id, form_slug: current_context.form.form_slug, step_slug: previous_step.id) : form_page_path(current_context.form.id, current_context.form.form_slug, previous_step.id)
         end
       end
     end
