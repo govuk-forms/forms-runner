@@ -14,7 +14,7 @@ describe "forms/check_your_answers/show.html.erb" do
     assign(:save_url, "/save")
     assign(:support_details, support_details)
 
-    render template: "forms/page/show"
+    render template: "forms/step/show"
   end
 
   it "displays the help link" do

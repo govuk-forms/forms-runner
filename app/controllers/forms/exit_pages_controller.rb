@@ -1,5 +1,5 @@
 module Forms
-  class ExitPagesController < PageController
+  class ExitPagesController < StepController
     def show
       return redirect_to form_page_path(@form.id, @form.form_slug, current_context.next_step_slug) unless current_context.can_visit?(@step.id)
 

@@ -1,5 +1,5 @@
 module Forms
-  class SelectionNoneOfTheAboveController < PageController
+  class SelectionNoneOfTheAboveController < StepController
     before_action :redirect_if_not_show_none_of_the_above_question
 
     def show

@@ -1,5 +1,5 @@
 module Forms
-  class AddAnotherAnswerController < PageController
+  class AddAnotherAnswerController < StepController
     before_action :redirect_if_not_repeating
 
     def show

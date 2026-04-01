@@ -3,72 +3,37 @@
     {
       "warning_type": "Remote Code Execution",
       "warning_code": 24,
-      "fingerprint": "6c6b88d8ee5f24619093244eae46f65f9d2505427710646fe849b1e8f308b5d1",
+      "fingerprint": "d37cd0288a3b85a9032f46a635b4dd408b16f1fe3cb2526711b575fb3f6697ae",
       "check_name": "UnsafeReflection",
       "message": "Unsafe reflection method `const_get` called with parameter value",
-      "file": "app/views/forms/page/show.html.erb",
-      "line": 16,
+      "file": "app/views/forms/step/show.html.erb",
+      "line": 18,
       "link": "https://brakemanscanner.org/docs/warning_types/remote_code_execution/",
       "code": "Object.const_get(\"#{current_context.find_or_create(params.require(:step_slug)).question.class.name}Component::View\")",
       "render_path": [
         {
           "type": "controller",
-          "class": "Forms::PageController",
+          "class": "Forms::StepController",
           "method": "show",
-          "line": 9,
-          "file": "app/controllers/forms/page_controller.rb",
+          "line": 16,
+          "file": "app/controllers/forms/step_controller.rb",
           "rendered": {
-            "name": "forms/page/show",
-            "file": "app/views/forms/page/show.html.erb"
+            "name": "forms/step/show",
+            "file": "app/views/forms/step/show.html.erb"
           }
         }
       ],
       "location": {
         "type": "template",
-        "template": "forms/page/show"
+        "template": "forms/step/show"
       },
       "user_input": "params.require(:step_slug)",
       "confidence": "Medium",
       "cwe_id": [
         470
       ],
-      "note": "This is a dynamic Object name we are forming but we have complete control over it with no data from users being used as part of the render so this should be safe."
-    },
-    {
-      "warning_type": "Dynamic Render Path",
-      "warning_code": 15,
-      "fingerprint": "e90304912b2b497131bada9cc7fa87f79a5f19e00ca783e5dfca5a7d03fdc034",
-      "check_name": "Render",
-      "message": "Render path contains parameter value",
-      "file": "app/views/forms/page/show.html.erb",
-      "line": 17,
-      "link": "https://brakemanscanner.org/docs/warning_types/dynamic_render_path/",
-      "code": "render(action => Object.const_get(\"#{current_context.find_or_create(params.require(:step_slug)).question.class.name}Component::View\").new(:form_builder => form, :question => current_context.find_or_create(params.require(:step_slug)).question, :mode => hidden_text_mode(@mode).html_safe), {})",
-      "render_path": [
-        {
-          "type": "controller",
-          "class": "Forms::PageController",
-          "method": "show",
-          "line": 9,
-          "file": "app/controllers/forms/page_controller.rb",
-          "rendered": {
-            "name": "forms/page/show",
-            "file": "app/views/forms/page/show.html.erb"
-          }
-        }
-      ],
-      "location": {
-        "type": "template",
-        "template": "forms/page/show"
-      },
-      "user_input": "params.require(:step_slug)",
-      "confidence": "Weak",
-      "cwe_id": [
-        22
-      ],
-      "note": "This is a dynamic Object name we are forming but we have complete control over it with no data from users being used as part of the render so this should be safe."
+      "note": ""
     }
   ],
-  "updated": "2023-08-18 14:10:02 +0100",
-  "brakeman_version": "6.0.1"
+  "brakeman_version": "8.0.4"
 }

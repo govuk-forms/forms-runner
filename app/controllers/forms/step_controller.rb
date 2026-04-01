@@ -1,5 +1,5 @@
 module Forms
-  class PageController < BaseController
+  class StepController < BaseController
     before_action :prepare_step, :set_request_logging_attributes, :changing_existing_answer, :check_goto_page_routing_error
 
     def set_request_logging_attributes
@@ -94,7 +94,7 @@ module Forms
       if previous_step.repeatable?
         add_another_answer_path(form_id: current_context.form.id, form_slug: current_context.form.form_slug, step_slug: previous_step.id)
       else
-        form_page_path(@form.id, @form.form_slug, previous_step.page_id)
+        form_step_path(@form.id, @form.form_slug, previous_step.page_id)
       end
     end
 

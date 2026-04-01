@@ -1,5 +1,5 @@
 module Forms
-  class RemoveAnswerController < PageController
+  class RemoveAnswerController < StepController
     def show
       @remove_input = RemoveInput.new
     end

@@ -1,5 +1,5 @@
 module Forms
-  class RemoveFileController < PageController
+  class RemoveFileController < StepController
     before_action :redirect_if_not_answered_file_question
 
     def show

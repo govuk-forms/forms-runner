@@ -1,5 +1,5 @@
 module Forms
-  class ReviewFileController < PageController
+  class ReviewFileController < StepController
     before_action :redirect_if_not_answered_file_question
 
     def show

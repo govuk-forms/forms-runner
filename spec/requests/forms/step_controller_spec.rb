@@ -1,7 +1,7 @@
 require "rails_helper"
 
 # rubocop:disable RSpec/AnyInstance
-RSpec.describe Forms::PageController, :capture_logging, type: :request do
+RSpec.describe Forms::StepController, :capture_logging, type: :request do
   let(:timestamp_of_request) { Time.utc(2022, 12, 14, 10, 0o0, 0o0) }
 
   let(:form_data) do
@@ -433,7 +433,7 @@ RSpec.describe Forms::PageController, :capture_logging, type: :request do
         let(:store) { { answers: {} } }
 
         it "renders the show page template" do
-          expect(response).to render_template("forms/page/show")
+          expect(response).to render_template("forms/stepshow")
         end
       end
     end
@@ -668,7 +668,7 @@ RSpec.describe Forms::PageController, :capture_logging, type: :request do
         let(:store) { { answers: {} } }
 
         it "renders the show page template" do
-          expect(response).to render_template("forms/page/show")
+          expect(response).to render_template("forms/stepshow")
         end
       end
     end
@@ -688,7 +688,7 @@ RSpec.describe Forms::PageController, :capture_logging, type: :request do
         end
 
         it "renders the show page template" do
-          expect(response).to render_template("forms/page/show")
+          expect(response).to render_template("forms/stepshow")
         end
 
         it "returns 422" do
