@@ -1,6 +1,6 @@
 module Flow
   class QuestionRegister
-    def self.from_page(form_document_step)
+    def self.from_form_document_step(form_document_step)
       klass = case form_document_step.answer_type.to_sym
               when :date
                 Question::Date

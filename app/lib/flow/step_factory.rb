@@ -23,7 +23,7 @@ module Flow
       form_document_step = @form.form_document_steps.find { |s| s.id.to_s == page_slug }
       raise PageNotFoundError, "Can't find form_document_step #{page_slug}" if form_document_step.nil?
 
-      question = QuestionRegister.from_page(form_document_step)
+      question = QuestionRegister.from_form_document_step(form_document_step)
 
       step_class(form_document_step).new(question:, form_document_step:)
     end

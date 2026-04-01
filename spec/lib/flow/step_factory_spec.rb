@@ -18,7 +18,7 @@ RSpec.describe Flow::StepFactory do
 
       before do
         allow(form.form_document_steps).to receive(:find).and_return(form_document_step)
-        allow(Flow::QuestionRegister).to receive(:from_page).with(form_document_step).and_return(question)
+        allow(Flow::QuestionRegister).to receive(:from_form_document_step).with(form_document_step).and_return(question)
       end
 
       it "returns a Step instance" do
@@ -45,7 +45,7 @@ RSpec.describe Flow::StepFactory do
 
       before do
         allow(form.form_document_steps).to receive(:find).and_return(form_document_step)
-        allow(Flow::QuestionRegister).to receive(:from_page).with(form_document_step).and_return(question)
+        allow(Flow::QuestionRegister).to receive(:from_form_document_step).with(form_document_step).and_return(question)
       end
 
       it "a RepeatingStep is created" do
@@ -65,7 +65,7 @@ RSpec.describe Flow::StepFactory do
 
       before do
         allow(form.form_document_steps).to receive(:find).and_return(start_page)
-        allow(Flow::QuestionRegister).to receive(:from_page).with(start_page).and_return(instance_double(Question))
+        allow(Flow::QuestionRegister).to receive(:from_form_document_step).with(start_page).and_return(instance_double(Question))
       end
 
       it "creates a step for the start form_document_step" do
