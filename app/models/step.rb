@@ -12,7 +12,7 @@ class Step
     form_document_step&.id.to_s
   end
 
-  def page_number
+  def step_number
     form_document_step&.position
   end
 

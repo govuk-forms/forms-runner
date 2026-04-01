@@ -4,7 +4,7 @@ module Forms
 
     def set_request_logging_attributes
       super
-      CurrentRequestLoggingAttributes.question_number = @step.page_number if @step&.page_number
+      CurrentRequestLoggingAttributes.question_number = @step.step_number if @step&.step_number
       CurrentRequestLoggingAttributes.answer_type = @step&.form_document_step&.answer_type if @step&.form_document_step&.answer_type
     end
 
@@ -190,7 +190,7 @@ module Forms
       render template: "errors/goto_page_routing_error", locals: {
         error_name: first_goto_error_name,
         link_url: admin_edit_condition_url(@form.id, routes_page_id),
-        question_number: routes_page.page_number,
+        question_number: routes_page.step_number,
       }, status: :unprocessable_content
     end
 

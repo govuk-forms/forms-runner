@@ -24,7 +24,7 @@ RSpec.describe Step do
       expect(step.question).to eq(question)
       expect(step.id).to eq(first_step_id)
       expect(step.next_step_slug).to eq(second_step_id)
-      expect(step.page_number).to eq(1)
+      expect(step.step_number).to eq(1)
       expect(step.routing_conditions).to eq([])
     end
   end
