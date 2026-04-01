@@ -15,11 +15,11 @@ Rails.application.routes.draw do
   get "/submission" => "submission_status#status", as: :status
   get "/.well-known/security.txt" => redirect("https://vulnerability-reporting.service.security.gov.uk/.well-known/security.txt")
 
-  form_id_constraints = { form_id: Form::FORM_ID_REGEX }
+  form_id_constraints = { form_id: UrlPatterns::FORM_ID_REGEX }
   form_constraints = {
     **form_id_constraints,
     locale: /(en|cy)/,
-    form_slug: Form::FORM_SLUG_REGEX,
+    form_slug: UrlPatterns::FORM_SLUG_REGEX,
   }
 
   # If we make changes to allowed mode values, update the WAF rules first
@@ -34,7 +34,7 @@ Rails.application.routes.draw do
       get "/submitted" => "forms/submitted#submitted", as: :form_submitted
       get "/privacy" => "forms/privacy_page#show", as: :form_privacy
 
-      page_constraints = { page_slug: Regexp.union([FormDocumentStep::PAGE_ID_REGEX_FOR_ROUTES, Regexp.new(CheckYourAnswersStep::CHECK_YOUR_ANSWERS_PAGE_SLUG)]) }
+      page_constraints = { page_slug: Regexp.union([UrlPatterns::PAGE_ID_REGEX_FOR_ROUTES, Regexp.new(CheckYourAnswersStep::CHECK_YOUR_ANSWERS_PAGE_SLUG)]) }
       answer_constraints = { answer_index: /\d+/ }
       page_answer_defaults = { answer_index: 1 }
 

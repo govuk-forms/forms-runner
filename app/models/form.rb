@@ -1,8 +1,4 @@
 class Form < ActiveResource::Base
-  # If we make changes to these regexes, update the WAF rules first
-  FORM_ID_REGEX = /\d+/
-  FORM_SLUG_REGEX = /[\w-]+/
-
   self.site = Settings.forms_api.base_url
   self.prefix = "/api/v2/"
   self.include_format_in_path = false
