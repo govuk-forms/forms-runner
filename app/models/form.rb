@@ -37,12 +37,8 @@ class Form < ActiveResource::Base
     end
   end
 
-  def last_page
-    form_document_steps.find { |p| !p.has_next_page? }
-  end
-
-  def page_by_id(page_id)
-    form_document_steps.find { |p| p.id == page_id }
+  def step_by_id(step_id)
+    form_document_steps.find { |s| s.id == step_id }
   end
 
   def payment_url_with_reference(reference)

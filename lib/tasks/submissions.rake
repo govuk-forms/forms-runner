@@ -254,7 +254,7 @@ namespace :submissions do
       submission.answers.each_pair do |question_id, answer|
         next unless answer.include?("original_filename") && answer["original_filename"].blank? && answer["uploaded_file_key"].present?
 
-        question = submission.form.page_by_id(question_id)
+        question = submission.form.step_by_id(question_id)
         extension = ::File.extname(answer["uploaded_file_key"])
         filename = "#{question.position}-#{question.question_text.parameterize}#{extension}"
         answer["original_filename"] = filename
