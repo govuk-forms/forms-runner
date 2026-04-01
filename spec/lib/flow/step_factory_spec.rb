@@ -55,8 +55,8 @@ RSpec.describe Flow::StepFactory do
     end
 
     context "when form_document_step is not found" do
-      it "raises a PageNotFoundError" do
-        expect { factory.create_step("non-existent-step") }.to raise_error(Flow::StepFactory::PageNotFoundError)
+      it "raises a StepNotFoundError" do
+        expect { factory.create_step("non-existent-step") }.to raise_error(Flow::StepFactory::StepNotFoundError)
       end
     end
 

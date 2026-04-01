@@ -2,8 +2,8 @@ module Flow
   class StepFactory
     START_PAGE = "_start".freeze
 
-    class PageNotFoundError < StandardError
-      def initialize(msg = "Page not found.")
+    class StepNotFoundError < StandardError
+      def initialize(msg = "Step not found.")
         super
       end
     end
@@ -21,7 +21,7 @@ module Flow
 
       # for now, we use the step id as slug
       form_document_step = @form.form_document_steps.find { |s| s.id.to_s == page_slug }
-      raise PageNotFoundError, "Can't find form_document_step #{page_slug}" if form_document_step.nil?
+      raise StepNotFoundError, "Can't find step #{page_slug}" if form_document_step.nil?
 
       question = QuestionRegister.from_form_document_step(form_document_step)
 

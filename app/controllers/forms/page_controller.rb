@@ -52,7 +52,7 @@ module Forms
       page_slug = params.require(:page_slug)
       begin
         @step = current_context.find_or_create(page_slug)
-      rescue Flow::StepFactory::PageNotFoundError
+      rescue Flow::StepFactory::StepNotFoundError
         return redirect_to form_page_path(@form.id, @form.form_slug, current_context.next_page_slug)
       end
 
