@@ -36,6 +36,14 @@ module Forms
         return render template: "errors/incomplete_submission", locals: { form: @form, current_context: }
       end
 
+      if email_confirmation_input.send_confirmation == "onelogin"
+        # TODO: We need to save where to comeback to here in a cookie or session state
+        # When we come back from one login, we'll need mode, form_id and form_slug?
+        session["return_to"] = request.fullpath
+        return redirect_to onelogin_path
+        # return redirect_to auth_url
+      end
+
       begin
         submission_reference = FormSubmissionService.call(current_context:,
                                                           email_confirmation_input:,
@@ -53,6 +61,37 @@ module Forms
       log_rescued_exception(e)
 
       render "errors/submission_error", status: :internal_server_error
+    end
+
+    # TODO: This is a new method, which will handle the submission for the one login callback
+    def auth_callback
+      return redirect_to error_repeat_submission_path(@form.id) if current_context.form_submitted?
+
+      unless current_context.can_visit?(CheckYourAnswersStep::CHECK_YOUR_ANSWERS_PAGE_SLUG)
+        EventLogger.log_form_event("incomplete_or_repeat_submission_error")
+        return render template: "errors/incomplete_submission", locals: { form: @form, current_context: }
+      end
+
+      begin
+        # Let's hackily build an email_confirmation_input mocked up with the email.
+        # This will send the current confirmation email to the one login address, which isn't what we want eventally
+        # but might be handy to test it
+        confirmation_email_address = session["one_login_email"]
+        email_confirmation_input = EmailConfirmationInput.new(confirmation_email_address:, send_confirmation: :send_email)
+        requested_email_confirmation = email_confirmation_input.send_confirmation == "send_email"
+        submission_reference = FormSubmissionService.call(current_context:,
+                                                          email_confirmation_input:,
+                                                          mode:).submit
+
+        current_context.save_submission_details(submission_reference, requested_email_confirmation)
+        session["one_login_email"] = nil
+
+        redirect_to :form_submitted
+      rescue StandardError => e
+        log_rescued_exception(e)
+
+        render "errors/submission_error", status: :internal_server_error
+      end
     end
 
   private

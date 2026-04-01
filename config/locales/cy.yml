@@ -430,6 +430,7 @@ cy:
       email_confirmation_input:
         confirmation_email_address: Pa gyfeiriad e-bost ydych chi eisiau i ni anfon eich cadarnhad ato?
         send_confirmation_options:
+          onelogin: Yes, send a confirmation email with answers to my one login account
           send_email: Ydw
           skip_confirmation: Na
       remove_input:

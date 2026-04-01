@@ -430,6 +430,7 @@ en:
       email_confirmation_input:
         confirmation_email_address: What email address do you want us to send your confirmation to?
         send_confirmation_options:
+          onelogin: Yes, send a confirmation email with answers to my one login account
           send_email: 'Yes'
           skip_confirmation: 'No'
       remove_input:

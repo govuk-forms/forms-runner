@@ -22,6 +22,12 @@ Rails.application.routes.draw do
     form_slug: Form::FORM_SLUG_REGEX,
   }
 
+  get "/auth-callback" => "auth#callback", as: :auth_callack
+
+  # Fake routes for testing
+  get "/onelogin" => "fake_onelogin#show", as: :onelogin
+  post "/onelogin" => "fake_onelogin#create", as: :onelogin_create
+
   # If we make changes to allowed mode values, update the WAF rules first
   scope "/:mode", mode: /preview-draft|preview-archived|preview-live|form/ do
     get "/:form_id" => "forms/base#redirect_to_friendly_url_start", as: :form_id, constraints: form_id_constraints
@@ -31,6 +37,8 @@ Rails.application.routes.draw do
       post "/copy-of-answers" => "forms/copy_of_answers#save", as: :save_copy_of_answers
       get "/#{CheckYourAnswersStep::CHECK_YOUR_ANSWERS_PAGE_SLUG}" => "forms/check_your_answers#show", as: :check_your_answers
       post "/#{CheckYourAnswersStep::CHECK_YOUR_ANSWERS_PAGE_SLUG}" => "forms/check_your_answers#submit_answers", as: :form_submit_answers
+      get "/#{CheckYourAnswersStep::CHECK_YOUR_ANSWERS_PAGE_SLUG}/auth" => "forms/check_your_answers#auth_callback", as: :auth_callback
+
       get "/submitted" => "forms/submitted#submitted", as: :form_submitted
       get "/privacy" => "forms/privacy_page#show", as: :form_privacy
 

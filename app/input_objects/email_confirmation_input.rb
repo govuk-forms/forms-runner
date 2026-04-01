@@ -8,7 +8,7 @@ class EmailConfirmationInput
   before_validation :strip_email_whitespace
 
   validates :send_confirmation, presence: true
-  validates :send_confirmation, inclusion: { in: %w[send_email skip_confirmation] }
+  validates :send_confirmation, inclusion: { in: %w[send_email skip_confirmation onelogin] }
   validates :confirmation_email_address, presence: true, if: :validate_email?
   validates :confirmation_email_address, email_address: { message: :invalid_email }, allow_blank: true, if: :validate_email?
 

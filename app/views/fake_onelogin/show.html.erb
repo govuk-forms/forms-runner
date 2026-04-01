@@ -1,0 +1,9 @@
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds-from-desktop">
+    <%= form_tag onelogin_create_url, method: :POST do %>
+      <%= label_tag(:email, "Enter the email address, this will be totally ignored anyway") %>
+      <%= text_field_tag(:email) %>
+      <%= submit_tag("Finish login") %>
+    <% end %>
+  </div>
+
