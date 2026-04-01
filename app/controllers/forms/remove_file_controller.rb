@@ -35,7 +35,7 @@ module Forms
         return form_change_answer_path(form_id: @form.id, form_slug: @form.form_slug, step_slug: @step.id)
       end
 
-      form_page_path(form_id: @form.id, form_slug: @form.form_slug, step_slug: @step.id)
+      form_step_path(form_id: @form.id, form_slug: @form.form_slug, step_slug: @step.id)
     end
 
     def setup_urls

@@ -86,11 +86,11 @@ Rails.application.routes.draw do
           defaults: step_answer_defaults.merge(changing_existing_answer: true),
           constraints: step_constraints.merge(answer_constraints)
       get "/:step_slug(/:answer_index)" => "forms/step#show",
-          as: :form_page,
+          as: :form_step,
           constraints: step_constraints.merge(answer_constraints),
           defaults: step_answer_defaults
       post "/:step_slug(/:answer_index)" => "forms/step#save",
-           as: :save_form_page,
+           as: :save_form_step,
            constraints: step_constraints,
            defaults: step_answer_defaults
 

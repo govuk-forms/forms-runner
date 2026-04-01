@@ -37,7 +37,7 @@ module Forms
       if changing_existing_answer
         form_change_answer_path(@form.id, @form.form_slug, @step.id, answer_index: @step.next_answer_index)
       else
-        form_page_path(@form.id, @form.form_slug, @step.id, answer_index: @step.next_answer_index)
+        form_step_path(@form.id, @form.form_slug, @step.id, answer_index: @step.next_answer_index)
       end
     end
 
@@ -70,7 +70,7 @@ module Forms
         if changing_existing_answer
           redirect_to form_change_answer_path(form_id: @form.id, form_slug: @form.form_slug, step_slug: @step.id)
         else
-          redirect_to form_page_path(form_id: @form.id, form_slug: @form.form_slug, step_slug: @step.id)
+          redirect_to form_step_path(form_id: @form.id, form_slug: @form.form_slug, step_slug: @step.id)
         end
       end
     end

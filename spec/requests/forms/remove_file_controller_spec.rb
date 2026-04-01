@@ -83,7 +83,7 @@ RSpec.describe Forms::RemoveFileController, type: :request do
         let(:store) { {} }
 
         it "redirects to the show page route" do
-          expect(response).to redirect_to form_page_path(form_data.form_id, form_data.form_slug, step_slug)
+          expect(response).to redirect_to form_step_path(form_data.form_id, form_data.form_slug, step_slug)
         end
       end
 
@@ -102,7 +102,7 @@ RSpec.describe Forms::RemoveFileController, type: :request do
       let(:step_slug) { text_question_step.id }
 
       it "redirects to the show page route" do
-        expect(response).to redirect_to form_page_path(form_data.form_id, form_data.form_slug, step_slug)
+        expect(response).to redirect_to form_step_path(form_data.form_id, form_data.form_slug, step_slug)
       end
     end
   end
@@ -149,7 +149,7 @@ RSpec.describe Forms::RemoveFileController, type: :request do
           end
 
           it "redirects to the show page route" do
-            expect(response).to redirect_to form_page_path(form_data.form_id, form_data.form_slug, step_slug)
+            expect(response).to redirect_to form_step_path(form_data.form_id, form_data.form_slug, step_slug)
           end
 
           it "displays a success banner" do
@@ -173,7 +173,7 @@ RSpec.describe Forms::RemoveFileController, type: :request do
           end
 
           it "redirects to the show page route" do
-            expect(response).to redirect_to form_page_path(form_data.form_id, form_data.form_slug, step_slug)
+            expect(response).to redirect_to form_step_path(form_data.form_id, form_data.form_slug, step_slug)
           end
         end
       end
@@ -214,7 +214,7 @@ RSpec.describe Forms::RemoveFileController, type: :request do
       end
 
       it "redirects to the show page route" do
-        expect(response).to redirect_to form_page_path(form_data.form_id, form_data.form_slug, step_slug)
+        expect(response).to redirect_to form_step_path(form_data.form_id, form_data.form_slug, step_slug)
       end
     end
   end

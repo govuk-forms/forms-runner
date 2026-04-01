@@ -92,7 +92,7 @@ RSpec.describe Forms::RemoveAnswerController, type: :request do
       let(:is_optional) { true }
 
       it "redirects to the question page" do
-        expect(response).to redirect_to(form_page_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: first_step_in_form.id))
+        expect(response).to redirect_to(form_step_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: first_step_in_form.id))
       end
     end
   end

@@ -75,7 +75,7 @@ RSpec.describe Forms::ReviewFileController, type: :request do
         end
 
         it "displays a back link to the file upload page" do
-          expect(response.body).to include(form_page_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug, step_slug: file_upload_step.id))
+          expect(response.body).to include(form_step_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug, step_slug: file_upload_step.id))
         end
       end
 
@@ -83,7 +83,7 @@ RSpec.describe Forms::ReviewFileController, type: :request do
         let(:store) { {} }
 
         it "redirects to the show page route" do
-          expect(response).to redirect_to form_page_path(form_data.form_id, form_data.form_slug, step_slug)
+          expect(response).to redirect_to form_step_path(form_data.form_id, form_data.form_slug, step_slug)
         end
       end
 
@@ -98,7 +98,7 @@ RSpec.describe Forms::ReviewFileController, type: :request do
       let(:step_slug) { text_question_step.id }
 
       it "redirects to the show page route" do
-        expect(response).to redirect_to form_page_path(form_data.form_id, form_data.form_slug, step_slug)
+        expect(response).to redirect_to form_step_path(form_data.form_id, form_data.form_slug, step_slug)
       end
     end
   end
@@ -113,7 +113,7 @@ RSpec.describe Forms::ReviewFileController, type: :request do
 
       context "when a file has been uploaded" do
         it "redirects to the next step in the form" do
-          expect(response).to redirect_to form_page_path(form_data.form_id, form_data.form_slug, text_question_step.id)
+          expect(response).to redirect_to form_step_path(form_data.form_id, form_data.form_slug, text_question_step.id)
         end
       end
 
@@ -129,7 +129,7 @@ RSpec.describe Forms::ReviewFileController, type: :request do
         let(:uploaded_file_key) { nil }
 
         it "redirects to the show page route" do
-          expect(response).to redirect_to form_page_path(form_data.form_id, form_data.form_slug, step_slug)
+          expect(response).to redirect_to form_step_path(form_data.form_id, form_data.form_slug, step_slug)
         end
       end
     end
@@ -138,7 +138,7 @@ RSpec.describe Forms::ReviewFileController, type: :request do
       let(:step_slug) { text_question_step.id }
 
       it "redirects to the show page route" do
-        expect(response).to redirect_to form_page_path(form_data.form_id, form_data.form_slug, step_slug)
+        expect(response).to redirect_to form_step_path(form_data.form_id, form_data.form_slug, step_slug)
       end
     end
   end

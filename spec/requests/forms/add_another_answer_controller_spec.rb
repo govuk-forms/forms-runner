@@ -129,7 +129,7 @@ RSpec.describe Forms::AddAnotherAnswerController, type: :request do
         let(:params) { { add_another_answer_input: { add_another_answer: "yes" } } }
 
         it "redirects to first page to add another" do
-          expect(response).to redirect_to(form_page_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: first_step_in_form.id, answer_index: 3))
+          expect(response).to redirect_to(form_step_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: first_step_in_form.id, answer_index: 3))
         end
       end
 
@@ -137,7 +137,7 @@ RSpec.describe Forms::AddAnotherAnswerController, type: :request do
         let(:params) { { add_another_answer_input: { add_another_answer: "no" } } }
 
         it "redirects to next page" do
-          expect(response).to redirect_to(form_page_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: second_step_in_form.id))
+          expect(response).to redirect_to(form_step_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: second_step_in_form.id))
         end
       end
     end
@@ -168,9 +168,9 @@ RSpec.describe Forms::AddAnotherAnswerController, type: :request do
 
   describe "redirect_if_not_repeating" do
     context "when step is not RepeatableStep" do
-      it "redirects to form_page when not changing existing answer" do
+      it "redirects to form_step when not changing existing answer" do
         get add_another_answer_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: second_step_in_form.id)
-        expect(response).to redirect_to(form_page_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: second_step_in_form.id))
+        expect(response).to redirect_to(form_step_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: second_step_in_form.id))
       end
 
       it "redirects to form_change_answer_path when changing existing answer" do

@@ -3,7 +3,7 @@ module Forms
     before_action :redirect_if_feature_disabled
 
     def show
-      return redirect_to form_page_path(current_context.form.id, current_context.form.form_slug, current_context.next_step_slug) unless can_visit_copy_of_answers?
+      return redirect_to form_step_path(current_context.form.id, current_context.form.form_slug, current_context.next_step_slug) unless can_visit_copy_of_answers?
 
       @back_link = back_link
       @copy_of_answers_input = CopyOfAnswersInput.new
@@ -36,7 +36,7 @@ module Forms
       previous_step = current_context.previous_step(CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG)
 
       if previous_step.present?
-        previous_step.repeatable? ? add_another_answer_path(form_id: current_context.form.id, form_slug: current_context.form.form_slug, step_slug: previous_step.id) : form_page_path(current_context.form.id, current_context.form.form_slug, previous_step.id)
+        previous_step.repeatable? ? add_another_answer_path(form_id: current_context.form.id, form_slug: current_context.form.form_slug, step_slug: previous_step.id) : form_step_path(current_context.form.id, current_context.form.form_slug, previous_step.id)
       end
     end
 

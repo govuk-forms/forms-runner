@@ -9,14 +9,14 @@ module Forms
     end
 
     def show
-      return redirect_to form_page_path(@form.id, @form.form_slug, current_context.next_step_slug) unless current_context.can_visit?(@step.id)
+      return redirect_to form_step_path(@form.id, @form.form_slug, current_context.next_step_slug) unless current_context.can_visit?(@step.id)
       return redirect_to review_file_page if @step.answered_file_question?
 
       setup_instance_vars_for_view
     end
 
     def change
-      return redirect_to form_page_path(@form.id, @form.form_slug, current_context.next_step_slug) unless current_context.can_visit?(@step.id)
+      return redirect_to form_step_path(@form.id, @form.form_slug, current_context.next_step_slug) unless current_context.can_visit?(@step.id)
       return redirect_to review_file_page if @step.answered_file_question?
 
       setup_instance_vars_for_view
@@ -53,7 +53,7 @@ module Forms
       begin
         @step = current_context.find_or_create(step_slug)
       rescue Flow::StepFactory::StepNotFoundError
-        return redirect_to form_page_path(@form.id, @form.form_slug, current_context.next_step_slug)
+        return redirect_to form_step_path(@form.id, @form.form_slug, current_context.next_step_slug)
       end
 
       if @step.respond_to?(:answer_index)
@@ -78,7 +78,7 @@ module Forms
     end
 
     def save_url
-      save_form_page_path(@form.id, @form.form_slug, @step.id, changing_existing_answer: @changing_existing_answer, answer_index:)
+      save_form_step_path(@form.id, @form.form_slug, @step.id, changing_existing_answer: @changing_existing_answer, answer_index:)
     end
 
     def changing_existing_answer
@@ -94,7 +94,7 @@ module Forms
       if previous_step.repeatable?
         add_another_answer_path(form_id: current_context.form.id, form_slug: current_context.form.form_slug, step_slug: previous_step.id)
       else
-        form_step_path(@form.id, @form.form_slug, previous_step.page_id)
+        form_step_path(@form.id, @form.form_slug, step_slug: previous_step.id)
       end
     end
 
@@ -107,7 +107,7 @@ module Forms
 
     def redirect_if_not_answered_file_question
       unless @step.answered_file_question?
-        redirect_to form_page_path(@form.id, @form.form_slug, @step.id)
+        redirect_to form_step_path(@form.id, @form.form_slug, @step.id)
       end
     end
 
@@ -155,7 +155,7 @@ module Forms
           check_answers_path
         end
       else
-        form_page_path(@form.id, @form.form_slug, @step.next_step_slug_after_routing)
+        form_step_path(@form.id, @form.form_slug, @step.next_step_slug_after_routing)
       end
     end
 

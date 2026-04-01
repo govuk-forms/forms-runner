@@ -4,7 +4,7 @@ module Forms
     around_action :set_locale
 
     def redirect_to_friendly_url_start
-      redirect_to form_page_path(params.require(:form_id), @form.form_slug, @form.start_page)
+      redirect_to form_step_path(params.require(:form_id), @form.form_slug, @form.start_page)
       LogEventService.log_form_start unless mode.preview?
     end
 

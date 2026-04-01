@@ -3,7 +3,7 @@ module Forms
     before_action :redirect_if_not_show_none_of_the_above_question
 
     def show
-      return redirect_to form_page_path(@form.id, @form.form_slug, current_context.next_step_slug) unless current_context.can_visit?(@step.id)
+      return redirect_to form_step_path(@form.id, @form.form_slug, current_context.next_step_slug) unless current_context.can_visit?(@step.id)
 
       setup_instance_vars_for_view
     end
@@ -27,7 +27,7 @@ module Forms
 
     def redirect_if_not_show_none_of_the_above_question
       unless @step.question.try(:has_none_of_the_above_question?) && @step.question.try(:autocomplete_component?)
-        redirect_to form_page_path(@form.id, @form.form_slug, @step.id)
+        redirect_to form_step_path(@form.id, @form.form_slug, @step.id)
       end
     end
 
@@ -42,7 +42,7 @@ module Forms
       if changing_existing_answer
         check_your_answers_path(form_id: current_context.form.id)
       else
-        form_page_path(@form.id, @form.form_slug, @step.id)
+        form_step_path(@form.id, @form.form_slug, @step.id)
       end
     end
   end
