@@ -1,10 +1,10 @@
 class CheckYourAnswersStep
   CHECK_YOUR_ANSWERS_STEP_SLUG = "check-your-answers".freeze
 
-  attr_reader :next_step_slug, :step_slug, :page_id
+  attr_reader :next_step_slug, :step_slug, :id
 
   def initialize
-    @page_id = CHECK_YOUR_ANSWERS_STEP_SLUG
+    @id = CHECK_YOUR_ANSWERS_STEP_SLUG
     @next_step_slug = "_submit" # not used for now
     @step_slug = CHECK_YOUR_ANSWERS_STEP_SLUG
   end

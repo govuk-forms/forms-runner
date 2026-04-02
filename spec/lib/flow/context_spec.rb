@@ -58,7 +58,7 @@ RSpec.describe Flow::Context do
       end
 
       it "has the correct previous step" do
-        expect(@context.previous_step(@step.id)&.page_id).to eq(expected_output[:previous_step_id])
+        expect(@context.previous_step(@step.id)&.id).to eq(expected_output[:previous_step_id])
       end
 
       it "has the correct next incomplete step" do

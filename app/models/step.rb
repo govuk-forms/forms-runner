@@ -8,9 +8,7 @@ class Step
     @question = question
   end
 
-  alias_attribute :id, :page_id
-
-  def page_id
+  def id
     form_document_step&.id.to_s
   end
 

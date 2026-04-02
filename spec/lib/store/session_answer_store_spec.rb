@@ -6,8 +6,8 @@ RSpec.describe Store::SessionAnswerStore do
 
   let(:store) { {} }
   let(:form_id) { 1 }
-  let(:step) { OpenStruct.new({ page_id: "5" }) }
-  let(:other_step) { OpenStruct.new({ page_id: "1" }) }
+  let(:step) { OpenStruct.new({ id: "5" }) }
+  let(:other_step) { OpenStruct.new({ id: "1" }) }
   let(:reference) { Faker::Alphanumeric.alphanumeric(number: 8).upcase }
   let(:requested_email_confirmation) { true }
 
