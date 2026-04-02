@@ -3,8 +3,8 @@ require "rails_helper"
 RSpec.describe RepeatableStep, type: :model do
   subject(:repeatable_step) { described_class.new(question:, form_document_step:) }
 
-  let(:form) { build :form, id: 1, form_slug: "form-slug", form_document_steps: [form_document_step, build(:form_document_step, id: 2)] }
-  let(:form_document_step) { build :form_document_step }
+  let(:form) { build :form, id: 1, form_slug: "form-slug", steps: [form_document_step, build(:v2_question_page_step, id: 2)] }
+  let(:form_document_step) { build :v2_question_page_step }
   let(:question) { build :name, is_optional: false }
   let(:submission_reference) { "abc123" }
 
@@ -236,7 +236,7 @@ RSpec.describe RepeatableStep, type: :model do
 
   describe "#show_answer_in_json" do
     context "when the step has multiple answers" do
-      let(:form_document_step) { build(:form_document_step, :with_name_settings, id: 2) }
+      let(:form_document_step) { build(:v2_question_page_step, :with_name_settings, id: 2) }
       let(:questions) { [first_question, second_question] }
       let(:first_question) { build :first_and_last_name_question, question_text: form_document_step.question_text }
       let(:second_question) { build :first_and_last_name_question, question_text: form_document_step.question_text }
@@ -269,7 +269,7 @@ RSpec.describe RepeatableStep, type: :model do
     end
 
     context "when the question is optional and has no answers" do
-      let(:form_document_step) { build(:form_document_step, :with_name_settings, id: 2) }
+      let(:form_document_step) { build(:v2_question_page_step, :with_name_settings, id: 2) }
       let(:question) { build :first_and_last_name_question, :unanswered, question_text: form_document_step.question_text }
 
       it "returns a hash with an array containing a blank answer" do

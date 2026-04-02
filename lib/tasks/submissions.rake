@@ -48,7 +48,7 @@ namespace :submissions do
       pp submission
     else
       step_slugs.each do |slug|
-        question_text = submission.form.steps.find { it.id == slug }&.data&.question_text
+        question_text = submission.form.form_document_steps.find { it.id == slug }&.data&.question_text
         puts "Answer(s) to #{slug} (#{question_text}) for submission with reference #{reference}"
         pp submission.answers.slice(slug)
       end

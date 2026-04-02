@@ -9,33 +9,16 @@ class Form < ActiveResource::Base
     self.include_format_in_path = false
   end
 
-  has_many :steps, class_name: "form/step"
+  has_many :steps, class_name: "Api::V2::StepResource"
   attr_accessor :document_json
+
+  alias_method :form_document_steps, :steps
 
   def form_id
     @attributes["form_id"] || @attributes["id"]
   end
 
   alias_method :id, :form_id
-
-  def form_document_steps
-    # TODO: remove the need for this line - the form_document_steps attribute is only set in tests
-    return @attributes["form_document_steps"] if @attributes.key? "form_document_steps"
-
-    @form_document_steps ||= steps.map do |step|
-      step = step.as_json
-      attrs = {
-        "id" => step["id"],
-        "position" => step["position"],
-        "next_page" => step["next_step_id"],
-      }
-      if step["type"] == "question_page"
-        attrs.merge!(step["data"])
-      end
-      attrs["routing_conditions"] = step.fetch("routing_conditions", [])
-      FormDocumentStep.new(attrs, @persisted)
-    end
-  end
 
   def step_by_id(step_id)
     form_document_steps.find { |s| s.id == step_id }
