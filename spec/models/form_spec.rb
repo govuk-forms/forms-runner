@@ -3,7 +3,7 @@ require "rails_helper"
 RSpec.describe Form, type: :model do
   subject(:form) { described_class.new(attributes) }
 
-  let(:attributes) { { id: 1, name: "form name", submission_email: "user@example.com", start_page: 1, form_document_steps: } }
+  let(:attributes) { { id: 1, name: "form name", submission_email: "user@example.com", start_page: 1, steps: } }
 
   let(:form_document_steps) do
     [
@@ -39,57 +39,24 @@ RSpec.describe Form, type: :model do
   end
 
   describe "#form_document_steps" do
+    let(:form_document) { build :v2_form_document, steps: }
+    let(:steps) do
+      [
+        build(:v2_question_page_step, id: 9, next_step_id: 10, answer_type: "date", question_text: "Question one"),
+        build(:v2_question_page_step, id: 10, answer_type: "address", question_text: "Question two"),
+      ]
+    end
+
     it "returns the form_document_steps for the form" do
       form_document_steps = form.form_document_steps
       expect(form_document_steps.length).to eq(2)
-      expect(form_document_steps[0]).to have_attributes(id: 9, next_page: 10, answer_type: "date", question_text: "Question one")
-      expect(form_document_steps[1]).to have_attributes(id: 10, answer_type: "address", question_text: "Question two")
-    end
-
-    context "when the form is initialised with steps" do
-      let(:attributes) { { steps: } }
-
-      let(:steps) do
-        [
-          { id: 9, next_step_id: 10, type: "question_page", data: { answer_type: "date", question_text: "Question one" } },
-          { id: 10, type: "question_page", data: { answer_type: "address", question_text: "Question two" } },
-        ]
-      end
-
-      it "returns the form_document_steps for the form" do
-        form_document_steps = form.form_document_steps
-        expect(form_document_steps.length).to eq(2)
-        expect(form_document_steps[0]).to have_attributes(id: 9, next_page: 10, answer_type: "date", question_text: "Question one")
-        expect(form_document_steps[1]).to have_attributes(id: 10, answer_type: "address", question_text: "Question two")
-      end
-    end
-
-    context "when the form document in the API has steps" do
-      subject(:form) { described_class.find(:one, from: "/api/v2/forms/1/live") }
-
-      let(:attributes) { { id: 1, name: "form name", submission_email: "user@example.com", start_page: 1, steps: } }
-
-      let(:steps) do
-        [
-          { id: 9, next_step_id: 10, type: "question_page", data: { answer_type: "date", question_text: "Question one" } },
-          { id: 10, type: "question_page", data: { answer_type: "address", question_text: "Question two" } },
-        ]
-      end
-
-      let(:req_headers) { { "Accept" => "application/json" } }
-
-      before do
-        ActiveResource::HttpMock.respond_to do |mock|
-          mock.get "/api/v2/forms/1/live", req_headers, attributes.to_json, 200
-        end
-      end
-
-      it "returns the form_document_steps for the form" do
-        form_document_steps = form.form_document_steps
-        expect(form_document_steps.length).to eq(2)
-        expect(form_document_steps[0]).to have_attributes(id: 9, next_page: 10, answer_type: "date", question_text: "Question one")
-        expect(form_document_steps[1]).to have_attributes(id: 10, answer_type: "address", question_text: "Question two")
-      end
+      expect(form_document_steps[0].id).to eq(9)
+      expect(form_document_steps[0].next_step_id).to eq(10)
+      expect(form_document_steps[0].answer_type).to eq("date")
+      expect(form_document_steps[0].question_text).to eq("Question one")
+      expect(form_document_steps[1].id).to eq(10)
+      expect(form_document_steps[1].answer_type).to eq("address")
+      expect(form_document_steps[1].question_text).to eq("Question two")
     end
   end
 
