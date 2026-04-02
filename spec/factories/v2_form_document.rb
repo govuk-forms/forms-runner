@@ -1,5 +1,5 @@
 FactoryBot.define do
-  factory :v2_form_document, class: DataStruct do
+  factory :v2_form_document, class: Api::V2::FormDocumentResource do
     form_id { Faker::Number.number(digits: 5) }
 
     sequence(:name) { |n| "Form #{n}" }
@@ -33,11 +33,11 @@ FactoryBot.define do
       end
 
       steps do
-        Array.new(steps_count) { attributes_for(:v2_question_page_step) }
+        Array.new(steps_count) { build(:v2_question_page_step) }
       end
 
       question_section_completed { true }
-      start_page { steps.first[:id] }
+      start_page { steps.first.id }
     end
 
     trait :with_privacy_policy_url do
