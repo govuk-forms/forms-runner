@@ -15,7 +15,7 @@ RSpec.describe CurrentRequestLoggingAttributes, type: :model do
       current.form_id = 1
       current.form_name = "A form"
       current.preview = false
-      current.page_id = 2
+      current.step_id = 2
       current.step_slug = "a-page"
       current.answer_type = "text"
       current.session_id_hash = "a-session-id"
@@ -34,7 +34,7 @@ RSpec.describe CurrentRequestLoggingAttributes, type: :model do
         form_id: 1,
         form_name: "A form",
         preview: "false",
-        page_id: 2,
+        step_id: 2,
         step_slug: "a-page",
         answer_type: "text",
         session_id_hash: "a-session-id",

@@ -80,7 +80,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
     end
 
     it "adds the page ID to the instrumentation payload" do
-      expect(log_lines.last["page_id"]).to eq(step_id.to_s)
+      expect(log_lines.last["step_id"]).to eq(step_id.to_s)
     end
 
     it "adds the question_number to the instrumentation payload" do
