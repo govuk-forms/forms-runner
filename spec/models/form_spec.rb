@@ -3,9 +3,9 @@ require "rails_helper"
 RSpec.describe Form, type: :model do
   subject(:form) { described_class.new(attributes) }
 
-  let(:attributes) { { id: 1, name: "form name", submission_email: "user@example.com", start_page: 1, pages: } }
+  let(:attributes) { { id: 1, name: "form name", submission_email: "user@example.com", start_page: 1, form_document_steps: } }
 
-  let(:pages) do
+  let(:form_document_steps) do
     [
       { id: 9, next_page: 10, answer_type: "date", question_text: "Question one" },
       { id: 10, answer_type: "address", question_text: "Question two" },
@@ -38,12 +38,12 @@ RSpec.describe Form, type: :model do
     end
   end
 
-  describe "#pages" do
-    it "returns the pages for the form" do
-      pages = form.pages
-      expect(pages.length).to eq(2)
-      expect(pages[0]).to have_attributes(id: 9, next_page: 10, answer_type: "date", question_text: "Question one")
-      expect(pages[1]).to have_attributes(id: 10, answer_type: "address", question_text: "Question two")
+  describe "#form_document_steps" do
+    it "returns the form_document_steps for the form" do
+      form_document_steps = form.form_document_steps
+      expect(form_document_steps.length).to eq(2)
+      expect(form_document_steps[0]).to have_attributes(id: 9, next_page: 10, answer_type: "date", question_text: "Question one")
+      expect(form_document_steps[1]).to have_attributes(id: 10, answer_type: "address", question_text: "Question two")
     end
 
     context "when the form is initialised with steps" do
@@ -56,11 +56,11 @@ RSpec.describe Form, type: :model do
         ]
       end
 
-      it "returns the pages for the form" do
-        pages = form.pages
-        expect(pages.length).to eq(2)
-        expect(pages[0]).to have_attributes(id: 9, next_page: 10, answer_type: "date", question_text: "Question one")
-        expect(pages[1]).to have_attributes(id: 10, answer_type: "address", question_text: "Question two")
+      it "returns the form_document_steps for the form" do
+        form_document_steps = form.form_document_steps
+        expect(form_document_steps.length).to eq(2)
+        expect(form_document_steps[0]).to have_attributes(id: 9, next_page: 10, answer_type: "date", question_text: "Question one")
+        expect(form_document_steps[1]).to have_attributes(id: 10, answer_type: "address", question_text: "Question two")
       end
     end
 
@@ -84,11 +84,11 @@ RSpec.describe Form, type: :model do
         end
       end
 
-      it "returns the pages for the form" do
-        pages = form.pages
-        expect(pages.length).to eq(2)
-        expect(pages[0]).to have_attributes(id: 9, next_page: 10, answer_type: "date", question_text: "Question one")
-        expect(pages[1]).to have_attributes(id: 10, answer_type: "address", question_text: "Question two")
+      it "returns the form_document_steps for the form" do
+        form_document_steps = form.form_document_steps
+        expect(form_document_steps.length).to eq(2)
+        expect(form_document_steps[0]).to have_attributes(id: 9, next_page: 10, answer_type: "date", question_text: "Question one")
+        expect(form_document_steps[1]).to have_attributes(id: 10, answer_type: "address", question_text: "Question two")
       end
     end
   end

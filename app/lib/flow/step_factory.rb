@@ -2,8 +2,8 @@ module Flow
   class StepFactory
     START_PAGE = "_start".freeze
 
-    class PageNotFoundError < StandardError
-      def initialize(msg = "Page not found.")
+    class StepNotFoundError < StandardError
+      def initialize(msg = "Step not found.")
         super
       end
     end
@@ -19,13 +19,13 @@ module Flow
 
       return CheckYourAnswersStep.new if page_slug == CheckYourAnswersStep::CHECK_YOUR_ANSWERS_PAGE_SLUG
 
-      # for now, we use the page id as slug
-      page = @form.pages.find { |p| p.id.to_s == page_slug }
-      raise PageNotFoundError, "Can't find page #{page_slug}" if page.nil?
+      # for now, we use the step id as slug
+      form_document_step = @form.form_document_steps.find { |s| s.id.to_s == page_slug }
+      raise StepNotFoundError, "Can't find step #{page_slug}" if form_document_step.nil?
 
-      question = QuestionRegister.from_page(page)
+      question = QuestionRegister.from_form_document_step(form_document_step)
 
-      step_class(page).new(question:, page:)
+      step_class(form_document_step).new(question:, form_document_step:)
     end
 
     def start_step
@@ -34,8 +34,8 @@ module Flow
 
   private
 
-    def step_class(page)
-      page.repeatable? ? RepeatableStep : Step
+    def step_class(form_document_step)
+      form_document_step.repeatable? ? RepeatableStep : Step
     end
   end
 end

@@ -22,10 +22,11 @@ class Form < ActiveResource::Base
 
   alias_method :id, :form_id
 
-  def pages
-    return @attributes["pages"] if @attributes.key? "pages"
+  def form_document_steps
+    # TODO: remove the need for this line - the form_document_steps attribute is only set in tests
+    return @attributes["form_document_steps"] if @attributes.key? "form_document_steps"
 
-    @pages ||= steps.map do |step|
+    @form_document_steps ||= steps.map do |step|
       step = step.as_json
       attrs = {
         "id" => step["id"],
@@ -36,16 +37,16 @@ class Form < ActiveResource::Base
         attrs.merge!(step["data"])
       end
       attrs["routing_conditions"] = step.fetch("routing_conditions", [])
-      Page.new(attrs, @persisted)
+      FormDocumentStep.new(attrs, @persisted)
     end
   end
 
   def last_page
-    pages.find { |p| !p.has_next_page? }
+    form_document_steps.find { |p| !p.has_next_page? }
   end
 
   def page_by_id(page_id)
-    pages.find { |p| p.id == page_id }
+    form_document_steps.find { |p| p.id == page_id }
   end
 
   def payment_url_with_reference(reference)

@@ -1,4 +1,4 @@
-class Page < ActiveResource::Base
+class FormDocumentStep < ActiveResource::Base
   # If we make changes to this regex, update the WAF rules first
   PAGE_ID_REGEX_FOR_ROUTES = /(?:[a-zA-Z0-9]{8}|\d+)/
   PAGE_ID_REGEX = /\A#{PAGE_ID_REGEX_FOR_ROUTES}\z/

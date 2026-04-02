@@ -8,12 +8,12 @@ module Flow
   #
   # Journey#completed_steps is an array of the steps that the form filler has
   # visited so far in the form, in the order defined by the form. If their
-  # answer to a question page step causes a routing rule to be applied, for
+  # answer to a question step causes a routing rule to be applied, for
   # instance by skipping over the next two questions, only the questions in the
   # resulting route are included.
   #
   # Note: the completed_steps array is ordered, from start to last step
-  # answered; if the form filler has not yet visited the forms first page the
+  # answered; if the form filler has not yet visited the form's first step, the
   # array will be empty.
 
   class Journey
@@ -59,7 +59,7 @@ module Flow
     end
 
     def all_steps
-      @form.pages.map { |page| find_or_create(page.id.to_s) }
+      @form.form_document_steps.map { |form_document_step| find_or_create(form_document_step.id.to_s) }
     end
 
     def completed_file_upload_questions
@@ -83,7 +83,7 @@ module Flow
   private
 
     def step_is_completed?(question_page_step)
-      # A step has been completed if it is a question page that has been answered.
+      # A step has been completed if it is a question that has been answered.
       question_page_step.question.answered?
     end
 

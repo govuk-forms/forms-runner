@@ -1,5 +1,5 @@
 FactoryBot.define do
-  factory :page, class: "Page" do
+  factory :form_document_step, class: "FormDocumentStep" do
     id { Faker::Alphanumeric.alphanumeric(number: 8) }
     question_text { Faker::Lorem.question }
     answer_type { "number" }
@@ -20,7 +20,7 @@ FactoryBot.define do
     end
 
     trait :with_simple_answer_type do
-      answer_type { Page::ANSWER_TYPES.reject { |item| Page::ANSWER_TYPES_WITH_SETTINGS.include? item }.sample }
+      answer_type { FormDocumentStep::ANSWER_TYPES.reject { |item| FormDocumentStep::ANSWER_TYPES_WITH_SETTINGS.include? item }.sample }
     end
 
     trait :with_selections_settings do

@@ -31,7 +31,7 @@ class ApplicationController < ActionController::Base
     CurrentRequestLoggingAttributes.request_host = request.host
     CurrentRequestLoggingAttributes.request_id = request.request_id
     CurrentRequestLoggingAttributes.form_id = params[:form_id] if params[:form_id].present?
-    CurrentRequestLoggingAttributes.page_id = params[:page_slug] if params[:page_slug].present? && params[:page_slug].match(Page::PAGE_ID_REGEX)
+    CurrentRequestLoggingAttributes.page_id = params[:page_slug] if params[:page_slug].present? && params[:page_slug].match(FormDocumentStep::PAGE_ID_REGEX)
     CurrentRequestLoggingAttributes.page_slug = params[:page_slug] if params[:page_slug].present?
     CurrentRequestLoggingAttributes.session_id_hash = session_id_hash
     CurrentRequestLoggingAttributes.trace_id = request.env["HTTP_X_AMZN_TRACE_ID"] if request.env["HTTP_X_AMZN_TRACE_ID"].present?
@@ -73,7 +73,7 @@ private
 
   def set_request_id
     if Rails.env.production?
-      [Api::V2::FormDocumentResource, Form, Page].each do |active_resource_model|
+      [Api::V2::FormDocumentResource, Form, FormDocumentStep].each do |active_resource_model|
         active_resource_model.headers["X-Request-ID"] = request.request_id
       end
     end

@@ -36,7 +36,7 @@ private
       "<p>#{convert_newlines_to_html(prep_answer_text(step))}</p>"
     end
   rescue StandardError
-    raise FormattingError, "could not format answer for question page #{step.id}"
+    raise FormattingError, "could not format answer for question step #{step.id}"
   end
 
   def prep_html_none_of_the_above_answer_text(step)
@@ -62,7 +62,7 @@ private
 
     sanitize(answer)
   rescue StandardError
-    raise FormattingError, "could not format answer for question page #{step.id}"
+    raise FormattingError, "could not format answer for question step #{step.id}"
   end
 
   def prep_none_of_the_above_answer_text(step)
@@ -72,7 +72,7 @@ private
 
     sanitize(answer)
   rescue StandardError
-    raise FormattingError, "could not format none of the above answer for question page #{step.id}"
+    raise FormattingError, "could not format none of the above answer for question step #{step.id}"
   end
 
   def prep_answer_text_plain_text(step)

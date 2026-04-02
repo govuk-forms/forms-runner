@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe Flow::StepFactory do
-  let(:form) { build :form, id: "form-123", form_slug: "test-form", start_page: "page-1", pages: [] }
+  let(:form) { build :form, id: "form-123", form_slug: "test-form", start_page: "page-1", form_document_steps: [] }
   let(:factory) { described_class.new(form:) }
 
   describe "#create_step" do
@@ -13,12 +13,12 @@ RSpec.describe Flow::StepFactory do
     end
 
     context "when creating a regular step" do
-      let(:page) { build_stubbed :page, id: "page-1", has_next_page?: true, next_page: "page-2" }
+      let(:form_document_step) { build_stubbed :form_document_step, id: "page-1", has_next_page?: true, next_page: "page-2" }
       let(:question) { instance_double(Question) }
 
       before do
-        allow(form.pages).to receive(:find).and_return(page)
-        allow(Flow::QuestionRegister).to receive(:from_page).with(page).and_return(question)
+        allow(form.form_document_steps).to receive(:find).and_return(form_document_step)
+        allow(Flow::QuestionRegister).to receive(:from_form_document_step).with(form_document_step).and_return(question)
       end
 
       it "returns a Step instance" do
@@ -29,8 +29,8 @@ RSpec.describe Flow::StepFactory do
         expect(step.id).to eq("page-1")
       end
 
-      context "when it is the last page" do
-        let(:page) { build :page, id: "page-1", has_next_page?: false }
+      context "when it is the last step" do
+        let(:form_document_step) { build :form_document_step, id: "page-1", has_next_page?: false }
 
         it "sets next_page_slug to CHECK_YOUR_ANSWERS_PAGE_SLUG" do
           step = factory.create_step("page-1")
@@ -40,35 +40,35 @@ RSpec.describe Flow::StepFactory do
     end
 
     context "when creating a repeating step" do
-      let(:page) { build :page, :with_repeatable, page_slug: "page-1" }
+      let(:form_document_step) { build :form_document_step, :with_repeatable, page_slug: "page-1" }
       let(:question) { instance_double(Question) }
 
       before do
-        allow(form.pages).to receive(:find).and_return(page)
-        allow(Flow::QuestionRegister).to receive(:from_page).with(page).and_return(question)
+        allow(form.form_document_steps).to receive(:find).and_return(form_document_step)
+        allow(Flow::QuestionRegister).to receive(:from_form_document_step).with(form_document_step).and_return(question)
       end
 
       it "a RepeatingStep is created" do
-        step = factory.create_step(page.id)
+        step = factory.create_step(form_document_step.id)
         expect(step).to be_a(RepeatableStep)
       end
     end
 
-    context "when page is not found" do
-      it "raises a PageNotFoundError" do
-        expect { factory.create_step("non-existent-page") }.to raise_error(Flow::StepFactory::PageNotFoundError)
+    context "when form_document_step is not found" do
+      it "raises a StepNotFoundError" do
+        expect { factory.create_step("non-existent-step") }.to raise_error(Flow::StepFactory::StepNotFoundError)
       end
     end
 
     context "when creating the start step" do
-      let(:start_page) { build :page, id: "page-1", has_next_page?: true, next_page: "page-2" }
+      let(:start_page) { build :form_document_step, id: "page-1", has_next_page?: true, next_page: "page-2" }
 
       before do
-        allow(form.pages).to receive(:find).and_return(start_page)
-        allow(Flow::QuestionRegister).to receive(:from_page).with(start_page).and_return(instance_double(Question))
+        allow(form.form_document_steps).to receive(:find).and_return(start_page)
+        allow(Flow::QuestionRegister).to receive(:from_form_document_step).with(start_page).and_return(instance_double(Question))
       end
 
-      it "creates a step for the start page" do
+      it "creates a step for the start form_document_step" do
         step = factory.create_step(Flow::StepFactory::START_PAGE)
         expect(step).to be_a(Step)
         expect(step.id).to eq("page-1")

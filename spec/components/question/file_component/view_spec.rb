@@ -1,15 +1,15 @@
 require "rails_helper"
 
 RSpec.describe Question::FileComponent::View, type: :component do
-  let(:question_page) { build :page, answer_type: "file" }
+  let(:form_document_step) { build :form_document_step, answer_type: "file" }
   let(:question) do
     build(:file,
           :with_uploaded_file,
-          question_text: question_page.question_text,
-          hint_text: question_page.hint_text,
+          question_text: form_document_step.question_text,
+          hint_text: form_document_step.hint_text,
           answer_settings: nil,
-          page_heading: question_page.page_heading,
-          guidance_markdown: question_page.guidance_markdown)
+          page_heading: form_document_step.page_heading,
+          guidance_markdown: form_document_step.guidance_markdown)
   end
   let(:mode) { Mode.new("form") }
   let(:form_builder) do
@@ -31,7 +31,7 @@ RSpec.describe Question::FileComponent::View, type: :component do
     end
 
     context "when the question has hint text" do
-      let(:question_page) { build :page, :with_hints, answer_type: "file" }
+      let(:form_document_step) { build :form_document_step, :with_hints, answer_type: "file" }
 
       it "outputs the hint text" do
         expect(page.find(".govuk-hint")).to have_text(question.hint_text)
@@ -47,7 +47,7 @@ RSpec.describe Question::FileComponent::View, type: :component do
     end
 
     context "with unsafe question text" do
-      let(:question_page) { build :page, answer_type: "file", question_text: "What is your name? <script>alert(\"Hi\")</script>" }
+      let(:form_document_step) { build :form_document_step, answer_type: "file", question_text: "What is your name? <script>alert(\"Hi\")</script>" }
       let(:mode) { Mode.new("preview-draft") }
 
       it "returns the escaped title with the optional suffix" do
@@ -57,10 +57,10 @@ RSpec.describe Question::FileComponent::View, type: :component do
     end
 
     context "when question has guidance" do
-      let(:question_page) { build :page, :with_guidance, answer_type: "file" }
+      let(:form_document_step) { build :form_document_step, :with_guidance, answer_type: "file" }
 
       it "renders the question text as a label" do
-        expect(page.find("label.govuk-label--m")).to have_text(question_page.question_text)
+        expect(page.find("label.govuk-label--m")).to have_text(form_document_step.question_text)
       end
     end
   end

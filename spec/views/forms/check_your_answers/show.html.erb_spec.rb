@@ -9,7 +9,7 @@ describe "forms/check_your_answers/show.html.erb" do
   let(:declaration_markdown) { nil }
   let(:email_confirmation_input) { build :email_confirmation_input }
   let(:question) { build :text, question_text: "Do you want to remain anonymous?", text: "Yes" }
-  let(:steps) { [build(:step, question:, page: build(:page, :with_text_settings))] }
+  let(:steps) { [build(:step, question:, form_document_step: build(:form_document_step, :with_text_settings))] }
 
   before do
     assign(:current_context, context)
@@ -132,9 +132,9 @@ describe "forms/check_your_answers/show.html.erb" do
       end
 
       it "links from the error summary to the first radio button" do
-        page = Capybara.string(rendered.html)
-        error_summary_link = page.find_link "Select ‘Yes’ if you want to get an email confirming your form has been submitted"
-        first_radio_button = page.first :field, type: :radio
+        form_document_step = Capybara.string(rendered.html)
+        error_summary_link = form_document_step.find_link "Select ‘Yes’ if you want to get an email confirming your form has been submitted"
+        first_radio_button = form_document_step.first :field, type: :radio
 
         expect(error_summary_link["href"]).to eq "##{first_radio_button['id']}"
       end
