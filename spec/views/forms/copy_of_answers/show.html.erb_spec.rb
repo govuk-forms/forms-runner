@@ -1,7 +1,8 @@
 require "rails_helper"
 
 describe "forms/copy_of_answers/show.html.erb" do
-  let(:form) { build :form, id: 1 }
+  let(:form_document) { build :v2_form_document }
+  let(:form) { Form.new(form_document) }
   let(:mode) { OpenStruct.new(preview_draft?: false, preview_archived?: false, preview_live?: false) }
   let(:copy_of_answers_input) { CopyOfAnswersInput.new }
   let(:back_link) { "/back" }

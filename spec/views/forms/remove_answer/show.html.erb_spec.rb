@@ -1,7 +1,7 @@
 require "rails_helper"
 
 describe "forms/remove_answer/show.html.erb" do
-  let(:form) { build :form, id: 1 }
+  let(:form) { Form.new(build(:v2_form_document)) }
   let(:mode) { OpenStruct.new(preview_draft?: false, preview_archived?: false, preview_live?: false) }
   let(:question) { OpenStruct.new({ allow_multiple_answers?: allow_multiple_answers?, has_long_answer?: has_long_answer? }) }
   let(:step) { OpenStruct.new({ form_id: 1, form_slug: "form-1", step_slug: "1", questions:, question:, answer_index: 1, mode: }) }

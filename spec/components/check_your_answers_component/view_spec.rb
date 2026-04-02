@@ -3,13 +3,14 @@ require "rails_helper"
 RSpec.describe CheckYourAnswersComponent::View, type: :component do
   include Rails.application.routes.url_helpers
 
-  let(:form) { build :form, id: 1 }
+  let(:form_document) { build :v2_form_document }
+  let(:form) { Form.new(form_document) }
   let(:question) { build :text, question_text: "Do you want to remain anonymous?", text: "Yes" }
   let(:optional_question) { build :text, question_text: "Optional question", is_optional: true, text: "" }
   let(:steps) do
     [
-      build(:step, question: question, form_document_step: build(:form_document_step, :with_text_settings)),
-      build(:step, question: optional_question, form_document_step: build(:form_document_step, :with_text_settings)),
+      build(:step, question: question, form_document_step: build(:v2_question_page_step, :with_text_settings)),
+      build(:step, question: optional_question, form_document_step: build(:v2_question_page_step, :with_text_settings)),
     ]
   end
   let(:mode) { Mode.new("form") }
@@ -48,7 +49,7 @@ RSpec.describe CheckYourAnswersComponent::View, type: :component do
   end
 
   context "when a step is repeatable and has an answer" do
-    let(:steps) { [build(:repeatable_step, question: question, form_document_step: build(:form_document_step, :with_text_settings))] }
+    let(:steps) { [build(:repeatable_step, question: question, form_document_step: build(:v2_question_page_step, :with_text_settings))] }
 
     it "uses the add another answer path for the change link" do
       expect(page).to have_link("Change", href: change_add_another_answer_path(mode: mode, form_id: form.id, form_slug: form.form_slug, step_slug: steps[0].id))

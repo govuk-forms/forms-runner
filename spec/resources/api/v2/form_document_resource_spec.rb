@@ -11,6 +11,54 @@ RSpec.describe Api::V2::FormDocumentResource do
     end
   end
 
+  describe "#submission_format" do
+    it "returns an empty array when submission_format is not present" do
+      form_document = described_class.new({})
+      expect(form_document.submission_format).to eq []
+    end
+
+    it "returns the submission_format when it is present" do
+      form_document = described_class.new({ submission_format: %w[csv json] })
+      expect(form_document.submission_format).to eq %w[csv json]
+    end
+  end
+
+  describe "#language" do
+    it "returns 'en' when language is not present" do
+      form_document = described_class.new({})
+      expect(form_document.language).to eq "en"
+    end
+
+    it "returns the language when it is present" do
+      form_document = described_class.new({ language: "cy" })
+      expect(form_document.language).to eq "cy"
+    end
+  end
+
+  describe "#available_languages" do
+    it "returns an empty array when available_languages is not present" do
+      form_document = described_class.new({})
+      expect(form_document.available_languages).to eq []
+    end
+
+    it "returns the available_languages when it is present" do
+      form_document = described_class.new({ available_languages: %w[en cy] })
+      expect(form_document.available_languages).to eq %w[en cy]
+    end
+  end
+
+  describe "#declaration_markdown" do
+    it "returns nil when declaration_markdown is not present" do
+      form_document = described_class.new({})
+      expect(form_document.declaration_markdown).to be_nil
+    end
+
+    it "returns the declaration_markdown when it is present" do
+      form_document = described_class.new({ declaration_markdown: "I declare that..." })
+      expect(form_document.declaration_markdown).to eq "I declare that..."
+    end
+  end
+
   describe ".find" do
     it "finds a form document given a form id and document tag" do
       expect(described_class.find(1, :live)).to be_truthy
@@ -19,7 +67,7 @@ RSpec.describe Api::V2::FormDocumentResource do
     it "returns a v2 API form document" do
       form_document = described_class.find(1, :live)
       expect(form_document).to be_a described_class
-      expect(form_document.steps).to all be_a described_class.const_get(:Step)
+      expect(form_document.steps).to all be_a Api::V2::StepResource
     end
 
     it "raises an exception if the form does not exist" do

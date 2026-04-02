@@ -1,7 +1,8 @@
 require "rails_helper"
 
 describe "forms/remove_file/show.html.erb" do
-  let(:form) { build :form, :with_support, id: 1 }
+  let(:form_document) { build :v2_form_document, :with_support }
+  let(:form) { Form.new(form_document) }
   let(:mode) { OpenStruct.new(preview_draft?: false, preview_archived?: false, preview_live?: false) }
   let(:back_link) { "/back" }
   let(:continue_url) { "/review_file" }

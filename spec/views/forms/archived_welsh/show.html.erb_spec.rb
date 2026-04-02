@@ -1,7 +1,8 @@
 require "rails_helper"
 
 describe "forms/archived_welsh/show.html.erb" do
-  let(:form) { build :form, name: "Archived Welsh form" }
+  let(:form_document) { build :v2_form_document, name: "Archived Welsh form" }
+  let(:form) { Form.new(form_document) }
   let(:mode) { OpenStruct.new(preview_draft?: false, preview_archived?: false, preview_live?: false) }
 
   before do

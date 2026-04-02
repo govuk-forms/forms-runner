@@ -8,10 +8,10 @@ RSpec.describe FormSubmissionService, :capture_logging do
   let(:mode) { Mode.new }
   let(:confirmation_email_address) { "testing@gov.uk" }
   let(:email_confirmation_input) { build :email_confirmation_input_opted_in, confirmation_email_address: }
-  let(:form) { build(:form, **document_json, document_json:) }
-  let(:welsh_form) { build(:form, **welsh_document_json, document_json: welsh_document_json) }
+  let(:form) { Form.new(form_document, document_json) }
+  let(:welsh_form) { Form.new(welsh_form_document, welsh_document_json) }
 
-  let(:document_json) do
+  let(:form_document) do
     build(
       :v2_form_document,
       form_id: 1,
@@ -26,11 +26,30 @@ RSpec.describe FormSubmissionService, :capture_logging do
       submission_type:,
       submission_format:,
       steps:,
-      language:,
-    ).as_json
+      language: "en",
+    )
   end
+  let(:document_json) { form_document.as_json }
 
-  let(:welsh_document_json) { document_json.merge("language" => "cy", "name" => "Welsh Form 1") }
+  let(:welsh_form_document) do
+    build(
+      :v2_form_document,
+      form_id: 1,
+      name: "Welsh Form 1",
+      what_happens_next_markdown:,
+      support_email:,
+      support_phone:,
+      support_url:,
+      support_url_text:,
+      submission_email:,
+      payment_url:,
+      submission_type:,
+      submission_format:,
+      steps:,
+      language: "cy",
+    )
+  end
+  let(:welsh_document_json) { welsh_form_document.as_json }
 
   let(:steps) { [build(:v2_question_page_step, id: 2, answer_type: "text")] }
   let(:submission_type) { "email" }
@@ -42,7 +61,6 @@ RSpec.describe FormSubmissionService, :capture_logging do
   let(:support_url_text) { Faker::Lorem.sentence(word_count: 1, random_words_to_add: 4) }
   let(:payment_url) { nil }
   let(:submission_email) { "testing@gov.uk" }
-  let(:language) { "en" }
 
   let(:reference) { Faker::Alphanumeric.alphanumeric(number: 8).upcase }
 
@@ -105,7 +123,7 @@ RSpec.describe FormSubmissionService, :capture_logging do
             expect {
               service.submit
             }.to change(Submission, :count).by(1)
-             .and change(Delivery, :count).by(1)
+                                           .and change(Delivery, :count).by(1)
 
             expect(Submission.last).to have_attributes(reference:, form_id: form.id, answers: answers.deep_stringify_keys,
                                                        mode: "form", form_document: document_json,
@@ -170,7 +188,7 @@ RSpec.describe FormSubmissionService, :capture_logging do
           expect {
             service.submit
           }.to change(Submission, :count).by(1)
-           .and change(Delivery, :count).by(1)
+                                         .and change(Delivery, :count).by(1)
 
           expect(Submission.last).to have_attributes(reference:, form_id: form.id, answers: answers.deep_stringify_keys,
                                                      mode: "form", form_document: document_json,

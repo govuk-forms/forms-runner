@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe Question::TextComponent::View, type: :component do
-  let(:form_document_step) { build :form_document_step, :with_text_settings, input_type: }
+  let(:form_document_step) { build :v2_question_page_step, :with_text_settings, input_type: }
   let(:input_type) { "single_line" }
   let(:answer_text) { nil }
   let(:question) do
@@ -41,7 +41,7 @@ RSpec.describe Question::TextComponent::View, type: :component do
     end
 
     context "when the question has hint text" do
-      let(:form_document_step) { build :form_document_step, :with_hints, :with_text_settings, input_type: }
+      let(:form_document_step) { build :v2_question_page_step, :with_hints, :with_text_settings, input_type: }
 
       it "outputs the hint text" do
         expect(page.find(".govuk-hint")).to have_text(question.hint_text)
@@ -57,7 +57,7 @@ RSpec.describe Question::TextComponent::View, type: :component do
     end
 
     context "with unsafe question text" do
-      let(:form_document_step) { build :form_document_step, :with_text_settings, input_type:, question_text: "What is your name? <script>alert(\"Hi\")</script>" }
+      let(:form_document_step) { build :v2_question_page_step, :with_text_settings, input_type:, question_text: "What is your name? <script>alert(\"Hi\")</script>" }
       let(:mode) { Mode.new("preview-draft") }
 
       it "returns the escaped title with the optional suffix" do
@@ -67,7 +67,7 @@ RSpec.describe Question::TextComponent::View, type: :component do
     end
 
     context "when question has guidance" do
-      let(:form_document_step) { build :form_document_step, :with_text_settings, :with_guidance, input_type: }
+      let(:form_document_step) { build :v2_question_page_step, :with_text_settings, :with_guidance, input_type: }
 
       it "renders the question text as a label" do
         expect(page.find("label.govuk-label--m")).to have_text(form_document_step.question_text)
@@ -99,7 +99,7 @@ RSpec.describe Question::TextComponent::View, type: :component do
     end
 
     context "when the question has hint text" do
-      let(:form_document_step) { build :form_document_step, :with_hints, :with_text_settings, input_type: }
+      let(:form_document_step) { build :v2_question_page_step, :with_hints, :with_text_settings, input_type: }
 
       it "outputs the hint text" do
         expect(page.find(".govuk-hint")).to have_text(question.hint_text)
@@ -107,7 +107,7 @@ RSpec.describe Question::TextComponent::View, type: :component do
     end
 
     context "with unsafe question text" do
-      let(:form_document_step) { build :form_document_step, :with_text_settings, input_type:, question_text: "What is your name? <script>alert(\"Hi\")</script>" }
+      let(:form_document_step) { build :v2_question_page_step, :with_text_settings, input_type:, question_text: "What is your name? <script>alert(\"Hi\")</script>" }
       let(:mode) { Mode.new("preview-draft") }
 
       it "returns the escaped title with the optional suffix" do
@@ -125,7 +125,7 @@ RSpec.describe Question::TextComponent::View, type: :component do
     end
 
     context "when question has guidance" do
-      let(:form_document_step) { build :form_document_step, :with_text_settings, :with_guidance, input_type: }
+      let(:form_document_step) { build :v2_question_page_step, :with_text_settings, :with_guidance, input_type: }
 
       it "renders the question text as a label" do
         expect(page.find("label.govuk-label--m")).to have_text(form_document_step.question_text)

@@ -1,7 +1,8 @@
 require "rails_helper"
 
 describe AwsSesSubmissionBatchMailer, type: :mailer do
-  let(:form) { build(:form, submission_email: submission_email_address) }
+  let(:form_document) { build(:v2_form_document, submission_email: submission_email_address) }
+  let(:form) { Form.new(form_document) }
   let(:submission_email_address) { "submission@email.gov.uk" }
   let(:mode) { Mode.new("form") }
   let(:files) { { "filename.csv" => "csv-content", "filename-2.csv" => "csv-content-2" } }

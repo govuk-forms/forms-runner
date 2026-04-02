@@ -59,7 +59,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
   context "when setting logging context" do
     let(:step_id) { 101 }
     let(:form_data) do
-      build(:form, :with_support,
+      build(:v2_form_document, :with_support,
             id: 200,
             start_page: step_id,
             declaration_text: "agree to the declaration",
@@ -290,14 +290,14 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
       let(:validation_errors) { [] }
 
       let(:second_step_in_form) do
-        build :form_document_step, :with_text_settings,
+        build :v2_question_page_step, :with_text_settings,
               id: 2,
               next_step_id: 3,
               is_optional:
       end
 
       let(:third_step_in_form) do
-        build :form_document_step, :with_text_settings,
+        build :v2_question_page_step, :with_text_settings,
               id: 3,
               is_optional:
       end
@@ -525,14 +525,14 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
       let(:validation_errors) { [] }
 
       let(:second_step_in_form) do
-        build :form_document_step, :with_text_settings,
+        build :v2_question_page_step, :with_text_settings,
               id: 2,
               next_step_id: 3,
               is_optional:
       end
 
       let(:third_step_in_form) do
-        build :form_document_step, :with_text_settings,
+        build :v2_question_page_step, :with_text_settings,
               id: 3,
               is_optional:
       end
@@ -825,14 +825,14 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
       let(:validation_errors) { [] }
 
       let(:second_step_in_form) do
-        build :form_document_step, :with_text_settings,
+        build :v2_question_page_step, :with_text_settings,
               id: 2,
               next_step_id: 3,
               is_optional:
       end
 
       let(:third_step_in_form) do
-        build :form_document_step, :with_text_settings,
+        build :v2_question_page_step, :with_text_settings,
               id: 3,
               is_optional:
       end

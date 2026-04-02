@@ -2,7 +2,7 @@ class AwsSesSubmissionBatchMailerPreview < ActionMailer::Preview
   include FactoryBot::Syntax::Methods
 
   def daily_submission_batch_email
-    form = build(:form, submission_email: "testing@gov.uk")
+    form = Form.new(build(:v2_form_document, submission_email: "testing@gov.uk"))
     AwsSesSubmissionBatchMailer.daily_submission_batch_email(form:,
                                                              date: Time.zone.now,
                                                              mode: Mode.new("form"),
@@ -10,7 +10,7 @@ class AwsSesSubmissionBatchMailerPreview < ActionMailer::Preview
   end
 
   def daily_submission_batch_email_preview
-    form = build(:form, submission_email: "testing@gov.uk")
+    form = Form.new(build(:v2_form_document, submission_email: "testing@gov.uk"))
     AwsSesSubmissionBatchMailer.daily_submission_batch_email(form:,
                                                              date: Time.zone.now,
                                                              mode: Mode.new("preview-draft"),
@@ -18,7 +18,7 @@ class AwsSesSubmissionBatchMailerPreview < ActionMailer::Preview
   end
 
   def daily_submission_batch_email_with_multiple_files
-    form = build(:form, submission_email: "testing@gov.uk")
+    form = Form.new(build(:v2_form_document, submission_email: "testing@gov.uk"))
     AwsSesSubmissionBatchMailer.daily_submission_batch_email(form:,
                                                              date: Time.zone.now,
                                                              mode: Mode.new("form"),
@@ -29,7 +29,7 @@ class AwsSesSubmissionBatchMailerPreview < ActionMailer::Preview
   end
 
   def weekly_submission_batch_email
-    form = build(:form, submission_email: "testing@gov.uk")
+    form = Form.new(build(:v2_form_document, submission_email: "testing@gov.uk"))
     AwsSesSubmissionBatchMailer.weekly_submission_batch_email(form:,
                                                               begin_date: Time.zone.now - 7.days,
                                                               end_date: Time.zone.now,
@@ -38,7 +38,7 @@ class AwsSesSubmissionBatchMailerPreview < ActionMailer::Preview
   end
 
   def weekly_submission_batch_email_preview
-    form = build(:form, submission_email: "testing@gov.uk")
+    form = Form.new(build(:v2_form_document, submission_email: "testing@gov.uk"))
     AwsSesSubmissionBatchMailer.weekly_submission_batch_email(form:,
                                                               begin_date: Time.zone.now - 7.days,
                                                               end_date: Time.zone.now,
@@ -47,7 +47,7 @@ class AwsSesSubmissionBatchMailerPreview < ActionMailer::Preview
   end
 
   def weekly_submission_batch_email_with_multiple_files
-    form = build(:form, submission_email: "testing@gov.uk")
+    form = Form.new(build(:v2_question_page_step, submission_email: "testing@gov.uk"))
     AwsSesSubmissionBatchMailer.weekly_submission_batch_email(form:,
                                                               begin_date: Time.zone.now - 7.days,
                                                               end_date: Time.zone.now,

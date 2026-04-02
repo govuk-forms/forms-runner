@@ -1,9 +1,10 @@
 require "rails_helper"
 
 describe "forms/add_another_answer/show.html.erb" do
-  let(:form) { build :form, id: 1 }
+  let(:form_document) { build(:v2_form_document) }
+  let(:form) { Form.new(form_document) }
   let(:mode) { OpenStruct.new(preview_draft?: false, preview_archived?: false, preview_live?: false) }
-  let(:step) { OpenStruct.new({ form_id: 1, form_slug: "form-1", step_slug: "1", mode:, questions:, question: OpenStruct.new({ question_text: "Question text" }), max_answers?: max_answers }) }
+  let(:step) { OpenStruct.new({ form_id: form_document.id, form_slug: "form-1", step_slug: "1", mode:, questions:, question: OpenStruct.new({ question_text: "Question text" }), max_answers?: max_answers }) }
   let(:add_another_answer_input) { AddAnotherAnswerInput.new }
   let(:back_link) { "/back" }
   let(:questions) { [] }

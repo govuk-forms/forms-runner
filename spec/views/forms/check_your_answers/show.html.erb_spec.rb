@@ -1,7 +1,8 @@
 require "rails_helper"
 
 describe "forms/check_your_answers/show.html.erb" do
-  let(:form) { build :form, :with_support, id: 1, declaration_text:, declaration_markdown: }
+  let(:form_document) { build :v2_form_document, :with_support, declaration_text:, declaration_markdown: }
+  let(:form) { Form.new(form_document) }
   let(:support_details) { OpenStruct.new(email: form.support_email) }
   let(:context) { OpenStruct.new(form:) }
   let(:full_width) { false }
@@ -9,7 +10,7 @@ describe "forms/check_your_answers/show.html.erb" do
   let(:declaration_markdown) { nil }
   let(:email_confirmation_input) { build :email_confirmation_input }
   let(:question) { build :text, question_text: "Do you want to remain anonymous?", text: "Yes" }
-  let(:steps) { [build(:step, question:, form_document_step: build(:form_document_step, :with_text_settings))] }
+  let(:steps) { [build(:step, question:, form_document_step: build(:v2_question_page_step, :with_text_settings))] }
 
   before do
     assign(:current_context, context)

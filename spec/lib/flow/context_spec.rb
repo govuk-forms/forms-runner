@@ -6,27 +6,22 @@ RSpec.describe Flow::Context do
     ActiveResource::HttpMock.disable_net_connection!
   end
 
-  let(:form_document_steps) do
+  let(:steps) do
     [
-      (build :form_document_step, :with_text_settings,
-             id: 1,
-             next_page: 2
-      ),
-      (build :form_document_step, :with_text_settings,
-             id: 2
-      ),
+      build(:v2_question_page_step, :with_text_settings, id: 1, next_step_id: 2),
+      build(:v2_question_page_step, :with_text_settings, id: 2),
     ]
   end
 
-  let(:form) do
-    build(:form, :with_support,
-          id: 2,
+  let(:form_document) do
+    build(:v2_form_document, :with_support,
           start_page: 1,
           privacy_policy_url: "http://www.example.gov.uk/privacy_policy",
           what_happens_next_markdown: "Good things come to those that wait",
           declaration_text: "agree to the declaration",
-          form_document_steps:)
+          steps:)
   end
+  let(:form) { Form.new(form_document) }
 
   [
     ["no input", { answers: [], request_step: 1 }, { next_step_slug: "2", start_id: 1, next_incomplete_page_id: "1", current_step_id: "1", previous_step_id: nil }],
@@ -88,7 +83,7 @@ RSpec.describe Flow::Context do
       context1.save_step(current_step)
 
       # change the step's answer_type to another value
-      form.form_document_steps[0].answer_type = "number"
+      form.form_document_steps[0].data.answer_type = "number"
 
       # build another context with the previous answers
       context2 = described_class.new(form:, store:)

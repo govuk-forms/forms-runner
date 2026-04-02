@@ -2,8 +2,8 @@ require "rails_helper"
 
 RSpec.describe AwsSesSubmissionBatchService do
   let(:service) { described_class.new(submissions_query:, form:, mode:) }
-  let(:form) { build(:form, submission_email:) }
-  let(:form_document) { build(:v2_form_document, :with_steps, form_id: form.id) }
+  let(:form) { Form.new(form_document) }
+  let(:form_document) { build(:v2_form_document, :with_steps, submission_email:) }
   let(:submission_email) { "submit@email.gov.uk" }
   let(:mode) { instance_double(Mode, preview?: false) }
   let(:submissions_query) { Submission.all }
