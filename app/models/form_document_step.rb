@@ -9,8 +9,8 @@ class FormDocumentStep < ActiveResource::Base
     @prefix_options[:form_id]
   end
 
-  def has_next_page?
-    @attributes.include?("next_page") && !@attributes["next_page"].nil?
+  def next_step_id
+    @attributes["next_page"]
   end
 
   def answer_settings
