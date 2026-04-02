@@ -1,22 +1,22 @@
 module Forms
-  class PageController < BaseController
+  class StepController < BaseController
     before_action :prepare_step, :set_request_logging_attributes, :changing_existing_answer, :check_goto_page_routing_error
 
     def set_request_logging_attributes
       super
-      CurrentRequestLoggingAttributes.question_number = @step.page_number if @step&.page_number
+      CurrentRequestLoggingAttributes.question_number = @step.step_number if @step&.step_number
       CurrentRequestLoggingAttributes.answer_type = @step&.form_document_step&.answer_type if @step&.form_document_step&.answer_type
     end
 
     def show
-      return redirect_to form_page_path(@form.id, @form.form_slug, current_context.next_page_slug) unless current_context.can_visit?(@step.id)
+      return redirect_to form_step_path(@form.id, @form.form_slug, current_context.next_step_slug) unless current_context.can_visit?(@step.id)
       return redirect_to review_file_page if @step.answered_file_question?
 
       setup_instance_vars_for_view
     end
 
     def change
-      return redirect_to form_page_path(@form.id, @form.form_slug, current_context.next_page_slug) unless current_context.can_visit?(@step.id)
+      return redirect_to form_step_path(@form.id, @form.form_slug, current_context.next_step_slug) unless current_context.can_visit?(@step.id)
       return redirect_to review_file_page if @step.answered_file_question?
 
       setup_instance_vars_for_view
@@ -49,11 +49,11 @@ module Forms
   private
 
     def prepare_step
-      page_slug = params.require(:page_slug)
+      step_slug = params.require(:step_slug)
       begin
-        @step = current_context.find_or_create(page_slug)
+        @step = current_context.find_or_create(step_slug)
       rescue Flow::StepFactory::StepNotFoundError
-        return redirect_to form_page_path(@form.id, @form.form_slug, current_context.next_page_slug)
+        return redirect_to form_step_path(@form.id, @form.form_slug, current_context.next_step_slug)
       end
 
       if @step.respond_to?(:answer_index)
@@ -78,36 +78,36 @@ module Forms
     end
 
     def save_url
-      save_form_page_path(@form.id, @form.form_slug, @step.id, changing_existing_answer: @changing_existing_answer, answer_index:)
+      save_form_step_path(@form.id, @form.form_slug, @step.id, changing_existing_answer: @changing_existing_answer, answer_index:)
     end
 
     def changing_existing_answer
       @changing_existing_answer = ActiveModel::Type::Boolean.new.cast(params[:changing_existing_answer])
     end
 
-    def back_link(page_slug)
+    def back_link(step_slug)
       return check_your_answers_path(form_id: current_context.form.id) if changing_existing_answer
 
-      previous_step = current_context.previous_step(page_slug)
+      previous_step = current_context.previous_step(step_slug)
       return nil unless previous_step
 
       if previous_step.repeatable?
-        add_another_answer_path(form_id: current_context.form.id, form_slug: current_context.form.form_slug, page_slug: previous_step.id)
+        add_another_answer_path(form_id: current_context.form.id, form_slug: current_context.form.form_slug, step_slug: previous_step.id)
       else
-        form_page_path(@form.id, @form.form_slug, previous_step.page_id)
+        form_step_path(@form.id, @form.form_slug, step_slug: previous_step.id)
       end
     end
 
     def redirect_post_save
       return redirect_to review_file_page, success: t("banner.success.file_uploaded") if @step.answered_file_question?
-      return redirect_to exit_page_path(form_id: @form.id, form_slug: @form.form_slug, page_slug: @step.id) if @step.exit_page_condition_matches?
+      return redirect_to exit_page_path(form_id: @form.id, form_slug: @form.form_slug, step_slug: @step.id) if @step.exit_page_condition_matches?
 
       redirect_to next_page
     end
 
     def redirect_if_not_answered_file_question
       unless @step.answered_file_question?
-        redirect_to form_page_path(@form.id, @form.form_slug, @step.id)
+        redirect_to form_step_path(@form.id, @form.form_slug, @step.id)
       end
     end
 
@@ -116,11 +116,11 @@ module Forms
     end
 
     def review_file_page
-      review_file_path(form_id: @form.id, form_slug: @form.form_slug, page_slug: @step.id, changing_existing_answer:)
+      review_file_path(form_id: @form.id, form_slug: @form.form_slug, step_slug: @step.id, changing_existing_answer:)
     end
 
     def selection_none_of_the_above_page
-      selection_none_of_the_above_path(form_id: @form.id, form_slug: @form.form_slug, page_slug: @step.id)
+      selection_none_of_the_above_path(form_id: @form.id, form_slug: @form.form_slug, step_slug: @step.id)
     end
 
     def next_page
@@ -133,7 +133,7 @@ module Forms
 
     def next_step_path
       if should_show_add_another?(@step)
-        return add_another_answer_path(form_id: @form.id, form_slug: @form.form_slug, page_slug: @step.id)
+        return add_another_answer_path(form_id: @form.id, form_slug: @form.form_slug, step_slug: @step.id)
       end
 
       next_step_in_form_path
@@ -141,21 +141,21 @@ module Forms
 
     def next_step_changing
       if should_show_add_another?(@step)
-        return change_add_another_answer_path(form_id: @form.id, form_slug: @form.form_slug, page_slug: @step.id)
+        return change_add_another_answer_path(form_id: @form.id, form_slug: @form.form_slug, step_slug: @step.id)
       end
 
       check_answers_path
     end
 
     def next_step_in_form_path
-      if @step.next_page_slug_after_routing == CheckYourAnswersStep::CHECK_YOUR_ANSWERS_PAGE_SLUG
+      if @step.next_step_slug_after_routing == CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG
         if FeatureService.enabled?("filler_answer_email_enabled")
           copy_of_answers_path(form_id: @form.id, form_slug: @form.form_slug)
         else
           check_answers_path
         end
       else
-        form_page_path(@form.id, @form.form_slug, @step.next_page_slug_after_routing)
+        form_step_path(@form.id, @form.form_slug, @step.next_step_slug_after_routing)
       end
     end
 
@@ -190,7 +190,7 @@ module Forms
       render template: "errors/goto_page_routing_error", locals: {
         error_name: first_goto_error_name,
         link_url: admin_edit_condition_url(@form.id, routes_page_id),
-        question_number: routes_page.page_number,
+        question_number: routes_page.step_number,
       }, status: :unprocessable_content
     end
 

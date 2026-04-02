@@ -45,7 +45,7 @@ RSpec.describe Forms::RemoveAnswerController, type: :request do
 
   describe "GET #show" do
     before do
-      get form_remove_answer_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, page_slug: first_step_in_form.id, answer_index: 1)
+      get form_remove_answer_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: first_step_in_form.id, answer_index: 1)
     end
 
     it "renders the show template" do
@@ -61,19 +61,19 @@ RSpec.describe Forms::RemoveAnswerController, type: :request do
     let(:params) { { remove_input: { remove: } } }
 
     before do
-      delete form_remove_answer_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, page_slug: first_step_in_form.id, answer_index: 1), params:
+      delete form_remove_answer_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: first_step_in_form.id, answer_index: 1), params:
     end
 
     context "with valid params" do
       it "redirects to add another answer" do
-        expect(response).to redirect_to(add_another_answer_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, page_slug: first_step_in_form.id))
+        expect(response).to redirect_to(add_another_answer_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: first_step_in_form.id))
       end
 
       context "when not removing answer" do
         let(:remove) { "no" }
 
         it "redirects to add another answer" do
-          expect(response).to redirect_to(add_another_answer_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, page_slug: first_step_in_form.id))
+          expect(response).to redirect_to(add_another_answer_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: first_step_in_form.id))
         end
       end
     end
@@ -92,7 +92,7 @@ RSpec.describe Forms::RemoveAnswerController, type: :request do
       let(:is_optional) { true }
 
       it "redirects to the question page" do
-        expect(response).to redirect_to(form_page_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, page_slug: first_step_in_form.id))
+        expect(response).to redirect_to(form_step_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: first_step_in_form.id))
       end
     end
   end

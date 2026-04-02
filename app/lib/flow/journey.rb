@@ -28,13 +28,13 @@ module Flow
       populate_file_suffixes
     end
 
-    def find_or_create(page_slug)
-      step = completed_steps.find { |s| s.id == page_slug }
-      step || @step_factory.create_step(page_slug)
+    def find_or_create(step_slug)
+      step = completed_steps.find { |s| s.id == step_slug }
+      step || @step_factory.create_step(step_slug)
     end
 
-    def previous_step(page_slug)
-      index = completed_steps.find_index { |step| step.id == page_slug }
+    def previous_step(step_slug)
+      index = completed_steps.find_index { |step| step.id == step_slug }
       return nil if completed_steps.empty? || index&.zero?
 
       return completed_steps.last if index.nil?
@@ -42,20 +42,20 @@ module Flow
       completed_steps[index - 1]
     end
 
-    def next_page_slug
+    def next_step_slug
       return nil if completed_steps.last&.end_page?
 
-      completed_steps.last&.next_page_slug_after_routing || @step_factory.start_step.id
+      completed_steps.last&.next_step_slug_after_routing || @step_factory.start_step.id
     end
 
     def next_step
       return nil if completed_steps.last&.end_page?
 
-      find_or_create(completed_steps.last&.next_page_slug_after_routing) || @step_factory.start_step
+      find_or_create(completed_steps.last&.next_step_slug_after_routing) || @step_factory.start_step
     end
 
-    def can_visit?(page_slug)
-      (completed_steps.map(&:id).include? page_slug) || page_slug == next_page_slug
+    def can_visit?(step_slug)
+      (completed_steps.map(&:id).include? step_slug) || step_slug == next_step_slug
     end
 
     def all_steps
@@ -95,7 +95,7 @@ module Flow
 
     def each_step_with_routing
       current_step = @step_factory.create_step(:_start)
-      visited_page_slugs = []
+      visited_step_slugs = []
 
       Enumerator.new do |yielder|
         loop do
@@ -105,17 +105,17 @@ module Flow
           # We need to load the answer into the step for next_page_with_routing to give the correct result.
           current_step = safe_load_from_store(current_step)
 
-          next_page_slug = current_step.next_page_slug_after_routing
+          next_step_slug = current_step.next_step_slug_after_routing
 
           # Prevent infinite loop if a route goes back on itself
-          break if visited_page_slugs.include?(next_page_slug)
+          break if visited_step_slugs.include?(next_step_slug)
 
           yielder << current_step
-          visited_page_slugs << current_step.id
+          visited_step_slugs << current_step.id
 
-          break if next_page_slug.nil?
+          break if next_step_slug.nil?
 
-          current_step = @step_factory.create_step(next_page_slug)
+          current_step = @step_factory.create_step(next_step_slug)
         end
       end
     end

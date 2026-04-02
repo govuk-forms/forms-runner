@@ -58,8 +58,8 @@ RSpec.describe ErrorsController, type: :request do
       end
 
       # setup the context in the session
-      get form_page_path(mode: "form", form_id: 2, form_slug: "form-name", page_slug: 1)
-      post save_form_page_path(mode: "form", form_id: 2, form_slug: "form-name", page_slug: 1, question: { text: "test" })
+      get form_step_path(mode: "form", form_id: 2, form_slug: "form-name", step_slug: 1)
+      post save_form_step_path(mode: "form", form_id: 2, form_slug: "form-name", step_slug: 1, question: { text: "test" })
 
       allow(FormSubmissionService).to receive(:call).and_wrap_original do |original_method, **args|
         form_submission_service = original_method.call(**args)

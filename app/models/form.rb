@@ -1,8 +1,4 @@
 class Form < ActiveResource::Base
-  # If we make changes to these regexes, update the WAF rules first
-  FORM_ID_REGEX = /\d+/
-  FORM_SLUG_REGEX = /[\w-]+/
-
   self.site = Settings.forms_api.base_url
   self.prefix = "/api/v2/"
   self.include_format_in_path = false
@@ -41,12 +37,8 @@ class Form < ActiveResource::Base
     end
   end
 
-  def last_page
-    form_document_steps.find { |p| !p.has_next_page? }
-  end
-
-  def page_by_id(page_id)
-    form_document_steps.find { |p| p.id == page_id }
+  def step_by_id(step_id)
+    form_document_steps.find { |s| s.id == step_id }
   end
 
   def payment_url_with_reference(reference)

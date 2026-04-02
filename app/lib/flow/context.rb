@@ -10,7 +10,7 @@ module Flow
     end
 
     delegate :support_details, to: :form
-    delegate :find_or_create, :previous_step, :next_page_slug, :next_step, :can_visit?, :completed_steps, :all_steps, to: :journey
+    delegate :find_or_create, :previous_step, :next_step_slug, :next_step, :can_visit?, :completed_steps, :all_steps, to: :journey
     delegate :clear_stored_answer, :clear, :form_submitted?, :answers, :locales_used, to: :answer_store
     delegate :save_submission_details, :get_submission_reference, :requested_email_confirmation?, :clear_submission_details, :save_copy_of_answers_preference, :wants_copy_of_answers?, to: :confirmation_details_store
 

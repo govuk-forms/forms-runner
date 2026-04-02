@@ -122,7 +122,7 @@ RSpec.describe Forms::BaseController, type: :request do
     end
 
     it "renders the page with a link back to the form start page" do
-      expect(response.body).to include(form_page_path(mode: "form", form_id: 2, form_slug: form_response_data.form_slug, page_slug: 1))
+      expect(response.body).to include(form_step_path(mode: "form", form_id: 2, form_slug: form_response_data.form_slug, step_slug: 1))
     end
   end
 
@@ -141,7 +141,7 @@ RSpec.describe Forms::BaseController, type: :request do
 
           context "when the form has a start page" do
             it "Redirects to the first page" do
-              expect(response).to redirect_to(form_page_path(mode: "preview-draft", form_id: 2, form_slug: form_response_data.form_slug, page_slug: 1))
+              expect(response).to redirect_to(form_step_path(mode: "preview-draft", form_id: 2, form_slug: form_response_data.form_slug, step_slug: 1))
             end
 
             it "does not log the form_visit event" do
@@ -218,7 +218,7 @@ RSpec.describe Forms::BaseController, type: :request do
 
           context "when the form has a start page" do
             it "Redirects to the first page" do
-              expect(response).to redirect_to(form_page_path(mode: "preview-live", form_id: 2, form_slug: form_response_data.form_slug, page_slug: 1))
+              expect(response).to redirect_to(form_step_path(mode: "preview-live", form_id: 2, form_slug: form_response_data.form_slug, step_slug: 1))
             end
 
             it "does not log the form_visit event" do
@@ -295,7 +295,7 @@ RSpec.describe Forms::BaseController, type: :request do
 
           context "when the form has a start page" do
             it "Redirects to the first page" do
-              expect(response).to redirect_to(form_page_path(mode: "form", form_id: 2, form_slug: form_response_data.form_slug, page_slug: 1))
+              expect(response).to redirect_to(form_step_path(mode: "form", form_id: 2, form_slug: form_response_data.form_slug, step_slug: 1))
             end
 
             it "Logs the form_visit event" do
@@ -369,7 +369,7 @@ RSpec.describe Forms::BaseController, type: :request do
 
     context "when getting a form page that exists" do
       before do
-        get form_page_path(mode: "form", form_id: 2, form_slug: form_response_data.form_slug, page_slug: 1, locale:)
+        get form_step_path(mode: "form", form_id: 2, form_slug: form_response_data.form_slug, step_slug: 1, locale:)
       end
 
       context "when the locale param is not set" do

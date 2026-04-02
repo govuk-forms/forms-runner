@@ -102,7 +102,7 @@ RSpec.describe Forms::CopyOfAnswersController, type: :request do
         end
 
         it "redirects to the next page" do
-          expect(response).to redirect_to(form_page_path(form.form_id, form.form_slug, 2, mode:))
+          expect(response).to redirect_to(form_step_path(form.form_id, form.form_slug, 2, mode:))
         end
       end
     end
