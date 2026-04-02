@@ -16,26 +16,26 @@ RSpec.describe Flow::Journey do
     build(:form, :with_support,
           id: 2,
           start_page: first_step_id,
-          form_document_steps: form_document_steps)
+          steps: form_document_steps)
   end
 
   let(:first_step) do
-    build :form_document_step, :with_selections_settings,
+    build :v2_selection_question_page_step,
           id: first_step_id,
-          next_page: second_step_id,
+          next_step_id: second_step_id,
           routing_conditions: [DataStruct.new(id: 1, routing_page_id: first_step_id, check_page_id: first_step_id, goto_page_id: third_step_id, answer_value: "Option 1", validation_errors:)]
   end
 
   let(:validation_errors) { [] }
 
   let(:second_step) do
-    build :form_document_step, :with_text_settings,
+    build :v2_question_page_step, :with_text_settings,
           id: second_step_id,
-          next_page: third_step_id
+          next_step_id: third_step_id
   end
 
   let(:third_step) do
-    build :form_document_step, :with_text_settings,
+    build :v2_question_page_step, :with_text_settings,
           id: third_step_id
   end
 
@@ -89,10 +89,10 @@ RSpec.describe Flow::Journey do
 
       context "when a question is optional" do
         let(:second_step) do
-          build :form_document_step, :with_text_settings,
+          build :v2_question_page_step, :with_text_settings,
                 is_optional: true,
                 id: second_step_id,
-                next_page: third_step_id
+                next_step_id: third_step_id
         end
 
         context "and all questions have been answered" do
@@ -122,10 +122,10 @@ RSpec.describe Flow::Journey do
 
       context "when a step is repeatable" do
         let(:second_step) do
-          build :form_document_step, :with_text_settings,
+          build :v2_question_page_step, :with_text_settings,
                 is_repeatable: true,
                 id: second_step_id,
-                next_page: third_step_id
+                next_step_id: third_step_id
         end
 
         context "when all pages have been completed" do
@@ -195,15 +195,15 @@ RSpec.describe Flow::Journey do
         let(:validation_errors) { [{ name: "cannot_have_goto_page_before_routing_page" }] }
 
         let(:first_step) do
-          build :form_document_step, :with_text_settings,
+          build :v2_question_page_step, :with_text_settings,
                 id: first_step_id,
-                next_page: second_step_id
+                next_step_id: second_step_id
         end
 
         let(:second_step) do
-          build :form_document_step, :with_selections_settings,
+          build :v2_selection_question_page_step,
                 id: second_step_id,
-                next_page: third_step_id,
+                next_step_id: third_step_id,
                 routing_conditions: [DataStruct.new(id: 1, routing_page_id: second_step_id, check_page_id: second_step_id, goto_page_id: first_step_id, answer_value: "Option 1", validation_errors:)],
                 is_optional: false
         end
@@ -216,10 +216,10 @@ RSpec.describe Flow::Journey do
       end
 
       context "when there are multiple files with the same name" do
-        let(:first_step) { build(:form_document_step, answer_type: "file", id: first_step_id, next_page: second_step_id) }
-        let(:second_step) { build(:form_document_step, answer_type: "file", id: second_step_id, next_page: third_step_id) }
-        let(:third_step) { build(:form_document_step, answer_type: "file", id: third_step_id, next_page: fourth_step_id) }
-        let(:fourth_step) { build(:form_document_step, answer_type: "file", id: fourth_step_id) }
+        let(:first_step) { build(:v2_question_page_step, answer_type: "file", id: first_step_id, next_step_id: second_step_id) }
+        let(:second_step) { build(:v2_question_page_step, answer_type: "file", id: second_step_id, next_step_id: third_step_id) }
+        let(:third_step) { build(:v2_question_page_step, answer_type: "file", id: third_step_id, next_step_id: fourth_step_id) }
+        let(:fourth_step) { build(:v2_question_page_step, answer_type: "file", id: fourth_step_id) }
         let(:form_document_steps) { [first_step, second_step, third_step, fourth_step] }
         let(:store) do
           {
@@ -247,10 +247,10 @@ RSpec.describe Flow::Journey do
       end
 
       context "when there are multiple files with different names that are the same after truncation" do
-        let(:first_step) { build(:form_document_step, answer_type: "file", id: first_step_id, next_page: second_step_id) }
-        let(:second_step) { build(:form_document_step, answer_type: "file", id: second_step_id, next_page: third_step_id) }
-        let(:third_step) { build(:form_document_step, answer_type: "file", id: third_step_id, next_page: fourth_step_id) }
-        let(:fourth_step) { build(:form_document_step, answer_type: "file", id: fourth_step_id) }
+        let(:first_step) { build(:v2_question_page_step, answer_type: "file", id: first_step_id, next_step_id: second_step_id) }
+        let(:second_step) { build(:v2_question_page_step, answer_type: "file", id: second_step_id, next_step_id: third_step_id) }
+        let(:third_step) { build(:v2_question_page_step, answer_type: "file", id: third_step_id, next_step_id: fourth_step_id) }
+        let(:fourth_step) { build(:v2_question_page_step, answer_type: "file", id: fourth_step_id) }
         let(:form_document_steps) { [first_step, second_step, third_step, fourth_step] }
         let(:store) do
           {
@@ -324,10 +324,10 @@ RSpec.describe Flow::Journey do
   end
 
   describe "#completed_file_upload_questions" do
-    let(:first_step) { build(:form_document_step, answer_type: "file", id: first_step_id, next_page: second_step_id) }
-    let(:second_step) { build(:form_document_step, answer_type: "file", id: second_step_id, next_page: third_step_id) }
-    let(:third_step) { build(:form_document_step, answer_type: "file", id: third_step_id, next_page: fourth_step_id) }
-    let(:fourth_step) { build(:form_document_step, :with_text_settings, id: fourth_step_id) }
+    let(:first_step) { build(:v2_question_page_step, answer_type: "file", id: first_step_id, next_step_id: second_step_id) }
+    let(:second_step) { build(:v2_question_page_step, answer_type: "file", id: second_step_id, next_step_id: third_step_id) }
+    let(:third_step) { build(:v2_question_page_step, answer_type: "file", id: third_step_id, next_step_id: fourth_step_id) }
+    let(:fourth_step) { build(:v2_question_page_step, :with_text_settings, id: fourth_step_id) }
     let(:form_document_steps) { [first_step, second_step, third_step, fourth_step] }
 
     let(:answer_store) { Store::SessionAnswerStore.new(store, form.id) }

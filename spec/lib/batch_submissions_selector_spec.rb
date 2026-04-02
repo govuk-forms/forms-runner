@@ -7,8 +7,8 @@ RSpec.describe BatchSubmissionsSelector do
     subject(:daily_batches) { described_class.daily_batches(date) }
 
     let(:date) { Time.zone.local(2022, 12, 1) }
-    let(:form_document_with_batch_enabled) { create(:v2_form_document, send_daily_submission_batch: true) }
-    let(:form_document_with_batch_disabled) { create(:v2_form_document, send_daily_submission_batch: false) }
+    let(:form_document_with_batch_enabled) { build(:v2_form_document, send_daily_submission_batch: true) }
+    let(:form_document_with_batch_disabled) { build(:v2_form_document, send_daily_submission_batch: false) }
 
     it "returns an enumerator" do
       expect(daily_batches).to be_an(Enumerator)
@@ -128,8 +128,8 @@ RSpec.describe BatchSubmissionsSelector do
     subject(:weekly_batches) { described_class.weekly_batches(date) }
 
     let(:date) { Time.zone.local(2025, 5, 19) }
-    let(:form_document_with_batch_enabled) { create(:v2_form_document, send_weekly_submission_batch: true) }
-    let(:form_document_with_batch_disabled) { create(:v2_form_document, send_weekly_submission_batch: false) }
+    let(:form_document_with_batch_enabled) { build(:v2_form_document, send_weekly_submission_batch: true) }
+    let(:form_document_with_batch_disabled) { build(:v2_form_document, send_weekly_submission_batch: false) }
 
     it "returns an enumerator" do
       expect(weekly_batches).to be_an(Enumerator)

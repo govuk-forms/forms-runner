@@ -19,7 +19,7 @@ RSpec.describe Api::V2::FormDocumentResource do
     it "returns a v2 API form document" do
       form_document = described_class.find(1, :live)
       expect(form_document).to be_a described_class
-      expect(form_document.steps).to all be_a described_class.const_get(:Step)
+      expect(form_document.steps).to all be_a Api::V2::StepResource
     end
 
     it "raises an exception if the form does not exist" do

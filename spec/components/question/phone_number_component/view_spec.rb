@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe Question::PhoneNumberComponent::View, type: :component do
-  let(:form_document_step) { build :form_document_step, answer_type: "phone_number" }
+  let(:form_document_step) { build :v2_question_page_step, answer_type: "phone_number" }
   let(:phone_number) { nil }
   let(:question) do
     Question::PhoneNumber.new({ phone_number: phone_number }, {
@@ -48,7 +48,7 @@ RSpec.describe Question::PhoneNumberComponent::View, type: :component do
     end
 
     context "when the question has hint text" do
-      let(:form_document_step) { build :form_document_step, :with_hints, answer_type: "phone_number" }
+      let(:form_document_step) { build :v2_question_page_step, :with_hints, answer_type: "phone_number" }
 
       it "outputs the hint text" do
         expect(page.find(".govuk-hint")).to have_text(question.hint_text)
@@ -64,7 +64,7 @@ RSpec.describe Question::PhoneNumberComponent::View, type: :component do
     end
 
     context "with unsafe question text" do
-      let(:form_document_step) { build :form_document_step, answer_type: "phone_number", question_text: "What is your phone number? <script>alert(\"Hi\")</script>" }
+      let(:form_document_step) { build :v2_question_page_step, answer_type: "phone_number", question_text: "What is your phone number? <script>alert(\"Hi\")</script>" }
       let(:mode) { Mode.new("preview-draft") }
 
       it "returns the escaped title with the optional suffix" do
@@ -74,7 +74,7 @@ RSpec.describe Question::PhoneNumberComponent::View, type: :component do
     end
 
     context "when question has guidance" do
-      let(:form_document_step) { build :form_document_step, :with_guidance, answer_type: "phone_number" }
+      let(:form_document_step) { build :v2_question_page_step, :with_guidance, answer_type: "phone_number" }
 
       it "renders the question text as a label" do
         expect(page.find("label.govuk-label--m")).to have_text(form_document_step.question_text)

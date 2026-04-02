@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe Question::DateComponent::View, type: :component do
-  let(:form_document_step) { build :form_document_step, :with_date_settings, input_type: }
+  let(:form_document_step) { build :v2_question_page_step, :with_date_settings, input_type: }
   let(:input_type) { "other_date" }
   let(:question_attributes) { { date_day: nil, date_month: nil, date_year: nil } }
   let(:question) do
@@ -52,7 +52,7 @@ RSpec.describe Question::DateComponent::View, type: :component do
     end
 
     context "when the question has hint text" do
-      let(:form_document_step) { build :form_document_step, :with_hints, :with_date_settings, input_type: }
+      let(:form_document_step) { build :v2_question_page_step, :with_hints, :with_date_settings, input_type: }
 
       it "outputs the hint text" do
         expect(page.find(".govuk-hint")).to have_text(question.hint_text)
@@ -68,7 +68,7 @@ RSpec.describe Question::DateComponent::View, type: :component do
     end
 
     context "with unsafe question text" do
-      let(:form_document_step) { build :form_document_step, :with_date_settings, input_type:, question_text: "What is your name? <script>alert(\"Hi\")</script>" }
+      let(:form_document_step) { build :v2_question_page_step, :with_date_settings, input_type:, question_text: "What is your name? <script>alert(\"Hi\")</script>" }
       let(:mode) { Mode.new("preview-draft") }
 
       it "returns the escaped title with the optional suffix" do
@@ -78,7 +78,7 @@ RSpec.describe Question::DateComponent::View, type: :component do
     end
 
     context "when question has guidance" do
-      let(:form_document_step) { build :form_document_step, :with_guidance, :with_date_settings }
+      let(:form_document_step) { build :v2_question_page_step, :with_guidance, :with_date_settings }
 
       it "renders the question text as a legend" do
         expect(page.find("legend.govuk-fieldset__legend--m")).to have_text(form_document_step.question_text)
@@ -116,7 +116,7 @@ RSpec.describe Question::DateComponent::View, type: :component do
     end
 
     context "when the question has hint text" do
-      let(:form_document_step) { build :form_document_step, :with_hints, :with_date_settings, input_type: }
+      let(:form_document_step) { build :v2_question_page_step, :with_hints, :with_date_settings, input_type: }
 
       it "outputs the hint text" do
         expect(page.find(".govuk-hint")).to have_text(question.hint_text)
@@ -132,7 +132,7 @@ RSpec.describe Question::DateComponent::View, type: :component do
     end
 
     context "with unsafe question text" do
-      let(:form_document_step) { build :form_document_step, :with_date_settings, input_type:, question_text: "What is your name? <script>alert(\"Hi\")</script>" }
+      let(:form_document_step) { build :v2_question_page_step, :with_date_settings, input_type:, question_text: "What is your name? <script>alert(\"Hi\")</script>" }
       let(:mode) { Mode.new("preview-draft") }
 
       it "returns the escaped title with the optional suffix" do
@@ -142,7 +142,7 @@ RSpec.describe Question::DateComponent::View, type: :component do
     end
 
     context "when question has guidance" do
-      let(:form_document_step) { build :form_document_step, :with_guidance, :with_date_settings }
+      let(:form_document_step) { build :v2_question_page_step, :with_guidance, :with_date_settings }
 
       it "renders the question text as a legend" do
         expect(page.find("legend.govuk-fieldset__legend--m")).to have_text(form_document_step.question_text)
@@ -170,7 +170,7 @@ RSpec.describe Question::DateComponent::View, type: :component do
     end
 
     context "when question has guidance" do
-      let(:form_document_step) { build :form_document_step, :with_guidance, answer_type: "date", answer_settings: }
+      let(:form_document_step) { build :v2_question_page_step, :with_guidance, answer_type: "date", answer_settings: }
 
       it "renders the question text as a legend" do
         expect(page.find("legend.govuk-fieldset__legend--m")).to have_text(form_document_step.question_text)
