@@ -17,7 +17,7 @@ class Step
   end
 
   def next_step_slug
-    form_document_step.has_next_page? ? form_document_step.next_page.to_s : CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG
+    form_document_step.next_step_id.present? ? form_document_step.next_step_id.to_s : CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG
   end
 
   def routing_conditions
