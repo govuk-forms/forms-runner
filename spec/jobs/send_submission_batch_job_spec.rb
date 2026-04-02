@@ -9,7 +9,7 @@ RSpec.describe SendSubmissionBatchJob, type: :job do
   let(:batch_begin_at) { Time.utc(2025, 4, 9, 23, 0, 0) }
   let(:delivery) { create(:delivery, delivery_schedule: "daily", submissions:, batch_begin_at:) }
 
-  let(:form_document) { create(:v2_form_document, :with_steps, name: "My Form", submission_email:) }
+  let(:form_document) { build(:v2_form_document, :with_steps, name: "My Form", submission_email:) }
   let(:submission_email) { "to@example.com" }
   let(:form_id) { form_document.form_id }
   let(:submissions) { [] }
@@ -201,7 +201,7 @@ RSpec.describe SendSubmissionBatchJob, type: :job do
     end
 
     context "when the form settings have changed between submissions" do
-      let(:new_form_document) { create(:v2_form_document, :with_steps, name: "New form name", submission_email: "new-email@example.gov.uk") }
+      let(:new_form_document) { build(:v2_form_document, :with_steps, name: "New form name", submission_email: "new-email@example.gov.uk") }
       let(:submissions) do
         [
           create(:submission, form_document: form_document, form_id:, mode: mode_string, created_at: date.end_of_day - 3.hours),

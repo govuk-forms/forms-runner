@@ -146,8 +146,8 @@ RSpec.describe Submission, type: :model do
     end
 
     describe ".ordered_by_form_version_and_date" do
-      let(:first_form_version) { create :v2_form_document, updated_at: Time.utc(2022, 6, 1, 12, 0, 0) }
-      let(:second_form_version) { create :v2_form_document, updated_at: Time.utc(2022, 12, 1, 12, 0, 0) }
+      let(:first_form_version) { build :v2_form_document, updated_at: Time.utc(2022, 6, 1, 12, 0, 0) }
+      let(:second_form_version) { build :v2_form_document, updated_at: Time.utc(2022, 12, 1, 12, 0, 0) }
 
       before do
         create :submission, form_document: second_form_version, created_at: Time.utc(2022, 12, 1, 21, 0, 0), reference: "fourth_submission"
