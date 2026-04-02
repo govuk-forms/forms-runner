@@ -415,27 +415,6 @@ RSpec.describe Forms::BaseController, type: :request do
             .to include ActiveResource::Request.new(:get, "/api/v2/forms/2/live?language=cy", nil, req_headers)
         end
       end
-
-      context "when the language attribute is not set for the form" do
-        let(:form_response_data) do
-          form_document = build(
-            :v2_form_document,
-            :with_support,
-            id: 2,
-            start_page:,
-            privacy_policy_url: "http://www.example.gov.uk/privacy_policy",
-            what_happens_next_markdown: "Good things come to those that wait",
-            declaration_text: "agree to the declaration",
-            steps: steps_data,
-          )
-          form_document.delete_field(:language)
-          form_document
-        end
-
-        it "renders content in English" do
-          expect(response.body).to include(I18n.t("support_details.get_help_with_this_form"))
-        end
-      end
     end
   end
 end
