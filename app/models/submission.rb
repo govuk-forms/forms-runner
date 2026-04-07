@@ -60,6 +60,7 @@ private
   end
 
   def form_from_document
-    Form.new(form_document, true)
+    form_document_resource = Api::V2::FormDocumentResource.new(form_document, true)
+    Form.new(form_document_resource, form_document)
   end
 end

@@ -1,5 +1,7 @@
 FactoryBot.define do
   factory :form, class: "Form" do
+    initialize_with { new(build(:v2_form_document, **attributes), document_json) }
+
     sequence(:name) { |n| "Form #{n}" }
     sequence(:form_slug) { |n| "form-#{n}" }
     has_draft_version { true }
