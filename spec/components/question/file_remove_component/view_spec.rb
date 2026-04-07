@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe Question::FileRemoveComponent::View, type: :component do
-  let(:form_document_step) { build :form_document_step, answer_type: "file" }
+  let(:form_document_step) { build :v2_question_page_step, answer_type: "file" }
   let(:is_optional) { false }
   let(:question_text) { "Upload a file" }
   let(:page_heading) { nil }

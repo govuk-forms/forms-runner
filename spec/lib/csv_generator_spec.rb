@@ -1,10 +1,10 @@
 require "rails_helper"
 
 RSpec.describe CsvGenerator do
-  let(:form_document) { build(:v2_form_document, form_id: 42, available_languages:, steps: [text_step, name_step, file_upload_step], start_page: text_step[:id]) }
+  let(:form_document) { build(:v2_form_document, form_id: 42, available_languages:, steps: [text_step, name_step, file_upload_step], start_page: text_step.id) }
   let(:submission) { create(:submission, form_document:, created_at: timestamp, reference: submission_reference, mode:, submission_locale:, answers:) }
-  let(:text_step) { build :v2_question_page_step, :with_text_settings, question_text: "What is the meaning of life?", next_step_id: name_step[:id] }
-  let(:name_step) { build :v2_question_page_step, :with_name_settings, question_text: "What is your name?", next_step_id: file_upload_step[:id] }
+  let(:text_step) { build :v2_question_page_step, :with_text_settings, question_text: "What is the meaning of life?", next_step_id: name_step.id }
+  let(:name_step) { build :v2_question_page_step, :with_name_settings, question_text: "What is your name?", next_step_id: file_upload_step.id }
   let(:file_upload_step) { build :v2_question_page_step, :with_file_upload_settings, question_text: "Upload a file" }
   let(:text_answer) { "blue" }
   let(:first_name_answer) { "Alice" }
@@ -12,9 +12,9 @@ RSpec.describe CsvGenerator do
   let(:file_upload_answer) { "file.txt" }
   let(:answers) do
     {
-      text_step[:id] => { "text" => text_answer },
-      name_step[:id] => { "first_name" => first_name_answer, "last_name" => last_name_answer },
-      file_upload_step[:id] => { "original_filename" => file_upload_answer },
+      text_step.id => { "text" => text_answer },
+      name_step.id => { "first_name" => first_name_answer, "last_name" => last_name_answer },
+      file_upload_step.id => { "original_filename" => file_upload_answer },
     }
   end
 
@@ -59,17 +59,17 @@ RSpec.describe CsvGenerator do
       end
 
       context "when there are repeated steps" do
-        let(:name_step) { build :v2_question_page_step, :with_name_settings, question_text: "What is your name?", next_step_id: file_upload_step[:id], is_repeatable: true }
+        let(:name_step) { build :v2_question_page_step, :with_name_settings, question_text: "What is your name?", next_step_id: file_upload_step.id, is_repeatable: true }
         let(:another_first_name_answer) { "John" }
         let(:another_last_name_answer) { "Smith" }
         let(:answers) do
           {
-            text_step[:id] => { "text" => text_answer },
-            name_step[:id] => [
+            text_step.id => { "text" => text_answer },
+            name_step.id => [
               { "first_name" => first_name_answer, "last_name" => last_name_answer },
               { "first_name" => another_first_name_answer, "last_name" => another_last_name_answer },
             ],
-            file_upload_step[:id] => { "original_filename" => file_upload_answer },
+            file_upload_step.id => { "original_filename" => file_upload_answer },
           }
         end
 
@@ -190,7 +190,7 @@ RSpec.describe CsvGenerator do
         build(
           :v2_form_document,
           steps: [text_step, name_step, file_upload_step],
-          start_page: text_step[:id],
+          start_page: text_step.id,
           updated_at: Time.utc(2022, 9, 14, 7, 0, 0).iso8601(3),
         )
       end
@@ -199,7 +199,7 @@ RSpec.describe CsvGenerator do
         build(
           :v2_form_document,
           steps: [text_step, name_step, file_upload_step],
-          start_page: text_step[:id],
+          start_page: text_step.id,
           updated_at: Time.utc(2022, 9, 15, 7, 0, 0).iso8601(3),
         )
       end
@@ -208,7 +208,7 @@ RSpec.describe CsvGenerator do
         build(
           :v2_form_document,
           steps: [name_step, file_upload_step],
-          start_page: name_step[:id],
+          start_page: name_step.id,
           updated_at: Time.utc(2022, 9, 16, 7, 0, 0).iso8601(3),
         )
       end

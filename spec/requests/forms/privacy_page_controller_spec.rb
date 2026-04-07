@@ -13,27 +13,21 @@ RSpec.describe Forms::PrivacyPageController, type: :request do
 
   let(:steps_data) do
     [
-      {
-        id: 1,
-        position: 1,
-        next_step_id: 2,
-        type: "question_page",
-        data: {
-          answer_type: "date",
-          is_optional: nil,
-          question_text: "Question one",
-        },
-      },
-      {
-        id: 2,
-        position: 2,
-        type: "question_page",
-        data: {
-          answer_type: "date",
-          is_optional: nil,
-          question_text: "Question two",
-        },
-      },
+      build(:v2_question_page_step,
+            id: 1,
+            position: 1,
+            next_step_id: 2,
+            type: "question_page",
+            answer_type: "date",
+            is_optional: nil,
+            question_text: "Question one"),
+      build(:v2_question_page_step,
+            id: 2,
+            position: 2,
+            type: "question_page",
+            answer_type: "date",
+            is_optional: nil,
+            question_text: "Question two"),
     ]
   end
 
