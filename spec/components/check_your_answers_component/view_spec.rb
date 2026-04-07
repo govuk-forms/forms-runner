@@ -3,7 +3,7 @@ require "rails_helper"
 RSpec.describe CheckYourAnswersComponent::View, type: :component do
   include Rails.application.routes.url_helpers
 
-  let(:form) { build :form, id: 1 }
+  let(:form) { build :form }
   let(:question) { build :text, question_text: "Do you want to remain anonymous?", text: "Yes" }
   let(:optional_question) { build :text, question_text: "Optional question", is_optional: true, text: "" }
   let(:steps) do

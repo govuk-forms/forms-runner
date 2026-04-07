@@ -1,7 +1,7 @@
 require "rails_helper"
 
 describe "forms/submitted/submitted.html.erb" do
-  let(:form) { build :form, id: 1, what_happens_next_markdown:, payment_url: }
+  let(:form) { build :form, what_happens_next_markdown:, payment_url: }
   let(:what_happens_next_markdown) { nil }
   let(:requested_email_confirmation) { false }
   let(:payment_url) { nil }

@@ -3,7 +3,7 @@ require "rails_helper"
 RSpec.describe RepeatableStep, type: :model do
   subject(:repeatable_step) { described_class.new(question:, form_document_step:) }
 
-  let(:form) { build :form, id: 1, form_slug: "form-slug", steps: [form_document_step, build(:v2_question_step, id: 2)] }
+  let(:form) { build :form, form_slug: "form-slug", steps: [form_document_step, build(:v2_question_step, id: 2)] }
   let(:form_document_step) { build :v2_question_step }
   let(:question) { build :name, is_optional: false }
   let(:submission_reference) { "abc123" }

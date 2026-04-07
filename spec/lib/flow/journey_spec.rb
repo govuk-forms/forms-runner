@@ -14,7 +14,6 @@ RSpec.describe Flow::Journey do
 
   let(:form) do
     build(:form, :with_support,
-          id: 2,
           start_page: first_step_id,
           steps: form_document_steps)
   end
