@@ -65,7 +65,7 @@ FactoryBot.define do
       what_happens_next_markdown { "We usually respond to applications within 10 working days." }
     end
 
-    trait :live? do
+    trait :live do
       ready_for_live
     end
 

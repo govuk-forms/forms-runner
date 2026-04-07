@@ -23,7 +23,7 @@ FactoryBot.define do
     s3_bucket_name { nil }
     s3_bucket_aws_account_id { nil }
 
-    trait :live? do
+    trait :live do
       with_steps
       support_email { Faker::Internet.email(domain: "example.gov.uk") }
       what_happens_next_markdown { "We usually respond to applications within 10 working days." }
