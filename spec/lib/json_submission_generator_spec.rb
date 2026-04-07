@@ -63,24 +63,24 @@ RSpec.describe JsonSubmissionGenerator do
           "submitted_at" => "2022-09-14T07:00:00.000Z",
           "answers" => [
             {
-              "question_id" => text_step.form_document_step.id,
+              "question_id" => text_step.id,
               "question_text" => "What is the meaning of life?",
               "answer_text" => text_question.text,
             },
             {
-              "question_id" => name_step.form_document_step.id,
+              "question_id" => name_step.id,
               "question_text" => "What is your name?",
               "first_name" => name_question.first_name,
               "last_name" => name_question.last_name,
               "answer_text" => name_question.show_answer,
             },
             {
-              "question_id" => file_step.form_document_step.id,
+              "question_id" => file_step.id,
               "question_text" => "Upload a file",
               "answer_text" => "test_#{submission_reference}.txt",
             },
             {
-              "question_id" => address_step.form_document_step.id,
+              "question_id" => address_step.id,
               "question_text" => "What is your address?",
               "address1" => address_question.address1,
               "address2" => "",
@@ -90,7 +90,7 @@ RSpec.describe JsonSubmissionGenerator do
               "answer_text" => address_question.show_answer,
             },
             {
-              "question_id" => selection_step.form_document_step.id,
+              "question_id" => selection_step.id,
               "question_text" => "Select your options",
               "selections" => ["Option 1", "Option 2"],
               "answer_text" => "Option 1, Option 2",
@@ -115,13 +115,13 @@ RSpec.describe JsonSubmissionGenerator do
             "submitted_at" => "2022-09-14T07:00:00.000Z",
             "answers" => [
               {
-                "question_id" => repeatable_step.form_document_step.id,
+                "question_id" => repeatable_step.id,
                 "question_text" => "What is the meaning of life?",
                 "can_have_multiple_answers" => true,
                 "answer_text" => [first_answer.text, second_answer.text],
               },
               {
-                "question_id" => name_step.form_document_step.id,
+                "question_id" => name_step.id,
                 "question_text" => "What is your name?",
                 "first_name" => name_question.first_name,
                 "last_name" => name_question.last_name,
@@ -148,7 +148,7 @@ RSpec.describe JsonSubmissionGenerator do
 
       it "generates JSON without including the submission reference in the filename for the file upload question" do
         expect(parsed_json["answers"]).to include({
-          "question_id" => file_step.form_document_step.id,
+          "question_id" => file_step.id,
           "question_text" => "Upload a file",
           "answer_text" => "test.txt",
         })

@@ -4,8 +4,8 @@ module Forms
 
     def set_request_logging_attributes
       super
-      CurrentRequestLoggingAttributes.question_number = @step.step_number if @step&.step_number
-      CurrentRequestLoggingAttributes.answer_type = @step&.form_document_step&.answer_type if @step&.form_document_step&.answer_type
+      CurrentRequestLoggingAttributes.question_number = @step&.step_number
+      CurrentRequestLoggingAttributes.answer_type = @step&.answer_type
     end
 
     def show
