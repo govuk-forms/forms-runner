@@ -871,7 +871,8 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
         end
       end
 
-      # TODO: Need to add test to check how changing an existing routing answer value would work. Better off as a feature spec which we dont have.
+      # TODO: Add feature test to check how changing an existing routing answer value would work.
+      # https://trello.com/c/ioopdSWO/3460-add-a-test-for-changing-an-existing-answer-with-routing
     end
 
     context "when page is repeatable" do
