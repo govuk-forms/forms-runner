@@ -1,7 +1,7 @@
 require "rails_helper"
 
 feature "Fill in and submit a form with an autocomplete question", type: :feature do
-  let(:steps) { [build(:v2_selection_question_page_step, id: 1, routing_conditions: [], question_text:, selection_options:)] }
+  let(:steps) { [build(:v2_selection_question_step, id: 1, routing_conditions: [], question_text:, selection_options:)] }
   let(:form) { build :v2_form_document, :live?, form_id: 1, name: "Fill in this form", steps:, start_page: 1 }
   let(:selection_options) { Array.new(31).each_with_index.map { |_element, index| { name: "Answer #{index}", value: "Answer #{index}" } } }
   let(:question_text) { Faker::Lorem.question }

@@ -42,8 +42,8 @@ RSpec.describe Form, type: :model do
     let(:form_document) { build :v2_form_document, steps: }
     let(:steps) do
       [
-        build(:v2_question_page_step, id: 9, next_step_id: 10, answer_type: "date", question_text: "Question one"),
-        build(:v2_question_page_step, id: 10, answer_type: "address", question_text: "Question two"),
+        build(:v2_question_step, id: 9, next_step_id: 10, answer_type: "date", question_text: "Question one"),
+        build(:v2_question_step, id: 10, answer_type: "address", question_text: "Question two"),
       ]
     end
 

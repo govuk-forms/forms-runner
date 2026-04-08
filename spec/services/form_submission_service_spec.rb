@@ -32,7 +32,7 @@ RSpec.describe FormSubmissionService, :capture_logging do
 
   let(:welsh_document_json) { document_json.merge("language" => "cy", "name" => "Welsh Form 1") }
 
-  let(:steps) { [build(:v2_question_page_step, id: 2, answer_type: "text")] }
+  let(:steps) { [build(:v2_question_step, id: 2, answer_type: "text")] }
   let(:submission_type) { "email" }
   let(:submission_format) { [] }
   let(:what_happens_next_markdown) { "We usually respond to applications within 10 working days." }

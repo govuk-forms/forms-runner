@@ -33,11 +33,11 @@ RSpec.describe DeleteSubmissionsJob, type: :job do
   let(:form_without_file_upload) { build :v2_form_document, form_id: 2, steps: [text_step], start_page: text_step.id }
   let(:file_upload_steps) do
     [
-      build(:v2_question_page_step, answer_type: "file", id: 1, next_step_id: 2),
-      build(:v2_question_page_step, answer_type: "file", id: 2),
+      build(:v2_question_step, answer_type: "file", id: 1, next_step_id: 2),
+      build(:v2_question_step, answer_type: "file", id: 2),
     ]
   end
-  let(:text_step) { build(:v2_question_page_step, :with_text_settings, id: 3) }
+  let(:text_step) { build(:v2_question_step, :with_text_settings, id: 3) }
 
   let(:file_upload_s3_service_spy) { instance_double(Question::FileUploadS3Service) }
 

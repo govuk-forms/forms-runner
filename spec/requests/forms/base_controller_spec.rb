@@ -27,13 +27,13 @@ RSpec.describe Forms::BaseController, type: :request do
 
   let(:steps_data) do
     [
-      (attributes_for :v2_question_page_step,
+      (attributes_for :v2_question_step,
                       id: 1,
                       next_page: 2,
                       answer_type: "text",
                       answer_settings: { input_type: "single_line" }
       ),
-      (attributes_for :v2_question_page_step,
+      (attributes_for :v2_question_step,
                       id: 2,
                       answer_type: "text",
                       answer_settings: { input_type: "single_line" }

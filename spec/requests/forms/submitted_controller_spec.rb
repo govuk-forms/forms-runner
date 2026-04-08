@@ -13,14 +13,14 @@ RSpec.describe Forms::SubmittedController, type: :request do
 
   let(:steps_data) do
     [
-      build(:v2_question_page_step,
+      build(:v2_question_step,
             id: 1,
             position: 1,
             question_text: "Question one",
             answer_type: "date",
             next_step_id: 2,
             is_optional: nil),
-      build(:v2_question_page_step,
+      build(:v2_question_step,
             id: 2,
             position: 2,
             question_text: "Question two",

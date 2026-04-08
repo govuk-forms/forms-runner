@@ -3,9 +3,9 @@ require "rails_helper"
 RSpec.describe CsvGenerator do
   let(:form_document) { build(:v2_form_document, form_id: 42, available_languages:, steps: [text_step, name_step, file_upload_step], start_page: text_step.id) }
   let(:submission) { create(:submission, form_document:, created_at: timestamp, reference: submission_reference, mode:, submission_locale:, answers:) }
-  let(:text_step) { build :v2_question_page_step, :with_text_settings, question_text: "What is the meaning of life?", next_step_id: name_step.id }
-  let(:name_step) { build :v2_question_page_step, :with_name_settings, question_text: "What is your name?", next_step_id: file_upload_step.id }
-  let(:file_upload_step) { build :v2_question_page_step, :with_file_upload_settings, question_text: "Upload a file" }
+  let(:text_step) { build :v2_question_step, :with_text_settings, question_text: "What is the meaning of life?", next_step_id: name_step.id }
+  let(:name_step) { build :v2_question_step, :with_name_settings, question_text: "What is your name?", next_step_id: file_upload_step.id }
+  let(:file_upload_step) { build :v2_question_step, :with_file_upload_settings, question_text: "Upload a file" }
   let(:text_answer) { "blue" }
   let(:first_name_answer) { "Alice" }
   let(:last_name_answer) { "Smith" }
@@ -59,7 +59,7 @@ RSpec.describe CsvGenerator do
       end
 
       context "when there are repeated steps" do
-        let(:name_step) { build :v2_question_page_step, :with_name_settings, question_text: "What is your name?", next_step_id: file_upload_step.id, is_repeatable: true }
+        let(:name_step) { build :v2_question_step, :with_name_settings, question_text: "What is your name?", next_step_id: file_upload_step.id, is_repeatable: true }
         let(:another_first_name_answer) { "John" }
         let(:another_last_name_answer) { "Smith" }
         let(:answers) do

@@ -13,7 +13,7 @@ RSpec.describe Flow::StepFactory do
     end
 
     context "when creating a regular step" do
-      let(:form_document_step) { build_stubbed :v2_question_page_step, id: "page-1", next_step_id: "page-2" }
+      let(:form_document_step) { build_stubbed :v2_question_step, id: "page-1", next_step_id: "page-2" }
       let(:question) { instance_double(Question) }
 
       before do
@@ -30,7 +30,7 @@ RSpec.describe Flow::StepFactory do
       end
 
       context "when it is the last step" do
-        let(:form_document_step) { build :v2_question_page_step, id: "page-1" }
+        let(:form_document_step) { build :v2_question_step, id: "page-1" }
 
         it "sets next_step_slug to CHECK_YOUR_ANSWERS_STEP_SLUG" do
           step = factory.create_step("page-1")
@@ -40,7 +40,7 @@ RSpec.describe Flow::StepFactory do
     end
 
     context "when creating a repeating step" do
-      let(:form_document_step) { build :v2_question_page_step, :with_repeatable, step_slug: "page-1" }
+      let(:form_document_step) { build :v2_question_step, :with_repeatable, step_slug: "page-1" }
       let(:question) { instance_double(Question) }
 
       before do
@@ -61,7 +61,7 @@ RSpec.describe Flow::StepFactory do
     end
 
     context "when creating the start step" do
-      let(:start_page) { build :v2_question_page_step, id: "page-1", next_step_id: "page-2" }
+      let(:start_page) { build :v2_question_step, id: "page-1", next_step_id: "page-2" }
 
       before do
         allow(form.form_document_steps).to receive(:find).and_return(start_page)

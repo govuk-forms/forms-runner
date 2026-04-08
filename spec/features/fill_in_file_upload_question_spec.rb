@@ -3,7 +3,7 @@ require "rails_helper"
 feature "Fill in and submit a form with a file upload question", type: :feature do
   include ActiveJob::TestHelper
 
-  let(:steps) { [build(:v2_question_page_step, answer_type: "file", id: 1, routing_conditions: [], question_text:)] }
+  let(:steps) { [build(:v2_question_step, answer_type: "file", id: 1, routing_conditions: [], question_text:)] }
   let(:form) { build :v2_form_document, :live?, form_id: 1, name: "Fill in this form", steps:, start_page: 1 }
   let(:question_text) { Faker::Lorem.question }
   let(:answer_text) { "Answer 1" }

@@ -8,7 +8,7 @@ RSpec.describe Forms::AddAnotherAnswerController, type: :request do
   let(:steps) { [first_step_in_form, second_step_in_form] }
 
   let(:first_step_in_form) do
-    build :v2_question_page_step,
+    build :v2_question_step,
           :with_text_settings,
           id: 1,
           next_step_id: 2,
@@ -17,7 +17,7 @@ RSpec.describe Forms::AddAnotherAnswerController, type: :request do
   end
 
   let(:second_step_in_form) do
-    build :v2_question_page_step, :with_text_settings, id: 2
+    build :v2_question_step, :with_text_settings, id: 2
   end
 
   let(:req_headers) { { "Accept" => "application/json" } }

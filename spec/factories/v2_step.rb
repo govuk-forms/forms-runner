@@ -10,8 +10,8 @@ FactoryBot.define do
     type { nil }
     data { nil }
 
-    factory :v2_question_page_step do
-      type { "question_page" }
+    factory :v2_question_step do
+      type { "question" }
 
       transient do
         answer_type { "number" }
@@ -50,7 +50,7 @@ FactoryBot.define do
         guidance_markdown { "## List of items \n\n\n #{Faker::Markdown.ordered_list}" }
       end
 
-      factory :v2_selection_question_page_step do
+      factory :v2_selection_question_step do
         answer_type { "selection" }
         answer_settings do
           if none_of_the_above_question

@@ -12,14 +12,14 @@ RSpec.describe Forms::ReviewFileController, type: :request do
   end
 
   let(:file_upload_step) do
-    build :v2_question_page_step,
+    build :v2_question_step,
           id: 1,
           next_step_id: 2,
           answer_type: "file"
   end
 
   let(:text_question_step) do
-    build :v2_question_page_step, :with_text_settings,
+    build :v2_question_step, :with_text_settings,
           id: 2
   end
 

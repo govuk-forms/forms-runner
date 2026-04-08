@@ -9,7 +9,7 @@ describe "forms/check_your_answers/show.html.erb" do
   let(:declaration_markdown) { nil }
   let(:email_confirmation_input) { build :email_confirmation_input }
   let(:question) { build :text, question_text: "Do you want to remain anonymous?", text: "Yes" }
-  let(:steps) { [build(:step, question:, form_document_step: build(:v2_question_page_step, :with_text_settings))] }
+  let(:steps) { [build(:step, question:, form_document_step: build(:v2_question_step, :with_text_settings))] }
 
   before do
     assign(:current_context, context)
