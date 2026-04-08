@@ -88,6 +88,7 @@ module FormsRunner
     config.active_record.enumerate_columns_in_select_statements = true
 
     # TODO: remove this when all sensitive data is encrypted
+    # https://trello.com/c/MXv9NJuX/3459-stop-supporting-unencrypted-data-in-forms-runner
     # See https://guides.rubyonrails.org/active_record_encryption.html#support-for-unencrypted-data
     config.active_record.encryption.support_unencrypted_data = true
 
