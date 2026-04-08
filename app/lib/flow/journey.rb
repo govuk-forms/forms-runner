@@ -82,9 +82,9 @@ module Flow
 
   private
 
-    def step_is_completed?(question_page_step)
+    def step_is_completed?(step)
       # A step has been completed if it is a question that has been answered.
-      question_page_step.question.answered?
+      step.question.answered?
     end
 
     def generate_completed_steps
