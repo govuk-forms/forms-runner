@@ -11,7 +11,7 @@ FactoryBot.define do
     data { nil }
 
     factory :v2_question_page_step do
-      type { "question_page" }
+      type { "question" }
 
       transient do
         answer_type { "number" }
