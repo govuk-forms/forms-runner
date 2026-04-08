@@ -48,40 +48,40 @@ RSpec.describe Flow::Journey do
     context "when answers are loaded from the session" do
       let(:answer_store) { Store::SessionAnswerStore.new(store, form.id) }
 
-      context "when no pages have been completed" do
+      context "when no steps have been completed" do
         it "is empty" do
           expect(journey.completed_steps).to eq []
         end
       end
 
-      context "when some of the pages have been completed" do
+      context "when some of the steps have been completed" do
         let(:store) { { answers: { form.id.to_s => { first_step_id => { selection: "Option 2" }, second_step_id => { text: "Example text" } } } } }
 
-        it "includes only the pages that have been completed" do
+        it "includes only the steps that have been completed" do
           expect(journey.completed_steps.to_json).to eq [first_step_in_journey, second_step_in_journey].to_json
         end
 
-        it "includes the answer data in the question pages" do
+        it "includes the answer data in the steps" do
           expect(journey.completed_steps.map(&:question)).to all be_answered
         end
       end
 
-      context "when there is a gap in the pages that have been completed" do
+      context "when there is a gap in the steps that have been completed" do
         let(:store) { { answers: { form.id.to_s => { first_step_id => { selection: "Option 2" }, third_step_id => { text: "More example text" } } } } }
 
-        it "includes only the pages that have been completed before the gap" do
+        it "includes only the steps that have been completed before the gap" do
           expect(journey.completed_steps.to_json).to eq [first_step_in_journey].to_json
         end
       end
 
-      context "when all pages have been completed" do
+      context "when all steps have been completed" do
         let(:store) { { answers: { form.id.to_s => { first_step_id => { selection: "Option 2" }, second_step_id => { text: "Example text" }, third_step_id => { text: "More example text" } } } } }
 
-        it "includes all pages" do
+        it "includes all steps" do
           expect(journey.completed_steps.to_json).to eq [first_step_in_journey, second_step_in_journey, third_step_in_journey].to_json
         end
 
-        it "includes the answer data in the question pages" do
+        it "includes the answer data in the question steps" do
           expect(journey.completed_steps.map(&:question)).to all be_answered
         end
       end
@@ -97,7 +97,7 @@ RSpec.describe Flow::Journey do
         context "and all questions have been answered" do
           let(:store) { { answers: { form.id.to_s => { first_step_id => { selection: "Option 2" }, second_step_id => { text: "Example text" }, third_step_id => { text: "More example text" } } } } }
 
-          it "includes all pages" do
+          it "includes all steps" do
             expect(journey.completed_steps.to_json).to eq [first_step_in_journey, second_step_in_journey, third_step_in_journey].to_json
           end
         end
@@ -105,7 +105,7 @@ RSpec.describe Flow::Journey do
         context "and the optional question has not been visited" do
           let(:store) { { answers: { form.id.to_s => { first_step_id => { selection: "Option 2" }, third_step_id => { text: "More example text" } } } } }
 
-          it "includes only pages that have been completed before the optional question" do
+          it "includes only steps that have been completed before the optional question" do
             expect(journey.completed_steps.to_json).to eq [first_step_in_journey].to_json
           end
         end
@@ -113,7 +113,7 @@ RSpec.describe Flow::Journey do
         context "and the optional question has a blank answer" do
           let(:store) { { answers: { form.id.to_s => { first_step_id => { selection: "Option 2" }, second_step_id => { text: "" }, third_step_id => { text: "More example text" } } } } }
 
-          it "includes all pages" do
+          it "includes all steps" do
             expect(journey.completed_steps.to_json).to eq [first_step_in_journey, second_step_in_journey, third_step_in_journey].to_json
           end
         end
@@ -127,21 +127,21 @@ RSpec.describe Flow::Journey do
                 next_step_id: third_step_id
         end
 
-        context "when all pages have been completed" do
+        context "when all steps have been completed" do
           let(:store) { { answers: { form.id.to_s => { first_step_id => { selection: "Option 2" }, second_step_id => [{ text: "Example text" }], third_step_id => { text: "More example text" } } } } }
 
-          it "includes all pages" do
+          it "includes all steps" do
             expect(journey.completed_steps.to_json).to eq [first_step_in_journey, second_step_in_journey, third_step_in_journey].to_json
           end
 
-          it "includes the answer data in the question pages" do
+          it "includes the answer data in the question steps" do
             expect(journey.completed_steps.map(&:question)).to all be_answered
           end
 
           context "and the repeatable question has been answered more than once" do
             let(:store) { { answers: { form.id.to_s => { first_step_id => { selection: "Option 2" }, second_step_id => [{ text: "Example text" }, { text: "Different example text" }], third_step_id => { text: "More example text" } } } } }
 
-            it "includes all pages once each" do
+            it "includes all steps once each" do
               expect(journey.completed_steps.to_json).to eq [first_step_in_journey, second_step_in_journey, third_step_in_journey].to_json
             end
           end
@@ -149,7 +149,7 @@ RSpec.describe Flow::Journey do
           context "but the answer store does not have data in the format expected for the repeatable question" do
             let(:store) { { answers: { form.id.to_s => { first_step_id => { selection: "Option 2" }, second_step_id => { text: "Example text" }, third_step_id => { text: "More example text" } } } } }
 
-            it "includes only pages before the repeatable question" do
+            it "includes only steps before the repeatable question" do
               expect(journey.completed_steps.to_json).to eq [first_step_in_journey].to_json
             end
           end
@@ -160,18 +160,18 @@ RSpec.describe Flow::Journey do
         context "and the form_document_step answer matches the routing condition" do
           let(:store) { { answers: { form.id.to_s => { first_step_id => { selection: "Option 1" }, third_step_id => { text: "More example text" } } } } }
 
-          it "includes only pages in the matched route" do
+          it "includes only steps in the matched route" do
             expect(journey.completed_steps.to_json).to eq [first_step_in_journey, third_step_in_journey].to_json
           end
 
-          it "includes the answer data in the question pages" do
+          it "includes the answer data in the question steps" do
             expect(journey.completed_steps.map(&:question)).to all be_answered
           end
 
           context "when there are answers to questions not in the matched route" do
             let(:store) { { answers: { form.id.to_s => { first_step_id => { selection: "Option 1" }, second_step_id => { text: "Example text" }, third_step_id => { text: "More example text" } } } } }
 
-            it "includes only pages in the matched route" do
+            it "includes only steps in the matched route" do
               expect(journey.completed_steps.to_json).to eq [first_step_in_journey, third_step_in_journey].to_json
             end
           end
@@ -181,11 +181,11 @@ RSpec.describe Flow::Journey do
       context "when the answer store has data that does not match the type expected by the question" do
         let(:store) { { answers: { form.id.to_s => { first_step_id => { selection: "Option 2" }, second_step_id => { text: "Example text" }, third_step_id => { selection: "Option 1" } } } } }
 
-        it "includes only pages before the answer with the wrong type" do
+        it "includes only steps before the answer with the wrong type" do
           expect(journey.completed_steps.to_json).to eq [first_step_in_journey, second_step_in_journey].to_json
         end
 
-        it "includes the answer data in the question pages" do
+        it "includes the answer data in the question steps" do
           expect(journey.completed_steps.map(&:question)).to all be_answered
         end
       end
@@ -280,14 +280,14 @@ RSpec.describe Flow::Journey do
     context "when answers are loaded from the database" do
       let(:answer_store) { Store::DatabaseAnswerStore.new(answers) }
 
-      context "when some of the pages have been completed" do
+      context "when some of the steps have been completed" do
         let(:answers) { { first_step_id => { selection: "Option 2" }, second_step_id => { text: "Example text" } } }
 
-        it "includes only the pages that have been completed" do
+        it "includes only the steps that have been completed" do
           expect(journey.completed_steps.to_json).to eq [first_step_in_journey, second_step_in_journey].to_json
         end
 
-        it "includes the answer data in the question pages" do
+        it "includes the answer data in the question steps" do
           expect(journey.completed_steps.map(&:question)).to all be_answered
         end
       end
