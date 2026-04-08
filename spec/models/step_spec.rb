@@ -49,8 +49,8 @@ RSpec.describe Step do
   describe "#state" do
     it "returns an array of instance variable values" do
       expected_state = [
-        step.form_document_step,
-        step.question,
+        form_document_step,
+        question,
       ]
 
       expect(step.state).to match_array(expected_state)
@@ -58,7 +58,7 @@ RSpec.describe Step do
 
     it "changes when an instance variable is modified" do
       original_state = step.state.dup
-      step.form_document_step = build(:v2_question_page_step, position: 2)
+      step.question = build(:name)
       expect(step.state).not_to eq(original_state)
     end
   end

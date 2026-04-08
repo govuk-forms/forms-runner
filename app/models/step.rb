@@ -1,5 +1,6 @@
 class Step
-  attr_accessor :form_document_step, :question
+  attr_accessor :question
+  private attr_reader :form_document_step
 
   GOTO_PAGE_ERROR_NAMES = %w[cannot_have_goto_page_before_routing_page goto_page_doesnt_exist].freeze
 
@@ -7,6 +8,8 @@ class Step
     @form_document_step = form_document_step
     @question = question
   end
+
+  delegate :answer_type, to: :form_document_step
 
   def id
     form_document_step&.id.to_s
