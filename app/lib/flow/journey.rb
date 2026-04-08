@@ -17,20 +17,23 @@ module Flow
   # array will be empty.
 
   class Journey
-    attr_reader :completed_steps
+    include Flow::Errors
+
+    attr_reader :completed_steps, :all_steps
 
     def initialize(answer_store:, form:)
       @answer_store = answer_store
       @form = form
       @step_factory = StepFactory.new(form:)
+      # generate completed_steps first to load answers only for steps that will be visited taking routing into account
       @completed_steps = generate_completed_steps
+      @all_steps = generate_all_steps
 
       populate_file_suffixes
     end
 
-    def find_or_create(step_slug)
-      step = completed_steps.find { |s| s.id == step_slug }
-      step || @step_factory.create_step(step_slug)
+    def step_by_id(id)
+      @all_steps.find { |s| s.id.to_s == id.to_s } || raise(StepNotFoundError, "Can't find step #{id}")
     end
 
     def previous_step(step_slug)
@@ -50,10 +53,6 @@ module Flow
 
     def can_visit?(step_slug)
       (completed_steps.map(&:id).include? step_slug) || step_slug == next_step_slug
-    end
-
-    def all_steps
-      @form.form_document_steps.map { |form_document_step| find_or_create(form_document_step.id.to_s) }
     end
 
     def completed_file_upload_questions
@@ -124,6 +123,15 @@ module Flow
       rescue ActiveModel::UnknownAttributeError, ArgumentError
         original_step
       end
+    end
+
+    def generate_all_steps
+      @form.form_document_steps.map { |form_document_step| find_or_create(form_document_step.id.to_s) }
+    end
+
+    def find_or_create(step_slug)
+      step = completed_steps.find { |s| s.id == step_slug }
+      step || @step_factory.create_step(step_slug)
     end
   end
 end

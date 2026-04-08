@@ -322,6 +322,19 @@ RSpec.describe Flow::Journey do
     end
   end
 
+  describe "#step_by_id" do
+    let(:answer_store) { Store::SessionAnswerStore.new(store, form.id) }
+
+    it "returns the step with the matching ID" do
+      step = journey.step_by_id(second_step_id)
+      expect(step.to_json).to eq second_step_in_journey.to_json
+    end
+
+    it "raises an error if no step is found matching the ID" do
+      expect { journey.step_by_id("non-existent-id") }.to raise_error(Flow::Journey::StepNotFoundError)
+    end
+  end
+
   describe "#completed_file_upload_questions" do
     let(:first_step) { build(:v2_question_step, answer_type: "file", id: first_step_id, next_step_id: second_step_id) }
     let(:second_step) { build(:v2_question_step, answer_type: "file", id: second_step_id, next_step_id: third_step_id) }

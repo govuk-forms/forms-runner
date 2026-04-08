@@ -1,12 +1,8 @@
 module Flow
   class StepFactory
-    START_PAGE = "_start".freeze
+    include Flow::Errors
 
-    class StepNotFoundError < StandardError
-      def initialize(msg = "Step not found.")
-        super
-      end
-    end
+    START_PAGE = "_start".freeze
 
     def initialize(form:)
       @form = form
