@@ -45,7 +45,7 @@ RSpec.describe ErrorsController, type: :request do
         submission_email: "submission@email.com",
         start_page: 1,
         steps: [
-          build(:v2_question_page_step, id: 1, answer_type: "text", answer_settings: { input_type: "single_line" }),
+          build(:v2_question_step, id: 1, answer_type: "text", answer_settings: { input_type: "single_line" }),
         ],
       )
     end

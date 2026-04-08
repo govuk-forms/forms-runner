@@ -746,7 +746,7 @@ RSpec.describe "submissions.rake" do
         :v2_form_document,
         steps: [
           build(
-            :v2_question_page_step,
+            :v2_question_step,
             id: "aB123z",
             answer_type: "file",
             question_text: "Upload your evidence",
@@ -814,7 +814,7 @@ RSpec.describe "submissions.rake" do
           :v2_form_document,
           steps: [
             build(
-              :v2_question_page_step,
+              :v2_question_step,
               id: "a",
               answer_type: "file",
               question_text: "Upload your evidence",
@@ -853,28 +853,28 @@ RSpec.describe "submissions.rake" do
           :v2_form_document,
           steps: [
             build(
-              :v2_question_page_step,
+              :v2_question_step,
               id: "i",
               answer_type: "file",
               question_text: "Upload your evidence 1",
               position: "1",
             ),
             build(
-              :v2_question_page_step,
+              :v2_question_step,
               id: "j",
               answer_type: "file",
               question_text: "Upload your evidence 2",
               position: "2",
             ),
             build(
-              :v2_question_page_step,
+              :v2_question_step,
               id: "k",
               answer_type: "file",
               question_text: "Upload your evidence 2",
               position: "3",
             ),
             build(
-              :v2_question_page_step,
+              :v2_question_step,
               id: "l",
               answer_type: "file",
               question_text: "Upload your evidence 4",

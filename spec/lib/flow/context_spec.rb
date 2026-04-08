@@ -8,8 +8,8 @@ RSpec.describe Flow::Context do
 
   let(:steps) do
     [
-      build(:v2_question_page_step, :with_text_settings, id: 1, next_step_id: 2),
-      build(:v2_question_page_step, :with_text_settings, id: 2),
+      build(:v2_question_step, :with_text_settings, id: 1, next_step_id: 2),
+      build(:v2_question_step, :with_text_settings, id: 2),
     ]
   end
 
