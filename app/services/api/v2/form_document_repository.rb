@@ -6,7 +6,7 @@ class Api::V2::FormDocumentRepository
       begin
         form_document_json = Api::V2::FormDocumentResource.get(form_id, tag, **options_for_language(language))
         form_document = Api::V2::FormDocumentResource.new(form_document_json)
-        Form.new(form_document, form_document_json)
+        Form.new(form_document)
       rescue ActiveResource::ResourceNotFound
         nil
       end

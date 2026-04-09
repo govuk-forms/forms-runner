@@ -1,10 +1,8 @@
 class Form
-  attr_reader :document_json
   private attr_reader :form_document
 
-  def initialize(form_document, form_document_json = nil)
+  def initialize(form_document)
     @form_document = form_document
-    @document_json = form_document_json
   end
 
   delegate :steps, to: :form_document, prefix: true
@@ -30,6 +28,10 @@ class Form
            to: :form_document
 
   alias_method :id, :form_id
+
+  def document_json
+    form_document.as_json
+  end
 
   def step_by_id(step_id)
     form_document_steps.find { |s| s.id == step_id }

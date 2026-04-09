@@ -8,8 +8,8 @@ RSpec.describe FormSubmissionService, :capture_logging do
   let(:mode) { Mode.new }
   let(:confirmation_email_address) { "testing@gov.uk" }
   let(:email_confirmation_input) { build :email_confirmation_input_opted_in, confirmation_email_address: }
-  let(:form) { Form.new(form_document, document_json) }
-  let(:welsh_form) { Form.new(welsh_form_document, welsh_document_json) }
+  let(:form) { Form.new(form_document) }
+  let(:welsh_form) { Form.new(welsh_form_document) }
 
   let(:form_document) do
     build(
