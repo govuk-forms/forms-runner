@@ -1,7 +1,7 @@
 require "rails_helper"
 
 describe "forms/check_your_answers/show.html.erb" do
-  let(:form) { build :form, :with_support, id: 1, declaration_text:, declaration_markdown: }
+  let(:form) { build :form, :with_support, declaration_text:, declaration_markdown: }
   let(:support_details) { OpenStruct.new(email: form.support_email) }
   let(:context) { OpenStruct.new(form:) }
   let(:full_width) { false }

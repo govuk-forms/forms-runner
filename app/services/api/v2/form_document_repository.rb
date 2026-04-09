@@ -4,12 +4,9 @@ class Api::V2::FormDocumentRepository
       return nil unless form_id.to_s =~ /^[[:alnum:]]+$/
 
       begin
-        form_document = Api::V2::FormDocumentResource.get(form_id, tag, **options_for_language(language))
-
-        form = Form.new(form_document, true)
-        form.document_json = form_document
-        form.prefix_options = { form_id:, tag: }
-        form
+        form_document_json = Api::V2::FormDocumentResource.get(form_id, tag, **options_for_language(language))
+        form_document = Api::V2::FormDocumentResource.new(form_document_json)
+        Form.new(form_document, form_document_json)
       rescue ActiveResource::ResourceNotFound
         nil
       end

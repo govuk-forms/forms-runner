@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe Flow::StepFactory do
-  let(:form) { build :form, id: "form-123", form_slug: "test-form", start_page: "page-1", steps: [] }
+  let(:form) { build :form, form_slug: "test-form", start_page: "page-1", steps: [] }
   let(:factory) { described_class.new(form:) }
 
   describe "#create_step" do

@@ -59,7 +59,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
   context "when setting logging context" do
     let(:step_id) { 101 }
     let(:form_data) do
-      build(:form, :with_support,
+      build(:v2_form_document, :with_support,
             id: 200,
             start_page: step_id,
             declaration_text: "agree to the declaration",

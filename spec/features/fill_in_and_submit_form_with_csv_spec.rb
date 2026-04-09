@@ -7,7 +7,7 @@ feature "Fill in and submit a form with a CSV submission", type: :feature do
       build(:v2_selection_question_step, only_one_option: false, id: 2, question_text: "Skipped question", next_step_id: 3),
     ]
   end
-  let(:form) { build :v2_form_document, :live?, form_id: 1, name: "Fill in this form", steps:, start_page: steps.first.id, submission_type: "email", submssion_format: %w[csv] }
+  let(:form) { build :v2_form_document, :live, form_id: 1, name: "Fill in this form", steps:, start_page: steps.first.id, submission_type: "email", submssion_format: %w[csv] }
   let(:reference) { Faker::Alphanumeric.alphanumeric(number: 8).upcase }
   let(:req_headers) { { "Accept" => "application/json" } }
 

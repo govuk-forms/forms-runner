@@ -15,7 +15,6 @@ RSpec.describe Flow::Context do
 
   let(:form) do
     build(:form, :with_support,
-          id: 2,
           start_page: 1,
           privacy_policy_url: "http://www.example.gov.uk/privacy_policy",
           what_happens_next_markdown: "Good things come to those that wait",
