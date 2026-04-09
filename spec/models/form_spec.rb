@@ -200,4 +200,12 @@ RSpec.describe Form, type: :model do
       end
     end
   end
+
+  describe "#document_json" do
+    let(:form_document) { build :v2_form_document, :live, :s3_submissions_enabled }
+
+    it "returns the form document as JSON" do
+      expect(form.document_json).to eq(form_document.as_json)
+    end
+  end
 end

@@ -196,4 +196,11 @@ RSpec.describe Api::V2::FormDocumentResource do
       end
     end
   end
+
+  describe "#as_json" do
+    it "returns a hash of the form document's attributes as read from the API" do
+      form_document = described_class.find(1, :live)
+      expect(form_document.as_json).to eq JSON.parse(response_data)
+    end
+  end
 end
