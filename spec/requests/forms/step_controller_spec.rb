@@ -29,7 +29,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
           is_optional:
   end
 
-  let(:page_with_routing) do
+  let(:step_with_routing) do
     build :v2_selection_question_step,
           id: first_step_id,
           next_step_id: 2,
@@ -284,7 +284,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
 
     context "when page has routing conditions" do
       let(:first_step_in_form) do
-        page_with_routing
+        step_with_routing
       end
 
       let(:validation_errors) { [] }
@@ -404,7 +404,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
 
       before do
         allow(Flow::Context).to receive(:new).and_wrap_original do |original_method, *args|
-          context_spy = original_method.call(form: args[0][:form], store:)
+          context_spy = original_method.call(form: args[0][:form], form_document: args[0][:form_document], store:)
           context_spy
         end
         get form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id)
@@ -519,7 +519,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
 
     context "when page has routing conditions" do
       let(:first_step_in_form) do
-        page_with_routing
+        step_with_routing
       end
 
       let(:validation_errors) { [] }
@@ -639,7 +639,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
 
       before do
         allow(Flow::Context).to receive(:new).and_wrap_original do |original_method, *args|
-          context_spy = original_method.call(form: args[0][:form], store:)
+          context_spy = original_method.call(form: args[0][:form], form_document: args[0][:form_document], store:)
           context_spy
         end
         get form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id)
@@ -819,7 +819,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
 
     context "when page has routing conditions" do
       let(:first_step_in_form) do
-        page_with_routing
+        step_with_routing
       end
 
       let(:validation_errors) { [] }

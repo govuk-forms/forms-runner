@@ -1,8 +1,8 @@
 require "rails_helper"
 
 RSpec.describe Flow::StepFactory do
-  let(:form) { build :form, form_slug: "test-form", start_page: "page-1", steps: [] }
-  let(:factory) { described_class.new(form:) }
+  let(:form_document) { build :v2_form_document, form_slug: "test-form", start_page: "page-1", steps: [] }
+  let(:factory) { described_class.new(form_document:) }
 
   describe "#create_step" do
     context "when creating a CheckYourAnswersStep" do
@@ -17,7 +17,7 @@ RSpec.describe Flow::StepFactory do
       let(:question) { instance_double(Question) }
 
       before do
-        allow(form.form_document_steps).to receive(:find).and_return(form_document_step)
+        allow(form_document.steps).to receive(:find).and_return(form_document_step)
         allow(Flow::QuestionRegister).to receive(:from_form_document_step).with(form_document_step).and_return(question)
       end
 
@@ -44,7 +44,7 @@ RSpec.describe Flow::StepFactory do
       let(:question) { instance_double(Question) }
 
       before do
-        allow(form.form_document_steps).to receive(:find).and_return(form_document_step)
+        allow(form_document.steps).to receive(:find).and_return(form_document_step)
         allow(Flow::QuestionRegister).to receive(:from_form_document_step).with(form_document_step).and_return(question)
       end
 
@@ -64,7 +64,7 @@ RSpec.describe Flow::StepFactory do
       let(:start_page) { build :v2_question_step, id: "page-1", next_step_id: "page-2" }
 
       before do
-        allow(form.form_document_steps).to receive(:find).and_return(start_page)
+        allow(form_document.steps).to receive(:find).and_return(start_page)
         allow(Flow::QuestionRegister).to receive(:from_form_document_step).with(start_page).and_return(instance_double(Question))
       end
 

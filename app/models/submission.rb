@@ -25,7 +25,7 @@ class Submission < ApplicationRecord
   encrypts :answers
 
   def journey
-    @journey ||= Flow::Journey.new(answer_store:, form:)
+    @journey ||= Flow::Journey.new(answer_store:, form_document: form_document_resource)
   end
 
   def form
@@ -60,7 +60,10 @@ private
   end
 
   def form_from_document
-    form_document_resource = Api::V2::FormDocumentResource.new(form_document, true)
     Form.new(form_document_resource)
+  end
+
+  def form_document_resource
+    @form_document_resource ||= Api::V2::FormDocumentResource.new(form_document, true)
   end
 end
