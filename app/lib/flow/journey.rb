@@ -21,10 +21,10 @@ module Flow
 
     attr_reader :completed_steps, :all_steps
 
-    def initialize(answer_store:, form:)
+    def initialize(answer_store:, form_document:)
       @answer_store = answer_store
-      @form = form
-      @step_factory = StepFactory.new(form:)
+      @form_document = form_document
+      @step_factory = StepFactory.new(form_document:)
       # generate completed_steps first to load answers only for steps that will be visited taking routing into account
       @completed_steps = generate_completed_steps
       @all_steps = generate_all_steps
@@ -126,7 +126,7 @@ module Flow
     end
 
     def generate_all_steps
-      @form.form_document_steps.map { |form_document_step| find_or_create(form_document_step.id.to_s) }
+      @form_document.steps.map { |form_document_step| find_or_create(form_document_step.id.to_s) }
     end
 
     def find_or_create(step_slug)

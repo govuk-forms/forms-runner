@@ -1,6 +1,6 @@
 module Forms
   class BaseController < ApplicationController
-    prepend_before_action :set_form
+    prepend_before_action :prepare_context
     around_action :set_locale
 
     def redirect_to_friendly_url_start
@@ -15,7 +15,6 @@ module Forms
     end
 
     def error_repeat_submission
-      @current_context = Flow::Context.new(form: @form, store: session)
       render template: "errors/repeat_submission", locals: { form: @form }
     end
 
@@ -27,9 +26,7 @@ module Forms
 
   private
 
-    def current_context
-      @current_context ||= Flow::Context.new(form: @form, store: session)
-    end
+    attr_reader :current_context
 
     def mode
       @mode ||= Mode.new(params[:mode])
@@ -43,13 +40,15 @@ module Forms
       @available_languages = current_context.form.available_languages if current_context.form.multilingual?
     end
 
-    def set_form
+    def prepare_context
       form_document = Api::V2::FormDocumentRepository.find_with_mode(form_id:, mode:, language: locale)
 
       return handle_form_not_found if form_document.blank?
 
       @form = Form.new(form_document)
       raise ActiveResource::ResourceNotFound, "Form has no steps" unless @form.start_page
+
+      @current_context = Flow::Context.new(form: @form, form_document:, store: session)
     end
 
     def handle_form_not_found

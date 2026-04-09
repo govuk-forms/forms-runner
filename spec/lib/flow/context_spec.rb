@@ -12,17 +12,18 @@ RSpec.describe Flow::Context do
     ]
   end
 
-  let(:form) do
-    build(:form, :with_support,
+  let(:form_document) do
+    build(:v2_form_document, :with_support,
           start_page: 1,
           privacy_policy_url: "http://www.example.gov.uk/privacy_policy",
           what_happens_next_markdown: "Good things come to those that wait",
           declaration_text: "agree to the declaration",
           steps:)
   end
+  let(:form) { Form.new(form_document) }
 
   describe "submission details" do
-    let(:context) { described_class.new(form:, store: {}) }
+    let(:context) { described_class.new(form:, form_document:, store: {}) }
     let(:reference) { Faker::Alphanumeric.alphanumeric(number: 8).upcase }
     let(:requested_email_confirmation) { true }
 
@@ -52,7 +53,7 @@ RSpec.describe Flow::Context do
   describe "#save_step" do
     let(:answer_store) { instance_double(Store::SessionAnswerStore) }
     let(:step) { instance_double(Step) }
-    let(:context_instance) { described_class.new(form:, store: {}) }
+    let(:context_instance) { described_class.new(form:, form_document:, store: {}) }
 
     before do
       allow(context_instance).to receive(:answer_store).and_return(answer_store)

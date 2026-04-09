@@ -2,11 +2,11 @@ module Flow
   class Context
     attr_reader :form, :journey
 
-    def initialize(form:, store:)
+    def initialize(form:, form_document:, store:)
       @form = form
       @answer_store = Store::SessionAnswerStore.new(store, form.id)
       @confirmation_details_store = Store::ConfirmationDetailsStore.new(store, form.id)
-      @journey = Journey.new(answer_store: @answer_store, form:)
+      @journey = Journey.new(answer_store: @answer_store, form_document:)
     end
 
     delegate :support_details, to: :form
