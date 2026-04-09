@@ -48,12 +48,6 @@ module Flow
       completed_steps.last&.next_step_slug_after_routing || @step_factory.start_step.id
     end
 
-    def next_step
-      return nil if completed_steps.last&.end_page?
-
-      find_or_create(completed_steps.last&.next_step_slug_after_routing) || @step_factory.start_step
-    end
-
     def can_visit?(step_slug)
       (completed_steps.map(&:id).include? step_slug) || step_slug == next_step_slug
     end
