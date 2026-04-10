@@ -412,6 +412,13 @@ en:
   govuk_components:
     govuk_summary_list:
       change: Change
+  govuk_design_system_formbuilder:
+    govuk_file_field:
+      choose_files_button_text: Choose file
+      drop_instruction_text: or drop file
+      entered_drop_zone_text: Entered drop zone
+      left_drop_zone_text: Left drop zone
+      no_file_chosen_text: No file chosen
   helpers:
     error:
       message_prefix: Error

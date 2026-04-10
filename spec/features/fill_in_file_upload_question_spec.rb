@@ -116,11 +116,12 @@ feature "Fill in and submit a form with a file upload question", type: :feature 
   end
 
   def then_i_see_the_file_upload_component
-    expect(page).to have_css("input[type=file]")
+    expect(page).to have_css("input[type=file]", visible: :hidden)
+    expect(page).to have_css("[data-module='govuk-file-upload']")
   end
 
   def when_i_upload_a_file
-    attach_file question_text, test_file
+    attach_file test_file, make_visible: true
   end
 
   def and_i_click_on_continue
@@ -177,6 +178,6 @@ feature "Fill in and submit a form with a file upload question", type: :feature 
 
   def then_i_see_an_error_message_that_the_file_contains_a_virus
     expect(page.find(".govuk-error-summary")).to have_text "The selected file contains a virus"
-    expect(page).to have_css("input[type=file]")
+    expect(page).to have_css("input[type=file]", visible: :hidden)
   end
 end
