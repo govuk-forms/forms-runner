@@ -15,8 +15,11 @@ RSpec.describe "submissions.rake" do
         .tap(&:reenable)
     end
 
+    let(:form_document) { build :v2_form_document, :with_steps }
+    let(:answers) { { form_document.steps.first.id => { selection: "Option 1" } } }
+
     before do
-      create :submission, :sent, reference: "test_ref"
+      create :submission, :sent, reference: "test_ref", form_document:, answers:
     end
 
     describe "given a submission reference" do
@@ -35,9 +38,9 @@ RSpec.describe "submissions.rake" do
         expect { task.invoke("test_ref") }.not_to output(a_string_including("Option 1")).to_stdout
       end
 
-      describe "given a step slug" do
+      describe "given a step id" do
         it "displays the answers submitted by the user" do
-          expect { task.invoke("test_ref", "1") }.to output(a_string_including("Option 1")).to_stdout
+          expect { task.invoke("test_ref", form_document.steps.first.id) }.to output(a_string_including("Option 1")).to_stdout
         end
       end
     end
@@ -744,6 +747,7 @@ RSpec.describe "submissions.rake" do
     let(:form_document) do
       build(
         :v2_form_document,
+        start_page: "aB123z",
         steps: [
           build(
             :v2_question_step,
@@ -851,6 +855,7 @@ RSpec.describe "submissions.rake" do
       let(:form_document) do
         build(
           :v2_form_document,
+          start_page: "i",
           steps: [
             build(
               :v2_question_step,

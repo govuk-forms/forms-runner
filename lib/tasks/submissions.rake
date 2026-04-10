@@ -29,7 +29,7 @@ namespace :submissions do
   # Print attributes for a submission
   #
   # Given just a submission reference, it prints the whole submission record, with the answers filtered out.
-  # If you need to see the actual answer data, provide one or more step_slugs as well.
+  # If you need to see the actual answer data, provide one or more step_ids as well.
   #
   # Example:
   #
@@ -38,19 +38,19 @@ namespace :submissions do
   #
   desc "Fetch and display data for a specific submission given a reference"
   task :inspect_submission_data, [:reference] => :environment do |_t, args|
-    reference, *step_slugs = args.to_a
+    reference, *step_ids = args.to_a
 
     submission = Submission.find_by(reference: reference)
     abort "Submission with reference #{reference} not found" if submission.nil?
 
-    if step_slugs.empty?
+    if step_ids.empty?
       puts "Data for submission with reference #{reference}:"
       pp submission
     else
-      step_slugs.each do |slug|
-        question_text = submission.form.form_document_steps.find { it.id == slug }&.data&.question_text
-        puts "Answer(s) to #{slug} (#{question_text}) for submission with reference #{reference}"
-        pp submission.answers.slice(slug)
+      step_ids.each do |step_id|
+        question_text = submission.journey.step_by_id(step_id).question_text
+        puts "Answer(s) to #{step_id} (#{question_text}) for submission with reference #{reference}"
+        pp submission.answers.slice(step_id)
       end
     end
   end
@@ -254,9 +254,9 @@ namespace :submissions do
       submission.answers.each_pair do |question_id, answer|
         next unless answer.include?("original_filename") && answer["original_filename"].blank? && answer["uploaded_file_key"].present?
 
-        question = submission.form.step_by_id(question_id)
+        step = submission.journey.step_by_id(question_id)
         extension = ::File.extname(answer["uploaded_file_key"])
-        filename = "#{question.position}-#{question.question_text.parameterize}#{extension}"
+        filename = "#{step.step_number}-#{step.question_text.parameterize}#{extension}"
         answer["original_filename"] = filename
       end
 
