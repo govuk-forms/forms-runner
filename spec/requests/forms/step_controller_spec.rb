@@ -302,13 +302,10 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
               is_optional:
       end
 
-      let(:pages_data) { [third_step_in_form, first_step_in_form, second_step_in_form] }
-
       let(:api_url_suffix) { "/draft" }
       let(:mode) { "preview-draft" }
 
       context "when the routing has a cannot_have_goto_page_before_routing_page error" do
-        let(:pages_data) { [first_step_in_form, second_step_in_form, third_step_in_form] }
         let(:validation_errors) { [{ name: "cannot_have_goto_page_before_routing_page" }] }
 
         it "returns a 422 response" do
@@ -355,7 +352,6 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
       end
 
       context "when the routing has a goto_page which does not exist" do
-        let(:pages_data) { [first_step_in_form, second_step_in_form, third_step_in_form] }
         let(:validation_errors) { [{ name: "goto_page_doesnt_exist" }] }
 
         it "returns a 422 response" do
@@ -537,13 +533,10 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
               is_optional:
       end
 
-      let(:pages_data) { [third_step_in_form, first_step_in_form, second_step_in_form] }
-
       let(:api_url_suffix) { "/draft" }
       let(:mode) { "preview-draft" }
 
       context "when the routing has a cannot_have_goto_page_before_routing_page error" do
-        let(:pages_data) { [first_step_in_form, second_step_in_form, third_step_in_form] }
         let(:validation_errors) { [{ name: "cannot_have_goto_page_before_routing_page" }] }
 
         it "returns a 422 response" do
@@ -590,7 +583,6 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
       end
 
       context "when the routing has a goto_page which does not exist" do
-        let(:pages_data) { [first_step_in_form, second_step_in_form, third_step_in_form] }
         let(:validation_errors) { [{ name: "goto_page_doesnt_exist" }] }
 
         it "returns a 422 response" do
@@ -837,8 +829,6 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
               is_optional:
       end
 
-      let(:pages_data) { [first_step_in_form, second_step_in_form, third_step_in_form] }
-
       let(:api_url_suffix) { "/draft" }
       let(:mode) { "preview-draft" }
 
@@ -855,7 +845,6 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
       end
 
       context "when the routing has a cannot_have_goto_page_before_routing_page error" do
-        let(:pages_data) { [first_step_in_form, second_step_in_form, third_step_in_form] }
         let(:validation_errors) { [{ name: "cannot_have_goto_page_before_routing_page" }] }
 
         it "returns a 422 response" do
