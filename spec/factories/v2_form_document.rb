@@ -8,7 +8,6 @@ FactoryBot.define do
     steps { [] }
 
     declaration_text { nil }
-    declaration_section_completed { false }
     payment_url { nil }
     privacy_policy_url { nil }
     submission_email { nil }
@@ -18,7 +17,6 @@ FactoryBot.define do
     support_phone { nil }
     support_url { nil }
     support_url_text { nil }
-    question_section_completed { false }
     what_happens_next_markdown { nil }
     language { "en" }
     s3_bucket_aws_account_id { nil }
@@ -36,7 +34,6 @@ FactoryBot.define do
         Array.new(steps_count) { build(:v2_question_step) }
       end
 
-      question_section_completed { true }
       start_page { steps.first.id }
     end
 
