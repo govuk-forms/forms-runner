@@ -5,7 +5,6 @@ class Form
     @form_document = form_document
   end
 
-  delegate :steps, to: :form_document, prefix: true
   delegate :declaration_text,
            :form_id,
            :form_slug,
@@ -31,10 +30,6 @@ class Form
 
   def document_json
     form_document.as_json
-  end
-
-  def step_by_id(step_id)
-    form_document_steps.find { |s| s.id == step_id }
   end
 
   def payment_url_with_reference(reference)
