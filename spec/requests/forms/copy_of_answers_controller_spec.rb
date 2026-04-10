@@ -36,7 +36,7 @@ RSpec.describe Forms::CopyOfAnswersController, type: :request do
     end
 
     allow(Flow::Context).to receive(:new).and_wrap_original do |original_method, *args|
-      original_method.call(form: args[0][:form], store:)
+      original_method.call(form: args[0][:form], form_document: args[0][:form_document], store:)
     end
 
     allow(FeatureService).to receive(:enabled?).with("filler_answer_email_enabled").and_return(true)

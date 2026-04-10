@@ -22,23 +22,17 @@ RSpec.describe Api::V2::FormDocumentRepository do
       end
     end
 
-    it "returns a form" do
+    it "returns form document" do
       form = described_class.find(tag:, form_id:)
 
       expect(form).to have_attributes(form_id:, name: "All question types form")
     end
 
-    it "attaches the form document JSON to the form" do
-      form = described_class.find(tag:, form_id:)
-
-      expect(form.document_json).to eq api_v2_response_data
-    end
-
     context "with the archived tag" do
       let(:tag) { :archived }
 
-      context "when a form has been archived" do
-        it "returns an archived form" do
+      context "when form has been archived" do
+        it "returns an archived form document" do
           form = described_class.find(tag: :archived, form_id: form_id)
 
           expect(form).to have_attributes(form_id: form_id, name: "All question types form")
@@ -116,14 +110,14 @@ RSpec.describe Api::V2::FormDocumentRepository do
       end
     end
 
-    it "finds a form snapshot given a form id and document tag" do
+    it "finds a form document given a form id and document tag" do
       expect(described_class.find_with_mode(form_id: 1, mode: Mode.new("preview-draft"))).to be_truthy
     end
 
-    it "returns a form model" do
+    it "returns a FormDocumentResource model" do
       form_snapshot = described_class.find_with_mode(form_id: 1, mode: Mode.new("preview-draft"))
-      expect(form_snapshot).to be_a Form
-      expect(form_snapshot.form_document_steps).to all be_a Api::V2::StepResource
+      expect(form_snapshot).to be_a Api::V2::FormDocumentResource
+      expect(form_snapshot.steps).to all be_a Api::V2::StepResource
     end
 
     it "returns nil if the form does not exist" do
@@ -185,9 +179,9 @@ RSpec.describe Api::V2::FormDocumentRepository do
         end
       end
 
-      it "returns Welsh form model" do
+      it "returns Welsh form document" do
         form = described_class.find_with_mode(form_id: "1", mode: Mode.new("live"), language: :cy)
-        expect(form).to have_attributes(form_id: "1", name: "Welsh form", language: :cy)
+        expect(form).to have_attributes(form_id: "1", name: "Welsh form", language: "cy")
       end
     end
   end

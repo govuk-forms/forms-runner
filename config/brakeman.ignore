@@ -3,13 +3,13 @@
     {
       "warning_type": "Remote Code Execution",
       "warning_code": 24,
-      "fingerprint": "d37cd0288a3b85a9032f46a635b4dd408b16f1fe3cb2526711b575fb3f6697ae",
+      "fingerprint": "c6b22883be6751c7483928c55bb296e7ccc47d0bef983139a945d96a476cde7c",
       "check_name": "UnsafeReflection",
       "message": "Unsafe reflection method `const_get` called with parameter value",
       "file": "app/views/forms/step/show.html.erb",
       "line": 18,
       "link": "https://brakemanscanner.org/docs/warning_types/remote_code_execution/",
-      "code": "Object.const_get(\"#{current_context.find_or_create(params.require(:step_slug)).question.class.name}Component::View\")",
+      "code": "Object.const_get(\"#{current_context.step_by_id(params.require(:step_slug)).question.class.name}Component::View\")",
       "render_path": [
         {
           "type": "controller",

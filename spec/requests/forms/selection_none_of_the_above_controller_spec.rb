@@ -54,7 +54,7 @@ RSpec.describe Forms::SelectionNoneOfTheAboveController, type: :request do
     end
 
     allow(Flow::Context).to receive(:new).and_wrap_original do |original_method, *args|
-      context_spy = original_method.call(form: args[0][:form], store:)
+      context_spy = original_method.call(form: args[0][:form], form_document: args[0][:form_document], store:)
       context_spy
     end
   end

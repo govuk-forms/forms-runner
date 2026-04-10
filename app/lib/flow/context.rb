@@ -2,15 +2,15 @@ module Flow
   class Context
     attr_reader :form, :journey
 
-    def initialize(form:, store:)
+    def initialize(form:, form_document:, store:)
       @form = form
       @answer_store = Store::SessionAnswerStore.new(store, form.id)
       @confirmation_details_store = Store::ConfirmationDetailsStore.new(store, form.id)
-      @journey = Journey.new(answer_store: @answer_store, form:)
+      @journey = Journey.new(answer_store: @answer_store, form_document:)
     end
 
     delegate :support_details, to: :form
-    delegate :find_or_create, :previous_step, :next_step_slug, :next_step, :can_visit?, :completed_steps, :all_steps, to: :journey
+    delegate :step_by_id, :previous_step, :next_step_slug, :next_step, :can_visit?, :completed_steps, :all_steps, to: :journey
     delegate :clear_stored_answer, :clear, :form_submitted?, :answers, :locales_used, to: :answer_store
     delegate :save_submission_details, :get_submission_reference, :requested_email_confirmation?, :clear_submission_details, :save_copy_of_answers_preference, :wants_copy_of_answers?, to: :confirmation_details_store
 
