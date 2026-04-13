@@ -12,28 +12,6 @@ RSpec.describe Form, type: :model do
     expect(form).to have_attributes form_id: form_document.form_id
   end
 
-  describe "#form_document_steps" do
-    let(:form_document) { build :v2_form_document, steps: }
-    let(:steps) do
-      [
-        build(:v2_question_step, id: 9, next_step_id: 10, answer_type: "date", question_text: "Question one"),
-        build(:v2_question_step, id: 10, answer_type: "address", question_text: "Question two"),
-      ]
-    end
-
-    it "returns the form_document_steps for the form" do
-      form_document_steps = form.form_document_steps
-      expect(form_document_steps.length).to eq(2)
-      expect(form_document_steps[0].id).to eq(9)
-      expect(form_document_steps[0].next_step_id).to eq(10)
-      expect(form_document_steps[0].answer_type).to eq("date")
-      expect(form_document_steps[0].question_text).to eq("Question one")
-      expect(form_document_steps[1].id).to eq(10)
-      expect(form_document_steps[1].answer_type).to eq("address")
-      expect(form_document_steps[1].question_text).to eq("Question two")
-    end
-  end
-
   describe "#payment_url_with_reference" do
     let(:form_document) { build :v2_form_document, payment_url: }
     let(:reference) { SecureRandom.base58(8).upcase }
@@ -198,6 +176,14 @@ RSpec.describe Form, type: :model do
           expect(form.multilingual?).to be true
         end
       end
+    end
+  end
+
+  describe "#document_json" do
+    let(:form_document) { build :v2_form_document, :live, :s3_submissions_enabled }
+
+    it "returns the form document as JSON" do
+      expect(form.document_json).to eq(form_document.as_json)
     end
   end
 end

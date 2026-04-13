@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :form, class: "Form" do
-    initialize_with { new(build(:v2_form_document, **attributes), document_json) }
+    initialize_with { new(build(:v2_form_document, **attributes)) }
 
     form_id { Faker::Number.number(digits: 5) }
     sequence(:name) { |n| "Form #{n}" }
@@ -14,8 +14,6 @@ FactoryBot.define do
     support_url_text { nil }
     payment_url { nil }
     language { "en" }
-    document_json { nil }
-
     declaration_text { nil }
 
     submission_type { "email" }

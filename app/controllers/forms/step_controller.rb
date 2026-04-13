@@ -51,7 +51,7 @@ module Forms
     def prepare_step
       step_slug = params.require(:step_slug)
       begin
-        @step = current_context.find_or_create(step_slug)
+        @step = current_context.step_by_id(step_slug)
       rescue Flow::StepFactory::StepNotFoundError
         return redirect_to form_step_path(@form.id, @form.form_slug, current_context.next_step_slug)
       end
@@ -185,7 +185,7 @@ module Forms
       EventLogger.log_page_event(event_name, @step.question.question_text, nil)
 
       routes_page_id = first_condition_with_error.check_page_id
-      routes_page = @current_context.find_or_create(routes_page_id)
+      routes_page = @current_context.step_by_id(routes_page_id)
 
       render template: "errors/goto_page_routing_error", locals: {
         error_name: first_goto_error_name,

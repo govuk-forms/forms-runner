@@ -1,6 +1,6 @@
 module Forms
   class BaseController < ApplicationController
-    prepend_before_action :set_form
+    prepend_before_action :prepare_context
     around_action :set_locale
 
     def redirect_to_friendly_url_start
@@ -15,7 +15,6 @@ module Forms
     end
 
     def error_repeat_submission
-      @current_context = Flow::Context.new(form: @form, store: session)
       render template: "errors/repeat_submission", locals: { form: @form }
     end
 
@@ -27,9 +26,7 @@ module Forms
 
   private
 
-    def current_context
-      @current_context ||= Flow::Context.new(form: @form, store: session)
-    end
+    attr_reader :current_context
 
     def mode
       @mode ||= Mode.new(params[:mode])
@@ -43,29 +40,39 @@ module Forms
       @available_languages = current_context.form.available_languages if current_context.form.multilingual?
     end
 
-    def set_form
-      form_id = params.require(:form_id)
-      @form = Api::V2::FormDocumentRepository.find_with_mode(form_id:, mode:, language: locale)
+    def prepare_context
+      form_document = Api::V2::FormDocumentRepository.find_with_mode(form_id:, mode:, language: locale)
 
-      if @form.blank?
-        I18n.with_locale(locale) do
-          if locale == "cy"
-            archived_welsh_version = Api::V2::FormDocumentRepository.find(form_id:, tag: :archived, language: :cy)
-            live_english_version = Api::V2::FormDocumentRepository.find(form_id:, tag: :live, language: :en)
+      return handle_form_not_found if form_document.blank?
 
-            if archived_welsh_version.present? && live_english_version.present?
-              return render template: "forms/archived_welsh/show",
-                            locals: { form: live_english_version },
-                            status: :not_found
-            end
+      @form = Form.new(form_document)
+      raise ActiveResource::ResourceNotFound, "Form has no steps" unless @form.start_page
+
+      @current_context = Flow::Context.new(form: @form, form_document:, store: session)
+    end
+
+    def handle_form_not_found
+      I18n.with_locale(locale) do
+        if locale == "cy"
+          archived_welsh_form_document = Api::V2::FormDocumentRepository.find(form_id:, tag: :archived, language: :cy)
+          live_english_form_document = Api::V2::FormDocumentRepository.find(form_id:, tag: :live, language: :en)
+
+          if archived_welsh_form_document.present? && live_english_form_document.present?
+            return render template: "forms/archived_welsh/show",
+                          locals: { form: Form.new(live_english_form_document) },
+                          status: :not_found
           end
-
-          archived_form = Api::V2::FormDocumentRepository.find(form_id:, tag: :archived)
-          return render template: "forms/archived/show", locals: { form_name: archived_form.name }, status: :not_found if archived_form.present?
         end
+
+        archived_form_document = Api::V2::FormDocumentRepository.find(form_id:, tag: :archived)
+        return render template: "forms/archived/show", locals: { form_name: archived_form_document.name }, status: :not_found if archived_form_document.present?
       end
 
-      raise ActiveResource::ResourceNotFound, "Not Found" unless @form.present? && @form.start_page
+      raise ActiveResource::ResourceNotFound, "Not Found"
+    end
+
+    def form_id
+      params.require(:form_id)
     end
   end
 end

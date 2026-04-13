@@ -51,9 +51,11 @@ private
   end
 
   def fetch_english_language_form
-    @form = Api::V2::FormDocumentRepository.find_with_mode(form_id: form.id, mode:)
+    english_form_document = Api::V2::FormDocumentRepository.find_with_mode(form_id: form.id, mode:)
 
-    raise ActiveResource::ResourceNotFound.new(404, "Not Found") if @form.nil?
+    raise ActiveResource::ResourceNotFound.new(404, "Not Found") if english_form_document.nil?
+
+    @form = Form.new(english_form_document)
   end
 
   def validate_submission
