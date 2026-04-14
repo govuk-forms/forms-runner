@@ -49,7 +49,7 @@ gem "govuk-components", "~> 6"
 gem "govuk_design_system_formbuilder", "~> 6"
 
 # Our own custom markdown renderer
-gem "govuk-forms-markdown", github: "alphagov/govuk-forms-markdown", tag: "0.8.0"
+gem "govuk-forms-markdown", github: "govuk-forms/govuk-forms-markdown", tag: "0.8.0"
 
 # For compiling our frontend assets
 gem "vite_rails"
