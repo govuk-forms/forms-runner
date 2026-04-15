@@ -23,7 +23,7 @@
   "devDependencies": {
     "autoprefixer": "^10.4.27",
     "jsdom": "^29.0.1",
-    "postcss": "^8.5.8",
+    "postcss": "^8.5.9",
     "sass": "^1.99.0",
     "snazzy": "^9.0.0",
     "standard": "^17.1.2",
