@@ -61,7 +61,7 @@ gem "uk_postcode"
 gem "lograge"
 
 # For distributed tracing and telemetry
-gem "opentelemetry-exporter-otlp", "~> 0.32.0"
+gem "opentelemetry-exporter-otlp", "~> 0.33.0"
 gem "opentelemetry-instrumentation-all", "~> 0.91.0"
 gem "opentelemetry-propagator-xray", "~> 0.26.1"
 gem "opentelemetry-sdk", "~> 1.10"
