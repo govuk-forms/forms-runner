@@ -19,7 +19,11 @@ module Forms
 
       current_context.save_copy_of_answers_preference(@copy_of_answers_input.wants_copy?)
 
-      redirect_to check_your_answers_path(form_id: current_context.form.id, form_slug: current_context.form.form_slug)
+      if @copy_of_answers_input.wants_copy?
+        redirect_to continue_to_one_login_path(form_id: current_context.form.id, form_slug: current_context.form.form_slug)
+      else
+        redirect_to check_your_answers_path(form_id: current_context.form.id, form_slug: current_context.form.form_slug)
+      end
     end
 
   private
@@ -41,7 +45,7 @@ module Forms
     end
 
     def redirect_if_feature_disabled
-      return if FeatureService.enabled?("filler_answer_email_enabled")
+      return if FeatureService.enabled?(:filler_answer_email_enabled)
 
       redirect_to check_your_answers_path(form_id: current_context.form.id, form_slug: current_context.form.form_slug)
     end

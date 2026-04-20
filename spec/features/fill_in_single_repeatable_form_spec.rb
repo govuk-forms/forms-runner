@@ -1,6 +1,6 @@
 require "rails_helper"
 
-feature "Fill in and submit a form with a single repeatable question", type: :feature do
+feature "Fill in and submit a form with a single repeatable question", :feature_filler_answer_email_enabled, type: :feature do
   let(:steps) { [build(:v2_question_step, :with_repeatable, answer_type: "number", question_text:)] }
   let(:form) { build :v2_form_document, :live, form_id: 42, name: "Form with repeating question", steps:, start_page: steps.first.id }
 
@@ -18,7 +18,6 @@ feature "Fill in and submit a form with a single repeatable question", type: :fe
     end
 
     allow(ReferenceNumberService).to receive(:generate).and_return(reference)
-    allow(FeatureService).to receive(:enabled?).with("filler_answer_email_enabled").and_return(true)
   end
 
   scenario "As a form filler" do

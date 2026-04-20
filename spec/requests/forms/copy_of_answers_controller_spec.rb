@@ -38,14 +38,11 @@ RSpec.describe Forms::CopyOfAnswersController, type: :request do
     allow(Flow::Context).to receive(:new).and_wrap_original do |original_method, *args|
       original_method.call(form: args[0][:form], form_document: args[0][:form_document], store:)
     end
-
-    allow(FeatureService).to receive(:enabled?).with("filler_answer_email_enabled").and_return(true)
   end
 
   describe "GET #show" do
-    context "when the feature flag is disabled" do
+    context "when the feature flag is disabled", feature_filler_answer_email_enabled: false do
       before do
-        allow(FeatureService).to receive(:enabled?).with("filler_answer_email_enabled").and_return(false)
         get copy_of_answers_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
       end
 
@@ -54,9 +51,8 @@ RSpec.describe Forms::CopyOfAnswersController, type: :request do
       end
     end
 
-    context "when the feature flag is enabled" do
+    context "when the feature flag is enabled", :feature_filler_answer_email_enabled do
       before do
-        allow(FeatureService).to receive(:enabled?).with("filler_answer_email_enabled").and_return(true)
         get copy_of_answers_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
       end
 
@@ -108,7 +104,7 @@ RSpec.describe Forms::CopyOfAnswersController, type: :request do
     end
   end
 
-  describe "POST #save" do
+  describe "POST #save", :feature_filler_answer_email_enabled do
     context "with valid params" do
       context "when user wants a copy of answers" do
         let(:params) { { copy_of_answers_input: { copy_of_answers: "yes" } } }
@@ -117,8 +113,8 @@ RSpec.describe Forms::CopyOfAnswersController, type: :request do
           post save_copy_of_answers_path(mode:, form_id: form.form_id, form_slug: form.form_slug), params:
         end
 
-        it "redirects to check your answers" do
-          expect(response).to redirect_to(check_your_answers_path(form_id: form.form_id, form_slug: form.form_slug, mode:))
+        it "redirects to the continue to one login page" do
+          expect(response).to redirect_to(continue_to_one_login_path(form_id: form.form_id, form_slug: form.form_slug, mode:))
         end
 
         it "saves the preference" do
