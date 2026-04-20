@@ -12,7 +12,15 @@ module Flow
     delegate :support_details, to: :form
     delegate :step_by_id, :previous_step, :next_step_slug, :next_step, :can_visit?, :completed_steps, :all_steps, to: :journey
     delegate :clear_stored_answer, :clear, :form_submitted?, :answers, :locales_used, to: :answer_store
-    delegate :save_submission_details, :get_submission_reference, :requested_email_confirmation?, :clear_submission_details, :save_copy_of_answers_preference, :wants_copy_of_answers?, to: :confirmation_details_store
+    delegate :save_submission_details,
+             :get_submission_reference,
+             :requested_email_confirmation?,
+             :clear_submission_details,
+             :save_copy_of_answers_preference,
+             :wants_copy_of_answers?,
+             :save_copy_of_answers_email_address,
+             :get_copy_of_answers_email_address,
+             to: :confirmation_details_store
 
     def save_step(step, locale: :en, context: nil)
       return false unless step.valid?(context)
