@@ -1,5 +1,5 @@
 import { initAll } from 'govuk-frontend'
-import dfeAutocomplete from 'dfe-autocomplete'
+import rawDfeAutocomplete from 'dfe-autocomplete'
 import {
   loadConsentStatus,
   CONSENT_STATUS
@@ -52,5 +52,11 @@ if (document.body.dataset.googleAnalyticsEnabled === 'true') {
 }
 
 initAll()
+
+// We need to use the default export from the module, but Rolldown interprets the import as an ESM module.
+// We use rolldown's suggestion to make sure we set window.dfeAutocomplete to the default export, not the object which represents the module
+// https://rolldown.rs/in-depth/bundling-cjs#ambiguous-default-import-from-cjs-modules
+const dfeAutocomplete =
+  typeof rawDfeAutocomplete === 'object' && rawDfeAutocomplete !== null && rawDfeAutocomplete.__esModule ? rawDfeAutocomplete.default : rawDfeAutocomplete
 
 window.dfeAutocomplete = dfeAutocomplete
