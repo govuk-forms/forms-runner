@@ -82,12 +82,12 @@ class Step
       return nil
     end
 
-    if first_condition_default?
-      return goto_condition_step_slug(routing_conditions.first)
+    if matching_condition = any_condition_default?
+      return goto_condition_step_slug(matching_condition)
     end
 
-    if first_condition_matches?
-      return goto_condition_step_slug(routing_conditions.first)
+    if matching_condition = any_condition_matches?
+      return goto_condition_step_slug(matching_condition)
     end
 
     next_step_slug
@@ -143,17 +143,27 @@ private
 
   def first_condition_matches?
     return unless question.respond_to?(:selection)
+    return unless routing_conditions.any?
 
-    return question.selection == I18n.t("page.none_of_the_above") if routing_condition_none_of_the_above
+    return question.selection == I18n.t("page.none_of_the_above") if routing_conditions.first.answer_value == :none_of_the_above.to_s
 
-    routing_conditions.any? && (routing_conditions.first.answer_value == question.selection)
+    routing_conditions.first.answer_value == question.selection
   end
 
-  def first_condition_default?
-    routing_conditions.any? && routing_conditions.first.answer_value.blank?
+  def any_condition_matches?
+    return unless question.respond_to?(:selection)
+
+    none_of_the_above_condition = routing_condition_none_of_the_above
+    return none_of_the_above_condition if question.selection == I18n.t("page.none_of_the_above") && none_of_the_above_condition
+
+    routing_conditions.any? && routing_conditions.find { it.answer_value == question.selection }
+  end
+
+  def any_condition_default?
+    routing_conditions.any? && routing_conditions.find { it.answer_value.blank? }
   end
 
   def routing_condition_none_of_the_above
-    routing_conditions.any? && routing_conditions.first.answer_value == :none_of_the_above.to_s
+    routing_conditions.any? && routing_conditions.find { it.answer_value == :none_of_the_above.to_s }
   end
 end
