@@ -254,6 +254,8 @@ namespace :submissions do
       submission.answers.each_pair do |question_id, answer|
         next unless answer.include?("original_filename") && answer["original_filename"].blank? && answer["uploaded_file_key"].present?
 
+        Rails.logger.info "Updating blank original_filename for answer to question #{question_id} in submission with reference #{submission.reference}"
+
         step = submission.journey.step_by_id(question_id)
         extension = ::File.extname(answer["uploaded_file_key"])
         filename = "#{step.step_number}-#{step.question_text.parameterize}#{extension}"
@@ -263,8 +265,9 @@ namespace :submissions do
       submission.save!
 
       if submission.answers_previously_changed?
-        Rails.logger.info "Re-delivering submission with reference #{submission.reference}"
-        SendSubmissionJob.perform_later(submission)
+        Rails.logger.info "Submission for reference #{submission.reference} has been updated, retry submission with jobs:retry_failed"
+      else
+        Rails.logger.info "No filenames missing, nothing to do"
       end
     end
   end
