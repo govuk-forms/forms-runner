@@ -24,4 +24,7 @@ Rails.application.config.middleware.use OmniAuth::Builder do
     pkce: false,
     userinfo_claims: [],
   }
+
+  # will call `Users::OmniauthController#failure` if there are any errors during the login process
+  on_failure { |env| Users::OmniauthController.action(:failure).call(env) }
 end

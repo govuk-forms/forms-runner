@@ -82,4 +82,12 @@ RSpec.describe Users::OmniauthController, type: :request do
       end
     end
   end
+
+  describe "GET #failure" do
+    let(:error_message) { "an error message" }
+
+    it "raises a OmniAuthFailure error" do
+      expect { get omniauth_failure_path, env: { "omniauth.error" => error_message } }.to raise_error(Users::OmniauthController::OmniAuthFailure, error_message)
+    end
+  end
 end

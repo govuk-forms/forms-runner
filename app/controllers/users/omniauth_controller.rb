@@ -1,6 +1,7 @@
 module Users
   class OmniauthController < ApplicationController
     class OmniAuthLoggedInDataMissingError < StandardError; end
+    class OmniAuthFailure < StandardError; end
 
     rescue_from Store::ReturnFromOneLoginStore::MissingReturnParamsError do
       Rails.logger.warn("Missing return params in session for One Login callback")
@@ -20,6 +21,11 @@ module Users
       Store::ConfirmationDetailsStore.new(session, form_id).save_copy_of_answers_email_address(email)
 
       redirect_to check_your_answers_path(**path_params)
+    end
+
+    def failure
+      error = request.env["omniauth.error"]
+      raise OmniAuthFailure, error
     end
   end
 end
