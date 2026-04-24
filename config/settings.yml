@@ -15,6 +15,11 @@ forms_product_page:
   # URL to link to the JSON schema hosted on the product page
   base_url: http://localhost:3002
 
+govuk_one_login:
+  private_key:
+  client_id: changeme
+  base_url: https://oidc.integration.account.gov.uk/
+
 # Settings for GOV.UK Notify api & email templates
 govuk_notify:
   api_key: changeme
