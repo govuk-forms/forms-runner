@@ -1,18 +1,11 @@
-require "rake"
 require "rails_helper"
 
-RSpec.describe "jobs.rake" do
+RSpec.describe "jobs.rake", type: :task do
   include ActiveJob::TestHelper
-
-  before do
-    Rake.application.rake_require "tasks/jobs"
-    Rake::Task.define_task(:environment)
-  end
 
   describe "jobs:retry_failed" do
     subject(:task) do
       Rake::Task["jobs:retry_failed"]
-        .tap(&:reenable)
     end
 
     # If a job is retried, there are multiple jobs with the same active_job_id but the failed execution is only
@@ -75,7 +68,6 @@ RSpec.describe "jobs.rake" do
   describe "jobs:delete_failed" do
     subject(:task) do
       Rake::Task["jobs:delete_failed"]
-        .tap(&:reenable)
     end
 
     # If a job is retried, there are multiple jobs with the same active_job_id but the failed execution is only
@@ -149,7 +141,6 @@ RSpec.describe "jobs.rake" do
   describe "jobs:retry_all_failed" do
     subject(:task) do
       Rake::Task["jobs:retry_all_failed"]
-        .tap(&:reenable)
     end
 
     let(:failed_job) { create :solid_queue_job, class_name: SendSubmissionJob.name }
@@ -191,7 +182,6 @@ RSpec.describe "jobs.rake" do
   describe "jobs:list_failed" do
     subject(:task) do
       Rake::Task["jobs:list_failed"]
-        .tap(&:reenable)
     end
 
     let(:queue_name) { "queue-1" }
