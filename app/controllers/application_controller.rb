@@ -118,4 +118,8 @@ private
 
     false
   end
+
+  def auth_store
+    @auth_store ||= Store::AuthStore.new(session)
+  end
 end
