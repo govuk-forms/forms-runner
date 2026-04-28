@@ -1,24 +1,28 @@
 require "rails_helper"
 
 RSpec.describe Users::OmniauthController, type: :request do
+  let(:form_id) { 42 }
+  let(:form_slug) { "test-form" }
+  let(:mode) { "preview-draft" }
+  let(:locale) { "cy" }
+  let(:return_from_one_login_session) do
+    {
+      "last_form_id" => form_id,
+      "last_form_slug" => form_slug,
+      "last_mode" => mode,
+      "last_locale" => locale,
+    }
+  end
+
   describe "GET #callback" do
-    let(:form_id) { 42 }
-    let(:form_slug) { "test-form" }
-    let(:mode) { "preview-draft" }
-    let(:locale) { "cy" }
     let(:store) do
       {
-        "return_from_one_login" => {
-          "last_form_id" => form_id,
-          "last_form_slug" => form_slug,
-          "last_mode" => mode,
-          "last_locale" => locale,
-        },
+        "return_from_one_login" => return_from_one_login_session,
       }.with_indifferent_access
     end
 
     let(:email) { "test@example.com" }
-    let(:token) { Faker::Alphanumeric.alphanumeric }
+    let(:id_token) { Faker::Alphanumeric.alphanumeric }
     let(:auth_hash) do
       {
         provider: :govuk_one_login,
@@ -27,7 +31,7 @@ RSpec.describe Users::OmniauthController, type: :request do
           email:,
         },
         credentials: {
-          token: token,
+          id_token:,
         },
       }.with_indifferent_access
     end
@@ -61,7 +65,7 @@ RSpec.describe Users::OmniauthController, type: :request do
       end
 
       it "stores the token on the session" do
-        expect(store["auth"]["token"]).to eq token
+        expect(store["auth"]["token"]).to eq id_token
       end
     end
 
@@ -96,6 +100,48 @@ RSpec.describe Users::OmniauthController, type: :request do
 
     it "raises a OmniAuthFailure error" do
       expect { get omniauth_failure_path, env: { "omniauth.error" => error_message } }.to raise_error(Users::OmniauthController::OmniAuthFailure, error_message)
+    end
+  end
+
+  describe "GET #logged_out" do
+    let(:token) { Faker::Alphanumeric.alphanumeric }
+
+    before do
+      allow(Store::ReturnFromOneLoginStore).to receive(:new).and_wrap_original do |original_method, *_args|
+        original_method.call(store)
+      end
+      allow(Store::AuthStore).to receive(:new).and_wrap_original do |original_method, *_args|
+        original_method.call(store)
+      end
+    end
+
+    context "when the return from one login params are set on the session" do
+      let(:store) do
+        {
+          "return_from_one_login" => return_from_one_login_session,
+          "auth": { "token": token },
+        }.with_indifferent_access
+      end
+
+      before do
+        get omniauth_logged_out_path
+      end
+
+      it "clears the auth details on the session" do
+        expect(store).not_to have_key("auth")
+      end
+
+      it "redirects to the form submitted page" do
+        expect(response).to redirect_to(form_submitted_path(form_id:, form_slug:, mode:, locale:))
+      end
+    end
+
+    context "when the return from one login params are not set on the session" do
+      let(:store) { {} }
+
+      it "raises a Store::ReturnFromOneLoginStore::MissingReturnParamsError error" do
+        expect { get omniauth_logged_out_path }.to raise_error Store::ReturnFromOneLoginStore::MissingReturnParamsError
+      end
     end
   end
 end

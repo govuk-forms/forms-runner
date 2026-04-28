@@ -17,6 +17,10 @@ module Store
       @store.dig(AUTH_KEY, TOKEN_KEY)
     end
 
+    def clear
+      @store.delete(AUTH_KEY)
+    end
+
     def logged_in?
       get_token.present?
     end
