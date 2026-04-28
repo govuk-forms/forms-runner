@@ -127,11 +127,11 @@ RSpec.describe Step do
   end
 
   describe "#next_step_slug_after_routing" do
-    let(:default_next_step_id) { second_step_id }
+    let(:default_next_step_id) { "11111111" } # dummy value to make the default next step ID obvious when it appears
     let(:selection) { "Yes" }
     let(:question) { instance_double(Question::Selection, selection:) }
     let(:routing_conditions) { [] }
-    let(:form_document_step) { build(:v2_question_step, id: first_step_id, position: 1, next_step_id: default_next_step_id, routing_conditions:) }
+    let(:form_document_step) { build(:v2_question_step, id: "00000000", position: 1, next_step_id: default_next_step_id, routing_conditions:) }
 
     describe "basic routing" do
       context "without any routing conditions" do
