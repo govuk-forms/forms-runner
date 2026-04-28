@@ -86,8 +86,8 @@ class Step
       return goto_condition_step_slug(routing_conditions.first)
     end
 
-    if first_condition_matches?
-      return goto_condition_step_slug(routing_conditions.first)
+    if (matching_condition = find_matching_condition)
+      return goto_condition_step_slug(matching_condition)
     end
 
     next_step_slug
@@ -141,19 +141,25 @@ private
     end
   end
 
+  def find_matching_condition
+    return unless question.respond_to?(:selection)
+
+    routing_conditions.find { condition_matches? it }
+  end
+
+  def condition_matches?(condition)
+    return question.selection == I18n.t("page.none_of_the_above") if condition.answer_value == :none_of_the_above.to_s
+
+    condition.answer_value == question.selection
+  end
+
   def first_condition_matches?
     return unless question.respond_to?(:selection)
 
-    return question.selection == I18n.t("page.none_of_the_above") if routing_condition_none_of_the_above
-
-    routing_conditions.any? && (routing_conditions.first.answer_value == question.selection)
+    routing_conditions.any? && condition_matches?(routing_conditions.first)
   end
 
   def first_condition_default?
     routing_conditions.any? && routing_conditions.first.answer_value.blank?
-  end
-
-  def routing_condition_none_of_the_above
-    routing_conditions.any? && routing_conditions.first.answer_value == :none_of_the_above.to_s
   end
 end

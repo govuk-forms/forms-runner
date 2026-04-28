@@ -224,46 +224,58 @@ RSpec.describe Step do
       end
     end
 
-    describe "with invalid states" do
-      context "with multiple conditions and second matches" do
-        let(:routing_conditions) do
-          [
-            OpenStruct.new(answer_value: "No", goto_page_id: first_step_id),
-            OpenStruct.new(answer_value: "Yes", goto_page_id: second_step_id),
-            OpenStruct.new(answer_value: "Maybe", goto_page_id: third_step_id),
-          ]
+    context "with multiple conditions" do
+      let(:routing_conditions) do
+        [
+          OpenStruct.new(answer_value: "No", goto_page_id: first_step_id),
+          OpenStruct.new(answer_value: "Yes", goto_page_id: second_step_id),
+          OpenStruct.new(answer_value: "Maybe", goto_page_id: third_step_id),
+        ]
+      end
+
+      context "and first matches" do
+        let(:selection) { "No" }
+
+        it "returns the next_step_slug" do
+          expect(step.next_step_slug_after_routing).to eq(first_step_id)
         end
+      end
+
+      context "and second matches" do
         let(:selection) { "Yes" }
 
         it "returns the next_step_slug" do
-          expect(step.next_step_slug_after_routing).to eq(default_next_step_id)
+          expect(step.next_step_slug_after_routing).to eq(second_step_id)
         end
       end
 
-      context "with multiple conditions and second is default" do
-        let(:routing_conditions) do
-          [
-            OpenStruct.new(answer_value: "No", goto_page_id: first_step_id),
-            OpenStruct.new(answer_value: "Yes", goto_page_id: second_step_id),
-            OpenStruct.new(answer_value: "", goto_page_id: third_step_id),
-          ]
+      context "and third matches" do
+        let(:selection) { "Maybe" }
+
+        it "returns the next_step_slug" do
+          expect(step.next_step_slug_after_routing).to eq(third_step_id)
         end
-        let(:selection) { "Something else" }
+      end
+
+      context "but none match" do
+        let(:selection) { "Something Else" }
 
         it "returns the next_step_slug" do
           expect(step.next_step_slug_after_routing).to eq(default_next_step_id)
         end
       end
+    end
 
-      context "with multiple conditions but no matches" do
+    describe "with invalid states" do
+      context "with multiple conditions and default matches" do
         let(:routing_conditions) do
           [
-            OpenStruct.new(answer_value: "Yes", goto_page_id: first_step_id),
-            OpenStruct.new(answer_value: "No", goto_page_id: second_step_id),
-            OpenStruct.new(answer_value: "Maybe", goto_page_id: third_step_id),
+            OpenStruct.new(answer_value: "No", goto_page_id: first_step_id),
+            OpenStruct.new(answer_value: "Yes", goto_page_id: second_step_id),
+            OpenStruct.new(answer_value: nil, goto_page_id: third_step_id),
           ]
         end
-        let(:selection) { "Something Else" }
+        let(:selection) { "Something else" }
 
         it "returns the next_step_slug" do
           expect(step.next_step_slug_after_routing).to eq(default_next_step_id)
