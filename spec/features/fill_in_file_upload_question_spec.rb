@@ -1,6 +1,6 @@
 require "rails_helper"
 
-feature "Fill in and submit a form with a file upload question", type: :feature do
+feature "Fill in and submit a form with a file upload question", :feature_filler_answer_email_enabled, type: :feature do
   include ActiveJob::TestHelper
 
   let(:steps) { [build(:v2_question_step, answer_type: "file", id: 1, routing_conditions: [], question_text:)] }
@@ -35,8 +35,6 @@ feature "Fill in and submit a form with a file upload question", type: :feature 
     allow(Aws::S3::Client).to receive(:new).and_return(mock_s3_client)
     allow(mock_s3_client).to receive(:put_object)
     allow(mock_s3_client).to receive(:get_object_tagging).and_return({ tag_set: [{ key: "GuardDutyMalwareScanStatus", value: scan_status }] })
-
-    allow(FeatureService).to receive(:enabled?).with("filler_answer_email_enabled").and_return(true)
 
     File.write(test_file, test_file_content)
   end

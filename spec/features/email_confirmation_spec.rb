@@ -1,6 +1,6 @@
 require "rails_helper"
 
-feature "Email confirmation", type: :feature do
+feature "Email confirmation", :feature_filler_answer_email_enabled, type: :feature do
   let(:steps) { [build(:v2_question_step, :with_text_settings, id: 1, routing_conditions: [], question_text:)] }
   let(:form) { build :v2_form_document, :live, form_id: 1, name: "Apply for a juggling license", steps:, start_page: 1 }
   let(:question_text) { Faker::Lorem.question }
@@ -13,8 +13,6 @@ feature "Email confirmation", type: :feature do
     ActiveResource::HttpMock.respond_to do |mock|
       mock.get "/api/v2/forms/1/live", req_headers, form.to_json, 200
     end
-
-    allow(FeatureService).to receive(:enabled?).with("filler_answer_email_enabled").and_return(true)
   end
 
   scenario "opting out of email submission returns the confirmation page without confirmation email text" do

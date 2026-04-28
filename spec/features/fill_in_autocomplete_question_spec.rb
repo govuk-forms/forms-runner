@@ -1,6 +1,6 @@
 require "rails_helper"
 
-feature "Fill in and submit a form with an autocomplete question", type: :feature do
+feature "Fill in and submit a form with an autocomplete question", :feature_filler_answer_email_enabled, type: :feature do
   let(:steps) { [build(:v2_selection_question_step, id: 1, routing_conditions: [], question_text:, selection_options:)] }
   let(:form) { build :v2_form_document, :live, form_id: 1, name: "Fill in this form", steps:, start_page: 1 }
   let(:selection_options) { Array.new(31).each_with_index.map { |_element, index| { name: "Answer #{index}", value: "Answer #{index}" } } }
@@ -17,7 +17,6 @@ feature "Fill in and submit a form with an autocomplete question", type: :featur
     end
 
     allow(ReferenceNumberService).to receive(:generate).and_return(reference)
-    allow(FeatureService).to receive(:enabled?).with("filler_answer_email_enabled").and_return(true)
   end
 
   scenario "As a form filler" do

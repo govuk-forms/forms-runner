@@ -382,6 +382,11 @@ en:
         view_english_form: 'You can still complete the form in English:'
         welsh_version_archived: The Welsh version of this form has been archived and is no longer available.
     back: Back
+    continue_to_one_login:
+      show:
+        body: To help make sure the information we send you stays secure, you’ll need to sign in to or create a GOV.UK One Login.
+        continue_button: Continue to GOV.UK One Login
+        title: Use GOV.UK One Login to keep your information secure
     copy_of_answers:
       show:
         heading: Do you want to get an email with a copy of your answers?

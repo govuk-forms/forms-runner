@@ -1,6 +1,6 @@
 require "rails_helper"
 
-feature "Fill in and submit a form with a CSV submission", type: :feature do
+feature "Fill in and submit a form with a CSV submission", :feature_filler_answer_email_enabled, type: :feature do
   let(:steps) do
     [
       build(:v2_selection_question_step, id: 1, question_text: "A routing question", routing_conditions: [DataStruct.new(routing_page_id: 1, check_page_id: 1, answer_value: "Option 1", goto_page_id: nil, skip_to_end: true, validation_errors: [])], next_step_id: 2),
@@ -17,7 +17,6 @@ feature "Fill in and submit a form with a CSV submission", type: :feature do
     end
 
     allow(ReferenceNumberService).to receive(:generate).and_return(reference)
-    allow(FeatureService).to receive(:enabled?).with("filler_answer_email_enabled").and_return(true)
 
     travel_to Time.parse("2029-01-24T05:05:50+00:00")
   end

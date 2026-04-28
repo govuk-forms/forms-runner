@@ -2,8 +2,9 @@ module Store
   class ConfirmationDetailsStore
     CONFIRMATION_KEY = :confirmation_details
     SUBMISSION_REFERENCE_KEY = :submission_reference
-    REQUESTED_EMAIL_KEY = :requested_email_confirmation
-    COPY_OF_ANSWERS_KEY = :wants_copy_of_answers
+    REQUESTED_EMAIL_CONFIRMATION_KEY = :requested_email_confirmation
+    REQUESTED_COPY_OF_ANSWERS_KEY = :wants_copy_of_answers
+    COPY_OF_ANSWERS_EMAIL_ADDRESS_KEY = :copy_of_answers_email_address
 
     def initialize(store, form_id)
       @store = store
@@ -14,7 +15,7 @@ module Store
     def save_submission_details(reference, requested_email_confirmation)
       @store[CONFIRMATION_KEY][@form_key] ||= {}
       @store[CONFIRMATION_KEY][@form_key][SUBMISSION_REFERENCE_KEY.to_s] = reference
-      @store[CONFIRMATION_KEY][@form_key][REQUESTED_EMAIL_KEY.to_s] = requested_email_confirmation
+      @store[CONFIRMATION_KEY][@form_key][REQUESTED_EMAIL_CONFIRMATION_KEY.to_s] = requested_email_confirmation
     end
 
     def get_submission_reference
@@ -22,16 +23,25 @@ module Store
     end
 
     def requested_email_confirmation?
-      @store.dig(CONFIRMATION_KEY, @form_key, REQUESTED_EMAIL_KEY.to_s)
+      @store.dig(CONFIRMATION_KEY, @form_key, REQUESTED_EMAIL_CONFIRMATION_KEY.to_s)
     end
 
     def save_copy_of_answers_preference(wants_copy)
       @store[CONFIRMATION_KEY][@form_key] ||= {}
-      @store[CONFIRMATION_KEY][@form_key][COPY_OF_ANSWERS_KEY.to_s] = wants_copy
+      @store[CONFIRMATION_KEY][@form_key][REQUESTED_COPY_OF_ANSWERS_KEY.to_s] = wants_copy
     end
 
     def wants_copy_of_answers?
-      @store.dig(CONFIRMATION_KEY, @form_key, COPY_OF_ANSWERS_KEY.to_s)
+      @store.dig(CONFIRMATION_KEY, @form_key, REQUESTED_COPY_OF_ANSWERS_KEY.to_s)
+    end
+
+    def save_copy_of_answers_email_address(email_address)
+      @store[CONFIRMATION_KEY][@form_key] ||= {}
+      @store[CONFIRMATION_KEY][@form_key][COPY_OF_ANSWERS_EMAIL_ADDRESS_KEY.to_s] = email_address
+    end
+
+    def get_copy_of_answers_email_address
+      @store.dig(CONFIRMATION_KEY, @form_key, COPY_OF_ANSWERS_EMAIL_ADDRESS_KEY.to_s)
     end
 
     def clear_submission_details

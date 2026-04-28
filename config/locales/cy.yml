@@ -382,6 +382,11 @@ cy:
         view_english_form: 'Gallwch lenwi’r ffurflen yn Saesneg o hyd:'
         welsh_version_archived: Mae’r fersiwn Gymraeg o’r ffurflen hon wedi’i harchifo ac nid yw ar gael mwyach.
     back: Yn ôl
+    continue_to_one_login:
+      show:
+        body: To help make sure the information we send you stays secure, you’ll need to sign in to or create a GOV.UK One Login.
+        continue_button: Continue to GOV.UK One Login
+        title: Use GOV.UK One Login to keep your information secure
     copy_of_answers:
       show:
         heading: PLACEHOLDER! Ydych chi eisiau copi o'ch atebion?
