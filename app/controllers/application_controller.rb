@@ -122,4 +122,8 @@ private
   def auth_store
     @auth_store ||= Store::AuthStore.new(session)
   end
+
+  def return_from_one_login_store
+    @return_from_one_login_store ||= Store::ReturnFromOneLoginStore.new(session)
+  end
 end

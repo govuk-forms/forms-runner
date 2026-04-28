@@ -3,6 +3,7 @@ Rails.application.routes.draw do
 
   get "/auth/govuk_one_login/callback", to: "users/omniauth#callback", as: :omniauth_callback
   get "/auth/failure", to: "users/omniauth#failure", as: :omniauth_failure
+  get "/auth/logged-out", to: "users/omniauth#logged_out", as: :omniauth_logged_out
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
