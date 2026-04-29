@@ -36,6 +36,7 @@ private
         .merge(attribs || {})
         .merge(CurrentRequestLoggingAttributes.as_hash)
         .merge(CurrentJobLoggingAttributes.as_hash)
+        .merge(CurrentTaskLoggingAttributes.as_hash)
         .compact
     rescue NameError
       # if we log during startup for tests, CurrentLoggingAttributes will be uninitialized

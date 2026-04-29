@@ -1,18 +1,11 @@
-require "rake"
 require "rails_helper"
 
-RSpec.describe "submissions.rake" do
+RSpec.describe "submissions.rake", type: :task do
   include ActiveJob::TestHelper
-
-  before do
-    Rake.application.rake_require "tasks/submissions"
-    Rake::Task.define_task(:environment)
-  end
 
   describe "submissions:inspect_submission_data" do
     subject(:task) do
       Rake::Task["submissions:inspect_submission_data"]
-        .tap(&:reenable)
     end
 
     let(:form_document) { build :v2_form_document, :with_steps }
@@ -49,7 +42,6 @@ RSpec.describe "submissions.rake" do
   describe "submissions:check_delivery_statuses" do
     subject(:task) do
       Rake::Task["submissions:check_delivery_statuses"]
-        .tap(&:reenable)
     end
 
     before do
@@ -71,7 +63,6 @@ RSpec.describe "submissions.rake" do
   describe "submissions:list_bounced_submissions_for_form" do
     subject(:task) do
       Rake::Task["submissions:list_bounced_submissions_for_form"]
-        .tap(&:reenable)
     end
 
     let(:form_id) { 42 }
@@ -100,7 +91,6 @@ RSpec.describe "submissions.rake" do
   describe "submissions:retry_bounced_deliveries" do
     subject(:task) do
       Rake::Task["submissions:retry_bounced_deliveries"]
-        .tap(&:reenable)
     end
 
     let(:form_id) { 1 }
@@ -179,7 +169,6 @@ RSpec.describe "submissions.rake" do
   describe "submissions:disregard_bounced_delivery" do
     subject(:task) do
       Rake::Task["submissions:disregard_bounced_delivery"]
-        .tap(&:reenable)
     end
 
     let(:delivery_reference) { "delivery-reference" }
@@ -263,7 +252,6 @@ RSpec.describe "submissions.rake" do
   describe "submissions:disregard_bounced_deliveries_for_form" do
     subject(:task) do
       Rake::Task["submissions:disregard_bounced_deliveries_for_form"]
-        .tap(&:reenable)
     end
 
     let(:form_id) { 1 }
@@ -412,7 +400,6 @@ RSpec.describe "submissions.rake" do
   describe "submissions:redeliver_submissions_by_date" do
     subject(:task) do
       Rake::Task["submissions:redeliver_submissions_by_date"]
-        .tap(&:reenable)
     end
 
     let(:form_id) { 1 }
@@ -556,7 +543,6 @@ RSpec.describe "submissions.rake" do
   describe "submissions:redeliver_batches_by_date" do
     subject(:task) do
       Rake::Task["submissions:redeliver_batches_by_date"]
-        .tap(&:reenable)
     end
 
     let(:form_id) { 1 }
@@ -737,7 +723,6 @@ RSpec.describe "submissions.rake" do
   describe "submissions:file_answers:fix_missing_original_filenames" do
     subject(:task) do
       Rake::Task["submissions:file_answers:fix_missing_original_filenames"]
-        .tap(&:reenable)
     end
 
     let(:submission) do
