@@ -3,7 +3,7 @@ module Forms
     before_action :redirect_if_feature_disabled, :redirect_if_form_incomplete
 
     def show
-      Store::ReturnFromOneLoginStore.new(session).store_return_params(
+      auth_service.store_return_params(
         form: current_context.form,
         mode: mode,
         locale: locale_param,

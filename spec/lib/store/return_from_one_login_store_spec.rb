@@ -12,7 +12,7 @@ RSpec.describe Store::ReturnFromOneLoginStore do
     it "stores and return the path params" do
       return_from_one_login_store.store_return_params(form:, mode:, locale:)
 
-      expect(return_from_one_login_store.get_path_params).to eq({
+      expect(return_from_one_login_store.form_path_params).to eq({
         mode: mode.to_s,
         form_id: form.id,
         form_slug: form.form_slug,
@@ -21,7 +21,7 @@ RSpec.describe Store::ReturnFromOneLoginStore do
     end
 
     it "raises an error if the return params have not been stored" do
-      expect { return_from_one_login_store.get_path_params }.to raise_error(Store::ReturnFromOneLoginStore::MissingReturnParamsError)
+      expect { return_from_one_login_store.form_path_params }.to raise_error(Store::ReturnFromOneLoginStore::MissingReturnParamsError)
     end
   end
 

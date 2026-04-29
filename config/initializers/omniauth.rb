@@ -28,3 +28,6 @@ Rails.application.config.middleware.use OmniAuth::Builder do
   # will call `Users::OmniauthController#failure` if there are any errors during the login process
   on_failure { |env| Users::OmniauthController.action(:failure).call(env) }
 end
+
+# Store this globally so we only make a request to the One Login discovery endpoint once as the configuration should not regularly change
+Rails.application.config.x.one_login.idp_configuration = OmniAuth::GovukOneLogin::IdpConfiguration.new(idp_base_url: Settings.govuk_one_login.base_url)

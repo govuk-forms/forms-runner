@@ -43,7 +43,12 @@ module Forms
 
         current_context.save_submission_details(submission_reference, requested_email_confirmation)
 
-        redirect_to :form_submitted
+        if auth_service.logged_in?
+          auth_service.store_return_params(form: current_context.form, mode: mode, locale: locale_param)
+          redirect_to auth_service.logout_redirect_uri(omniauth_logged_out_url), allow_other_host: true
+        else
+          redirect_to :form_submitted
+        end
       rescue FormSubmissionService::ConfirmationEmailToAddressError
         setup_check_your_answers
         email_confirmation_input.errors.add(:confirmation_email_address, :invalid_email)

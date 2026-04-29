@@ -37,7 +37,7 @@ RSpec.describe Forms::ContinueToOneLoginController do
     allow(Flow::Context).to receive(:new).and_wrap_original do |original_method, *args|
       original_method.call(form: args[0][:form], form_document: args[0][:form_document], store:)
     end
-    allow(Store::ReturnFromOneLoginStore).to receive(:new).and_wrap_original do |original_method, *_args|
+    allow(AuthService).to receive(:new).and_wrap_original do |original_method, *_args|
       original_method.call(store)
     end
   end

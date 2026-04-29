@@ -118,4 +118,8 @@ private
 
     false
   end
+
+  def auth_service
+    @auth_service ||= AuthService.new(session)
+  end
 end

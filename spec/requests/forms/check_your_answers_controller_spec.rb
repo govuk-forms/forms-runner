@@ -29,24 +29,23 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
 
   let(:submission_email) { Faker::Internet.email(domain: "example.gov.uk") }
 
-  let(:store) do
+  let(:answers) do
     {
-      answers: {
-        form_id.to_s => {
-          "1" => {
-            "date_year" => "2000",
-            "date_month" => "1",
-            "date_day" => "1",
-          },
-          "2" => {
-            "date_year" => "2023",
-            "date_month" => "6",
-            "date_day" => "9",
-          },
+      form_id.to_s => {
+        "1" => {
+          "date_year" => "2000",
+          "date_month" => "1",
+          "date_day" => "1",
+        },
+        "2" => {
+          "date_year" => "2023",
+          "date_month" => "6",
+          "date_day" => "9",
         },
       },
     }
   end
+  let(:store) { { answers: }.with_indifferent_access }
 
   let(:steps_data) do
     [
@@ -92,6 +91,9 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
       context_spy = original_method.call(form: args[0][:form], form_document: args[0][:form_document], store:)
       allow(context_spy).to receive(:form_submitted?).and_return(repeat_form_submission)
       context_spy
+    end
+    allow(Store::AuthStore).to receive(:new).and_wrap_original do |original_method, *_args|
+      original_method.call(store)
     end
 
     allow(ReferenceNumberService).to receive(:generate).and_return(reference)
@@ -311,6 +313,43 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
             key: expected_key_name,
           },
         )
+      end
+    end
+
+    context "when the user has logged in with One Login" do
+      let(:token) { Faker::Alphanumeric.alphanumeric }
+      let(:store) do
+        {
+          answers:,
+          auth: { token: },
+        }.with_indifferent_access
+      end
+      let(:end_session_endpoint) { "http://example.com/one-login-mock/logout" }
+
+      before do
+        allow(AuthService).to receive(:new).and_wrap_original do |original_method, *_args|
+          original_method.call(store)
+        end
+
+        idp_configuration = instance_double(OmniAuth::GovukOneLogin::IdpConfiguration, end_session_endpoint:)
+        allow(Rails.application.config.x).to receive(:one_login).and_return(double(idp_configuration:))
+
+        post form_submit_answers_path(form_id:, form_slug: "form-name", mode:), params: { email_confirmation_input: }
+      end
+
+      it "saves the path params for returning from One Login on the session" do
+        expect(store).to have_key "return_from_one_login"
+        expect(store["return_from_one_login"]).to eq({
+          "last_form_id" => form_data.form_id,
+          "last_form_slug" => form_data.form_slug,
+          "last_mode" => mode.to_s,
+          "last_locale" => nil,
+        })
+      end
+
+      it "redirects to the One Login logout page" do
+        post_logout_redirect_url = CGI.escape("http://www.example.com/auth/logged-out")
+        expect(response).to redirect_to(/#{end_session_endpoint}\?id_token_hint=#{token}&post_logout_redirect_uri=#{post_logout_redirect_url}/)
       end
     end
 

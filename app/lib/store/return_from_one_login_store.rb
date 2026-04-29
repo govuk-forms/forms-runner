@@ -20,7 +20,7 @@ module Store
       @store[RETURN_FROM_ONE_LOGIN_KEY][LAST_LOCALE_KEY] = locale
     end
 
-    def get_path_params
+    def form_path_params
       raise MissingReturnParamsError if @store[RETURN_FROM_ONE_LOGIN_KEY].blank?
 
       {
