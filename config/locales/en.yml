@@ -335,6 +335,11 @@ en:
       body_2: If you want to submit the form again, you need to
       link_text: go back to the start
       title: For your security, we deleted your answers
+    return_from_one_login_session_missing:
+      body_html: |
+        <p>We could not confirm your email address using GOV.UK One Login.</p>
+        <p>You’ll need to go back to the form and submit your answers - try clicking the ‘Back’ button in your browser.</p>
+      title: Sorry, something has gone wrong
     submission_error:
       body: |
         There was a problem with the service and we have been unable to submit your answers.

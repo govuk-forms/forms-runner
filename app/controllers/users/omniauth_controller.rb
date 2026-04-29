@@ -8,6 +8,8 @@ module Users
 
       link_url = copy_of_answers_path(**auth_service.form_path_params)
       render "errors/auth_error", locals: { link_url: }, status: :bad_request
+    rescue Store::ReturnFromOneLoginStore::MissingReturnParamsError
+      render "errors/return_from_one_login_session_missing", status: :bad_request
     end
 
     def callback
@@ -15,9 +17,9 @@ module Users
       auth_service.store_auth_details(auth_hash)
 
       redirect_to check_your_answers_path(**auth_service.form_path_params)
-    rescue Store::ReturnFromOneLoginStore::MissingReturnParamsError
-      Rails.logger.warn("Missing return params in session for One Login callback")
-      redirect_to error_404_path
+    rescue Store::ReturnFromOneLoginStore::MissingReturnParamsError => e
+      CurrentRequestLoggingAttributes.rescued_exception = [e.class.name, e.message]
+      render "errors/return_from_one_login_session_missing", status: :bad_request
     end
 
     def failure
