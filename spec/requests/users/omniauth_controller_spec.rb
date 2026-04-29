@@ -40,13 +40,7 @@ RSpec.describe Users::OmniauthController, type: :request do
       OmniAuth.config.test_mode = true
       OmniAuth.config.mock_auth[:default] = auth_hash
 
-      allow(Store::ReturnFromOneLoginStore).to receive(:new).and_wrap_original do |original_method, *_args|
-        original_method.call(store)
-      end
-      allow(Store::ConfirmationDetailsStore).to receive(:new).and_wrap_original do |original_method, *args|
-        original_method.call(store, args[1])
-      end
-      allow(Store::AuthStore).to receive(:new).and_wrap_original do |original_method, *_args|
+      allow(AuthService).to receive(:new).and_wrap_original do |original_method, *_args|
         original_method.call(store)
       end
     end
@@ -69,19 +63,11 @@ RSpec.describe Users::OmniauthController, type: :request do
       end
     end
 
-    context "when the auth details are not present on the request" do
+    context "when data is missing on the auth details on the request" do
       let(:auth_hash) { {} }
 
       it "raises an OmniAuthLoggedInDataMissingError" do
-        expect { get omniauth_callback_path }.to raise_error(Users::OmniauthController::OmniAuthLoggedInDataMissingError)
-      end
-    end
-
-    context "when the email on the auth hash is blank" do
-      let(:email) { "" }
-
-      it "raises a OmniAuthLoggedInDataMissingError" do
-        expect { get omniauth_callback_path }.to raise_error(Users::OmniauthController::OmniAuthLoggedInDataMissingError)
+        expect { get omniauth_callback_path }.to raise_error(AuthService::DataMissingError)
       end
     end
 
@@ -107,10 +93,7 @@ RSpec.describe Users::OmniauthController, type: :request do
     let(:token) { Faker::Alphanumeric.alphanumeric }
 
     before do
-      allow(Store::ReturnFromOneLoginStore).to receive(:new).and_wrap_original do |original_method, *_args|
-        original_method.call(store)
-      end
-      allow(Store::AuthStore).to receive(:new).and_wrap_original do |original_method, *_args|
+      allow(AuthService).to receive(:new).and_wrap_original do |original_method, *_args|
         original_method.call(store)
       end
     end

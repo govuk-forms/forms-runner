@@ -43,9 +43,9 @@ module Forms
 
         current_context.save_submission_details(submission_reference, requested_email_confirmation)
 
-        if auth_store.logged_in?
-          return_from_one_login_store.store_return_params(form: current_context.form, mode: mode, locale: locale_param)
-          redirect_to logout_request.redirect_uri, allow_other_host: true
+        if auth_service.logged_in?
+          auth_service.store_return_params(form: current_context.form, mode: mode, locale: locale_param)
+          redirect_to auth_service.logout_redirect_uri(omniauth_logged_out_url), allow_other_host: true
         else
           redirect_to :form_submitted
         end
@@ -86,11 +86,6 @@ module Forms
           previous_step.repeatable? ? add_another_answer_path(form_id: current_context.form.id, form_slug: current_context.form.form_slug, step_slug: previous_step.id) : form_step_path(current_context.form.id, current_context.form.form_slug, previous_step.id)
         end
       end
-    end
-
-    def logout_request
-      token = auth_store.get_token
-      AuthService.new.logout_request(token, omniauth_logged_out_url)
     end
   end
 end

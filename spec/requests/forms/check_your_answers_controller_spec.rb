@@ -327,7 +327,7 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
       let(:end_session_endpoint) { "http://example.com/one-login-mock/logout" }
 
       before do
-        allow(Store::ReturnFromOneLoginStore).to receive(:new).and_wrap_original do |original_method, *_args|
+        allow(AuthService).to receive(:new).and_wrap_original do |original_method, *_args|
           original_method.call(store)
         end
 

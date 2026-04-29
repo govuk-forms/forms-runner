@@ -1,25 +1,12 @@
 module Users
   class OmniauthController < ApplicationController
-    class OmniAuthLoggedInDataMissingError < StandardError; end
-
     class OmniAuthFailure < StandardError; end
 
     def callback
       auth_hash = request.env["omniauth.auth"]
-      raise OmniAuthLoggedInDataMissingError, "Auth hash is missing on request" if auth_hash.blank?
+      auth_service.store_auth_details(auth_hash)
 
-      email = auth_hash.dig("info", "email")
-      raise OmniAuthLoggedInDataMissingError, "Email is missing in OmniAuth auth hash" if email.blank?
-
-      token = auth_hash.dig("credentials", "id_token")
-      raise OmniAuthLoggedInDataMissingError, "Token is missing in OmniAuth auth hash" if token.blank?
-
-      auth_store.store_token(token)
-
-      form_id = return_from_one_login_store.form_id
-      path_params = return_from_one_login_store.get_path_params
-
-      Store::ConfirmationDetailsStore.new(session, form_id).save_copy_of_answers_email_address(email)
+      path_params = auth_service.form_path_params
 
       redirect_to check_your_answers_path(**path_params)
     rescue Store::ReturnFromOneLoginStore::MissingReturnParamsError
@@ -33,9 +20,9 @@ module Users
     end
 
     def logged_out
-      auth_store.clear
+      auth_service.clear_auth_session
 
-      path_params = return_from_one_login_store.get_path_params
+      path_params = auth_service.form_path_params
       redirect_to form_submitted_path(**path_params)
     end
   end
