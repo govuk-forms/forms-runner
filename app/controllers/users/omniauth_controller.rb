@@ -32,6 +32,9 @@ module Users
 
       path_params = auth_service.form_path_params
       redirect_to form_submitted_path(**path_params)
+    rescue Store::ReturnFromOneLoginStore::MissingReturnParamsError => e
+      CurrentRequestLoggingAttributes.rescued_exception = [e.class.name, e.message]
+      redirect_to :unknown_form_submitted
     end
   end
 end

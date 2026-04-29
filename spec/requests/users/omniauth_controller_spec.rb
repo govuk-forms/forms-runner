@@ -149,13 +149,14 @@ RSpec.describe Users::OmniauthController, type: :request do
     end
   end
 
-  describe "GET #logged_out" do
+  describe "GET #logged_out", :capture_logging do
     let(:token) { Faker::Alphanumeric.alphanumeric }
 
     before do
       allow(AuthService).to receive(:new).and_wrap_original do |original_method, *_args|
         original_method.call(store)
       end
+      get omniauth_logged_out_path
     end
 
     context "when the return from one login params are set on the session" do
@@ -164,10 +165,6 @@ RSpec.describe Users::OmniauthController, type: :request do
           "return_from_one_login" => return_from_one_login_session,
           "auth": { "token": token },
         }.with_indifferent_access
-      end
-
-      before do
-        get omniauth_logged_out_path
       end
 
       it "clears the auth details on the session" do
@@ -182,8 +179,12 @@ RSpec.describe Users::OmniauthController, type: :request do
     context "when the return from one login params are not set on the session" do
       let(:store) { {} }
 
-      it "raises a Store::ReturnFromOneLoginStore::MissingReturnParamsError error" do
-        expect { get omniauth_logged_out_path }.to raise_error Store::ReturnFromOneLoginStore::MissingReturnParamsError
+      it "redirects to the unknown form submitted page" do
+        expect(response).to redirect_to(:unknown_form_submitted)
+      end
+
+      it "logs the error" do
+        expect(log_lines.last["rescued_exception"]).to eq(["Store::ReturnFromOneLoginStore::MissingReturnParamsError", "Return from One Login parameters are missing from the session"])
       end
     end
   end
