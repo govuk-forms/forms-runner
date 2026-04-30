@@ -13,8 +13,15 @@ RSpec.describe Users::OmniauthController, type: :request do
       "last_locale" => locale,
     }
   end
+  let(:store) { {}.with_indifferent_access }
 
-  describe "GET #callback" do
+  before do
+    allow(AuthService).to receive(:new).and_wrap_original do |original_method, *_args|
+      original_method.call(store)
+    end
+  end
+
+  describe "GET #callback", :capture_logging do
     let(:store) do
       {
         "return_from_one_login" => return_from_one_login_session,
@@ -39,17 +46,12 @@ RSpec.describe Users::OmniauthController, type: :request do
     before do
       OmniAuth.config.test_mode = true
       OmniAuth.config.mock_auth[:default] = auth_hash
+      allow(Sentry).to receive(:capture_exception)
 
-      allow(AuthService).to receive(:new).and_wrap_original do |original_method, *_args|
-        original_method.call(store)
-      end
+      get omniauth_callback_path
     end
 
     context "when the auth details are present on the request and the user has a valid session" do
-      before do
-        get omniauth_callback_path
-      end
-
       it "redirects to the check your answers page" do
         expect(response).to redirect_to(check_your_answers_path(form_id:, form_slug:, mode:, locale:))
       end
@@ -66,36 +68,95 @@ RSpec.describe Users::OmniauthController, type: :request do
     context "when data is missing on the auth details on the request" do
       let(:auth_hash) { {} }
 
-      it "raises an OmniAuthLoggedInDataMissingError" do
-        expect { get omniauth_callback_path }.to raise_error(AuthService::DataMissingError)
+      it "renders the auth error page" do
+        expect(response).to have_http_status(400)
+        expect(response).to render_template("errors/auth_error")
+        expect(response.body).to include("href=\"#{copy_of_answers_path(mode:, form_id:, form_slug:, locale:)}\"")
+      end
+
+      it "logs the error" do
+        expect(log_lines.last["rescued_exception"]).to eq(["AuthService::DataMissingError", "Auth hash is missing on request"])
+      end
+
+      it "sends the error to Sentry" do
+        expect(Sentry).to have_received(:capture_exception).with(
+          an_instance_of(AuthService::DataMissingError),
+        )
       end
     end
 
     context "when the return from one login params are not present on the session" do
       let(:store) { {} }
 
-      it "redirects to the 404 error page" do
-        get omniauth_callback_path
-        expect(response).to redirect_to(error_404_path)
+      it "renders the return from one login session missing page" do
+        expect(response).to have_http_status(400)
+        expect(response).to render_template("errors/return_from_one_login_session_missing")
+      end
+
+      it "logs the error" do
+        expect(log_lines.last["rescued_exception"]).to eq(["Store::ReturnFromOneLoginStore::MissingReturnParamsError", "Return from One Login parameters are missing from the session"])
       end
     end
   end
 
-  describe "GET #failure" do
+  describe "GET #failure", :capture_logging do
     let(:error_message) { "an error message" }
 
-    it "raises a OmniAuthFailure error" do
-      expect { get omniauth_failure_path, env: { "omniauth.error" => error_message } }.to raise_error(Users::OmniauthController::OmniAuthFailure, error_message)
+    before do
+      allow(Sentry).to receive(:capture_exception)
+      get omniauth_failure_path, env: { "omniauth.error" => error_message }
+    end
+
+    context "when the return from one login params are present on the session" do
+      let(:store) do
+        {
+          "return_from_one_login" => return_from_one_login_session,
+        }.with_indifferent_access
+      end
+
+      it "renders the auth error page" do
+        expect(response).to have_http_status(400)
+        expect(response).to render_template("errors/auth_error")
+        expect(response.body).to include("href=\"#{copy_of_answers_path(mode:, form_id:, form_slug:, locale:)}\"")
+      end
+
+      it "logs the error" do
+        expect(log_lines.last["rescued_exception"]).to eq(["Users::OmniauthController::FailureError", error_message])
+      end
+
+      it "sends the error to Sentry" do
+        expect(Sentry).to have_received(:capture_exception).with(
+          an_instance_of(Users::OmniauthController::FailureError),
+        )
+      end
+    end
+
+    context "when the return from one login params are not present on the session" do
+      it "renders the return from one login session missing page" do
+        expect(response).to have_http_status(400)
+        expect(response).to render_template("errors/return_from_one_login_session_missing")
+      end
+
+      it "logs the error" do
+        expect(log_lines.last["rescued_exception"]).to eq(["Users::OmniauthController::FailureError", error_message])
+      end
+
+      it "sends the error to Sentry" do
+        expect(Sentry).to have_received(:capture_exception).with(
+          an_instance_of(Users::OmniauthController::FailureError),
+        )
+      end
     end
   end
 
-  describe "GET #logged_out" do
+  describe "GET #logged_out", :capture_logging do
     let(:token) { Faker::Alphanumeric.alphanumeric }
 
     before do
       allow(AuthService).to receive(:new).and_wrap_original do |original_method, *_args|
         original_method.call(store)
       end
+      get omniauth_logged_out_path
     end
 
     context "when the return from one login params are set on the session" do
@@ -104,10 +165,6 @@ RSpec.describe Users::OmniauthController, type: :request do
           "return_from_one_login" => return_from_one_login_session,
           "auth": { "token": token },
         }.with_indifferent_access
-      end
-
-      before do
-        get omniauth_logged_out_path
       end
 
       it "clears the auth details on the session" do
@@ -122,8 +179,12 @@ RSpec.describe Users::OmniauthController, type: :request do
     context "when the return from one login params are not set on the session" do
       let(:store) { {} }
 
-      it "raises a Store::ReturnFromOneLoginStore::MissingReturnParamsError error" do
-        expect { get omniauth_logged_out_path }.to raise_error Store::ReturnFromOneLoginStore::MissingReturnParamsError
+      it "redirects to the unknown form submitted page" do
+        expect(response).to redirect_to(:unknown_form_submitted)
+      end
+
+      it "logs the error" do
+        expect(log_lines.last["rescued_exception"]).to eq(["Store::ReturnFromOneLoginStore::MissingReturnParamsError", "Return from One Login parameters are missing from the session"])
       end
     end
   end

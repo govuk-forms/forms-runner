@@ -1,6 +1,10 @@
 module Store
   class ReturnFromOneLoginStore
-    class MissingReturnParamsError < StandardError; end
+    class MissingReturnParamsError < StandardError
+      def initialize(message = "Return from One Login parameters are missing from the session")
+        super(message)
+      end
+    end
 
     RETURN_FROM_ONE_LOGIN_KEY = "return_from_one_login".freeze
     LAST_FORM_ID_KEY = "last_form_id".freeze

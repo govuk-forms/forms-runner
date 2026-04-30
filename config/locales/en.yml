@@ -296,6 +296,12 @@ en:
     user-research: User research
   error_summary_title: There is a problem
   errors:
+    auth_error:
+      body_html: |
+        <p>We could not confirm your email address using GOV.UK One Login.</p>
+        <p>You’ll need to go back to the form and submit your answers.</p>
+        <p><a href="%{link_url}">Back to form</a></p>
+      title: Sorry, something has gone wrong
     goto_page_routing_error:
       cannot_have_goto_page_before_routing_page:
         body_html: |
@@ -329,6 +335,11 @@ en:
       body_2: If you want to submit the form again, you need to
       link_text: go back to the start
       title: For your security, we deleted your answers
+    return_from_one_login_session_missing:
+      body_html: |
+        <p>We could not confirm your email address using GOV.UK One Login.</p>
+        <p>You’ll need to go back to the form and submit your answers - try clicking the ‘Back’ button in your browser.</p>
+      title: Sorry, something has gone wrong
     submission_error:
       body: |
         There was a problem with the service and we have been unable to submit your answers.
@@ -659,3 +670,7 @@ en:
     link_text: "%{link} (opens in new tab)"
     online: Online
     phone: Phone
+  unknown_form_submitted:
+    show:
+      email_sent: We’ve sent you a confirmation email with a copy of your answers.
+      title: Your form has been submitted
