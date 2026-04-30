@@ -54,7 +54,7 @@ class Step
   end
 
   def params
-    question.attribute_names.concat([selection: []])
+    question.attribute_names.concat([{ selection: [] }])
   end
 
   delegate :valid?, to: :question
