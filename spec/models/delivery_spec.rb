@@ -83,6 +83,89 @@ RSpec.describe Delivery, type: :model do
         expect(described_class.failed).to contain_exactly(failed_delivery, failed_after_delivery)
       end
     end
+
+    describe ".bounced_on_day" do
+      context "when the date is around the start of BST" do
+        # London local date 2025-03-29 => UTC 2025-03-29 00:00:00..2025-03-29 23:59:59
+        let!(:start_of_gmt_day_delivery) { create(:delivery, :bounced, failed_at: Time.utc(2025, 3, 29, 0, 0, 0)) }
+        let!(:end_of_gmt_day_delivery) { create(:delivery, :bounced, failed_at: Time.utc(2025, 3, 29, 23, 59, 59)) }
+
+        # London local date 2025-03-30 => UTC 2025-03-30 00:00:00..2025-03-30 22:59:59
+        let!(:start_of_change_day_delivery) { create(:delivery, :bounced, failed_at: Time.utc(2025, 3, 30, 0, 0, 0)) }
+        let!(:end_of_change_day_delivery) { create(:delivery, :bounced, failed_at: Time.utc(2025, 3, 30, 22, 59, 59)) }
+
+        # London local date 2025-03-31 => UTC 2025-03-30 23:00:00..2025-03-31 22:59:59
+        let!(:start_of_bst_day_delivery) { create(:delivery, :bounced, failed_at: Time.utc(2025, 3, 30, 23, 0, 0)) }
+        let!(:end_of_bst_day_delivery) { create(:delivery, :bounced, failed_at: Time.utc(2025, 3, 31, 22, 59, 59)) }
+        let(:date) { Date.new(2022, 6, 1) }
+
+        it "returns deliveries that bounced on the day before the clocks change" do
+          deliveries = described_class.bounced_on_day(Date.new(2025, 3, 29))
+          expect(deliveries.size).to eq(2)
+          expect(deliveries).to contain_exactly(start_of_gmt_day_delivery, end_of_gmt_day_delivery)
+        end
+
+        it "returns deliveries on the day of the clocks change" do
+          deliveries = described_class.bounced_on_day(Date.new(2025, 3, 30))
+          expect(deliveries.size).to eq(2)
+          expect(deliveries).to contain_exactly(start_of_change_day_delivery, end_of_change_day_delivery)
+        end
+
+        it "returns deliveries on the day after the clocks change" do
+          deliveries = described_class.bounced_on_day(Date.new(2025, 3, 31))
+          expect(deliveries.size).to eq(2)
+          expect(deliveries).to contain_exactly(start_of_bst_day_delivery, end_of_bst_day_delivery)
+        end
+      end
+
+      context "when the date is around the end of BST" do
+        # London local date 2025-10-25 => UTC 2025-10-24 23:00:00..2025-10-25 22:59:59
+        let!(:start_of_bst_day_delivery) { create(:delivery, :bounced, failed_at: Time.utc(2025, 10, 24, 23, 0, 0)) }
+        let!(:end_of_bst_day_delivery) { create(:delivery, :bounced, failed_at: Time.utc(2025, 10, 25, 22, 59, 59)) }
+
+        # London local date 2025-10-26 => UTC 2025-10-25 23:00:00..2025-10-26 23:59:59
+        let!(:start_of_change_day_delivery) { create(:delivery, :bounced, failed_at: Time.utc(2025, 10, 25, 23, 0, 0)) }
+        let!(:end_of_change_day_delivery) { create(:delivery, :bounced, failed_at: Time.utc(2025, 10, 26, 23, 59, 59)) }
+
+        # London local date 2025-10-27 => UTC 2025-10-27 00:00:00..2025-10-27 23:59:59
+        let!(:start_of_gmt_day_delivery) { create(:delivery, :bounced, failed_at: Time.utc(2025, 10, 27, 0, 0, 0)) }
+        let!(:end_of_gmt_day_delivery) { create(:delivery, :bounced, failed_at: Time.utc(2025, 10, 27, 23, 59, 59)) }
+
+        it "returns deliveries on the day before the clocks change" do
+          deliveries = described_class.bounced_on_day(Date.new(2025, 10, 25))
+          expect(deliveries.size).to eq(2)
+          expect(deliveries).to contain_exactly(start_of_bst_day_delivery, end_of_bst_day_delivery)
+        end
+
+        it "returns deliveries on the day of the clocks change" do
+          deliveries = described_class.bounced_on_day(Date.new(2025, 10, 26))
+          expect(deliveries.size).to eq(2)
+          expect(deliveries).to contain_exactly(start_of_change_day_delivery, end_of_change_day_delivery)
+        end
+
+        it "returns deliveries on the day after the clocks change" do
+          deliveries = described_class.bounced_on_day(Date.new(2025, 10, 27))
+          expect(deliveries.size).to eq(2)
+          expect(deliveries).to contain_exactly(start_of_gmt_day_delivery, end_of_gmt_day_delivery)
+        end
+      end
+
+      it "does not include deliveries that were delivered after they bounced" do
+        date = Date.new(2022, 6, 1)
+        create(:delivery, :delivered_after_bounce, created_at: date)
+
+        deliveries = described_class.bounced_on_day(date)
+        expect(deliveries).to be_empty
+      end
+
+      it "includes deliveries that bounced after they were delivered" do
+        date = Date.new(2022, 6, 1)
+        delivery = create(:delivery, :bounced_after_delivery, created_at: date)
+
+        deliveries = described_class.bounced_on_day(date)
+        expect(deliveries).to include(delivery)
+      end
+    end
   end
 
   describe "#new_attempt!" do

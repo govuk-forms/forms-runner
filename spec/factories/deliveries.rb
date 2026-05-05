@@ -24,16 +24,31 @@ FactoryBot.define do
       failure_reason { "example" }
     end
 
+    trait :bounced do
+      failed
+      failure_reason { "bounced" }
+    end
+
     trait :delivered_after_failure do
       failed_at { created_at + 5.minutes }
       delivered_at { created_at + 10.minutes }
       failure_reason { "example" }
     end
 
+    trait :delivered_after_bounce do
+      delivered_after_failure
+      failure_reason { "bounced" }
+    end
+
     trait :failed_after_delivery do
       delivered_at { created_at + 5.minutes }
       failed_at { created_at + 10.minutes }
       failure_reason { "example" }
+    end
+
+    trait :bounced_after_delivery do
+      failed_after_delivery
+      failure_reason { "bounced" }
     end
 
     trait :daily_scheduled_delivery do
