@@ -1,13 +1,17 @@
 class FormSubmissionConfirmationMailer < GovukNotifyRails::Mailer
-  def send_confirmation_email(what_happens_next_markdown:, support_contact_details:, notify_response_id:, confirmation_email_address:, mailer_options:)
+  def send_confirmation_email(what_happens_next_markdown:, support_contact_details:, notify_response_id:, confirmation_email_address:, mailer_options:, submission_locale: :en, what_happens_next_markdown_cy: nil, support_contact_details_cy: nil)
+    @submission_locale = submission_locale.to_sym
     set_template(template_id)
 
     set_personalisation(
       title: mailer_options.title,
       what_happens_next_text: what_happens_next_markdown.presence || default_what_happens_next_text,
+      what_happens_next_text_cy: what_happens_next_markdown_cy.presence || what_happens_next_markdown.presence || default_what_happens_next_text,
       support_contact_details: format_support_details(support_contact_details).presence || default_support_contact_details_text,
+      support_contact_details_cy: format_support_details(support_contact_details_cy || support_contact_details, locale: :cy).presence || default_support_contact_details_text,
       submission_time: mailer_options.timestamp.strftime("%l:%M%P").strip,
-      submission_date: I18n.l(mailer_options.timestamp, format: "%-d %B %Y"),
+      submission_date: I18n.l(mailer_options.timestamp, format: "%-d %B %Y", locale: :en),
+      submission_date_cy: I18n.l(mailer_options.timestamp, format: "%-d %B %Y", locale: :cy),
       # GOV.UK Notify's templates have conditionals, but only positive
       # conditionals, so to simulate negative conditionals we add two boolean
       # flags; but they must always have opposite values!
@@ -24,7 +28,7 @@ class FormSubmissionConfirmationMailer < GovukNotifyRails::Mailer
     mail(to: confirmation_email_address)
   end
 
-  def format_support_details(support_details)
+  def format_support_details(support_details, locale: :en)
     phone = support_details.phone
     call_charges_url = support_details.call_charges_url
     email = support_details.email
@@ -33,7 +37,7 @@ class FormSubmissionConfirmationMailer < GovukNotifyRails::Mailer
 
     support_details = []
     support_details << normalize_whitespace(phone) if phone.present?
-    support_details << "[#{I18n.t('support_details.call_charges')}](#{call_charges_url})" if phone.present?
+    support_details << "[#{I18n.t('support_details.call_charges', locale: locale)}](#{call_charges_url})" if phone.present?
     support_details << "[#{email}](mailto:#{email})" if email.present?
     support_details << "[#{url_text}](#{url})" if url.present? && url_text.present?
 
@@ -55,7 +59,7 @@ private
   end
 
   def template_id
-    return Settings.govuk_notify.form_filler_confirmation_email_welsh_template_id if I18n.locale == :cy
+    return Settings.govuk_notify.form_filler_confirmation_email_welsh_template_id if @submission_locale == :cy
 
     Settings.govuk_notify.form_filler_confirmation_email_template_id
   end
