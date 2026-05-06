@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_17_125725) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_06_142828) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -21,6 +21,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_17_125725) do
     t.string "delivery_reference"
     t.string "delivery_schedule", default: "immediate", null: false, comment: "Either 'immediate' if the delivery is for a single submission or a value representing the schedule for sending multiple submissions."
     t.datetime "failed_at"
+    t.jsonb "failure_details"
     t.string "failure_reason"
     t.datetime "last_attempt_at"
     t.datetime "updated_at", null: false
