@@ -9,10 +9,28 @@ RSpec.describe ReceiveSubmissionBouncesAndComplaintsJob, type: :job do
   let(:sqs_message_id) { "sqs-message-id" }
   let(:sqs_message) { instance_double(Aws::SQS::Types::Message, message_id: sqs_message_id, receipt_handle:, body: sns_message_body) }
   let(:messages) { [] }
+
   let(:sns_message_timestamp) { "2025-05-09T10:25:43.972Z" }
   let(:sns_message_body) { { "Message" => ses_message_body.to_json, "Timestamp" => sns_message_timestamp }.to_json }
   let(:event_type) { "Bounce" }
-  let(:ses_message_body) { { "mail" => { "messageId" => delivery_reference }, "eventType": event_type } }
+  let(:bounce_timestamp) { "2023-01-01T12:00:00Z" }
+  let(:ses_message_body) do
+    {
+      "mail" => { "messageId" => delivery_reference },
+      "eventType" => event_type,
+      "bounce" => bounce,
+    }
+  end
+  let(:bounce) do
+    {
+      "bounceType" => "Permanent",
+      "bounceSubType" => "General",
+      "bouncedRecipients" => bounced_recipients,
+      "timestamp" => bounce_timestamp,
+    }
+  end
+  let(:bounced_recipients) { [{ "emailAddress" => "bounce@example.com" }] }
+
   let(:delivery_reference) { "delivery-reference" }
   let(:reference) { "submission-reference" }
   let(:mode) { "form" }
@@ -50,20 +68,12 @@ RSpec.describe ReceiveSubmissionBouncesAndComplaintsJob, type: :job do
       end
 
       context "when it is for a live submission" do
-        let(:bounce_timestamp) { "2023-01-01T12:00:00Z" }
-        let(:ses_message_body) do
-          {
-            "mail" => { "messageId" => delivery_reference },
-            "eventType" => event_type,
-            "bounce" => { "timestamp" => bounce_timestamp },
-          }
-        end
-
-        it "updates the delivery record's failed_at and failure_reason" do
+        it "updates the delivery record with the bounce details" do
           perform_enqueued_jobs
 
           expect(delivery.reload.failed_at).to eq(Time.zone.parse(bounce_timestamp))
           expect(delivery.reload.failure_reason).to eq("bounced")
+          expect(delivery.reload.failure_details).to eq(bounce)
         end
 
         it "logs form event with correct details" do
@@ -82,13 +92,44 @@ RSpec.describe ReceiveSubmissionBouncesAndComplaintsJob, type: :job do
                                          "sns_message_timestamp" => sns_message_timestamp,
                                          "job_id" => @job_id,
                                          "job_class" => "ReceiveSubmissionBouncesAndComplaintsJob",
+                                         "ses_bounce" => hash_including(
+                                           "bounce_type" => "Permanent",
+                                           "bounce_sub_type" => "General",
+                                           "bounced_recipients" => [
+                                             hash_including(
+                                               "email_address" => "bounce@example.com",
+                                             ),
+                                           ],
+                                         ),
                                        ))
         end
 
         it "alerts to Sentry that there was a bounced delivery" do
           allow(Sentry).to receive(:capture_message)
           perform_enqueued_jobs
-          expect(Sentry).to have_received(:capture_message)
+          expect(Sentry).to have_received(:capture_message).with(
+            a_string_including("Submission email bounced for form #{submission.form_id} - ReceiveSubmissionBouncesAndComplaintsJob"),
+            fingerprint: ["{{ default }}", submission.form_id],
+            extra: hash_including(
+              ses_bounce: hash_including(
+                bounce_type: "Permanent",
+                bounce_sub_type: "General",
+              ),
+            ),
+          )
+        end
+
+        it "does not include bounced recipients in the Sentry event" do
+          allow(Sentry).to receive(:capture_message)
+          perform_enqueued_jobs
+          expect(Sentry).not_to have_received(:capture_message).with(
+            anything,
+            extra: hash_including(
+              ses_bounce: hash_including(
+                :bounced_recipients,
+              ),
+            ),
+          )
         end
       end
 
@@ -115,59 +156,6 @@ RSpec.describe ReceiveSubmissionBouncesAndComplaintsJob, type: :job do
           allow(Sentry).to receive(:capture_message)
           perform_enqueued_jobs
           expect(Sentry).not_to have_received(:capture_message)
-        end
-      end
-
-      context "when there is a bounce object with detailed information" do
-        let(:ses_message_body) { { "mail" => { "messageId" => delivery_reference }, "eventType" => event_type, "bounce" => bounce } }
-        let(:bounce) { { "bounceType" => "Permanent", "bounceSubType" => "General", "bouncedRecipients" => bounced_recipients, "timestamp" => bounce_timestamp } }
-        let(:bounce_timestamp) { "2023-01-01T12:00:00Z" }
-        let(:bounced_recipients) { [{ "emailAddress" => "bounce@example.com" }] }
-
-        it "logs the bounce details" do
-          perform_enqueued_jobs
-
-          expect(log_lines).to include(
-            hash_including(
-              "ses_bounce" => hash_including(
-                "bounce_type" => "Permanent",
-                "bounce_sub_type" => "General",
-                "bounced_recipients" => [
-                  hash_including(
-                    "email_address" => "bounce@example.com",
-                  ),
-                ],
-              ),
-            ),
-          )
-        end
-
-        it "includes bounce details in the Sentry event" do
-          allow(Sentry).to receive(:capture_message)
-          perform_enqueued_jobs
-          expect(Sentry).to have_received(:capture_message).with(
-            a_string_including("Submission email bounced for form #{submission.form_id} - ReceiveSubmissionBouncesAndComplaintsJob"),
-            fingerprint: ["{{ default }}", submission.form_id],
-            extra: hash_including(
-              ses_bounce: hash_including(
-                bounce_type: "Permanent",
-                bounce_sub_type: "General",
-              ),
-            ),
-          )
-        end
-
-        it "does not include bounced recipients in the Sentry event" do
-          allow(Sentry).to receive(:capture_message)
-          perform_enqueued_jobs
-          expect(Sentry).not_to have_received(:capture_message).with(
-            anything,
-            extra: hash_including(
-              ses_bounce: hash_including(
-                :bounced_recipients,
-              ),
-            ),
-          )
         end
       end
     end
@@ -231,15 +219,25 @@ RSpec.describe ReceiveSubmissionBouncesAndComplaintsJob, type: :job do
             {
               "mail" => { "messageId" => delivery_reference },
               "eventType" => event_type,
-              "bounce" => { "timestamp" => bounce_timestamp },
+              "bounce" => bounce,
             }
           end
+          let(:bounce) do
+            {
+              "bounceType" => "Permanent",
+              "bounceSubType" => "General",
+              "bouncedRecipients" => bounced_recipients,
+              "timestamp" => bounce_timestamp,
+            }
+          end
+          let(:bounced_recipients) { [{ "emailAddress" => "bounce@example.com" }] }
 
-          it "updates the delivery record's failed_at and failure_reason" do
+          it "updates the delivery record with bounce details" do
             perform_enqueued_jobs
 
             expect(delivery.reload.failed_at).to eq(Time.zone.parse(bounce_timestamp))
             expect(delivery.reload.failure_reason).to eq("bounced")
+            expect(delivery.reload.failure_details).to eq(bounce)
           end
 
           it "logs form event with correct details" do
@@ -259,13 +257,44 @@ RSpec.describe ReceiveSubmissionBouncesAndComplaintsJob, type: :job do
                                            "sns_message_timestamp" => sns_message_timestamp,
                                            "job_id" => @job_id,
                                            "job_class" => "ReceiveSubmissionBouncesAndComplaintsJob",
+                                           "ses_bounce" => hash_including(
+                                             "bounce_type" => "Permanent",
+                                             "bounce_sub_type" => "General",
+                                             "bounced_recipients" => [
+                                               hash_including(
+                                                 "email_address" => "bounce@example.com",
+                                               ),
+                                             ],
+                                           ),
                                          ))
           end
 
           it "alerts to Sentry that there was a bounced delivery" do
             allow(Sentry).to receive(:capture_message)
             perform_enqueued_jobs
-            expect(Sentry).to have_received(:capture_message)
+            expect(Sentry).to have_received(:capture_message).with(
+              a_string_including("Daily submission batch email bounced for form #{submission.form_id} - ReceiveSubmissionBouncesAndComplaintsJob"),
+              fingerprint: ["{{ default }}", submission.form_id],
+              extra: hash_including(
+                ses_bounce: hash_including(
+                  bounce_type: "Permanent",
+                  bounce_sub_type: "General",
+                ),
+              ),
+            )
+          end
+
+          it "does not include bounced recipients in the Sentry event" do
+            allow(Sentry).to receive(:capture_message)
+            perform_enqueued_jobs
+            expect(Sentry).not_to have_received(:capture_message).with(
+              anything,
+              extra: hash_including(
+                ses_bounce: hash_including(
+                  :bounced_recipients,
+                ),
+              ),
+            )
           end
         end
 
@@ -292,59 +321,6 @@ RSpec.describe ReceiveSubmissionBouncesAndComplaintsJob, type: :job do
             allow(Sentry).to receive(:capture_message)
             perform_enqueued_jobs
             expect(Sentry).not_to have_received(:capture_message)
-          end
-        end
-
-        context "when there is a bounce object with detailed information" do
-          let(:ses_message_body) { { "mail" => { "messageId" => delivery_reference }, "eventType" => event_type, "bounce" => bounce } }
-          let(:bounce) { { "bounceType" => "Permanent", "bounceSubType" => "General", "bouncedRecipients" => bounced_recipients, "timestamp" => bounce_timestamp } }
-          let(:bounce_timestamp) { "2023-01-01T12:00:00Z" }
-          let(:bounced_recipients) { [{ "emailAddress" => "bounce@example.com" }] }
-
-          it "logs the bounce details" do
-            perform_enqueued_jobs
-
-            expect(log_lines).to include(
-              hash_including(
-                "ses_bounce" => hash_including(
-                  "bounce_type" => "Permanent",
-                  "bounce_sub_type" => "General",
-                  "bounced_recipients" => [
-                    hash_including(
-                      "email_address" => "bounce@example.com",
-                    ),
-                  ],
-                ),
-              ),
-            )
-          end
-
-          it "includes bounce details in the Sentry event" do
-            allow(Sentry).to receive(:capture_message)
-            perform_enqueued_jobs
-            expect(Sentry).to have_received(:capture_message).with(
-              a_string_including("Daily submission batch email bounced for form #{submission.form_id} - ReceiveSubmissionBouncesAndComplaintsJob"),
-              fingerprint: ["{{ default }}", submission.form_id],
-              extra: hash_including(
-                ses_bounce: hash_including(
-                  bounce_type: "Permanent",
-                  bounce_sub_type: "General",
-                ),
-              ),
-            )
-          end
-
-          it "does not include bounced recipients in the Sentry event" do
-            allow(Sentry).to receive(:capture_message)
-            perform_enqueued_jobs
-            expect(Sentry).not_to have_received(:capture_message).with(
-              anything,
-              extra: hash_including(
-                ses_bounce: hash_including(
-                  :bounced_recipients,
-                ),
-              ),
-            )
           end
         end
       end
@@ -391,15 +367,25 @@ RSpec.describe ReceiveSubmissionBouncesAndComplaintsJob, type: :job do
             {
               "mail" => { "messageId" => delivery_reference },
               "eventType" => event_type,
-              "bounce" => { "timestamp" => bounce_timestamp },
+              "bounce" => bounce,
             }
           end
+          let(:bounce) do
+            {
+              "bounceType" => "Permanent",
+              "bounceSubType" => "General",
+              "bouncedRecipients" => bounced_recipients,
+              "timestamp" => bounce_timestamp,
+            }
+          end
+          let(:bounced_recipients) { [{ "emailAddress" => "bounce@example.com" }] }
 
-          it "updates the delivery record's failed_at and failure_reason" do
+          it "updates the delivery record with bounce details" do
             perform_enqueued_jobs
 
             expect(delivery.reload.failed_at).to eq(Time.zone.parse(bounce_timestamp))
             expect(delivery.reload.failure_reason).to eq("bounced")
+            expect(delivery.reload.failure_details).to eq(bounce)
           end
 
           it "logs form event with correct details" do
@@ -419,13 +405,44 @@ RSpec.describe ReceiveSubmissionBouncesAndComplaintsJob, type: :job do
                                            "sns_message_timestamp" => sns_message_timestamp,
                                            "job_id" => @job_id,
                                            "job_class" => "ReceiveSubmissionBouncesAndComplaintsJob",
+                                           "ses_bounce" => hash_including(
+                                             "bounce_type" => "Permanent",
+                                             "bounce_sub_type" => "General",
+                                             "bounced_recipients" => [
+                                               hash_including(
+                                                 "email_address" => "bounce@example.com",
+                                               ),
+                                             ],
+                                           ),
                                          ))
           end
 
           it "alerts to Sentry that there was a bounced delivery" do
             allow(Sentry).to receive(:capture_message)
             perform_enqueued_jobs
-            expect(Sentry).to have_received(:capture_message)
+            expect(Sentry).to have_received(:capture_message).with(
+              a_string_including("Weekly submission batch email bounced for form #{submission.form_id} - ReceiveSubmissionBouncesAndComplaintsJob"),
+              fingerprint: ["{{ default }}", submission.form_id],
+              extra: hash_including(
+                ses_bounce: hash_including(
+                  bounce_type: "Permanent",
+                  bounce_sub_type: "General",
+                ),
+              ),
+            )
+          end
+
+          it "does not include bounced recipients in the Sentry event" do
+            allow(Sentry).to receive(:capture_message)
+            perform_enqueued_jobs
+            expect(Sentry).not_to have_received(:capture_message).with(
+              anything,
+              extra: hash_including(
+                ses_bounce: hash_including(
+                  :bounced_recipients,
+                ),
+              ),
+            )
           end
         end
 
@@ -452,59 +469,6 @@ RSpec.describe ReceiveSubmissionBouncesAndComplaintsJob, type: :job do
             allow(Sentry).to receive(:capture_message)
             perform_enqueued_jobs
             expect(Sentry).not_to have_received(:capture_message)
-          end
-        end
-
-        context "when there is a bounce object with detailed information" do
-          let(:ses_message_body) { { "mail" => { "messageId" => delivery_reference }, "eventType" => event_type, "bounce" => bounce } }
-          let(:bounce) { { "bounceType" => "Permanent", "bounceSubType" => "General", "bouncedRecipients" => bounced_recipients, "timestamp" => bounce_timestamp } }
-          let(:bounce_timestamp) { "2023-01-01T12:00:00Z" }
-          let(:bounced_recipients) { [{ "emailAddress" => "bounce@example.com" }] }
-
-          it "logs the bounce details" do
-            perform_enqueued_jobs
-
-            expect(log_lines).to include(
-              hash_including(
-                "ses_bounce" => hash_including(
-                  "bounce_type" => "Permanent",
-                  "bounce_sub_type" => "General",
-                  "bounced_recipients" => [
-                    hash_including(
-                      "email_address" => "bounce@example.com",
-                    ),
-                  ],
-                ),
-              ),
-            )
-          end
-
-          it "includes bounce details in the Sentry event" do
-            allow(Sentry).to receive(:capture_message)
-            perform_enqueued_jobs
-            expect(Sentry).to have_received(:capture_message).with(
-              a_string_including("Weekly submission batch email bounced for form #{submission.form_id} - ReceiveSubmissionBouncesAndComplaintsJob"),
-              fingerprint: ["{{ default }}", submission.form_id],
-              extra: hash_including(
-                ses_bounce: hash_including(
-                  bounce_type: "Permanent",
-                  bounce_sub_type: "General",
-                ),
-              ),
-            )
-          end
-
-          it "does not include bounced recipients in the Sentry event" do
-            allow(Sentry).to receive(:capture_message)
-            perform_enqueued_jobs
-            expect(Sentry).not_to have_received(:capture_message).with(
-              anything,
-              extra: hash_including(
-                ses_bounce: hash_including(
-                  :bounced_recipients,
-                ),
-              ),
-            )
           end
         end
       end

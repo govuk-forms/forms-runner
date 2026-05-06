@@ -46,6 +46,7 @@ private
       delivery.update!(
         failed_at: bounced_timestamp,
         failure_reason: "bounced",
+        failure_details: bounce_object,
       )
     end
 
