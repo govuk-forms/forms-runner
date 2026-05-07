@@ -94,10 +94,11 @@ RSpec.describe Delivery, type: :model do
         delivered_at: 3.hours.ago,
         failed_at: 2.hours.ago,
         failure_reason: "error",
+        failure_details: { "foo" => "bar" },
       )
     end
 
-    it "updates last_attempt_at and clears delivered_at, failed_at and failure_reason" do
+    it "updates last_attempt_at and clears delivered_at and failure attributes" do
       delivery.new_attempt!
       delivery.reload
 
@@ -105,6 +106,7 @@ RSpec.describe Delivery, type: :model do
       expect(delivery.delivered_at).to be_nil
       expect(delivery.failed_at).to be_nil
       expect(delivery.failure_reason).to be_nil
+      expect(delivery.failure_details).to be_nil
     end
   end
 end

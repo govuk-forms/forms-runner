@@ -32,6 +32,7 @@ class Delivery < ApplicationRecord
       delivered_at: nil,
       failed_at: nil,
       failure_reason: nil,
+      failure_details: nil,
     )
   end
 end
