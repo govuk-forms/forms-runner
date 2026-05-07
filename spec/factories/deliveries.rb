@@ -60,10 +60,11 @@ FactoryBot.define do
     trait :with_submissions do
       transient do
         submissions_count { 2 }
+        form_id { 101 }
       end
 
       submissions do
-        Array.new(submissions_count) { association(:submission) }
+        Array.new(submissions_count) { association(:submission, form_id:) }
       end
     end
 

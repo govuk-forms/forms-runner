@@ -40,4 +40,12 @@ class Delivery < ApplicationRecord
       failure_details: nil,
     )
   end
+
+  def form_id
+    submissions.first&.form_id
+  end
+
+  def form
+    submissions.first&.form
+  end
 end
