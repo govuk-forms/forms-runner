@@ -468,6 +468,10 @@ cy:
   layout:
     skip_link: Neidio i’r prif gynnwys
   mailer:
+    bounce_notification:
+      bounced_daily_batch: Daily batch sent at %{sent_at_time} on %{sent_at_date}
+      bounced_submission: "%{submission_reference} at %{sent_at_time} on %{sent_at_date}"
+      bounced_weekly_batch: Weekly batch sent at %{sent_at_time} on %{sent_at_date}
     cannot_reply:
       contact_form_filler_html: "<p>If you need to contact the person who completed this form, you’ll need to contact them directly.</p>"
       contact_form_filler_plain: If you need to contact the person who completed this form, you’ll need to contact them directly.
