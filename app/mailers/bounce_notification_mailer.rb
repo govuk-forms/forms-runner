@@ -1,7 +1,7 @@
 class BounceNotificationMailer < GovukNotifyRails::Mailer
   include NotifyUtils
 
-  def bounce_notification_to_group_admins_email(form:, user:, deliveries:)
+  def bounce_notification_email(form:, user:, deliveries:, user_role:)
     set_template(Settings.govuk_notify.bounce_notification_to_group_admins_template_id)
 
     # We're assuming that all bounces are for the same reason
@@ -21,6 +21,8 @@ class BounceNotificationMailer < GovukNotifyRails::Mailer
       hard_bounce: make_notify_boolean(hard_bounce),
       soft_bounce: make_notify_boolean(!hard_bounce),
       deadline_date: deadline_date(deliveries),
+      is_organisation_admin: make_notify_boolean(user_role == :organisation_admin),
+      is_group_admin: make_notify_boolean(user_role == :group_admin),
     )
 
     mail(to: user.email)
