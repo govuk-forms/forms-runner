@@ -6,6 +6,6 @@ class ScheduleBounceNotificationsJob < ApplicationJob
     CurrentJobLoggingAttributes.job_class = self.class.name
     CurrentJobLoggingAttributes.job_id = job_id
 
-    SendBounceNotificationsJob.perform_later(bounced_on_date: Time.zone.yesterday.to_date)
+    SendBounceNotificationsJob.perform_later(bounced_on_date: Time.zone.yesterday.to_date, user_role: :group_admin)
   end
 end
