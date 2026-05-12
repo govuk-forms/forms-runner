@@ -86,7 +86,7 @@ cy:
         copy_of_answers_input:
           attributes:
             copy_of_answers:
-              blank: PLACEHOLDER! Dewiswch ydw os hoffech dderbyn copi o'ch atebion
+              blank: Dewiswch 'Ydw' os ydych eisiau copi o’ch atebion
         email_confirmation_input:
           attributes:
             confirmation_email_address:
@@ -298,10 +298,10 @@ cy:
   errors:
     auth_error:
       body_html: |
-        <p>We could not confirm your email address using GOV.UK One Login.</p>
-        <p>You’ll need to go back to the form and submit your answers.</p>
-        <p><a href="%{link_url}">Back to form</a></p>
-      title: Sorry, something has gone wrong
+        <p>Nid oeddem yn gallu cadarnhau eich cyfeiriad e-bost gan ddefnyddio GOV.UK One Login.</p>
+        <p>Bydd angen i chi fynd yn ôl i’r ffurflen a chyflwyno’ch atebion.</p>
+        <p><a href="%{link_url}">Yn ôl i’r ffurflen</a></p>
+      title: Mae’n ddrwg gennym, mae rhywbeth wedi mynd o’i le
     goto_page_routing_error:
       cannot_have_goto_page_before_routing_page:
         body_html: |
@@ -337,9 +337,9 @@ cy:
       title: Er lles eich diogelwch, rydyn ni wedi dileu’ch atebion
     return_from_one_login_session_missing:
       body_html: |
-        <p>We could not confirm your email address using GOV.UK One Login.</p>
-        <p>You’ll need to go back to the form and submit your answers - try clicking the ‘Back’ button in your browser.</p>
-      title: Sorry, something has gone wrong
+        <p>Nid oeddem yn gallu cadarnhau eich cyfeiriad e-bost gan ddefnyddio GOV.UK One Login.</p>
+        <p>Bydd angen i chi fynd yn ôl i’r ffurflen a chyflwyno’ch atebion - ceisiwch glicio ar y botwm ’Yn ôl’ yn eich porwr.</p>
+      title: Mae’n ddrwg gennym, mae rhywbeth wedi mynd o’i le
     submission_error:
       body: |
         Roedd yna broblem gyda’r gwasanaeth ac rydyn ni wedi methu cyflwyno’ch atebion.
@@ -363,9 +363,13 @@ cy:
     check_your_answers:
       agree_and_submit: Cytuno a chyflwyno
       declaration: Datganiad
+      does_not_want_copy_of_answers_key: Cael copi o’ch atebion
+      does_not_want_copy_of_answers_title: Rydych wedi dewis peidio â chael copi o’ch atebion
+      does_not_want_copy_of_answers_value: Na
       not_completed: Heb ei gwblhau
       submit: Cyflwyno
       title: Edrychwch dros eich atebion cyn cyflwyno’ch ffurflen
+      wants_copy_of_answers: 'Byddwn yn anfon e-bost cadarnhau gyda chopi o’ch atebion i’ch cyfeiriad e-bost GOV.UK One Login:'
     submitted:
       continue_to_pay: Parhau i dalu
       email_sent: Rydym wedi anfon e-bost cadarnhau atoch.
@@ -395,14 +399,16 @@ cy:
     back: Yn ôl
     continue_to_one_login:
       show:
-        body: To help make sure the information we send you stays secure, you’ll need to sign in to or create a GOV.UK One Login.
-        continue_button: Continue to GOV.UK One Login
-        title: Use GOV.UK One Login to keep your information secure
+        body_html: |
+          <p>Bydd yr e-bost gyda’ch atebion yn cael ei anfon i’r cyfeiriad e-bost sy’n gysylltiedig â’ch GOV.UK One Login.</p>
+          <p>Os ydych angen i’r atebion gael eu hanfon i gyfeiriad e-bost gwahanol - er enghraifft, eich e-bost gwaith - gallwch greu GOV.UK One Login newydd.</p>
+        continue_button: Parhau i GOV.UK One Login
+        title: Defnyddiwch GOV.UK One Login i gadw’ch gwybodaeth yn ddiogel.
     copy_of_answers:
       show:
-        heading: PLACEHOLDER! Ydych chi eisiau copi o'ch atebion?
-        hint: PLACEHOLDER! Byddwn ond yn defnyddio'r cyfeiriad e-bost rydych yn ei ddarparu yma i anfon cadarnhad bod eich ffurflen wedi'i chyflwyno'n llwyddiannus. Ni fydd yn cynnwys copi o'ch atebion.
-        title: PLACEHOLDER! Ydych chi eisiau copi o'ch atebion?
+        heading: Ydych chi eisiau cael e-bost gyda chopi o’ch atebion?
+        hint: Byddwch angen GOV.UK One Login ar gyfer hyn - byddwch yn gallu mewngofnodi neu greu un newydd.
+        title: Ydych chi eisiau cael e-bost gyda chopi o’ch atebion?
     remove_answer:
       show:
         address_heading: Dileu cyfeiriad
@@ -672,5 +678,5 @@ cy:
     phone: Ffôn
   unknown_form_submitted:
     show:
-      email_sent: We’ve sent you a confirmation email with a copy of your answers.
+      email_sent: Rydym wedi anfon e-bost cadarnhau atoch gyda chopi o’ch atebion.
       title: Your form has been submitted

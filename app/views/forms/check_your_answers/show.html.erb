@@ -19,6 +19,27 @@
 
   <%= render CheckYourAnswersComponent::View.new(form: @form, steps: @steps, mode: @mode) %>
 
+<%# todo: this is all a wip and is failing tests at the moment. will use a component %>
+  <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds-from-desktop">
+      <%if !@current_context.wants_copy_of_answers? %>
+        <%# can i use the CheckYourAnswersComponent view for this, or a new component? %>
+        <h2 class="govuk-heading-m govuk-!-margin-top-7"><%= t('form.check_your_answers.does_not_want_copy_of_answers_title') %></h2>
+        <dl class="govuk-summary-list">
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key"><%= t('form.check_your_answers.does_not_want_copy_of_answers_key') %></dt>
+            <dd class="govuk-summary-list__value"><p><%= t('form.check_your_answers.does_not_want_copy_of_answers_value') %></p></dd>
+            <%# todo: fix href link %>
+            <dd class="govuk-summary-list__actions"><a class="govuk-link" href="/copy-of-answers"><%= t('govuk_components.govuk_summary_list.change') %></dd>
+          </div>
+        </dl>
+      <%elsif @current_context.wants_copy_of_answers? %>
+        <%# todo: add email address%>
+        <div class="govuk-hint"><%= t('form.check_your_answers.wants_copy_of_answers') %></div>
+      <% end %>
+    </div>
+  </div>
+  
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds-from-desktop">
       <%= form.govuk_radio_buttons_fieldset(:send_confirmation, legend: { size: 'm', tag: 'h2' }) do %>

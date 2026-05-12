@@ -363,9 +363,13 @@ en:
     check_your_answers:
       agree_and_submit: Agree and submit
       declaration: Declaration
+      does_not_want_copy_of_answers_key: Get a copy of your answers
+      does_not_want_copy_of_answers_title: You’ve chosen to not get a copy of your answers
+      does_not_want_copy_of_answers_value: false
       not_completed: Not completed
       submit: Submit
       title: Check your answers before submitting your form
+      wants_copy_of_answers: 'We’ll send a confirmation email with a copy of your answers to your GOV.UK One Login email address:'
     submitted:
       continue_to_pay: Continue to pay
       email_sent: We’ve sent you a confirmation email.
@@ -395,7 +399,9 @@ en:
     back: Back
     continue_to_one_login:
       show:
-        body: To help make sure the information we send you stays secure, you’ll need to sign in to or create a GOV.UK One Login.
+        body_html: |
+          <p>The email with your answers will be sent to the email address linked to your GOV.UK One Login.</p>
+          <p>If you need the answers sent to a different email address - for example, your work email - you can create a new GOV.UK One Login.</p>
         continue_button: Continue to GOV.UK One Login
         title: Use GOV.UK One Login to keep your information secure
     copy_of_answers:
