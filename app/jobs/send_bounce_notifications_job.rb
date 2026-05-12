@@ -12,7 +12,9 @@ class SendBounceNotificationsJob < ApplicationJob
       group = Api::V2::GroupResource.find(form_id)
 
       group.group_admin_users.each do |user|
-        BounceNotificationMailer.bounce_notification_email(form:, user:, deliveries:, user_role: :group_admin).deliver_now
+        BounceNotificationMailer.bounce_notification_email(
+          form:, group_name: group.name, user:, user_role: :group_admin, deliveries:, bounced_on_date:,
+        ).deliver_now
       end
 
       Rails.logger.info "Sent bounce notifications to group admins for bounced deliveries on #{bounced_on_date.strftime('%-d %B %Y')} for form #{form_id}"

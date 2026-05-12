@@ -1,7 +1,7 @@
 class BounceNotificationMailer < GovukNotifyRails::Mailer
   include NotifyUtils
 
-  def bounce_notification_email(form:, user:, deliveries:, user_role:)
+  def bounce_notification_email(form:, group_name:, user:, user_role:, deliveries:, bounced_on_date:)
     set_template(Settings.govuk_notify.bounce_notification_to_group_admins_template_id)
 
     # We're assuming that all bounces are for the same reason
@@ -23,6 +23,7 @@ class BounceNotificationMailer < GovukNotifyRails::Mailer
       deadline_date: deadline_date(deliveries),
       is_organisation_admin: make_notify_boolean(user_role == :organisation_admin),
       is_group_admin: make_notify_boolean(user_role == :group_admin),
+      contacted_group_admins_paragraph: contacted_group_admins_paragraph(user_role:, group_name:, bounced_on_date:),
     )
 
     mail(to: user.email)
@@ -65,5 +66,12 @@ private
     earliest_submission_date_time = earliest_submission_created_at.in_time_zone(TimeZoneUtils.submission_time_zone)
     deadline_date_time = earliest_submission_date_time + Settings.submissions.maximum_retention_seconds.seconds
     deadline_date_time.strftime("%-d %B %Y")
+  end
+
+  def contacted_group_admins_paragraph(user_role:, group_name:, bounced_on_date:)
+    return "" if user_role == :group_admin
+
+    contacted_date = (bounced_on_date + 1.day).strftime("%-d %B %Y")
+    I18n.t("mailer.bounce_notification.contacted_group_admins_paragraph", group_name:, contacted_date:)
   end
 end

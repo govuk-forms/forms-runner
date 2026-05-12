@@ -472,6 +472,7 @@ en:
       bounced_daily_batch: Daily batch sent at %{sent_at_time} on %{sent_at_date}
       bounced_submission: "%{submission_reference} at %{sent_at_time} on %{sent_at_date}"
       bounced_weekly_batch: Weekly batch sent at %{sent_at_time} on %{sent_at_date}
+      contacted_group_admins_paragraph: We emailed the group admins of the group the form is in, “%{group_name}”, on %{contacted_date}. We have not received a response.
     cannot_reply:
       contact_form_filler_html: "<p>If you need to contact the person who completed this form, you’ll need to contact them directly.</p>"
       contact_form_filler_plain: If you need to contact the person who completed this form, you’ll need to contact them directly.
