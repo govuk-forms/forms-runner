@@ -1,0 +1,13 @@
+<div class="govuk-grid-row">
+  <div class="<%= full_width? ? 'govuk-grid-column-full' : 'govuk-grid-column-two-thirds-from-desktop' %>">
+    <% if title? %>
+      <h2 class="govuk-heading-m govuk-!-margin-top-7"><%= t('form.check_your_answers.does_not_want_copy_of_answers_title') %></h2>
+    <% end %>
+    <% if rows %>
+      <%= govuk_summary_list(rows: rows) %>
+    <% else %>
+      <div class="govuk-hint govuk-!-margin-top-5 govuk-!-margin-bottom-7"><%= t('form.check_your_answers.wants_copy_of_answers') + confirmation_email_address %></div>
+    <% end %>
+  </div>
+</div>
+

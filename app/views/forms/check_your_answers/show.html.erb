@@ -19,6 +19,10 @@
 
   <%= render CheckYourAnswersComponent::View.new(form: @form, steps: @steps, mode: @mode) %>
 
+  <% unless @current_context.confirmation_details_store.wants_copy_of_answers?.nil? %>
+    <%= render CopyOfAnswersCheckComponent::View.new(form: @form, steps: @steps, confirmation_details_store: @current_context.confirmation_details_store) %>
+  <% end %>
+
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds-from-desktop">
       <%= form.govuk_radio_buttons_fieldset(:send_confirmation, legend: { size: 'm', tag: 'h2' }) do %>

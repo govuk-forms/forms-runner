@@ -1,6 +1,6 @@
 module Flow
   class Context
-    attr_reader :form, :journey
+    attr_reader :form, :journey, :confirmation_details_store
 
     def initialize(form:, form_document:, store:)
       @form = form
@@ -31,6 +31,6 @@ module Flow
 
   private
 
-    attr_reader :answer_store, :confirmation_details_store
+    attr_reader :answer_store
   end
 end
