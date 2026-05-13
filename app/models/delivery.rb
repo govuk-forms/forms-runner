@@ -6,6 +6,11 @@ class Delivery < ApplicationRecord
   scope :delivered, -> { where.not(delivered_at: nil).where(failed_at: nil).or(where("#{table_name}.delivered_at > failed_at")) }
   scope :failed, -> { where.not(failed_at: nil).where(delivered_at: nil).or(where("#{table_name}.delivered_at <= failed_at")) }
 
+  scope :bounced_on_day, lambda { |date|
+    range = date.in_time_zone(TimeZoneUtils.submission_time_zone).all_day
+    failed.where(failure_reason: "bounced", failed_at: range)
+  }
+
   enum :delivery_schedule, {
     immediate: "immediate",
     daily: "daily",
@@ -34,5 +39,13 @@ class Delivery < ApplicationRecord
       failure_reason: nil,
       failure_details: nil,
     )
+  end
+
+  def form_id
+    submissions.first&.form_id
+  end
+
+  def form
+    submissions.first&.form
   end
 end

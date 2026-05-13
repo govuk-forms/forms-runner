@@ -1,4 +1,6 @@
 class FormSubmissionConfirmationMailer < GovukNotifyRails::Mailer
+  include NotifyUtils
+
   def send_confirmation_email(what_happens_next_markdown:, support_contact_details:, notify_response_id:, confirmation_email_address:, mailer_options:, submission_locale: :en, what_happens_next_markdown_cy: nil, support_contact_details_cy: nil)
     @submission_locale = submission_locale.to_sym
     set_template(template_id)
@@ -52,10 +54,6 @@ private
 
   def default_support_contact_details_text
     I18n.t("mailer.submission_confirmation.default_support_contact_details")
-  end
-
-  def make_notify_boolean(bool)
-    bool ? "yes" : "no"
   end
 
   def template_id
