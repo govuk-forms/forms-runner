@@ -497,9 +497,12 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
         expected_personalisation = {
           title: form_data.name,
           what_happens_next_text: form_data.what_happens_next_markdown,
+          what_happens_next_text_cy: form_data.what_happens_next_markdown,
           support_contact_details: contact_support_details_format,
+          support_contact_details_cy: I18n.with_locale(:cy) { contact_support_details_format },
           submission_time: "10:00am",
           submission_date: "14 December 2022",
+          submission_date_cy: "14 Rhagfyr 2022",
           test: "no",
           submission_reference: reference,
           include_payment_link: "no",
