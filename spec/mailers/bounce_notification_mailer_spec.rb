@@ -3,19 +3,21 @@ require "rails_helper"
 RSpec.describe BounceNotificationMailer do
   describe "#bounce_notification_to_group_admins_email" do
     subject(:mail) do
-      described_class.bounce_notification_to_group_admins_email(form:, user:, deliveries: deliveries)
+      described_class.bounce_notification_email(form:, group_name:, user:, user_role:, deliveries:, bounced_on_date:)
     end
 
+    let(:deliveries) { create_list :delivery, 3, :bounced, :immediate }
     let(:user) { build :admin_user }
     let(:form) { build :form }
+    let(:user_role) { :group_admin }
+    let(:group_name) { "A group" }
+    let(:bounced_on_date) { Date.new(2026, 5, 7) }
 
     before do
       Settings.govuk_notify.bounce_notification_to_group_admins_template_id = "some-template-id"
     end
 
     describe "basic personalisation" do
-      let(:deliveries) { create_list :delivery, 3, :bounced, :immediate }
-
       it "includes personalisation for the user and form" do
         expect(mail.govuk_notify_personalisation).to include(
           user_name: user.name,
@@ -30,6 +32,43 @@ RSpec.describe BounceNotificationMailer do
 
       it "sets the template" do
         expect(mail.govuk_notify_template).to eq "some-template-id"
+      end
+    end
+
+    describe "personalisation for the user role" do
+      context "when sending to an organisation admin" do
+        let(:user_role) { :organisation_admin }
+
+        it "sets is_organisation_admin to yes" do
+          expect(mail.govuk_notify_personalisation[:is_organisation_admin]).to eq "yes"
+        end
+
+        it "sets is_group_admin to no" do
+          expect(mail.govuk_notify_personalisation[:is_group_admin]).to eq "no"
+        end
+
+        it "sets the personalisation for the contacted_group_admins_paragraph" do
+          expected_paragraph = I18n.t("mailer.bounce_notification.contacted_group_admins_paragraph",
+                                      group_name:,
+                                      contacted_date: "8 May 2026")
+          expect(mail.govuk_notify_personalisation[:contacted_group_admins_paragraph]).to eq expected_paragraph
+        end
+      end
+
+      context "when sending to a group admin" do
+        let(:user_role) { :group_admin }
+
+        it "sets is_organisation_admin to no" do
+          expect(mail.govuk_notify_personalisation[:is_organisation_admin]).to eq "no"
+        end
+
+        it "sets is_group_admin to yes" do
+          expect(mail.govuk_notify_personalisation[:is_group_admin]).to eq "yes"
+        end
+
+        it "sets contacted_group_admins_paragraph to blank" do
+          expect(mail.govuk_notify_personalisation[:contacted_group_admins_paragraph]).to eq ""
+        end
       end
     end
 

@@ -17,6 +17,9 @@ production:
   schedule_weekly_batch_deliveries_job:
     class: ScheduleWeeklyBatchDeliveriesJob
     schedule: every Monday at 2:15am Europe/London
+  schedule_bounce_notifications_job:
+    class: ScheduleBounceNotificationsJob
+    schedule: every day at 2:30am Europe/London
 development:
   delete_submissions_job:
     class: DeleteSubmissionsJob

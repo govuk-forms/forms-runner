@@ -13,10 +13,10 @@ FactoryBot.define do
     end
 
     organisation do
-      {
+      DataStruct.new({
         name: organisation_name,
-        admin_users: build_list(:admin_user, organisation_admin_users_count),
-      }
+        organisation_admin_users: build_list(:admin_user, organisation_admin_users_count),
+      })
     end
   end
 end
