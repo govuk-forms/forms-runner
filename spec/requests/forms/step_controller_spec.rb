@@ -4,6 +4,7 @@ require "rails_helper"
 RSpec.describe Forms::StepController, :capture_logging, type: :request do
   let(:timestamp_of_request) { Time.utc(2022, 12, 14, 10, 0o0, 0o0) }
 
+  let(:send_copy_of_answers) { "enabled" }
   let(:form_data) do
     build(:v2_form_document, :with_support,
           form_id: 2,
@@ -12,6 +13,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
           what_happens_next_markdown: "Good things come to those that wait",
           declaration_text: "agree to the declaration",
           available_languages:,
+          send_copy_of_answers:,
           steps: steps_data)
   end
 
@@ -716,9 +718,20 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
       end
 
       context "with the final page" do
-        it "Redirects to the copy of answers page" do
-          post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: 2), params: { question: { text: "answer text" } }
-          expect(response).to redirect_to(copy_of_answers_path(2, form_data.form_slug, mode:))
+        context "when send_copy_of_answers is enabled on the form" do
+          it "Redirects to the copy of answers page" do
+            post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: 2), params: { question: { text: "answer text" } }
+            expect(response).to redirect_to(copy_of_answers_path(2, form_data.form_slug, mode:))
+          end
+        end
+
+        context "when send_copy_of_answers is disabled on the form" do
+          let(:send_copy_of_answers) { "disabled" }
+
+          it "Redirects to the check your answers page" do
+            post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: 2), params: { question: { text: "answer text" } }
+            expect(response).to redirect_to(check_your_answers_path(2, form_data.form_slug, mode:))
+          end
         end
       end
     end

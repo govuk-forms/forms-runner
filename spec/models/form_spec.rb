@@ -195,6 +195,22 @@ RSpec.describe Form, type: :model do
         expect(form.copy_of_answers_enabled?).to be false
       end
     end
+
+    context "when send_copy_of_answers is not present on the form document" do
+      let(:form_document) { build :v2_form_document, send_copy_of_answers: nil }
+
+      it "returns false" do
+        expect(form.copy_of_answers_enabled?).to be false
+      end
+    end
+
+    context "when the form document does not have a send_copy_of_answers field" do
+      let(:form_document) { OpenStruct.new }
+
+      it "returns false" do
+        expect(form.copy_of_answers_enabled?).to be false
+      end
+    end
   end
 
   describe "#document_json" do

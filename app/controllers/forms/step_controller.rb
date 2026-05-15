@@ -149,7 +149,7 @@ module Forms
 
     def next_step_in_form_path
       if @step.next_step_slug_after_routing == CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG
-        if FeatureService.enabled?("filler_answer_email_enabled")
+        if FeatureService.enabled?("filler_answer_email_enabled") && @form.copy_of_answers_enabled?
           copy_of_answers_path(form_id: @form.id, form_slug: @form.form_slug)
         else
           check_answers_path
