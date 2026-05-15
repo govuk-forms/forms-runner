@@ -3,6 +3,7 @@ class BounceNotificationMailer < GovukNotifyRails::Mailer
 
   def bounce_notification_email(form:, group_name:, user:, user_role:, deliveries:, bounced_on_date:)
     set_template(Settings.govuk_notify.bounce_notification_to_group_admins_template_id)
+    set_email_reply_to(Settings.govuk_notify.zendesk_reply_to_id)
 
     # We're assuming that all bounces are for the same reason
     hard_bounce = hard_bounce?(deliveries.first)

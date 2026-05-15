@@ -33,6 +33,10 @@ RSpec.describe BounceNotificationMailer do
       it "sets the template" do
         expect(mail.govuk_notify_template).to eq "some-template-id"
       end
+
+      it "sends an email with the correct reply-to value" do
+        expect(mail.govuk_notify_email_reply_to).to eq(Settings.govuk_notify.zendesk_reply_to_id)
+      end
     end
 
     describe "personalisation for the user role" do
