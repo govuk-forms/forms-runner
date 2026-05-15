@@ -17,6 +17,7 @@ class Form
            :start_page,
            :send_daily_submission_batch,
            :send_weekly_submission_batch,
+           :send_copy_of_answers,
            :submission_email,
            :submission_type,
            :support_email,
@@ -62,6 +63,10 @@ class Form
 
   def welsh?
     language == :cy
+  end
+
+  def copy_of_answers_enabled?
+    send_copy_of_answers == "enabled"
   end
 
   def multilingual?
