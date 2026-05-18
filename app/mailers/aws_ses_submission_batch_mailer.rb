@@ -1,7 +1,6 @@
 class AwsSesSubmissionBatchMailer < ApplicationMailer
   default from: I18n.t("mailer.submission.from", email_address: Settings.ses_submission_email.from_email_address),
-          reply_to: Settings.ses_submission_email.reply_to_email_address,
-          delivery_method: Rails.configuration.x.aws_ses_form_submission_mailer["delivery_method"]
+          reply_to: Settings.ses_submission_email.reply_to_email_address
 
   def daily_submission_batch_email(form:, date:, mode:, files:)
     @form_name = form.name

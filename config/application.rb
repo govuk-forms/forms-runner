@@ -81,8 +81,8 @@ module FormsRunner
     # Any information we want logged should be in the structured logging instead
     config.active_job.log_arguments = false
 
-    # custom configuration for the SES mailer delivery method
-    config.x.aws_ses_form_submission_mailer.delivery_method = :aws_ses
+    # We also send emails using Notify, but we use GovukNotifyRails::Mailer which sets its own delivery method
+    config.action_mailer.delivery_method = :aws_ses
 
     # Prevent ActiveRecord::PreparedStatementCacheExpired errors when adding columns
     config.active_record.enumerate_columns_in_select_statements = true
