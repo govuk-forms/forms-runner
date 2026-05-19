@@ -513,8 +513,21 @@ en:
         subject: 'Weekly form submissions: ‘%{form_name}’ - %{begin_date} to %{end_date}'
         subject_preview: 'TEST WEEKLY FORM SUBMISSIONS: ‘%{form_name}’ - %{begin_date} to %{end_date}'
     submission_confirmation:
+      answers_submitted_heading: Answers submitted
+      contact_details_heading: Contact details
       default_support_contact_details: The form’s contact details for support will appear here once they’ve been added.
       default_what_happens_next: The form’s information about what happens next will appear here once it has been added.
+      payment_link_heading: If you still need to pay
+      payment_link_html: 'If you need to make a payment and have not done so already, use this payment link to pay now: <a href="%{payment_link}">%{payment_link}</a>'
+      reference_number: Your form reference number is %{reference}.
+      subject: 'Your form has been successfully submitted – reference: %{reference}'
+      subject_preview: 'TEST EMAIL CONFIRMING SUBMISSION: Your form has been successfully submitted – reference: %{reference}'
+      submitted_at: "“%{form_name}” was successfully submitted at %{time} on %{date}."
+      this_is_a_test: This is a test email confirming that a form's been submitted.
+      title: Your form has been successfully submitted
+      title_preview: 'TEST EMAIL CONFIRMING SUBMISSION: Your form has been successfully submitted'
+      what_happens_next_heading: What happens next
+      you_cannot_reply: You cannot reply to this email. Use the contact details below if you need help with your form.
   mode:
     phase_banner_tag_preview-archived: Archived preview
     phase_banner_tag_preview-draft: Draft preview

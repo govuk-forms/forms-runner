@@ -1,0 +1,8 @@
+<%= render partial: "content", locals: { form: @form } %>
+<% if @submission_locale == :cy %>
+  <% I18n.with_locale(:cy) do %>
+---
+
+<%= render partial: "content", locals: { form: @welsh_form } %>
+  <% end %>
+<% end %>

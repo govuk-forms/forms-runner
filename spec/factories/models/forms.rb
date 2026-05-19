@@ -33,7 +33,7 @@ FactoryBot.define do
       end
 
       form_document_steps do
-        Array.new(steps_count) { association(:form_document_step) }
+        Array.new(steps_count) { association(:step) }
       end
     end
 

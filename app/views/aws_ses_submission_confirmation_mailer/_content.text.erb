@@ -1,0 +1,55 @@
+<% if @submission.preview? %>
+<%= I18n.t("mailer.submission_confirmation.title_preview") %>
+
+<%= I18n.t("mailer.submission_confirmation.this_is_a_test") %>
+<% else %>
+<%= I18n.t("mailer.submission_confirmation.title") %>
+<% end %>
+
+<%= I18n.t("mailer.submission_confirmation.submitted_at", form_name: form.name,
+              time: format_time(@submission.submission_time),
+              date: format_date(@submission.submission_time)) %>
+
+<%= I18n.t("mailer.submission_confirmation.reference_number", reference: @submission.reference) %>
+
+<%= I18n.t("mailer.submission_confirmation.you_cannot_reply") %>
+
+<% if form.payment_url.present? %>
+<%= I18n.t("mailer.submission_confirmation.payment_link_heading") %>
+
+<%= strip_tags(I18n.t("mailer.submission_confirmation.payment_link_html", payment_link: form.payment_url_with_reference(@submission.reference))) %>
+
+<% end %>
+<%= I18n.t("mailer.submission_confirmation.what_happens_next_heading") %>
+
+<% if form.what_happens_next_markdown.present? %>
+<%= markdown_to_plain_text(form.what_happens_next_markdown) %>
+<% else %>
+<%= I18n.t("mailer.submission_confirmation.default_what_happens_next") %>
+<% end %>
+
+<% if @include_copy_of_answers %>
+<%= I18n.t("mailer.submission_confirmation.answers_submitted_heading") %>
+
+<%= @submission.answer_content_for_email_plain_text(locale: locale) %>
+
+<% end %>
+<%= I18n.t("mailer.submission_confirmation.contact_details_heading") %>
+
+<% if form.support_details.phone || form.support_details.email || form.support_details.url %>
+  <% if form.support_details.phone.present? %>
+<%= normalize_whitespace(form.support_details.phone).html_safe %>
+
+<%= I18n.t('support_details.call_charges') %>: <%= form.support_details.call_charges_url %>
+  <% end %>
+
+  <% if form.support_details.email.present? %>
+<%= form.support_details.email %>
+  <% end %>
+
+  <% if form.support_details.url.present? && form.support_details.url_text.present? %>
+<%= form.support_details.url_text %>: <%= form.support_details.url %>
+  <% end %>
+<% else %>
+  <%= I18n.t("mailer.submission_confirmation.default_support_contact_details") %>
+<% end %>

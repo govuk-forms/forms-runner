@@ -1,0 +1,57 @@
+<% if @submission.preview? %>
+  <h2><%= I18n.t("mailer.submission_confirmation.title_preview") %></h2>
+  <p><%= I18n.t("mailer.submission_confirmation.this_is_a_test") %></p>
+<% else %>
+  <h2><%= I18n.t("mailer.submission_confirmation.title") %></h2>
+<% end %>
+
+<p><%= I18n.t("mailer.submission_confirmation.submitted_at", form_name: form.name,
+              time: format_time(@submission.submission_time),
+              date: format_date(@submission.submission_time)) %></p>
+
+<p><%= I18n.t("mailer.submission_confirmation.reference_number", reference: @submission.reference) %></p>
+
+<div
+  style="margin: 0 0 20px 0; border-left: 10px solid #B1B4B6;
+    padding: 15px 0 0.1px 15px; font-size: 19px; line-height: 25px;"
+>
+  <p style="margin: 0 0 20px 0"><%= I18n.t("mailer.submission_confirmation.you_cannot_reply") %></p>
+</div>
+
+
+<% if form.payment_url.present? %>
+  <h3><%= I18n.t("mailer.submission_confirmation.payment_link_heading") %></h3>
+  <p><%= I18n.t("mailer.submission_confirmation.payment_link_html", payment_link: form.payment_url_with_reference(@submission.reference)).html_safe %></p>
+<% end %>
+
+<h3><%= I18n.t("mailer.submission_confirmation.what_happens_next_heading") %></h3>
+<% if form.what_happens_next_markdown.present? %>
+  <%= markdown_to_html(form.what_happens_next_markdown) %>
+<% else %>
+  <p><%= I18n.t("mailer.submission_confirmation.default_what_happens_next") %></p>
+<% end %>
+
+<% if @include_copy_of_answers %>
+  <h3><%= I18n.t("mailer.submission_confirmation.answers_submitted_heading") %></h3>
+  <%= @submission.answer_content_for_email_html.html_safe %>
+  <hr style="border: 0; height: 1px; background: #B1B4B6; margin: 30px 0 30px 0;">
+<% end %>
+
+<h3><%= I18n.t("mailer.submission_confirmation.contact_details_heading") %></h3>
+
+<% if form.support_details.phone || form.support_details.email || form.support_details.url %>
+  <% if form.support_details.phone.present? %>
+    <p><%= normalize_whitespace_and_convert_to_html(form.support_details.phone).html_safe %></p>
+    <p><a href="<%= form.support_details.call_charges_url %>"><%= I18n.t('support_details.call_charges') %></a></p>
+  <% end %>
+
+  <% if form.support_details.email.present? %>
+    <p><a href="mailto:<%= form.support_details.email %>"><%= form.support_details.email %></a></p>
+  <% end %>
+
+  <% if form.support_details.url.present? && form.support_details.url_text.present? %>
+    <p><a href="<%= form.support_details.url %>"><%= form.support_details.url_text %></a></p>
+  <% end %>
+<% else %>
+  <p><%= I18n.t("mailer.submission_confirmation.default_support_contact_details") %></p>
+<% end %>

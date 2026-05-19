@@ -513,8 +513,21 @@ cy:
         subject: 'Weekly form submissions: ‘%{form_name}’ - %{begin_date} to %{end_date}'
         subject_preview: 'TEST WEEKLY FORM SUBMISSIONS: ‘%{form_name}’ - %{begin_date} to %{end_date}'
     submission_confirmation:
+      answers_submitted_heading: Atebion wedi’u cyflwyno
+      contact_details_heading: Manylion cyswllt
       default_support_contact_details: The form’s contact details for support will appear here once they’ve been added.
       default_what_happens_next: The form’s information about what happens next will appear here once it has been added.
+      payment_link_heading: Os ydych dal angen talu
+      payment_link_html: 'Os ydych angen gwneud taliad ac nad ydych wedi gwneud hynny eisoes, defnyddiwch y ddolen dalu hon i dalu nawr: <a href="%{payment_link}">%{payment_link}</a>'
+      reference_number: Rhif cyfeirnod eich ffurflen yw %{reference}.
+      subject: 'Mae eich ffurflen wedi’i chyflwyno’n llwyddiannus – cyfeirnod: %{reference}'
+      subject_preview: 'TEST EMAIL CONFIRMING SUBMISSION: Mae eich ffurflen wedi’i chyflwyno’n llwyddiannus – cyfeirnod: %{reference}'
+      submitted_at: Cyflwynwyd “%{form_name}” yn llwyddiannus ar %{time} ar %{date}.
+      this_is_a_test: This is a test email confirming that a form’s been submitted.
+      title: Mae eich ffurflen wedi’i chyflwyno’n llwyddiannus
+      title_preview: 'TEST EMAIL CONFIRMING SUBMISSION: Mae eich ffurflen wedi’i chyflwyno’n llwyddiannus'
+      what_happens_next_heading: Beth sy’n digwydd nesaf
+      you_cannot_reply: Ni allwch ymateb i’r e-bost hwn. Defnyddiwch y manylion cyswllt isod os ydych angen help gyda’ch ffurflen.
   mode:
     phase_banner_tag_preview-archived: Archived preview
     phase_banner_tag_preview-draft: Draft preview

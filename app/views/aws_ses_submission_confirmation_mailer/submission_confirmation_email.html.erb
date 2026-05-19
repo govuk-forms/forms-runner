@@ -1,0 +1,8 @@
+<%= render partial: "content", locals: { form: @form } %>
+
+<% if @submission_locale == :cy %>
+  <% I18n.with_locale(:cy) do %>
+    <hr style="border: 0; height: 1px; background: #B1B4B6; margin: 30px 0 30px 0;">
+    <%= render partial: "content", locals: { form: @welsh_form } %>
+  <% end %>
+<% end %>

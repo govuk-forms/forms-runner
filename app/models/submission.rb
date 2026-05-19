@@ -32,6 +32,10 @@ class Submission < ApplicationRecord
     @form ||= form_from_document
   end
 
+  def welsh_form
+    @welsh_form ||= Form.new(welsh_form_document_resource) if welsh_form_document
+  end
+
   def submission_time
     created_at.in_time_zone(TimeZoneUtils.submission_time_zone)
   end
@@ -77,5 +81,9 @@ private
 
   def ses_email_formatter
     SesEmailFormatter.new(submission_reference: reference, steps: journey.completed_steps)
+  end
+
+  def welsh_form_document_resource
+    @welsh_form_document_resource ||= Api::V2::FormDocumentResource.new(welsh_form_document, true)
   end
 end
