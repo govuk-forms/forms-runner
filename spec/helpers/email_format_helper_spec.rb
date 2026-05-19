@@ -45,4 +45,29 @@ RSpec.describe EmailFormatHelper, type: :helper do
       expect(helper.format_time(date_time)).to eq(expected_output)
     end
   end
+
+  describe "#markdown_to_html" do
+    it "renders markdown to sanitized html" do
+      input = "# Heading\n\nThis is *italic* and **bold**"
+      output = helper.markdown_to_html(input)
+      expected = "<p>Heading</p>\n<p>This is italic and bold</p>"
+      expect(output).to eq(expected)
+    end
+
+    it "strips disallowed HTML tags from the rendered markdown" do
+      input = "This is safe\n\n<script>alert('x')</script>\n\n**bold**"
+      output = helper.markdown_to_html(input)
+      expected = "<p>This is safe</p>\n<p>&lt;script&gt;alert('x')&lt;/script&gt;</p>\n<p>bold</p>"
+      expect(output).to eq(expected)
+    end
+  end
+
+  describe "#markdown_to_plain_text" do
+    it "renders markdown to plain text" do
+      input = "# Heading\n\nThis is *italic* and **bold**\n\n- List item\n- Other item\n[Link text](https://www.link.com)"
+      plain = helper.markdown_to_plain_text(input)
+      expected = "Heading\n\nThis is italic and bold\n• List item\n• Other item\nLink text: https://www.link.com"
+      expect(plain).to eq(expected)
+    end
+  end
 end

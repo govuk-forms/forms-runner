@@ -82,6 +82,39 @@ RSpec.describe HtmlMarkdownSanitizer do
         )
       end
     end
+
+    context "when for_email is true" do
+      it "converts line breaks into <p> tags" do
+        expect(html_markdown_sanitizer.render_scrubbed_markdown(simple_multiline_string, for_email: true)).to eq("<p>This is a paragraph.</p>\n<p>This is another paragraph.\nThis is a new line within the same paragraph</p>")
+      end
+
+      it "sanitizes any markdown supplied to it" do
+        expected = <<~HTML
+          <p>This is a heading</p>
+          <table style="padding:0 0 20px 0;">
+            <tr>
+              <td style="font-family:Helvetica, Arial, sans-serif;">
+                <ul style="margin:0 0 0 20px;padding:0;list-style-type:disc;">
+                  <li style="margin:5px 0 5px;padding:0 0 0 5px;font-size:19px;line-height:25px;color:#0B0C0C;">
+                    this is a list item
+                  </li> <li style="margin:5px 0 5px;padding:0 0 0 5px;font-size:19px;line-height:25px;color:#0B0C0C;">
+                    This is another list item
+                  </li>
+                </ul>
+              </td>
+            </tr>
+          </table>
+        HTML
+
+        rendered = html_markdown_sanitizer.render_scrubbed_markdown(multiline_markdown_string_with_disallowed_content, for_email: true)
+        expect(rendered.gsub(/\s+/, " "))
+          .to eq(expected.gsub(/\s+/, " ").strip)
+      end
+
+      it "escapes any HTML supplied to it" do
+        expect(html_markdown_sanitizer.render_scrubbed_markdown(simple_string_with_disallowed_html, for_email: true)).to eq("<p>&lt;script&gt;alert(\"script\")&lt;/script&gt;</p>")
+      end
+    end
   end
 
   describe "#render_scrubbed_html" do
