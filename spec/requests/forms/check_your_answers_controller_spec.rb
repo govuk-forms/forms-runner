@@ -496,6 +496,7 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
 
         expected_personalisation = {
           title: form_data.name,
+          title_cy: form_data.name,
           what_happens_next_text: form_data.what_happens_next_markdown,
           what_happens_next_text_cy: form_data.what_happens_next_markdown,
           support_contact_details: contact_support_details_format,
@@ -507,6 +508,7 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
           submission_reference: reference,
           include_payment_link: "no",
           payment_link: "",
+          payment_link_cy: "",
         }
 
         expect(mail.body.raw_source).to include(expected_personalisation.to_s)

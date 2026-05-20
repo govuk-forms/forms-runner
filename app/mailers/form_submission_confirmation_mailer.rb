@@ -8,6 +8,7 @@ class FormSubmissionConfirmationMailer < GovukNotifyRails::Mailer
     what_happens_next_text = form.what_happens_next_markdown.presence || default_what_happens_next_text
     set_personalisation(
       title: form.name,
+      title_cy: welsh_form&.name || form.name,
       what_happens_next_text:,
       what_happens_next_text_cy: welsh_form&.what_happens_next_markdown.presence || what_happens_next_text,
       support_contact_details: format_support_details(form.support_details).presence || default_support_contact_details_text,
@@ -18,7 +19,8 @@ class FormSubmissionConfirmationMailer < GovukNotifyRails::Mailer
       test: make_notify_boolean(submission.preview?),
       submission_reference: submission.reference,
       include_payment_link: make_notify_boolean(submission.payment_url.present?),
-      payment_link: submission.payment_url || "",
+      payment_link: form.payment_url_with_reference(submission.reference) || "",
+      payment_link_cy: welsh_form&.payment_url_with_reference(submission.reference) || "",
     )
 
     set_reference(notify_response_id)

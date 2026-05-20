@@ -53,6 +53,20 @@ describe FormSubmissionConfirmationMailer, type: :mailer do
       expect(mail.govuk_notify_personalisation[:title]).to eq(form.name)
     end
 
+    context "when no Welsh form is provided" do
+      it "falls back to the English title for title_cy" do
+        expect(mail.govuk_notify_personalisation[:title_cy]).to eq(form.name)
+      end
+    end
+
+    context "when a Welsh form is provided" do
+      let(:welsh_form) { Form.new(build(:v2_form_document, name: "Ffurflen 1")) }
+
+      it "uses the Welsh form name as title_cy" do
+        expect(mail.govuk_notify_personalisation[:title_cy]).to eq("Ffurflen 1")
+      end
+    end
+
     it "includes the forms what happens next" do
       expect(mail.govuk_notify_personalisation[:what_happens_next_text]).to eq("Please wait for a response")
     end
@@ -104,6 +118,19 @@ describe FormSubmissionConfirmationMailer, type: :mailer do
       it "sets the payment_link" do
         expect(mail.govuk_notify_personalisation[:payment_link]).to eq("#{payment_url}?reference=#{submission_reference}")
       end
+
+      it "sets payment_link_cy to an empty string when no Welsh form is provided" do
+        expect(mail.govuk_notify_personalisation[:payment_link_cy]).to eq("")
+      end
+
+      context "when the Welsh form has a payment url" do
+        let(:welsh_payment_url) { "https://www.gov.uk/payments/welsh-service/pay-for-licence" }
+        let(:welsh_form) { Form.new(build(:v2_form_document, payment_url: welsh_payment_url)) }
+
+        it "sets payment_link_cy to the Welsh payment url with reference" do
+          expect(mail.govuk_notify_personalisation[:payment_link_cy]).to eq("#{welsh_payment_url}?reference=#{submission_reference}")
+        end
+      end
     end
 
     context "when a payment url is not set" do
@@ -115,6 +142,10 @@ describe FormSubmissionConfirmationMailer, type: :mailer do
 
       it "sets the payment link personalisation to an empty string" do
         expect(mail.govuk_notify_personalisation[:payment_link]).to eq("")
+      end
+
+      it "sets the Welsh payment link personalisation to an empty string" do
+        expect(mail.govuk_notify_personalisation[:payment_link_cy]).to eq("")
       end
     end
 
