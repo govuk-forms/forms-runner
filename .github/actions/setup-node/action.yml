@@ -1,0 +1,14 @@
+name: 'Setup Node'
+description: 'Install Node and npm dependencies'
+runs:
+  using: "composite"
+  steps:
+    - name: Install Node.js
+      uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f
+      with:
+        node-version-file: ".nvmrc"
+        cache: "npm"
+
+    - name: Install JavaScript dependencies
+      shell: bash
+      run: npm ci
