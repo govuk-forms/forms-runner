@@ -114,6 +114,10 @@ describe AwsSesFormSubmissionMailer, type: :mailer do
             it "includes the Welsh submission text" do
               expect(part.body).to match("Welsh")
             end
+
+            it "uses the English question text" do
+              expect(part.body).to have_css("h3", text: "What is the meaning of life?")
+            end
           end
         end
       end

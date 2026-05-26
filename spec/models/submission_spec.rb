@@ -162,6 +162,56 @@ RSpec.describe Submission, type: :model do
     end
   end
 
+  describe "answer content methods" do
+    subject(:submission) { create(:submission, form_document:, welsh_form_document:, answers:) }
+
+    let(:form_document) do
+      build(:v2_form_document,
+            steps: [
+              build(:v2_question_step, :with_text_settings, question_text: "What is your favourite colour?", id: "q1", next_step_id: "q2"),
+              build(:v2_question_step, :with_name_settings, question_text: "What is your name?", id: "q2"),
+            ],
+            start_page: "q1")
+    end
+    let(:welsh_form_document) do
+      build(:v2_form_document,
+            steps: [
+              build(:v2_question_step, :with_text_settings, question_text: "Beth yw eich hoff liw?", id: "q1", next_step_id: "q2"),
+              build(:v2_question_step, :with_name_settings, question_text: "Beth yw dy enw?", id: "q2"),
+            ],
+            start_page: "q1")
+    end
+    let(:answers) { { "q1" => { text: "blue" }, "q2" => { first_name: "Jane", last_name: "Doe" } } }
+
+    describe "#answer_content_for_email_html" do
+      it "uses the English form document to construct the HTML by default" do
+        result = submission.answer_content_for_email_html(heading_tag: "h4")
+
+        expect(result).to start_with("<h4>What is your favourite colour?</h4>")
+      end
+
+      it "uses the Welsh form document to construct the HTML when the locale is :cy" do
+        result = submission.answer_content_for_email_html(heading_tag: "h4", locale: :cy)
+
+        expect(result).to start_with("<h4>Beth yw eich hoff liw?</h4>")
+      end
+    end
+
+    describe "#answer_content_for_email_plain_text" do
+      it "uses the English form document to construct the answer content by default" do
+        result = submission.answer_content_for_email_plain_text
+
+        expect(result).to start_with("What is your favourite colour?")
+      end
+
+      it "uses the Welsh form document to construct the answer content when the locale is :cy" do
+        result = submission.answer_content_for_email_plain_text(locale: :cy)
+
+        expect(result).to start_with("Beth yw eich hoff liw?")
+      end
+    end
+  end
+
   describe "#sent?" do
     context "when the submission is sent" do
       let(:submission) { create :submission, :sent }

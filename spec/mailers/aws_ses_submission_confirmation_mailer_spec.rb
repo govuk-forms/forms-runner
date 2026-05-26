@@ -224,6 +224,20 @@ RSpec.describe AwsSesSubmissionConfirmationMailer, type: :mailer do
         welsh = I18n.t("mailer.submission_confirmation.subject", reference: submission_reference, locale: :cy)
         expect(mail.subject).to eq("#{english} | #{welsh}")
       end
+
+      it "has content for a preview submission in both English and Welsh in the text part" do
+        expect(mail.text_part.body).to include(I18n.t("mailer.submission_confirmation.title_preview"))
+        expect(mail.text_part.body).to include(I18n.t("mailer.submission_confirmation.this_is_a_test"))
+        expect(mail.text_part.body).to include(I18n.t("mailer.submission_confirmation.title_preview", locale: :cy))
+        expect(mail.text_part.body).to include(I18n.t("mailer.submission_confirmation.this_is_a_test", locale: :cy))
+      end
+
+      it "has the content for a preview submission in both English and Welsh in the html part" do
+        expect(mail.html_part.body).to have_css("h2", text: I18n.t("mailer.submission_confirmation.title_preview"))
+        expect(mail.html_part.body).to have_css("p", text: I18n.t("mailer.submission_confirmation.this_is_a_test"))
+        expect(mail.html_part.body).to have_css("h2", text: I18n.t("mailer.submission_confirmation.title_preview", locale: :cy))
+        expect(mail.html_part.body).to have_css("p", text: I18n.t("mailer.submission_confirmation.this_is_a_test", locale: :cy))
+      end
     end
 
     describe "the text part" do
@@ -250,6 +264,14 @@ RSpec.describe AwsSesSubmissionConfirmationMailer, type: :mailer do
 
         expect(part.body).to include(I18n.t("mailer.submission_confirmation.payment_link_heading", locale: :cy))
         expect(part.body).to include("https://pay.example.gov.uk/cy?reference=#{submission_reference}")
+      end
+
+      it "includes the English and Welsh answers" do
+        expect(part.body).to include("What is your favourite colour?")
+        expect(part.body).to include("What is your name?")
+
+        expect(part.body).to include("Beth yw eich hoff liw?")
+        expect(part.body).to include("Beth yw dy enw?")
       end
     end
 
@@ -283,6 +305,14 @@ RSpec.describe AwsSesSubmissionConfirmationMailer, type: :mailer do
 
         expect(part.body).to have_css("h3", text: I18n.t("mailer.submission_confirmation.payment_link_heading", locale: :cy))
         expect(part.body).to have_link("https://pay.example.gov.uk/cy?reference=#{submission_reference}")
+      end
+
+      it "includes the English and Welsh answers" do
+        expect(part.body).to have_css("h4", text: "What is your favourite colour?")
+        expect(part.body).to have_css("h4", text: "What is your name?")
+
+        expect(part.body).to have_css("h4", text: "Beth yw eich hoff liw?")
+        expect(part.body).to have_css("h4", text: "Beth yw dy enw?")
       end
     end
   end
