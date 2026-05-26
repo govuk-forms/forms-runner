@@ -64,7 +64,7 @@ gem "lograge"
 gem "opentelemetry-exporter-otlp", "~> 0.34.0"
 gem "opentelemetry-instrumentation-all", "~> 0.93.0"
 gem "opentelemetry-propagator-xray", "~> 0.27.0"
-gem "opentelemetry-sdk", "~> 1.11"
+gem "opentelemetry-sdk", "~> 1.12"
 
 # For AWS interactions
 gem "aws-sdk-cloudwatch"
