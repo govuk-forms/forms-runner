@@ -109,6 +109,22 @@ RSpec.describe SendConfirmationEmailJob, type: :job do
       expect(mail.to).to eq(["testing@gov.uk"])
       expect(mail.html_part.body).to include "What is your favourite colour?"
     end
+
+    context "when the Job was enqueued with Welsh locale" do
+      it "uses English as the default locale for the email" do
+        I18n.with_locale(:cy) do
+          described_class.perform_now(
+            submission:,
+            notify_response_id:,
+            confirmation_email_address:,
+            include_copy_of_answers: true,
+          )
+        end
+
+        mail = ActionMailer::Base.deliveries.last
+        expect(mail.subject).to eq(I18n.t("mailer.submission_confirmation.subject", reference: submission.reference))
+      end
+    end
   end
 
   context "when there is an error during processing" do
