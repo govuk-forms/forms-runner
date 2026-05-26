@@ -6,6 +6,11 @@ RSpec.describe SendConfirmationEmailJob, type: :job do
     build(
       :v2_form_document,
       name: "Form 1",
+      steps: [
+        build(:v2_question_step, :with_text_settings, question_text: "What is your favourite colour?", id: "q1", next_step_id: "q2"),
+        build(:v2_question_step, :with_name_settings, question_text: "What is your name?", id: "q2"),
+      ],
+      start_page: "q1",
       what_happens_next_markdown: "Please wait for a response",
       support_phone: "0203 222 2222",
       support_email: "help@example.gov.uk",
@@ -14,10 +19,12 @@ RSpec.describe SendConfirmationEmailJob, type: :job do
       payment_url: "https://www.gov.uk/payments/test-service/pay-for-licence",
     )
   end
+  let(:answers) { { "q1" => { text: "blue" }, "q2" => { first_name: "Jane", last_name: "Doe" } } }
   let(:submission) do
     create(
       :submission,
       form_document:,
+      answers:,
       created_at: submission_created_at,
       reference: "ABC12345",
       submission_locale: "en",
@@ -26,62 +33,81 @@ RSpec.describe SendConfirmationEmailJob, type: :job do
   let(:notify_response_id) { "confirmation-ref" }
   let(:confirmation_email_address) { "testing@gov.uk" }
 
-  before do
-    Settings.govuk_notify.form_filler_confirmation_email_template_id = "123456"
-    Settings.govuk_notify.form_filler_confirmation_email_welsh_template_id = "7891011"
-  end
-
-  it "sends the confirmation email" do
-    expect {
-      described_class.perform_now(
-        submission:,
-        notify_response_id:,
-        confirmation_email_address:,
-      )
-    }.to change(ActionMailer::Base.deliveries, :count).by(1)
-
-    mail = ActionMailer::Base.deliveries.last
-    expect(mail.to).to eq(["testing@gov.uk"])
-  end
-
-  it "builds mailer arguments from the submission" do
-    allow(FormSubmissionConfirmationMailer).to receive(:send_confirmation_email).and_call_original
-
-    described_class.perform_now(
-      submission:,
-      notify_response_id:,
-      confirmation_email_address:,
-    )
-
-    expect(FormSubmissionConfirmationMailer).to have_received(:send_confirmation_email).with(
-      submission:,
-      notify_response_id: "confirmation-ref",
-      confirmation_email_address: "testing@gov.uk",
-    )
-  end
-
-  context "when submission locale is Welsh" do
-    let(:welsh_form_document) { build(:v2_form_document, name: "Welsh Form") }
-
+  context "when include_copy_of_answers is false" do
     before do
-      submission.update!(submission_locale: "cy")
-      allow(Api::V2::FormDocumentRepository).to receive(:find_with_mode).and_call_original
-      allow(Api::V2::FormDocumentRepository).to receive(:find_with_mode).with(
-        form_id: anything,
-        mode: anything,
-        language: :cy,
-      ).and_return(welsh_form_document)
+      Settings.govuk_notify.form_filler_confirmation_email_template_id = "123456"
+      Settings.govuk_notify.form_filler_confirmation_email_welsh_template_id = "7891011"
     end
 
-    it "uses the bilingual template" do
+    it "sends the confirmation email" do
+      expect {
+        described_class.perform_now(
+          submission:,
+          notify_response_id:,
+          confirmation_email_address:,
+        )
+      }.to change(ActionMailer::Base.deliveries, :count).by(1)
+
+      mail = ActionMailer::Base.deliveries.last
+      expect(mail.to).to eq(["testing@gov.uk"])
+    end
+
+    it "builds mailer arguments from the submission" do
+      allow(FormSubmissionConfirmationMailer).to receive(:send_confirmation_email).and_call_original
+
       described_class.perform_now(
         submission:,
         notify_response_id:,
         confirmation_email_address:,
       )
 
+      expect(FormSubmissionConfirmationMailer).to have_received(:send_confirmation_email).with(
+        submission:,
+        notify_response_id: "confirmation-ref",
+        confirmation_email_address: "testing@gov.uk",
+      )
+    end
+
+    context "when submission locale is Welsh" do
+      let(:welsh_form_document) { build(:v2_form_document, name: "Welsh Form") }
+
+      before do
+        submission.update!(submission_locale: "cy")
+        allow(Api::V2::FormDocumentRepository).to receive(:find_with_mode).and_call_original
+        allow(Api::V2::FormDocumentRepository).to receive(:find_with_mode).with(
+          form_id: anything,
+          mode: anything,
+          language: :cy,
+        ).and_return(welsh_form_document)
+      end
+
+      it "uses the bilingual template" do
+        described_class.perform_now(
+          submission:,
+          notify_response_id:,
+          confirmation_email_address:,
+        )
+
+        mail = ActionMailer::Base.deliveries.last
+        expect(mail.govuk_notify_template).to eq("7891011")
+      end
+    end
+  end
+
+  context "when include_copy_of_answers is true" do
+    it "sends the confirmation email including the answers" do
+      expect {
+        described_class.perform_now(
+          submission:,
+          notify_response_id:,
+          confirmation_email_address:,
+          include_copy_of_answers: true,
+        )
+      }.to change(ActionMailer::Base.deliveries, :count).by(1)
+
       mail = ActionMailer::Base.deliveries.last
-      expect(mail.govuk_notify_template).to eq("7891011")
+      expect(mail.to).to eq(["testing@gov.uk"])
+      expect(mail.html_part.body).to include "What is your favourite colour?"
     end
   end
 
