@@ -78,7 +78,13 @@ RSpec.describe FormSubmissionService, :capture_logging do
     }
   end
   let(:locales_used) { [:en] }
-  let(:current_context) { instance_double(Flow::Context, form:, journey:, completed_steps: all_steps, answers:, locales_used:) }
+  let(:wants_copy_of_answers) { false }
+  let(:copy_of_answers_email_address) { nil }
+  let(:current_context) do
+    instance_double(Flow::Context, form:, journey:, completed_steps: all_steps, answers:, locales_used:,
+                                   wants_copy_of_answers?: wants_copy_of_answers,
+                                   get_copy_of_answers_email_address: copy_of_answers_email_address)
+  end
 
   before do
     allow(ReferenceNumberService).to receive(:generate).and_return(reference)
@@ -316,8 +322,7 @@ RSpec.describe FormSubmissionService, :capture_logging do
       context "when form is not in english" do
         let(:submission_type) { "email" }
         let(:submission_format) { [] }
-
-        let(:current_context) { instance_double(Flow::Context, form: welsh_form, journey:, completed_steps: all_steps, answers:, locales_used:) }
+        let(:form) { welsh_form }
 
         before do
           ActiveResource::HttpMock.respond_to do |mock|
@@ -355,70 +360,102 @@ RSpec.describe FormSubmissionService, :capture_logging do
     end
 
     describe "sending the confirmation email to the user" do
-      it "enqueues a job to send the confirmation email" do
-        assert_enqueued_with(job: SendConfirmationEmailJob) do
-          service.submit
-        end
-      end
-
-      context "when the confirmation email job fails to enqueue" do
-        let(:enqueue_error) { nil }
-
-        before do
-          allow(SendConfirmationEmailJob).to receive(:perform_later).and_yield(instance_double(SendConfirmationEmailJob, successfully_enqueued?: false, enqueue_error:))
-        end
-
-        context "and there is no enqueue error" do
-          it "raises an error" do
-            expect { service.submit }.to change(Submission, :count).by(1).and raise_error(StandardError, "Failed to enqueue confirmation email for reference #{reference}")
-          end
-        end
-
-        context "and there is an enqueue error" do
-          let(:enqueue_error) { ActiveJob::EnqueueError.new("An error occurred enqueueing job") }
-
-          it "raises an error" do
-            expect { service.submit }.to change(Submission, :count).by(1).and raise_error(StandardError, "Failed to enqueue confirmation email for reference #{reference}: An error occurred enqueueing job")
-          end
-        end
-      end
-
-      context "when the to email address is rejected by ActionMailer" do
-        let(:confirmation_email_address) { "rejected-email@gov.uk\n" }
-
-        it "raises a ConfirmationEmailToAddressError" do
-          expect {
+      context "when the user has not asked for a copy of their answers" do
+        it "enqueues a job to send the confirmation email without a copy of the answers" do
+          assert_enqueued_with(job: SendConfirmationEmailJob) do
             service.submit
-          }.to raise_error(FormSubmissionService::ConfirmationEmailToAddressError)
+          end
+
+          args = enqueued_jobs.last["arguments"].first
+
+          expect(args).to include(
+            "submission" => hash_including("_aj_globalid"),
+            "notify_response_id" => email_confirmation_input.confirmation_email_reference,
+            "confirmation_email_address" => confirmation_email_address,
+            "include_copy_of_answers" => false,
+          )
         end
 
-        it "sends an error to Sentry" do
-          expect(Sentry).to receive(:capture_message).with("ActionMailer error for To email address in confirmation email", {
-            extra: {
-              action_mailer_error: /Mail::AddressList can not parse |r\*\*\*\*\*\*\*-e\*\*\*\*(at)g\*\*.u\*\n|: Only able to parse up to "r\*\*\*\*\*\*\*-e\*\*\*\*@g\*\*.u\*\\/,
-            },
-          })
-          service.submit
-        rescue FormSubmissionService::ConfirmationEmailToAddressError
-          nil
+        context "when the confirmation email job fails to enqueue" do
+          let(:enqueue_error) { nil }
+
+          before do
+            allow(SendConfirmationEmailJob).to receive(:perform_later).and_yield(instance_double(SendConfirmationEmailJob, successfully_enqueued?: false, enqueue_error:))
+          end
+
+          context "and there is no enqueue error" do
+            it "raises an error" do
+              expect { service.submit }.to change(Submission, :count).by(1).and raise_error(StandardError, "Failed to enqueue confirmation email for reference #{reference}")
+            end
+          end
+
+          context "and there is an enqueue error" do
+            let(:enqueue_error) { ActiveJob::EnqueueError.new("An error occurred enqueueing job") }
+
+            it "raises an error" do
+              expect { service.submit }.to change(Submission, :count).by(1).and raise_error(StandardError, "Failed to enqueue confirmation email for reference #{reference}: An error occurred enqueueing job")
+            end
+          end
         end
 
-        it "does not queue sending the submission email" do
-          assert_no_enqueued_jobs do
+        context "when the to email address is rejected by ActionMailer" do
+          let(:confirmation_email_address) { "rejected-email@gov.uk\n" }
+
+          it "raises a ConfirmationEmailToAddressError" do
+            expect {
+              service.submit
+            }.to raise_error(FormSubmissionService::ConfirmationEmailToAddressError)
+          end
+
+          it "sends an error to Sentry" do
+            expect(Sentry).to receive(:capture_message).with("ActionMailer error for To email address in confirmation email", {
+              extra: {
+                action_mailer_error: /Mail::AddressList can not parse |r\*\*\*\*\*\*\*-e\*\*\*\*(at)g\*\*.u\*\n|: Only able to parse up to "r\*\*\*\*\*\*\*-e\*\*\*\*@g\*\*.u\*\\/,
+              },
+            })
             service.submit
           rescue FormSubmissionService::ConfirmationEmailToAddressError
             nil
           end
+
+          it "does not queue sending the submission email" do
+            assert_no_enqueued_jobs do
+              service.submit
+            rescue FormSubmissionService::ConfirmationEmailToAddressError
+              nil
+            end
+          end
+        end
+
+        context "when user does not want a confirmation email" do
+          let(:email_confirmation_input) { build :email_confirmation_input }
+
+          it "does not call FormSubmissionConfirmationMailer" do
+            allow(FormSubmissionConfirmationMailer).to receive(:send_confirmation_email)
+            service.submit
+            expect(FormSubmissionConfirmationMailer).not_to have_received(:send_confirmation_email)
+          end
         end
       end
 
-      context "when user does not want a confirmation email" do
+      context "when the user has asked for a copy of their answers" do
+        let(:wants_copy_of_answers) { true }
+        let(:copy_of_answers_email_address) { "copy-of-answers@example.com" }
         let(:email_confirmation_input) { build :email_confirmation_input }
 
-        it "does not call FormSubmissionConfirmationMailer" do
-          allow(FormSubmissionConfirmationMailer).to receive(:send_confirmation_email)
-          service.submit
-          expect(FormSubmissionConfirmationMailer).not_to have_received(:send_confirmation_email)
+        it "enqueues a job to send the confirmation email to the copy of answers email with a copy of the answers" do
+          assert_enqueued_with(job: SendConfirmationEmailJob) do
+            service.submit
+          end
+
+          args = enqueued_jobs.last["arguments"].first
+
+          expect(args).to include(
+            "submission" => hash_including("_aj_globalid"),
+            "notify_response_id" => email_confirmation_input.confirmation_email_reference,
+            "confirmation_email_address" => copy_of_answers_email_address,
+            "include_copy_of_answers" => true,
+          )
         end
       end
     end

@@ -27,7 +27,7 @@ class FormSubmissionService
     validate_confirmation_email_address if requested_confirmation?
 
     submission = deliver_submission
-    enqueue_send_confirmation_email_job(submission:) if requested_confirmation?
+    enqueue_send_confirmation_email_job(submission:) if requested_confirmation? || send_copy_of_answers?
 
     submission_reference
   end
@@ -142,7 +142,8 @@ private
     SendConfirmationEmailJob.perform_later(
       submission:,
       notify_response_id: email_confirmation_input.confirmation_email_reference,
-      confirmation_email_address: email_confirmation_input.confirmation_email_address,
+      confirmation_email_address: confirmation_email_address,
+      include_copy_of_answers: send_copy_of_answers?,
     ) do |job|
       next if job.successfully_enqueued?
 
@@ -153,5 +154,17 @@ private
 
   def requested_confirmation?
     email_confirmation_input.send_confirmation == "send_email"
+  end
+
+  def send_copy_of_answers?
+    @current_context.wants_copy_of_answers? && @current_context.get_copy_of_answers_email_address.present?
+  end
+
+  def confirmation_email_address
+    if send_copy_of_answers?
+      @current_context.get_copy_of_answers_email_address
+    else
+      email_confirmation_input.confirmation_email_address
+    end
   end
 end
