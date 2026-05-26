@@ -23,7 +23,11 @@ class SendBounceNotificationsJob < ApplicationJob
         ).deliver_now
       end
 
-      Rails.logger.info "Sent bounce notifications to #{user_role.to_s.gsub('_', ' ')} users for bounced deliveries on #{bounced_on_date.strftime('%-d %B %Y')} for form #{form_id}"
+      if users.any?
+        Rails.logger.info "Sent bounce notifications to #{users.length} #{user_role.to_s.gsub('_', ' ')} users for bounced deliveries on #{bounced_on_date.strftime('%-d %B %Y')} for form #{form_id}"
+      else
+        Rails.logger.info "No #{user_role.to_s.gsub('_', ' ')} users for form #{form_id}, no bounce notifications sent"
+      end
     end
   end
 end
