@@ -54,8 +54,6 @@ RSpec.describe SendConfirmationEmailJob, type: :job do
     )
 
     expect(FormSubmissionConfirmationMailer).to have_received(:send_confirmation_email).with(
-      form: submission.form,
-      welsh_form: nil,
       submission:,
       notify_response_id: "confirmation-ref",
       confirmation_email_address: "testing@gov.uk",
@@ -84,20 +82,6 @@ RSpec.describe SendConfirmationEmailJob, type: :job do
 
       mail = ActionMailer::Base.deliveries.last
       expect(mail.govuk_notify_template).to eq("7891011")
-    end
-
-    it "passes the Welsh form to the mailer" do
-      allow(FormSubmissionConfirmationMailer).to receive(:send_confirmation_email).and_call_original
-
-      described_class.perform_now(
-        submission:,
-        notify_response_id:,
-        confirmation_email_address:,
-      )
-
-      expect(FormSubmissionConfirmationMailer).to have_received(:send_confirmation_email).with(
-        hash_including(welsh_form: have_attributes(name: welsh_form_document.name)),
-      )
     end
   end
 

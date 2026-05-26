@@ -2,10 +2,12 @@ class FormSubmissionConfirmationMailer < GovukNotifyRails::Mailer
   include NotifyUtils
   include EmailFormatHelper
 
-  def send_confirmation_email(form:, welsh_form:, submission:, notify_response_id:, confirmation_email_address:)
+  def send_confirmation_email(submission:, notify_response_id:, confirmation_email_address:)
     @submission_locale = submission.submission_locale.to_sym
     set_template(template_id)
 
+    form = submission.form
+    welsh_form = submission.welsh_form
     what_happens_next_text = form.what_happens_next_markdown.presence || default_what_happens_next_text
     set_personalisation(
       title: form.name,

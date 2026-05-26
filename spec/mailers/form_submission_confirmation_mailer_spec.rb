@@ -3,9 +3,7 @@ require "rails_helper"
 describe FormSubmissionConfirmationMailer, type: :mailer do
   let(:submission_locale) { :en }
   let(:mail) do
-    described_class.send_confirmation_email(form:,
-                                            welsh_form:,
-                                            submission:,
+    described_class.send_confirmation_email(submission:,
                                             notify_response_id: "for-my-ref",
                                             confirmation_email_address:)
   end
@@ -22,6 +20,7 @@ describe FormSubmissionConfirmationMailer, type: :mailer do
   let(:submission) do
     build :submission,
           form_document:,
+          welsh_form_document:,
           created_at: submission_timestamp,
           reference: submission_reference,
           submission_locale:,
@@ -37,7 +36,7 @@ describe FormSubmissionConfirmationMailer, type: :mailer do
           payment_url:
   end
   let(:form) { Form.new(form_document) }
-  let(:welsh_form) { nil }
+  let(:welsh_form_document) { nil }
 
   context "when form filler wants an form submission confirmation email" do
     before do
@@ -60,7 +59,7 @@ describe FormSubmissionConfirmationMailer, type: :mailer do
     end
 
     context "when a Welsh form is provided" do
-      let(:welsh_form) { Form.new(build(:v2_form_document, name: "Ffurflen 1")) }
+      let(:welsh_form_document) { build(:v2_form_document, name: "Ffurflen 1") }
 
       it "uses the Welsh form name as title_cy" do
         expect(mail.govuk_notify_personalisation[:title_cy]).to eq("Ffurflen 1")
@@ -125,7 +124,7 @@ describe FormSubmissionConfirmationMailer, type: :mailer do
 
       context "when the Welsh form has a payment url" do
         let(:welsh_payment_url) { "https://www.gov.uk/payments/welsh-service/pay-for-licence" }
-        let(:welsh_form) { Form.new(build(:v2_form_document, payment_url: welsh_payment_url)) }
+        let(:welsh_form_document) { build(:v2_form_document, payment_url: welsh_payment_url) }
 
         it "sets payment_link_cy to the Welsh payment url with reference" do
           expect(mail.govuk_notify_personalisation[:payment_link_cy]).to eq("#{welsh_payment_url}?reference=#{submission_reference}")
@@ -167,8 +166,8 @@ describe FormSubmissionConfirmationMailer, type: :mailer do
       context "when a Welsh version of the form is present" do
         let(:welsh_what_happens_next_markdown) { "Arhoswch am ymateb" }
         let(:welsh_support_phone) { "0291 111 1111" }
-        let(:welsh_form) do
-          build :form,
+        let(:welsh_form_document) do
+          build :v2_form_document,
                 what_happens_next_markdown: welsh_what_happens_next_markdown,
                 support_phone: welsh_support_phone
         end
