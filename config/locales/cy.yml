@@ -517,6 +517,7 @@ cy:
       contact_details_heading: Manylion cyswllt
       default_support_contact_details: The form’s contact details for support will appear here once they’ve been added.
       default_what_happens_next: The form’s information about what happens next will appear here once it has been added.
+      file_answer: Rydych wedi llwytho ffeil o’r enw %{filename}
       payment_link_heading: Os ydych dal angen talu
       payment_link_html: 'Os ydych angen gwneud taliad ac nad ydych wedi gwneud hynny eisoes, defnyddiwch y ddolen dalu hon i dalu nawr: <a href="%{payment_link}">%{payment_link}</a>'
       reference_number: Rhif cyfeirnod eich ffurflen yw %{reference}.

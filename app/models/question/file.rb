@@ -44,10 +44,14 @@ module Question
       original_filename
     end
 
-    def show_answer_in_email(submission_reference:)
+    def show_answer_in_email(submission_reference:, confirmation_email: false)
       return nil if original_filename.blank?
 
-      I18n.t("mailer.submission.file_attached", filename: email_filename(submission_reference:))
+      if confirmation_email
+        I18n.t("mailer.submission_confirmation.file_answer", filename: original_filename)
+      else
+        I18n.t("mailer.submission.file_attached", filename: email_filename(submission_reference:))
+      end
     end
 
     def show_answer_in_csv(submission_reference:, is_s3_submission:)

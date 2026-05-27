@@ -517,6 +517,7 @@ en:
       contact_details_heading: Contact details
       default_support_contact_details: The form’s contact details for support will appear here once they’ve been added.
       default_what_happens_next: The form’s information about what happens next will appear here once it has been added.
+      file_answer: You uploaded a file called %{filename}
       payment_link_heading: If you still need to pay
       payment_link_html: 'If you need to make a payment and have not done so already, use this payment link to pay now: <a href="%{payment_link}">%{payment_link}</a>'
       reference_number: Your form reference number is %{reference}.

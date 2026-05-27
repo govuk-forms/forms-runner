@@ -77,9 +77,9 @@ class RepeatableStep < Step
     end
   end
 
-  def show_answer_in_email(submission_reference:)
+  def show_answer_in_email(submission_reference:, confirmation_email: false)
     questions.map.with_index(1) { |question, index|
-      "#{index}. #{question.show_answer_in_email(submission_reference:)}"
+      "#{index}. #{question.show_answer_in_email(submission_reference:, confirmation_email:)}"
     }.join("\n\n")
   end
 

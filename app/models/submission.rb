@@ -59,12 +59,12 @@ class Submission < ApplicationRecord
     Mode.new(mode)
   end
 
-  def answer_content_for_email_html(heading_tag:, locale: :en)
-    ses_email_formatter(locale).build_question_answers_section_html(heading_tag:)
+  def answer_content_for_email_html(heading_tag:, locale: :en, confirmation_email: false)
+    ses_email_formatter(locale, confirmation_email).build_question_answers_section_html(heading_tag:)
   end
 
-  def answer_content_for_email_plain_text(locale: :en)
-    ses_email_formatter(locale).build_question_answers_section_plain_text
+  def answer_content_for_email_plain_text(locale: :en, confirmation_email: false)
+    ses_email_formatter(locale, confirmation_email).build_question_answers_section_plain_text
   end
 
 private
@@ -81,8 +81,9 @@ private
     @form_document_resource ||= Api::V2::FormDocumentResource.new(form_document, true)
   end
 
-  def ses_email_formatter(locale)
-    SesEmailFormatter.new(submission_reference: reference, steps: journey(locale:).completed_steps)
+  def ses_email_formatter(locale, confirmation_email)
+    SesEmailFormatter.new(submission_reference: reference, steps: journey(locale:).completed_steps,
+                          confirmation_email:)
   end
 
   def english_journey

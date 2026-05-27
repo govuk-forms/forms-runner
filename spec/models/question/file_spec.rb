@@ -173,18 +173,30 @@ RSpec.describe Question::File, type: :model do
     end
 
     context "when the original_filename has a value" do
-      it "returns the filename containing the submission reference with the email attachment text" do
-        expect(question.show_answer_in_email(submission_reference:)).to eq I18n.t("mailer.submission.file_attached", filename: "a-file_#{submission_reference}.png")
+      context "when formatting for a submission email" do
+        it "returns the filename containing the submission reference with the email attachment text" do
+          expect(question.show_answer_in_email(submission_reference:)).to eq I18n.t("mailer.submission.file_attached", filename: "a-file_#{submission_reference}.png")
+        end
+
+        context "when the filename is long enough to be truncated" do
+          let(:filename_suffix) { "_1" }
+          let(:original_filename) { "an_unusual_and_atypically_long_filename_that_is_just_about_long_enough_to_be_truncated.doc" }
+
+          it "returns a hash with a truncated filename containing the submission reference" do
+            truncated_filename_with_suffix_and_reference = "an_unusual_and_atypically_long_filename_that_is_just_about_long_enough_to_be_truncated_1_#{submission_reference}.doc"
+
+            expect(question.show_answer_in_email(submission_reference:)).to eq(I18n.t("mailer.submission.file_attached", filename: truncated_filename_with_suffix_and_reference))
+          end
+        end
       end
 
-      context "when the filename is long enough to be truncated" do
-        let(:filename_suffix) { "_1" }
-        let(:original_filename) { "an_unusual_and_atypically_long_filename_that_is_just_about_long_enough_to_be_truncated.doc" }
+      context "when formatting for a confirmation email" do
+        let(:filename_suffix) { "_1" } # ensure the suffix isn't used
 
-        it "returns a hash with a truncated filename containing the submission reference" do
-          truncated_filename_with_suffix_and_reference = "an_unusual_and_atypically_long_filename_that_is_just_about_long_enough_to_be_truncated_1_#{submission_reference}.doc"
-
-          expect(question.show_answer_in_email(submission_reference:)).to eq(I18n.t("mailer.submission.file_attached", filename: truncated_filename_with_suffix_and_reference))
+        it "returns content for the confirmation email with the original filename" do
+          expect(question.show_answer_in_email(submission_reference:, confirmation_email: true)).to eq(
+            I18n.t("mailer.submission_confirmation.file_answer", filename: original_filename),
+          )
         end
       end
     end

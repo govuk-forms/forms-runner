@@ -27,7 +27,7 @@ RSpec.describe AwsSesSubmissionConfirmationMailer, type: :mailer do
           answers:,
           is_preview:)
   end
-  let(:answers) { { "q1" => { text: "blue" }, "q2" => { first_name: "Jane", last_name: "Doe" } } }
+  let(:answers) { { "q1" => { text: "blue" }, "q2" => { first_name: "Jane", last_name: "Doe" }, "q3" => { original_filename: "test.txt" } } }
   let(:what_happens_next_markdown) { "Please wait for a response\nA list:\n\n- Item one\n- Item two" }
   let(:payment_url) { "https://pay.example.gov" }
   let(:form_document) do
@@ -35,7 +35,8 @@ RSpec.describe AwsSesSubmissionConfirmationMailer, type: :mailer do
           name: "My form",
           steps: [
             build(:v2_question_step, :with_text_settings, question_text: "What is your favourite colour?", id: "q1", next_step_id: "q2"),
-            build(:v2_question_step, :with_name_settings, question_text: "What is your name?", id: "q2"),
+            build(:v2_question_step, :with_name_settings, question_text: "What is your name?", id: "q2", next_step_id: "q3"),
+            build(:v2_question_step, :with_file_upload_settings, question_text: "Upload a file", id: "q3"),
           ],
           start_page: "q1",
           payment_url:,
@@ -79,6 +80,8 @@ RSpec.describe AwsSesSubmissionConfirmationMailer, type: :mailer do
         expect(part.body).to include("What is your name?")
         expect(part.body).to include("First name: Jane")
         expect(part.body).to include("Last name: Doe")
+        expect(part.body).to include("Upload a file")
+        expect(part.body).to include(I18n.t("mailer.submission_confirmation.file_answer", filename: "test.txt"))
       end
     end
 
@@ -109,6 +112,8 @@ RSpec.describe AwsSesSubmissionConfirmationMailer, type: :mailer do
         expect(part.body).to have_css("h4", text: "What is your name?")
         expect(part.body).to have_text("First name: Jane")
         expect(part.body).to have_text("Last name: Doe")
+        expect(part.body).to have_css("h4", text: "Upload a file")
+        expect(part.body).to have_text(I18n.t("mailer.submission_confirmation.file_answer", filename: "test.txt"))
       end
     end
   end
@@ -198,7 +203,8 @@ RSpec.describe AwsSesSubmissionConfirmationMailer, type: :mailer do
             name: "Welsh form",
             steps: [
               build(:v2_question_step, :with_text_settings, question_text: "Beth yw eich hoff liw?", id: "q1", next_step_id: "q2"),
-              build(:v2_question_step, :with_name_settings, question_text: "Beth yw dy enw?", id: "q2"),
+              build(:v2_question_step, :with_name_settings, question_text: "Beth yw dy enw?", id: "q2", next_step_id: "q3"),
+              build(:v2_question_step, :with_file_upload_settings, question_text: "Llwythwch ffeil i fyny", id: "q3"),
             ],
             start_page: "q1",
             what_happens_next_markdown: "Arhoswch am ymateb\nRhestr:\n\n- Eitem un\n- Eitem dau",
@@ -269,9 +275,13 @@ RSpec.describe AwsSesSubmissionConfirmationMailer, type: :mailer do
       it "includes the English and Welsh answers" do
         expect(part.body).to include("What is your favourite colour?")
         expect(part.body).to include("What is your name?")
+        expect(part.body).to include("Upload a file")
+        expect(part.body).to include(I18n.t("mailer.submission_confirmation.file_answer", filename: "test.txt"))
 
         expect(part.body).to include("Beth yw eich hoff liw?")
         expect(part.body).to include("Beth yw dy enw?")
+        expect(part.body).to include("Llwythwch ffeil i fyny")
+        expect(part.body).to include(I18n.t("mailer.submission_confirmation.file_answer", filename: "test.txt", locale: :cy))
       end
     end
 
@@ -310,9 +320,13 @@ RSpec.describe AwsSesSubmissionConfirmationMailer, type: :mailer do
       it "includes the English and Welsh answers" do
         expect(part.body).to have_css("h4", text: "What is your favourite colour?")
         expect(part.body).to have_css("h4", text: "What is your name?")
+        expect(part.body).to have_css("h4", text: "Upload a file")
+        expect(part.body).to have_text(I18n.t("mailer.submission_confirmation.file_answer", filename: "test.txt"))
 
         expect(part.body).to have_css("h4", text: "Beth yw eich hoff liw?")
         expect(part.body).to have_css("h4", text: "Beth yw dy enw?")
+        expect(part.body).to have_css("h4", text: "Llwythwch ffeil i fyny")
+        expect(part.body).to have_text(I18n.t("mailer.submission_confirmation.file_answer", filename: "test.txt", locale: :cy))
       end
     end
   end

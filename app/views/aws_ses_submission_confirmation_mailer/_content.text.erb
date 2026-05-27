@@ -31,7 +31,7 @@
 <% if @include_copy_of_answers %>
 <%= I18n.t("mailer.submission_confirmation.answers_submitted_heading") %>
 
-<%= @submission.answer_content_for_email_plain_text(locale: locale) %>
+<%= @submission.answer_content_for_email_plain_text(locale: locale, confirmation_email: true) %>
 
 <% end %>
 <%= I18n.t("mailer.submission_confirmation.contact_details_heading") %>

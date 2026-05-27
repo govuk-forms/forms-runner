@@ -72,7 +72,8 @@ private
   def form_document
     steps = [
       build(:v2_question_step, :with_text_settings, id: "a1", next_step_id: "a2"),
-      build(:v2_question_step, :with_name_settings, id: "a2"),
+      build(:v2_question_step, :with_name_settings, id: "a2", next_step_id: "a3"),
+      build(:v2_question_step, :with_file_upload_settings, id: "a3"),
     ]
     build(:v2_form_document,
           steps: steps,
@@ -88,8 +89,9 @@ private
 
   def welsh_form_document
     welsh_steps = [
-      build(:v2_question_step, :with_text_settings, question_text: "Welsh question 1", id: "a1", next_step_id: "a2"),
-      build(:v2_question_step, :with_name_settings, question_text: "Welsh question 2", id: "a2"),
+      build(:v2_question_step, :with_text_settings, question_text: "Welsh text", id: "a1", next_step_id: "a2"),
+      build(:v2_question_step, :with_name_settings, question_text: "Welsh name", id: "a2", next_step_id: "a3"),
+      build(:v2_question_step, :with_file_upload_settings, question_text: "Welsh file upload", id: "a3"),
     ]
     build(:v2_form_document,
           steps: welsh_steps,
@@ -107,6 +109,7 @@ private
     {
       "a1" => { text: "First answer/nSecond line of first answer" },
       "a2" => { first_name: "Joe", last_name: "Bloggs" },
+      "a3" => { original_filename: "test.txt" },
     }
   end
 end
