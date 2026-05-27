@@ -1,5 +1,5 @@
 class ApplicationMailer < ActionMailer::Base
-  helper :email_format
+  helper EmailFormatHelper
 
   layout "mailer"
 
