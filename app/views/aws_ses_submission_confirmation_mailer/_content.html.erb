@@ -1,8 +1,8 @@
 <% if @submission.preview? %>
-  <h2><%= I18n.t("mailer.submission_confirmation.title_preview") %></h2>
+  <h2 style="font-size: 27px; line-height: 35px; font-weight: bold; color: #0B0C0C;"><%= I18n.t("mailer.submission_confirmation.title_preview") %></h2>
   <p><%= I18n.t("mailer.submission_confirmation.this_is_a_test") %></p>
 <% else %>
-  <h2><%= I18n.t("mailer.submission_confirmation.title") %></h2>
+  <h2 style="font-size: 27px; line-height: 35px; font-weight: bold; color: #0B0C0C;"><%= I18n.t("mailer.submission_confirmation.title") %></h2>
 <% end %>
 
 <p><%= I18n.t("mailer.submission_confirmation.submitted_at", form_name: form.name,
@@ -20,11 +20,11 @@
 
 
 <% if form.payment_url.present? %>
-  <h3><%= I18n.t("mailer.submission_confirmation.payment_link_heading") %></h3>
+  <h3 style="font-size: 21px; line-height: 25px; font-weight: bold; color: #0B0C0C;"><%= I18n.t("mailer.submission_confirmation.payment_link_heading") %></h3>
   <p><%= I18n.t("mailer.submission_confirmation.payment_link_html", payment_link: form.payment_url_with_reference(@submission.reference)).html_safe %></p>
 <% end %>
 
-<h3><%= I18n.t("mailer.submission_confirmation.what_happens_next_heading") %></h3>
+<h3 style="font-size: 21px; line-height: 25px; font-weight: bold; color: #0B0C0C;"><%= I18n.t("mailer.submission_confirmation.what_happens_next_heading") %></h3>
 <% if form.what_happens_next_markdown.present? %>
   <%= markdown_to_html(form.what_happens_next_markdown) %>
 <% else %>
@@ -32,12 +32,12 @@
 <% end %>
 
 <% if @include_copy_of_answers %>
-  <h3><%= I18n.t("mailer.submission_confirmation.answers_submitted_heading") %></h3>
-  <%= @submission.answer_content_for_email_html(heading_tag: "h4", locale: locale, confirmation_email: true).html_safe %>
+  <h3 style="font-size: 21px; line-height: 25px; font-weight: bold; color: #0B0C0C;"><%= I18n.t("mailer.submission_confirmation.answers_submitted_heading") %></h3>
+  <%= @submission.answer_content_for_email_html(heading_level: 4, locale: locale, confirmation_email: true).html_safe %>
   <hr style="border: 0; height: 1px; background: #B1B4B6; margin: 30px 0 30px 0;">
 <% end %>
 
-<h3><%= I18n.t("mailer.submission_confirmation.contact_details_heading") %></h3>
+<h3 style="font-size: 21px; line-height: 25px; font-weight: bold; color: #0B0C0C;"><%= I18n.t("mailer.submission_confirmation.contact_details_heading") %></h3>
 
 <% if form.support_details.phone || form.support_details.email || form.support_details.url %>
   <% if form.support_details.phone.present? %>

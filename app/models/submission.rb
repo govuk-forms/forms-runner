@@ -59,8 +59,8 @@ class Submission < ApplicationRecord
     Mode.new(mode)
   end
 
-  def answer_content_for_email_html(heading_tag:, locale: :en, confirmation_email: false)
-    ses_email_formatter(locale, confirmation_email).build_question_answers_section_html(heading_tag:)
+  def answer_content_for_email_html(heading_level:, locale: :en, confirmation_email: false)
+    ses_email_formatter(locale, confirmation_email).build_question_answers_section_html(heading_level:)
   end
 
   def answer_content_for_email_plain_text(locale: :en, confirmation_email: false)

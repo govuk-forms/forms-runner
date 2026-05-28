@@ -185,15 +185,15 @@ RSpec.describe Submission, type: :model do
 
     describe "#answer_content_for_email_html" do
       it "uses the English form document to construct the HTML by default" do
-        result = submission.answer_content_for_email_html(heading_tag: "h4")
+        result = submission.answer_content_for_email_html(heading_level: 4)
 
-        expect(result).to start_with("<h4>What is your favourite colour?</h4>")
+        expect(result).to include("What is your favourite colour?")
       end
 
       it "uses the Welsh form document to construct the HTML when the locale is :cy" do
-        result = submission.answer_content_for_email_html(heading_tag: "h4", locale: :cy)
+        result = submission.answer_content_for_email_html(heading_level: 4, locale: :cy)
 
-        expect(result).to start_with("<h4>Beth yw eich hoff liw?</h4>")
+        expect(result).to include("Beth yw eich hoff liw?")
       end
     end
 

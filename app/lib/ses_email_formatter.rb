@@ -12,9 +12,9 @@ class SesEmailFormatter
     @confirmation_email = confirmation_email
   end
 
-  def build_question_answers_section_html(heading_tag: "h3")
+  def build_question_answers_section_html(heading_level: 3)
     @steps.map { |step|
-      [prep_question_title_html(step, heading_tag),
+      [prep_question_title_html(step, heading_level),
        prep_answer_text_html(step)].join
     }.join(H_RULE)
   end
@@ -28,8 +28,15 @@ class SesEmailFormatter
 
 private
 
-  def prep_question_title_html(step, heading_tag)
-    "<#{heading_tag}>#{prep_question_title_plain_text(step)}</#{heading_tag}>"
+  def prep_question_title_html(step, heading_level)
+    case heading_level
+    when 3
+      "<h3 style=\"font-size: 21px; line-height: 25px; font-weight: bold; color: #0B0C0C;\">#{prep_question_title_plain_text(step)}</h3>"
+    when 4
+      "<h4 style=\"font-size: 19px; line-height: 25px; font-weight: bold; color: #0B0C0C;\">#{prep_question_title_plain_text(step)}</h4>"
+    else
+      raise FormattingError, "unsupported heading level: #{heading_level}"
+    end
   end
 
   def prep_answer_text_html(step)
