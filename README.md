@@ -191,7 +191,9 @@ You can enable Redis sessions by providing the Redis connection URL in the envir
 
 ### Configuring GOV.UK Notify
 
-We use [GOV.UK Notify] to send emails from our apps.
+We use [GOV.UK Notify] to send the following emails:
+- confirmation emails to users who have submitted a form, if they have not asked for a copy of their answers
+- bounce notifications to group and organisation admins
 
 If you want to test the Notify functionality locally, you will need to get a test API key from the Notify service. Add it as an environment variable under `SETTINGS__GOVUK_NOTIFY__API_KEY` or add it to a local config file:
 
@@ -204,6 +206,25 @@ govuk_notify:
 ```
 
 [GOV.UK Notify]: https://www.notifications.service.gov.uk/
+
+### Configuring GOV.UK One Login
+
+We use [GOV.UK One Login] for authenticating users if they want to receive a copy of their answers by email.
+
+To test this functionality locally, you will need to create a test One Login service using the [One Login admin tool](https://admin.sign-in.service.gov.uk/sign-in).
+
+In your service, configure the following:
+
+- Add `http://localhost:3001/auth/govuk_one_login/callback` to the "Redirect URIs"
+- Add `http://localhost:3001/auth/logged-out` to the "Post logout redirect URIs"
+- [Generate a key pair](https://docs.sign-in.service.gov.uk/before-integrating/set-up-your-public-and-private-keys/) and add the public key
+
+Start the service with the following environment variables set:
+
+- `SETTINGS__GOVUK_ONE_LOGIN__CLIENT_ID` - the client ID from your One Login service
+- `SETTINGS__GOVUK_ONE_LOGIN__PRIVATE_KEY` - the private key you generated, base64 encoded (you can use `cat private_key.pem | base64 | pbcopy` to encode the key)
+
+[GOV.UK One Login]: https://www.sign-in.service.gov.uk/
 
 ### Configuring Sentry
 
