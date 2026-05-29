@@ -20,26 +20,27 @@ class ReceiveSubmissionDeliveriesJob < ApplicationJob
 
       raise "Unexpected event type:#{ses_event_type}" unless ses_event_type == "Delivery"
 
-      delivery_time = Time.zone.parse(ses_message["delivery"]["timestamp"])
-      process_delivery(delivery, submission, delivered_at: delivery_time)
-
-      if delivery.immediate?
-        submission_duration_ms = ((delivery_time - submission.created_at) * 1000).round
-        CloudWatchService.record_submission_delivery_latency_metric(submission_duration_ms, "Email")
-      end
+      delivered_at = Time.zone.parse(ses_message["delivery"]["timestamp"])
+      process_delivery(delivery, submission, delivered_at:)
     end
   end
 
 private
 
-  def process_delivery(delivery, submission, **attributes)
-    set_submission_logging_attributes(submission:, delivery:) if delivery.immediate?
-    set_submission_batch_logging_attributes(form: submission.form, mode: submission.mode_object, delivery:) if delivery.daily? || delivery.weekly?
+  def process_delivery(delivery, submission, delivered_at:)
+    delivery.update!(delivered_at:)
 
-    delivery.update! attributes
-
-    form_event_name = delivery.immediate? ? "submission_delivered" : "submission_batch_delivered"
-
-    EventLogger.log_form_event(form_event_name)
+    if delivery.immediate?
+      delivery_latency = ((delivery.delivered_at - submission.created_at) * 1000).round
+      set_submission_logging_attributes(submission:, delivery:)
+      CloudWatchService.record_submission_delivery_latency_metric(delivery_latency, "Email")
+      EventLogger.log_form_event(
+        "submission_delivered",
+        { delivered_at: delivery.delivered_at, delivery_latency: },
+      )
+    elsif delivery.daily? || delivery.weekly?
+      set_submission_batch_logging_attributes(form: submission.form, mode: submission.mode_object, delivery:)
+      EventLogger.log_form_event("submission_batch_delivered")
+    end
   end
 end

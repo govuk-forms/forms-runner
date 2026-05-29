@@ -99,6 +99,8 @@ RSpec.describe ReceiveSubmissionDeliveriesJob, type: :job do
                                      "form_id" => submission.form_id,
                                      "submission_reference" => reference,
                                      "preview" => "false",
+                                     "delivered_at" => Time.zone.parse(ses_delivery_timestamp),
+                                     "delivery_latency" => 6122,
                                      "sns_message_timestamp" => sns_message_timestamp,
                                      "job_id" => @job_id,
                                      "job_class" => "ReceiveSubmissionDeliveriesJob",
