@@ -68,6 +68,9 @@ RSpec.describe Users::OmniauthController, type: :request do
     context "when data is missing on the auth details on the request" do
       let(:auth_hash) { {} }
 
+      welsh = I18n.t("errors.auth_error.title", locale: :cy)
+      english = I18n.t("errors.auth_error.title", locale: :en)
+
       it "renders the auth error page" do
         expect(response).to have_http_status(400)
         expect(response).to render_template("errors/auth_error")
@@ -82,6 +85,28 @@ RSpec.describe Users::OmniauthController, type: :request do
         expect(Sentry).to have_received(:capture_exception).with(
           an_instance_of(AuthService::DataMissingError),
         )
+      end
+
+      context "when the form is being used in welsh" do
+        let(:locale) { "cy" }
+
+        it "renders the auth error page in welsh" do
+          expect(response).to have_http_status(400)
+          expect(response).to render_template("errors/auth_error")
+          expect(response.body).to include(welsh)
+          expect(response.body).not_to include(english)
+        end
+      end
+
+      context "when the locale in form_path_params is nil" do
+        let(:locale) { nil }
+
+        it "renders the auth error page in english" do
+          expect(response).to have_http_status(400)
+          expect(response).to render_template("errors/auth_error")
+          expect(response.body).to include(english)
+          expect(response.body).not_to include(welsh)
+        end
       end
     end
 
