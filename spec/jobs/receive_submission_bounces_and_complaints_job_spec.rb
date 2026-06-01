@@ -314,5 +314,19 @@ RSpec.describe ReceiveSubmissionBouncesAndComplaintsJob, type: :job do
       end
     end
   end
+
+  context "when the delivery is not found" do
+    let(:messages) { [sqs_message] }
+    let(:delivery) { nil }
+
+    it "captures the error and does not delete the message" do
+      allow(Sentry).to receive(:capture_exception)
+
+      described_class.perform_now
+
+      expect(Sentry).to have_received(:capture_exception).with(an_instance_of(ActiveRecord::RecordNotFound))
+      expect(sqs_client).not_to have_received(:delete_message)
+    end
+  end
 end
 # rubocop:enable RSpec/InstanceVariable

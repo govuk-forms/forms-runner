@@ -14,7 +14,9 @@ class ReceiveSubmissionDeliveriesJob < ApplicationJob
       job_id: job_id,
     )
 
-    poller.poll do |delivery, ses_message|
+    poller.poll do |ses_message_id, ses_message|
+      CurrentJobLoggingAttributes.delivery_reference = ses_message_id
+      delivery = Delivery.find_by!(delivery_reference: ses_message_id)
       submission = delivery.submissions.first
       ses_event_type = ses_message["eventType"]
 
