@@ -11,6 +11,9 @@ production:
   receive_submission_deliveries_job:
     class: ReceiveSubmissionDeliveriesJob
     schedule: every 10 minutes
+  receive_confirmation_bounces_and_complaints_job:
+    class: ReceiveConfirmationBouncesAndComplaintsJob
+    schedule: every 10 minutes
   schedule_daily_batch_deliveries_job:
     class: ScheduleDailyBatchDeliveriesJob
     schedule: every day at 2am Europe/London
