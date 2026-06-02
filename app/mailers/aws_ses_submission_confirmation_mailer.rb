@@ -10,7 +10,13 @@ class AwsSesSubmissionConfirmationMailer < ApplicationMailer
     @submission = submission
     @include_copy_of_answers = include_copy_of_answers
 
-    mail(to: confirmation_email_address, subject: subject)
+    mail(
+      to: confirmation_email_address,
+      subject: subject,
+      delivery_method_options: {
+        configuration_set_name: Settings.aws.ses_confirmation_email_configuration_set_name,
+      },
+    )
   end
 
   def subject

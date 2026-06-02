@@ -125,6 +125,39 @@ RSpec.describe SendConfirmationEmailJob, type: :job do
         expect(mail.subject).to eq(I18n.t("mailer.submission_confirmation.subject", reference: submission.reference))
       end
     end
+
+    describe "the SES configuration set" do
+      let(:mock_ses_client) { instance_double(Aws::SESV2::Client) }
+      let(:ses_response) { instance_double(Aws::SESV2::Types::SendEmailResponse, message_id: Faker::Alphanumeric.alphanumeric) }
+      let(:confirmation_email_configuration_set_name) { "test-confirmation-config-set" }
+
+      around do |example|
+        original_delivery_method = AwsSesSubmissionConfirmationMailer.delivery_method
+        AwsSesSubmissionConfirmationMailer.delivery_method = :aws_ses
+        example.run
+      ensure
+        AwsSesSubmissionConfirmationMailer.delivery_method = original_delivery_method
+      end
+
+      before do
+        allow(Aws::SESV2::Client).to receive(:new).and_return(mock_ses_client)
+        allow(mock_ses_client).to receive(:send_email).and_return(ses_response)
+        allow(Settings.aws).to receive(:ses_confirmation_email_configuration_set_name).and_return(confirmation_email_configuration_set_name)
+      end
+
+      it "passes the confirmation email configuration set name to SES" do
+        described_class.perform_now(
+          submission:,
+          notify_response_id:,
+          confirmation_email_address:,
+          include_copy_of_answers: true,
+        )
+
+        expect(mock_ses_client).to have_received(:send_email).with(
+          hash_including(configuration_set_name: confirmation_email_configuration_set_name),
+        )
+      end
+    end
   end
 
   context "when there is an error during processing" do
