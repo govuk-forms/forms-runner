@@ -362,12 +362,17 @@ cy:
       title: Mae’n ddrwg gennym, nid yw’r gwasanaeth hwn ar gael mwyach
     check_your_answers:
       agree_and_submit: Cytuno a chyflwyno
+      change: Newid
+      copy_of_answers: Cael copi o'ch atebion
       declaration: Datganiad
+      'no': Na
       not_completed: Heb ei gwblhau
+      send_copy: 'Byddwn yn anfon e-bost cadarnhad gyda chopi o''ch atebion i''ch cyfeiriad e-bost GOV.UK One Login: %{email_address}'
       submit: Cyflwyno
       title: Edrychwch dros eich atebion cyn cyflwyno’ch ffurflen
     submitted:
       continue_to_pay: Parhau i dalu
+      copy_of_answers_sent: Rydym wedi anfon e-bost cadarnhau atoch gyda chopi o'ch atebion.
       email_sent: Rydym wedi anfon e-bost cadarnhau atoch.
       need_to_pay: Mae angen i chi dalu o hyd
       title: Mae eich ffurflen wedi’i chyflwyno
@@ -395,14 +400,14 @@ cy:
     back: Yn ôl
     continue_to_one_login:
       show:
-        body: To help make sure the information we send you stays secure, you’ll need to sign in to or create a GOV.UK One Login.
-        continue_button: Continue to GOV.UK One Login
-        title: Use GOV.UK One Login to keep your information secure
+        body_html: "<p>Bydd yr e-bost gyda'ch atebion yn cael ei anfon i'r cyfeiriad e-bost sy'n gysylltiedig â'ch GOV.UK One Login.</p><p>Os ydych angen i'r atebion gael eu hanfon i gyfeiriad e-bost gwahanol - er enghraifft, eich e-bost gwaith - gallwch greu GOV.UK One Login newydd.</p>"
+        continue_button: Parhau i GOV.UK One Login
+        title: Defnyddiwch GOV.UK One Login i gadw'ch gwybodaeth yn ddiogel
     copy_of_answers:
       show:
-        heading: PLACEHOLDER! Ydych chi eisiau copi o'ch atebion?
-        hint: PLACEHOLDER! Byddwn ond yn defnyddio'r cyfeiriad e-bost rydych yn ei ddarparu yma i anfon cadarnhad bod eich ffurflen wedi'i chyflwyno'n llwyddiannus. Ni fydd yn cynnwys copi o'ch atebion.
-        title: PLACEHOLDER! Ydych chi eisiau copi o'ch atebion?
+        heading: Ydych chi eisiau cael e-bost gyda chopi o'ch atebion?
+        hint: Byddwch angen GOV.UK One Login ar gyfer hyn - byddwch yn gallu mewngofnodi neu greu un newydd.
+        title: Ydych chi eisiau cael e-bost gyda chopi o'ch atebion?
     remove_answer:
       show:
         address_heading: Dileu cyfeiriad
