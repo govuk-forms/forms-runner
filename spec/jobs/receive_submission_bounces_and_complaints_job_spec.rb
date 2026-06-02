@@ -5,6 +5,8 @@ RSpec.describe ReceiveSubmissionBouncesAndComplaintsJob, type: :job do
   include ActiveJob::TestHelper
 
   let(:sqs_client) { instance_double(Aws::SQS::Client) }
+  let(:aws_account_id) { "123456789012" }
+  let(:queue_name) { "bounces-queue" }
   let(:receipt_handle) { "bounce-receipt-handle" }
   let(:sqs_message_id) { "sqs-message-id" }
   let(:sqs_message) { instance_double(Aws::SQS::Types::Message, message_id: sqs_message_id, receipt_handle:, body: sns_message_body) }
@@ -40,9 +42,11 @@ RSpec.describe ReceiveSubmissionBouncesAndComplaintsJob, type: :job do
   let!(:delivery) { create :delivery, delivery_reference:, submissions: [submission] }
 
   before do
+    allow(Settings.aws).to receive(:submission_email_bounces_and_complaints_sqs_queue_name).and_return(queue_name)
+
     sts_client = instance_double(Aws::STS::Client)
     allow(Aws::STS::Client).to receive(:new).and_return(sts_client)
-    allow(sts_client).to receive(:get_caller_identity).and_return(OpenStruct.new(account: "123456789012"))
+    allow(sts_client).to receive(:get_caller_identity).and_return(OpenStruct.new(account: aws_account_id))
 
     allow(Aws::SQS::Client).to receive(:new).and_return(sqs_client)
     allow(sqs_client).to receive(:receive_message).and_return(OpenStruct.new(messages: messages), OpenStruct.new(messages: []))
@@ -141,6 +145,13 @@ RSpec.describe ReceiveSubmissionBouncesAndComplaintsJob, type: :job do
       perform_enqueued_jobs
       expect(Sentry).not_to have_received(:capture_message)
     end
+  end
+
+  it "calls SQS with the expected queue URL" do
+    described_class.perform_now
+    expect(sqs_client).to have_received(:receive_message).with(
+      hash_including(queue_url: "https://sqs.eu-west-2.amazonaws.com/#{aws_account_id}/#{queue_name}"),
+    ).once
   end
 
   describe "CloudWatch metrics" do
@@ -312,6 +323,20 @@ RSpec.describe ReceiveSubmissionBouncesAndComplaintsJob, type: :job do
                                        ))
         end
       end
+    end
+  end
+
+  context "when the delivery is not found" do
+    let(:messages) { [sqs_message] }
+    let(:delivery) { nil }
+
+    it "captures the error and does not delete the message" do
+      allow(Sentry).to receive(:capture_exception)
+
+      described_class.perform_now
+
+      expect(Sentry).to have_received(:capture_exception).with(an_instance_of(ActiveRecord::RecordNotFound))
+      expect(sqs_client).not_to have_received(:delete_message)
     end
   end
 end

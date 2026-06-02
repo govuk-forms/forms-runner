@@ -5,6 +5,8 @@ RSpec.describe ReceiveSubmissionDeliveriesJob, type: :job do
   include ActiveJob::TestHelper
 
   let(:sqs_client) { instance_double(Aws::SQS::Client) }
+  let(:aws_account_id) { "123456789012" }
+  let(:queue_name) { "deliveries-queue" }
   let(:receipt_handle) { "delivery-receipt-handle" }
   let(:sqs_message_id) { "sqs-message-id" }
   let(:event_type) { "Delivery" }
@@ -19,15 +21,24 @@ RSpec.describe ReceiveSubmissionDeliveriesJob, type: :job do
   let!(:submission) { create :submission, :sent, delivery_reference:, reference:, created_at: Time.zone.parse("2025-05-09T10:25:35.001Z") }
 
   before do
+    allow(Settings.aws).to receive(:submission_email_deliveries_sqs_queue_name).and_return(queue_name)
+
     sts_client = instance_double(Aws::STS::Client)
     allow(Aws::STS::Client).to receive(:new).and_return(sts_client)
-    allow(sts_client).to receive(:get_caller_identity).and_return(OpenStruct.new(account: "123456789012"))
+    allow(sts_client).to receive(:get_caller_identity).and_return(OpenStruct.new(account: aws_account_id))
 
     allow(Aws::SQS::Client).to receive(:new).and_return(sqs_client)
     allow(sqs_client).to receive(:receive_message).and_return(OpenStruct.new(messages: messages), OpenStruct.new(messages: []))
     allow(sqs_client).to receive(:delete_message)
 
     allow(CloudWatchService).to receive(:record_job_started_metric)
+  end
+
+  it "calls SQS with the expected queue URL" do
+    described_class.perform_now
+    expect(sqs_client).to have_received(:receive_message).with(
+      hash_including(queue_url: "https://sqs.eu-west-2.amazonaws.com/#{aws_account_id}/#{queue_name}"),
+    ).once
   end
 
   describe "CloudWatch metrics" do
@@ -170,6 +181,20 @@ RSpec.describe ReceiveSubmissionDeliveriesJob, type: :job do
       expect(Sentry).to have_received(:capture_exception) do |error|
         expect(error.message).to eq("Unexpected event type:#{event_type}")
       end
+    end
+  end
+
+  context "when the delivery is not found" do
+    let(:messages) { [sqs_message] }
+    let(:submission) { nil }
+
+    it "captures the error and does not delete the message" do
+      allow(Sentry).to receive(:capture_exception)
+
+      described_class.perform_now
+
+      expect(Sentry).to have_received(:capture_exception).with(an_instance_of(ActiveRecord::RecordNotFound))
+      expect(sqs_client).not_to have_received(:delete_message)
     end
   end
 end

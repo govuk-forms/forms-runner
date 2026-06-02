@@ -45,6 +45,9 @@ aws:
   file_upload_s3_bucket_name: changeme
   ses_submission_email_configuration_set_name: changeme
   ses_confirmation_email_configuration_set_name: changeme
+  submission_email_bounces_and_complaints_sqs_queue_name: changeme
+  submission_email_deliveries_sqs_queue_name: changeme
+  confirmation_email_bounces_and_complaints_sqs_queue_name: changeme
 
 ses_submission_email:
   from_email_address: changeme
