@@ -47,13 +47,15 @@ RSpec.describe Forms::ContinueToOneLoginController do
       get continue_to_one_login_path(mode:, form_id: form.form_id, form_slug: form.form_slug, locale:)
     end
 
-    context "when the feature flag is disabled", feature_filler_answer_email_enabled: false do
+    context "when the form does not have copy of answers enabled" do
       it "redirects to check your answers" do
         expect(response).to redirect_to(check_your_answers_path(form_id: form.form_id, form_slug: form.form_slug, mode:))
       end
     end
 
-    context "when the feature flag is enabled", :feature_filler_answer_email_enabled do
+    context "when the form has copy of answers enabled" do
+      let(:form) { build :v2_form_document, steps:, start_page: 1, available_languages:, send_copy_of_answers: "enabled" }
+
       it "returns http success" do
         expect(response).to have_http_status(:ok)
       end

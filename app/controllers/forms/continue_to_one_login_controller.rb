@@ -1,6 +1,7 @@
 module Forms
   class ContinueToOneLoginController < BaseController
-    before_action :redirect_if_feature_disabled, :redirect_if_form_incomplete
+    before_action :redirect_if_copy_of_answers_disabled
+    before_action :redirect_if_form_incomplete
 
     def show
       auth_service.store_return_params(
@@ -12,8 +13,8 @@ module Forms
 
   private
 
-    def redirect_if_feature_disabled
-      return if FeatureService.enabled?(:filler_answer_email_enabled)
+    def redirect_if_copy_of_answers_disabled
+      return if current_context.form.copy_of_answers_enabled?
 
       redirect_to check_your_answers_path(form_id: current_context.form.id, form_slug: current_context.form.form_slug)
     end

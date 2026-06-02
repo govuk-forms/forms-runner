@@ -1,6 +1,5 @@
 features:
   dummy: false
-  filler_answer_email_enabled: false
 
 
 forms_admin:

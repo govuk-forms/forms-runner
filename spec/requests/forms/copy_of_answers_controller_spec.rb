@@ -41,17 +41,7 @@ RSpec.describe Forms::CopyOfAnswersController, type: :request do
   end
 
   describe "GET #show" do
-    context "when the feature flag is disabled", feature_filler_answer_email_enabled: false do
-      before do
-        get copy_of_answers_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
-      end
-
-      it "redirects to check your answers" do
-        expect(response).to redirect_to(check_your_answers_path(form_id: form.form_id, form_slug: form.form_slug, mode:))
-      end
-    end
-
-    context "when the feature flag is enabled but send_copy_of_answers is disabled on the form", :feature_filler_answer_email_enabled do
+    context "when send_copy_of_answers is disabled on the form" do
       let(:form) do
         build(:v2_form_document, :with_support, form_id: 2, start_page: 1, steps:, available_languages:, send_copy_of_answers: "disabled")
       end
@@ -65,7 +55,7 @@ RSpec.describe Forms::CopyOfAnswersController, type: :request do
       end
     end
 
-    context "when the feature flag is enabled", :feature_filler_answer_email_enabled do
+    context "when send_copy_of_answers is enabled on the form" do
       before do
         get copy_of_answers_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
       end
@@ -118,7 +108,7 @@ RSpec.describe Forms::CopyOfAnswersController, type: :request do
     end
   end
 
-  describe "POST #save", :feature_filler_answer_email_enabled do
+  describe "POST #save" do
     context "with valid params" do
       context "when user wants a copy of answers" do
         let(:params) { { copy_of_answers_input: { copy_of_answers: "yes" } } }

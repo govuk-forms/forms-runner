@@ -1,6 +1,6 @@
 module Forms
   class CopyOfAnswersController < BaseController
-    before_action :redirect_if_feature_disabled
+    before_action :redirect_if_copy_of_answers_disabled
 
     def show
       return redirect_to form_step_path(current_context.form.id, current_context.form.form_slug, current_context.next_step_slug) unless can_visit_copy_of_answers?
@@ -44,8 +44,8 @@ module Forms
       end
     end
 
-    def redirect_if_feature_disabled
-      return if FeatureService.enabled?(:filler_answer_email_enabled) && current_context.form.copy_of_answers_enabled?
+    def redirect_if_copy_of_answers_disabled
+      return if current_context.form.copy_of_answers_enabled?
 
       redirect_to check_your_answers_path(form_id: current_context.form.id, form_slug: current_context.form.form_slug)
     end

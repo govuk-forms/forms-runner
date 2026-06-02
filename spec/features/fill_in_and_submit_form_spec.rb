@@ -1,8 +1,8 @@
 require "rails_helper"
 
-feature "Fill in and submit a form", :feature_filler_answer_email_enabled, type: :feature do
+feature "Fill in and submit a form", type: :feature do
   let(:steps) { [build(:v2_question_step, :with_text_settings, id: 1, routing_conditions: [], question_text:)] }
-  let(:form) { build :v2_form_document, :live, form_id: 1, name: "Fill in this form", steps:, start_page: 1 }
+  let(:form) { build :v2_form_document, :live, form_id: 1, name: "Fill in this form", steps:, start_page: 1, send_copy_of_answers: "enabled" }
   let(:question_text) { Faker::Lorem.question }
   let(:answer_text) { "Answer text" }
   let(:reference) { Faker::Alphanumeric.alphanumeric(number: 8).upcase }

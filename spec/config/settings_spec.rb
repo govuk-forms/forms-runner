@@ -22,7 +22,7 @@ describe "Settings" do
     it "has a default value" do
       features = settings[:features]
 
-      expect(features).to eq({ "dummy" => false, "filler_answer_email_enabled" => false })
+      expect(features).to eq({ "dummy" => false })
     end
   end
 

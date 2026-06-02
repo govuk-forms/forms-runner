@@ -1,8 +1,8 @@
 require "rails_helper"
 
-feature "Email confirmation", :feature_filler_answer_email_enabled, type: :feature do
+feature "Email confirmation", type: :feature do
   let(:steps) { [build(:v2_question_step, :with_text_settings, id: 1, routing_conditions: [], question_text:)] }
-  let(:form) { build :v2_form_document, :live, form_id: 1, name: "Apply for a juggling license", steps:, start_page: 1 }
+  let(:form) { build :v2_form_document, :live, form_id: 1, name: "Apply for a juggling license", steps:, start_page: 1, send_copy_of_answers: "enabled" }
   let(:question_text) { Faker::Lorem.question }
   let(:text_answer) { Faker::Lorem.sentence }
 
