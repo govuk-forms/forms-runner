@@ -8,8 +8,12 @@ class SesEmailFormatter
 
   def initialize(submission_reference:, steps:, confirmation_email:)
     @submission_reference = submission_reference
-    @steps = steps
+    @steps = confirmation_email ? answered_steps(steps) : steps
     @confirmation_email = confirmation_email
+  end
+
+  def answered_steps(steps)
+    steps.filter { |step| step.show_answer.present? }
   end
 
   def build_question_answers_section_html(heading_level: 3)
