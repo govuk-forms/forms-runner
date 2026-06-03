@@ -65,34 +65,6 @@ RSpec.describe ReceiveSubmissionBouncesAndComplaintsJob, type: :job do
     end
   end
 
-  shared_examples "alerting Sentry about a bounced delivery" do |message_prefix|
-    it "alerts to Sentry that there was a bounced delivery" do
-      allow(Sentry).to receive(:capture_message)
-      perform_enqueued_jobs
-      expect(Sentry).to have_received(:capture_message).with(
-        a_string_including("#{message_prefix} for form #{submission.form_id} - ReceiveSubmissionBouncesAndComplaintsJob"),
-        fingerprint: ["{{ default }}", submission.form_id],
-        extra: hash_including(
-          ses_bounce: hash_including(
-            bounce_type: "Permanent",
-            bounce_sub_type: "General",
-          ),
-        ),
-      )
-    end
-
-    it "does not include bounced recipients in the Sentry event" do
-      allow(Sentry).to receive(:capture_message)
-      perform_enqueued_jobs
-      expect(Sentry).not_to have_received(:capture_message).with(
-        anything,
-        extra: hash_including(
-          ses_bounce: hash_including(:bounced_recipients),
-        ),
-      )
-    end
-  end
-
   shared_examples "logging a bounce event" do |event_name|
     it "logs form event with correct details" do
       perform_enqueued_jobs
@@ -177,7 +149,6 @@ RSpec.describe ReceiveSubmissionBouncesAndComplaintsJob, type: :job do
 
         it_behaves_like "recording bounce details on delivery"
         it_behaves_like "logging a bounce event", "form_submission_bounced"
-        it_behaves_like "alerting Sentry about a bounced delivery", "Submission email bounced"
       end
 
       context "when it is for a preview submission" do
@@ -243,7 +214,6 @@ RSpec.describe ReceiveSubmissionBouncesAndComplaintsJob, type: :job do
 
           it_behaves_like "recording bounce details on delivery"
           it_behaves_like "logging a bounce event", "form_daily_batch_email_bounced"
-          it_behaves_like "alerting Sentry about a bounced delivery", "Daily submission batch email bounced"
         end
 
         context "when it is for a preview submission" do
@@ -292,7 +262,6 @@ RSpec.describe ReceiveSubmissionBouncesAndComplaintsJob, type: :job do
 
           it_behaves_like "recording bounce details on delivery"
           it_behaves_like "logging a bounce event", "form_weekly_batch_email_bounced"
-          it_behaves_like "alerting Sentry about a bounced delivery", "Weekly submission batch email bounced"
         end
 
         context "when it is for a preview submission" do

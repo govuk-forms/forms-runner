@@ -69,64 +69,11 @@ private
 
     case delivery.delivery_schedule
     when "immediate"
-      process_immediate_delivery_bounce(delivery, submission, ses_bounce, bounced_recipients)
+      EventLogger.log_form_event("submission_bounced", ses_bounce: ses_bounce.merge(bounced_recipients:))
     when "daily"
-      process_daily_delivery_bounce(delivery, submission, ses_bounce, bounced_recipients)
+      EventLogger.log_form_event("daily_batch_email_bounced", ses_bounce: ses_bounce.merge(bounced_recipients:))
     when "weekly"
-      process_weekly_delivery_bounce(delivery, submission, ses_bounce, bounced_recipients)
-    end
-  end
-
-  def process_immediate_delivery_bounce(delivery, submission, ses_bounce, bounced_recipients)
-    EventLogger.log_form_event("submission_bounced", ses_bounce: ses_bounce.merge(bounced_recipients:))
-
-    unless submission.preview?
-      Sentry.capture_message("Submission email bounced for form #{submission.form_id} - #{self.class.name}:",
-                             fingerprint: ["{{ default }}", submission.form_id],
-                             extra: {
-                               form_id: submission.form_id,
-                               submission_reference: submission.reference,
-                               delivery_reference: delivery.delivery_reference,
-                               delivery_id: delivery.id,
-                               job_id:,
-                               ses_bounce:,
-                             })
-    end
-  end
-
-  def process_daily_delivery_bounce(delivery, submission, ses_bounce, bounced_recipients)
-    EventLogger.log_form_event("daily_batch_email_bounced", ses_bounce: ses_bounce.merge(bounced_recipients:))
-
-    unless submission.preview?
-      Sentry.capture_message("Daily submission batch email bounced for form #{submission.form_id} - #{self.class.name}:",
-                             fingerprint: ["{{ default }}", submission.form_id],
-                             extra: {
-                               form_id: submission.form_id,
-                               delivery_reference: delivery.delivery_reference,
-                               delivery_id: delivery.id,
-                               delivery_schedule: delivery.delivery_schedule,
-                               batch_begin_at: delivery.batch_begin_at,
-                               job_id:,
-                               ses_bounce:,
-                             })
-    end
-  end
-
-  def process_weekly_delivery_bounce(delivery, submission, ses_bounce, bounced_recipients)
-    EventLogger.log_form_event("weekly_batch_email_bounced", ses_bounce: ses_bounce.merge(bounced_recipients:))
-
-    unless submission.preview?
-      Sentry.capture_message("Weekly submission batch email bounced for form #{submission.form_id} - #{self.class.name}:",
-                             fingerprint: ["{{ default }}", submission.form_id],
-                             extra: {
-                               form_id: submission.form_id,
-                               delivery_reference: delivery.delivery_reference,
-                               delivery_id: delivery.id,
-                               delivery_schedule: delivery.delivery_schedule,
-                               batch_begin_at: delivery.batch_begin_at,
-                               job_id:,
-                               ses_bounce:,
-                             })
+      EventLogger.log_form_event("weekly_batch_email_bounced", ses_bounce: ses_bounce.merge(bounced_recipients:))
     end
   end
 
