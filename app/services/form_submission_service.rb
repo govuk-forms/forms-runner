@@ -105,7 +105,7 @@ private
   end
 
   def create_submission_record
-    Submission.create!(
+    submission = Submission.create!(
       reference: submission_reference,
       form_id: form.id,
       answers: current_context.answers,
@@ -115,6 +115,10 @@ private
       submission_locale:,
       created_at: timestamp,
     )
+
+    Metrics.record_submission(form_id: form.id, mode:)
+
+    submission
   end
 
   def enqueue_deliver_submission_job(job_class, submission, delivery)
