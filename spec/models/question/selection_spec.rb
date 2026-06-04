@@ -761,4 +761,36 @@ RSpec.describe Question::Selection, type: :model do
       end
     end
   end
+
+  describe "backwards compatibility for none of the above option" do
+    let(:is_optional) { true }
+
+    context "when the selection question is a checkbox" do
+      let(:only_one_option) { "false" }
+
+      it "sets the selection to ['none_of_the_above'] when attempting to set to the English localised translation" do
+        question.selection = [I18n.t("page.none_of_the_above")]
+        expect(question.selection).to eq([Question::Selection::NONE_OF_THE_ABOVE_VALUE])
+      end
+
+      it "sets the selection to ['none_of_the_above'] when attempting to set to the Welsh localised translation" do
+        question.selection = [I18n.t("page.none_of_the_above", locale: :cy)]
+        expect(question.selection).to eq([Question::Selection::NONE_OF_THE_ABOVE_VALUE])
+      end
+    end
+
+    context "when the selection question is a radio button" do
+      let(:only_one_option) { "true" }
+
+      it "sets the selection to 'none_of_the_above' when attempting to set to the English localised translation" do
+        question.selection = I18n.t("page.none_of_the_above")
+        expect(question.selection).to eq(Question::Selection::NONE_OF_THE_ABOVE_VALUE)
+      end
+
+      it "sets the selection to 'none_of_the_above' when attempting to set to the Welsh localised translation" do
+        question.selection = I18n.t("page.none_of_the_above", locale: :cy)
+        expect(question.selection).to eq(Question::Selection::NONE_OF_THE_ABOVE_VALUE)
+      end
+    end
+  end
 end
