@@ -31,7 +31,7 @@ RSpec.describe AwsSesSubmissionConfirmationMailer, type: :mailer do
     {
       "q1" => { text: "blue" },
       "q2" => { first_name: "Jane", last_name: "Doe" },
-      "q3" => "",
+      "q3" => { original_filename: "" },
       "q4" => { original_filename: "test.txt" },
     }
   end

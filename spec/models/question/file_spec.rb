@@ -400,6 +400,24 @@ RSpec.describe Question::File, type: :model do
     end
   end
 
+  describe "#answered?" do
+    context "when a question has attributes with values" do
+      let(:attributes) { { original_filename: "a-file.png" } }
+
+      it "returns true" do
+        expect(question).to be_answered
+      end
+    end
+
+    context "when a question only has the filename_suffix with a value" do
+      let(:attributes) { { filename_suffix: "" } }
+
+      it "returns false" do
+        expect(question).not_to be_answered
+      end
+    end
+  end
+
   describe "validations" do
     context "when the question is mandatory" do
       context "when no file is set" do

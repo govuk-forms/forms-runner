@@ -117,6 +117,10 @@ module Question
       [caption, question_text_with_optional_suffix].join(" ")
     end
 
+    def answered?
+      @attributes.to_hash.reject { |key, value| key == "filename_suffix" && value == "" }.any? { |_key, value| !value.nil? }
+    end
+
   private
 
     def filename_for_submission(submission_reference:, is_s3_submission:)
