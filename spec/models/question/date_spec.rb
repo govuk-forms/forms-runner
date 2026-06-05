@@ -267,6 +267,37 @@ RSpec.describe Question::Date, type: :model do
     end
   end
 
+  describe "#assign_attributes" do
+    let(:new_attributes) { { date_day: "26", date_month: "5", date_year: "2020" } }
+
+    it "assigns the date attributes" do
+      question.assign_attributes new_attributes
+      expect(question).to have_attributes date_year: "2020", date_month: "5", date_day: "26"
+    end
+
+    context "when the attributes are from form input" do
+      let(:new_attributes) { { "date(3i)" => "26", "date(2i)" => "5", "date(1i)" => "2020" } }
+
+      it "assigns the date attributes" do
+        question.assign_attributes new_attributes
+        expect(question).to have_attributes date_year: "2020", date_month: "5", date_day: "26"
+      end
+    end
+
+    context "when new_attributes is not a hash" do
+      let(:new_attributes) { [{ date_day: "26", date_month: "5", date_year: "2020" }] }
+
+      it "raises an error" do
+        expect {
+          question.assign_attributes new_attributes
+        }.to raise_error(
+          ArgumentError,
+          "When assigning attributes, you must pass a hash as an argument, Array passed.",
+        )
+      end
+    end
+  end
+
   describe "#date_of_birth?" do
     let(:options) { { answer_settings: OpenStruct.new({ input_type: }) } }
 

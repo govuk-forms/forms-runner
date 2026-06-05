@@ -8,6 +8,10 @@ module Question
     validate :date_valid
 
     def assign_attributes(new_attributes)
+      unless new_attributes.respond_to?(:transform_keys)
+        raise ArgumentError, "When assigning attributes, you must pass a hash as an argument, #{new_attributes.class} passed."
+      end
+
       translated_attrs = new_attributes.transform_keys { |key| date_field_to_attribute(key) }
       super(translated_attrs)
     end
