@@ -46,6 +46,25 @@ RSpec.describe Store::ConfirmationDetailsStore do
     it "returns nil when no copy of answers email address has been stored" do
       expect(confirmation_details_store.get_copy_of_answers_email_address).to be_nil
     end
+
+    describe "#will_send_copy_of_answers?" do
+      it "returns true when the user wants a copy and an email address is stored" do
+        confirmation_details_store.save_copy_of_answers_preference(true)
+        confirmation_details_store.save_copy_of_answers_email_address(Faker::Internet.email)
+        expect(confirmation_details_store.will_send_copy_of_answers?).to be true
+      end
+
+      it "returns false when the user does not want a copy" do
+        confirmation_details_store.save_copy_of_answers_preference(false)
+        confirmation_details_store.save_copy_of_answers_email_address(Faker::Internet.email)
+        expect(confirmation_details_store.will_send_copy_of_answers?).to be false
+      end
+
+      it "returns false when no email address is stored" do
+        confirmation_details_store.save_copy_of_answers_preference(true)
+        expect(confirmation_details_store.will_send_copy_of_answers?).to be false
+      end
+    end
   end
 
   describe "#clear_submission_details" do

@@ -44,6 +44,10 @@ module Store
       @store.dig(CONFIRMATION_KEY, @form_key, COPY_OF_ANSWERS_EMAIL_ADDRESS_KEY.to_s)
     end
 
+    def will_send_copy_of_answers?
+      wants_copy_of_answers? && get_copy_of_answers_email_address.present?
+    end
+
     def clear_submission_details
       @store[CONFIRMATION_KEY][@form_key] = nil
     end
