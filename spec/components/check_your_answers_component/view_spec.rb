@@ -107,14 +107,14 @@ RSpec.describe CheckYourAnswersComponent::View, type: :component do
     end
 
     context "when 'None of the above' is selected" do
-      let(:selection) { "None of the above" }
+      let(:selection) { Question::Selection::NONE_OF_THE_ABOVE_VALUE }
 
       context "and an answer is provided for the 'None of the above' question" do
         let(:none_of_the_above_answer) { "This one" }
 
         it "displays the 'None of the above' question and answer in the answers" do
           expect(page).to have_css(".govuk-summary-list__key", text: question_text)
-          expect(page).to have_css(".govuk-summary-list__value", text: selection)
+          expect(page).to have_css(".govuk-summary-list__value", text: I18n.t("page.none_of_the_above"))
           expect(page).to have_css(".govuk-summary-list__key", text: none_of_the_above_question_text)
           expect(page).to have_css(".govuk-summary-list__value", text: none_of_the_above_answer)
         end

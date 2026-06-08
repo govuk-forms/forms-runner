@@ -160,7 +160,7 @@ private
   end
 
   def condition_matches?(condition)
-    return question.selection == I18n.t("page.none_of_the_above") if condition.answer_value == :none_of_the_above.to_s
+    return question.selection == Question::Selection::NONE_OF_THE_ABOVE_VALUE if condition.answer_value == :none_of_the_above.to_s
 
     condition.answer_value == question.selection
   end

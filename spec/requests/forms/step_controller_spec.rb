@@ -991,7 +991,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
 
       context "when there are less than 31 options and none of the above is selected" do
         let(:selection_options) { [{ name: "Option 1", value: "Option 1" }, { name: "Option 2", value: "Option 2" }] }
-        let(:params) { { question: { selection: I18n.t("page.none_of_the_above"), none_of_the_above_answer: "Another option" }, changing_existing_answer: false } }
+        let(:params) { { question: { selection: Question::Selection::NONE_OF_THE_ABOVE_VALUE, none_of_the_above_answer: "Another option" }, changing_existing_answer: false } }
 
         it "redirects to the next step in the form" do
           expect(response).to redirect_to form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: 2)
@@ -1010,7 +1010,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
         let(:selection_options) { 31.times.map { |i| { name: "Option #{i}", value: "Option #{i}" } } }
 
         context "when none of the above is selected" do
-          let(:params) { { question: { selection: I18n.t("page.none_of_the_above") }, changing_existing_answer: false } }
+          let(:params) { { question: { selection: Question::Selection::NONE_OF_THE_ABOVE_VALUE }, changing_existing_answer: false } }
 
           it "redirects to the none of the above page" do
             expect(response).to redirect_to selection_none_of_the_above_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id)

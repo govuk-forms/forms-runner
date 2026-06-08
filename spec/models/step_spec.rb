@@ -160,7 +160,7 @@ RSpec.describe Step do
       end
 
       context "with a matching none_of_the_above condition" do
-        let(:selection) { "None of the above" }
+        let(:selection) { Question::Selection::NONE_OF_THE_ABOVE_VALUE }
         let(:routing_conditions) { [OpenStruct.new(answer_value: "none_of_the_above", goto_page_id: third_step_id)] }
 
         it "returns the goto_page_id of the condition" do

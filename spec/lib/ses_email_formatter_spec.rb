@@ -17,7 +17,7 @@ RSpec.describe SesEmailFormatter do
       :with_none_of_the_above_question,
       question_text: "What sandwich do you want?",
       none_of_the_above_question_text: "Specify your desired sandwich",
-      selection: "None of the above",
+      selection: Question::Selection::NONE_OF_THE_ABOVE_VALUE,
       none_of_the_above_answer:,
       none_of_the_above_question_is_optional:,
     )

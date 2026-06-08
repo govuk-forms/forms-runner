@@ -37,7 +37,7 @@ module Question
         return nil unless question.is_optional?
 
         option = form_builder.govuk_radio_button :selection,
-                                                 I18n.t("page.none_of_the_above"),
+                                                 Question::Selection::NONE_OF_THE_ABOVE_VALUE,
                                                  label: { text: I18n.t("page.none_of_the_above") },
                                                  &method(:none_of_the_above_question_field)
         safe_join([divider, option])
@@ -47,7 +47,7 @@ module Question
         return nil unless question.is_optional?
 
         option = form_builder.govuk_check_box :selection,
-                                              I18n.t("page.none_of_the_above"),
+                                              Question::Selection::NONE_OF_THE_ABOVE_VALUE,
                                               exclusive: true,
                                               label: { text: I18n.t("page.none_of_the_above") },
                                               &method(:none_of_the_above_question_field)
