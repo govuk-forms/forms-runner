@@ -24,7 +24,7 @@
     "autoprefixer": "^10.5.0",
     "esbuild": "0.28.0",
     "jsdom": "^29.1.1",
-    "postcss": "^8.5.14",
+    "postcss": "^8.5.15",
     "sass": "^1.100.0",
     "snazzy": "^9.0.0",
     "standard": "^17.1.2",
