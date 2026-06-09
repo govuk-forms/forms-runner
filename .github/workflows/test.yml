@@ -34,7 +34,7 @@ jobs:
       QUEUE_DATABASE_URL: "postgres://postgres:postgres@localhost:5432/forms_runner_test_queue"
     steps:
       # TODO: remove these steps once we can use latest Chrome again (see https://github.com/teamcapybara/capybara/issues/2800)
-      - uses: nanasess/setup-chromedriver@c75c3d53d445b96d41dbf2355797b470953c6c30 # v2.4.0
+      - uses: nanasess/setup-chromedriver@e913548694400f275b4070efcd90f47dbbc8914c # v3.0.0
         with:
           chromedriver-version: '128.0.6613.8600'
           chromeapp: chrome
