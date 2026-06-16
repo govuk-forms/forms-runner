@@ -281,8 +281,8 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
   describe "#submit_answers" do
     before do
       allow_mailer_to_return_mail_with_govuk_notify_response_with(
-        FormSubmissionConfirmationMailer,
-        :send_confirmation_email,
+        AwsSesSubmissionConfirmationMailer,
+        :submission_confirmation_email,
         id: confirmation_email_id,
       )
     end
@@ -319,7 +319,8 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
       end
 
       it "includes the confirmation_email_id in the logging context" do
-        expect(log_lines.last["confirmation_email_id"]).to eq(confirmation_email_id)
+        deliveries = ActionMailer::Base.deliveries
+        expect(log_lines.last["confirmation_email_id"]).to eq(deliveries[1].message_id)
       end
 
       include_examples "for notification references"
@@ -351,7 +352,8 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
       end
 
       it "includes the confirmation_email_id in the logging context" do
-        expect(log_lines.last["confirmation_email_id"]).to eq(confirmation_email_id)
+        deliveries = ActionMailer::Base.deliveries
+        expect(log_lines.last["confirmation_email_id"]).to eq(deliveries[1].message_id)
       end
 
       include_examples "for notification references"
@@ -610,28 +612,23 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
 
         expected_personalisation = {
           title: form_data.name,
-          title_cy: form_data.name,
           what_happens_next_text: form_data.what_happens_next_markdown,
-          what_happens_next_text_cy: form_data.what_happens_next_markdown,
           support_contact_details: contact_support_details_format,
-          support_contact_details_cy: I18n.with_locale(:cy) { contact_support_details_format },
-          submission_time: "10:00am",
-          submission_date: "14 December 2022",
-          submission_date_cy: "14 Rhagfyr 2022",
+          date_time: Time.zone.local(2022, 12, 14, 10, 0o0, 0),
           test: "no",
           submission_reference: reference,
-          include_payment_link: "no",
-          payment_link: "",
-          payment_link_cy: "",
         }
 
-        expect(mail.body.raw_source).to include(expected_personalisation.to_s)
-
-        expect(mail.govuk_notify_reference).to eq confirmation_email_reference
+        expect(mail.to_s).to include(expected_personalisation[:title])
+        expect(mail.to_s).to include(expected_personalisation[:what_happens_next_text])
+        expect(mail.text_part.body.decoded).to include(expected_personalisation[:support_contact_details])
+        expect(mail.date).to eq(expected_personalisation[:date_time])
+        expect(mail.to_s).to include(expected_personalisation[:submission_reference])
       end
 
       it "includes the confirmation_email_id in the logging context" do
-        expect(log_lines.last["confirmation_email_id"]).to eq(confirmation_email_id)
+        deliveries = ActionMailer::Base.deliveries
+        expect(log_lines.last["confirmation_email_id"]).to eq(deliveries[1].message_id)
       end
 
       include_examples "for notification references"
@@ -694,9 +691,10 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
 private
 
   def contact_support_details_format
-    phone_number = "#{form_data.support_phone}\n\n[#{I18n.t('support_details.call_charges')}](https://www.gov.uk/call-charges)"
-    email = "[#{form_data.support_email}](mailto:#{form_data.support_email})"
-    online = "[#{form_data.support_url_text}](#{form_data.support_url})"
-    [phone_number, email, online].compact_blank.join("\n\n")
+    phone_number = "0203 222 2222"
+    call_charges = "Find out about call charges: https://www.gov.uk/call-charges"
+    email = "#{form_data.support_email}: mailto:#{form_data.support_email}"
+    online = "Get help: https://example.gov.uk/help"
+    [phone_number, call_charges, email, online].compact_blank.join("\n\n")
   end
 end

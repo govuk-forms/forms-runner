@@ -191,9 +191,7 @@ You can enable Redis sessions by providing the Redis connection URL in the envir
 
 ### Configuring GOV.UK Notify
 
-We use [GOV.UK Notify] to send the following emails:
-- confirmation emails to users who have submitted a form, if they have not asked for a copy of their answers
-- bounce notifications to group and organisation admins
+We use [GOV.UK Notify] to send bounce notifications to group and organisation admins.
 
 If you want to test the Notify functionality locally, you will need to get a test API key from the Notify service. Add it as an environment variable under `SETTINGS__GOVUK_NOTIFY__API_KEY` or add it to a local config file:
 
