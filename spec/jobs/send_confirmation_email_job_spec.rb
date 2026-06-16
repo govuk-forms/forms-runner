@@ -30,7 +30,6 @@ RSpec.describe SendConfirmationEmailJob, type: :job do
       submission_locale: "en",
     )
   end
-  let(:notify_response_id) { "confirmation-ref" }
   let(:confirmation_email_address) { "testing@gov.uk" }
 
   context "when include_copy_of_answers is false" do
@@ -43,7 +42,6 @@ RSpec.describe SendConfirmationEmailJob, type: :job do
       expect {
         described_class.perform_now(
           submission:,
-          notify_response_id:,
           confirmation_email_address:,
         )
       }.to change(ActionMailer::Base.deliveries, :count).by(1)
@@ -53,44 +51,18 @@ RSpec.describe SendConfirmationEmailJob, type: :job do
     end
 
     it "builds mailer arguments from the submission" do
-      allow(FormSubmissionConfirmationMailer).to receive(:send_confirmation_email).and_call_original
+      allow(AwsSesSubmissionConfirmationMailer).to receive(:submission_confirmation_email).and_call_original
 
       described_class.perform_now(
         submission:,
-        notify_response_id:,
         confirmation_email_address:,
       )
 
-      expect(FormSubmissionConfirmationMailer).to have_received(:send_confirmation_email).with(
+      expect(AwsSesSubmissionConfirmationMailer).to have_received(:submission_confirmation_email).with(
         submission:,
-        notify_response_id: "confirmation-ref",
         confirmation_email_address: "testing@gov.uk",
+        include_copy_of_answers: false,
       )
-    end
-
-    context "when submission locale is Welsh" do
-      let(:welsh_form_document) { build(:v2_form_document, name: "Welsh Form") }
-
-      before do
-        submission.update!(submission_locale: "cy")
-        allow(Api::V2::FormDocumentRepository).to receive(:find_with_mode).and_call_original
-        allow(Api::V2::FormDocumentRepository).to receive(:find_with_mode).with(
-          form_id: anything,
-          mode: anything,
-          language: :cy,
-        ).and_return(welsh_form_document)
-      end
-
-      it "uses the bilingual template" do
-        described_class.perform_now(
-          submission:,
-          notify_response_id:,
-          confirmation_email_address:,
-        )
-
-        mail = ActionMailer::Base.deliveries.last
-        expect(mail.govuk_notify_template).to eq("7891011")
-      end
     end
   end
 
@@ -99,7 +71,6 @@ RSpec.describe SendConfirmationEmailJob, type: :job do
       expect {
         described_class.perform_now(
           submission:,
-          notify_response_id:,
           confirmation_email_address:,
           include_copy_of_answers: true,
         )
@@ -115,7 +86,6 @@ RSpec.describe SendConfirmationEmailJob, type: :job do
         I18n.with_locale(:cy) do
           described_class.perform_now(
             submission:,
-            notify_response_id:,
             confirmation_email_address:,
             include_copy_of_answers: true,
           )
@@ -148,7 +118,6 @@ RSpec.describe SendConfirmationEmailJob, type: :job do
       it "passes the confirmation email configuration set name to SES" do
         described_class.perform_now(
           submission:,
-          notify_response_id:,
           confirmation_email_address:,
           include_copy_of_answers: true,
         )
@@ -162,7 +131,7 @@ RSpec.describe SendConfirmationEmailJob, type: :job do
 
   context "when there is an error during processing" do
     before do
-      allow(FormSubmissionConfirmationMailer).to receive(:send_confirmation_email).and_raise(StandardError, "Test error")
+      allow(AwsSesSubmissionConfirmationMailer).to receive(:submission_confirmation_email).and_raise(StandardError, "Test error")
       allow(CloudWatchService).to receive(:record_job_failure_metric)
     end
 
@@ -170,7 +139,6 @@ RSpec.describe SendConfirmationEmailJob, type: :job do
       expect {
         described_class.perform_now(
           submission:,
-          notify_response_id:,
           confirmation_email_address:,
         )
       }.to raise_error(StandardError, "Test error")
@@ -179,7 +147,6 @@ RSpec.describe SendConfirmationEmailJob, type: :job do
     it "sends cloudwatch metric for failure" do
       described_class.perform_now(
         submission:,
-        notify_response_id:,
         confirmation_email_address:,
       )
       expect(CloudWatchService).to have_received(:record_job_failure_metric).with("SendConfirmationEmailJob")
