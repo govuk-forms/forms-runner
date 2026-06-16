@@ -372,7 +372,6 @@ RSpec.describe FormSubmissionService, :capture_logging do
 
           expect(args).to include(
             "submission" => hash_including("_aj_globalid"),
-            "notify_response_id" => email_confirmation_input.confirmation_email_reference,
             "confirmation_email_address" => confirmation_email_address,
             "include_copy_of_answers" => false,
           )
@@ -428,15 +427,15 @@ RSpec.describe FormSubmissionService, :capture_logging do
             end
           end
         end
+      end
 
-        context "when user does not want a confirmation email" do
-          let(:email_confirmation_input) { build :email_confirmation_input }
+      context "when user does not want a confirmation email" do
+        let(:email_confirmation_input) { build :email_confirmation_input }
 
-          it "does not call FormSubmissionConfirmationMailer" do
-            allow(FormSubmissionConfirmationMailer).to receive(:send_confirmation_email)
-            service.submit
-            expect(FormSubmissionConfirmationMailer).not_to have_received(:send_confirmation_email)
-          end
+        it "does not call AwsSesSubmissionConfirmationMailer" do
+          allow(AwsSesSubmissionConfirmationMailer).to receive(:submission_confirmation_email)
+          service.submit
+          expect(AwsSesSubmissionConfirmationMailer).not_to have_received(:submission_confirmation_email)
         end
       end
 
@@ -454,7 +453,6 @@ RSpec.describe FormSubmissionService, :capture_logging do
 
           expect(args).to include(
             "submission" => hash_including("_aj_globalid"),
-            "notify_response_id" => email_confirmation_input.confirmation_email_reference,
             "confirmation_email_address" => copy_of_answers_email_address,
             "include_copy_of_answers" => true,
           )
