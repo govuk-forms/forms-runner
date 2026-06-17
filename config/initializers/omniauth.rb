@@ -21,7 +21,7 @@ Rails.application.config.middleware.use OmniAuth::Builder do
     scope: "openid email",
     ui_locales: "en cy",
     vtr: ["Cl.Cm"],
-    pkce: false,
+    pkce: true,
     userinfo_claims: [],
   }
 
