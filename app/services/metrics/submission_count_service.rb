@@ -7,11 +7,12 @@ module Metrics
 
     def publish_submission_counts
       metric_count = 0
+      form_names = latest_form_names_by_form_id
 
       submission_counts_by_form_id.each_slice(BATCH_SIZE) do |batch|
         cloudwatch_client.put_metric_data(
           namespace: METRICS_NAMESPACE,
-          metric_data: batch.map { |(form_id, count)| metric_datum(form_id:, count:) },
+          metric_data: batch.map { |(form_id, count)| metric_datum(form_id:, form_name: form_names[form_id], count:) },
         )
         metric_count += batch.size
       end
@@ -29,12 +30,21 @@ module Metrics
       Submission.where(mode: "form").group(:form_id).count
     end
 
-    def metric_datum(form_id:, count:)
+    def latest_form_names_by_form_id
+      Submission
+        .where(mode: "form")
+        .order(Arel.sql("form_id, created_at DESC"))
+        .pluck(Arel.sql("DISTINCT ON (form_id) form_id"), Arel.sql("form_document->>'name'"))
+        .to_h
+    end
+
+    def metric_datum(form_id:, form_name:, count:)
       {
         metric_name: METRIC_NAME,
         dimensions: [
           environment_dimension,
           form_id_dimension(form_id),
+          form_name_dimension(form_name),
         ],
         value: count,
         unit: "Count",
@@ -53,6 +63,13 @@ module Metrics
       {
         name: "FormId",
         value: form_id.to_s,
+      }
+    end
+
+    def form_name_dimension(form_name)
+      {
+        name: "FormName",
+        value: form_name.to_s,
       }
     end
 
