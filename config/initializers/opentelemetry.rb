@@ -1,7 +1,11 @@
 require "opentelemetry/sdk"
 require "opentelemetry/instrumentation/all"
+require "opentelemetry-metrics-sdk"
+require "opentelemetry-exporter-otlp-metrics"
 
 return unless ENV["ENABLE_OTEL"] == "true"
+
+ENV["OTEL_METRICS_EXPORTER"] ||= "otlp"
 
 OpenTelemetry::SDK.configure do |c|
   instrumentation_config = { "OpenTelemetry::Instrumentation::Rack" => { untraced_endpoints: ["/up"] } }
