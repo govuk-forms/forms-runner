@@ -67,6 +67,10 @@ class Submission < ApplicationRecord
     ses_email_formatter(locale, confirmation_email).build_question_answers_section_plain_text
   end
 
+  def answer_content_for_email_markdown(heading_level:, locale: :en, confirmation_email: false)
+    ses_email_formatter(locale, confirmation_email).build_question_answers_section_markdown(heading_level:)
+  end
+
 private
 
   def answer_store

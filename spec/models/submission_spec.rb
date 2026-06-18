@@ -210,6 +210,20 @@ RSpec.describe Submission, type: :model do
         expect(result).to start_with("Beth yw eich hoff liw?")
       end
     end
+
+    describe "#answer_content_for_email_markdown" do
+      it "uses the English form document to construct the markdown by default" do
+        result = submission.answer_content_for_email_markdown(heading_level: 4)
+
+        expect(result).to include("What is your favourite colour?")
+      end
+
+      it "uses the Welsh form document to construct the markdown when the locale is :cy" do
+        result = submission.answer_content_for_email_markdown(heading_level: 4, locale: :cy)
+
+        expect(result).to include("Beth yw eich hoff liw?")
+      end
+    end
   end
 
   describe "#sent?" do
