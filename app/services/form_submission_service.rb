@@ -104,6 +104,8 @@ private
 
     submission.deliveries.create!(delivery_schedule: :immediate)
 
+    Metrics::SubmissionCounter.record(form_id: form.id, form_name: form.name, mode:)
+
     submission
   end
 
