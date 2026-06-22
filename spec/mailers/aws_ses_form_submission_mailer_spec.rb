@@ -80,7 +80,7 @@ describe AwsSesFormSubmissionMailer, type: :mailer do
         it "includes the warning about not replying" do
           expect(part.body).to have_css("h2", text: I18n.t("mailer.cannot_reply.heading"))
           expect(part.body).to include(GovukFormsMarkdown.render_for_email(I18n.t("mailer.cannot_reply.contact_form_filler_markdown")))
-          expect(part.body).to include(I18n.t("mailer.cannot_reply.contact_forms_team_html"))
+          expect(part.body).to include(GovukFormsMarkdown.render_for_email(I18n.t("mailer.cannot_reply.contact_forms_team_markdown")))
         end
 
         describe "submission date/time" do
@@ -157,7 +157,7 @@ describe AwsSesFormSubmissionMailer, type: :mailer do
         it "includes the warning about not replying" do
           expect(part.body).to have_text(I18n.t("mailer.cannot_reply.heading"))
           expect(part.body).to include(GovukFormsMarkdown.render_plain_text(I18n.t("mailer.cannot_reply.contact_form_filler_markdown")))
-          expect(part.body).to include(I18n.t("mailer.cannot_reply.contact_forms_team_plain"))
+          expect(part.body).to include(GovukFormsMarkdown.render_plain_text(I18n.t("mailer.cannot_reply.contact_forms_team_markdown")))
         end
 
         describe "submission date/time" do

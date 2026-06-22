@@ -477,9 +477,7 @@ cy:
       contacted_group_admins_paragraph: The form is in the group “%{group_name}”, which has no group admins or whose group admins have not responded.
     cannot_reply:
       contact_form_filler_markdown: If you need to contact the person who completed this form, you’ll need to contact them directly.
-      contact_forms_team_html: <p>If you’re experiencing a technical issue with this form, <a href="https://www.forms.service.gov.uk/support">contact the GOV.​UK Forms team</a> with details of the issue and the form it relates to.</p>
       contact_forms_team_markdown: If you’re experiencing a technical issue with this form, [contact the GOV.​UK Forms team](https://www.forms.service.gov.uk/support) with details of the issue and the form it relates to.
-      contact_forms_team_plain: If you’re experiencing a technical issue with this form, contact the GOV.​UK Forms team (https://www.forms.service.gov.uk/support) with details of the issue and the form it relates to.
       heading: You cannot reply to this email
     check_before_using: Check that these answers look safe before you use them
     form_name: 'Form name: “%{form_name}”'

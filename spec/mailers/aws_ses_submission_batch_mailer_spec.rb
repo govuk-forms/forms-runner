@@ -110,7 +110,7 @@ describe AwsSesSubmissionBatchMailer, type: :mailer do
       end
 
       it "lists the filename of the attachment" do
-        expect(part.body).to have_text("  • filename.csv")
+        expect(part.body).to have_text("• filename.csv")
       end
     end
 
@@ -122,8 +122,8 @@ describe AwsSesSubmissionBatchMailer, type: :mailer do
       end
 
       it "lists the filenames of the attachments" do
-        expect(part.body).to have_text("  • filename.csv")
-        expect(part.body).to have_text("  • filename-2.csv")
+        expect(part.body).to have_text("• filename.csv")
+        expect(part.body).to have_text("• filename-2.csv")
       end
     end
   end
