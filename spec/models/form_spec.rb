@@ -186,6 +186,16 @@ RSpec.describe Form, type: :model do
       it "returns true" do
         expect(form.copy_of_answers_enabled?).to be true
       end
+
+      context "when the global copy_of_answers_enabled setting is set to false" do
+        before do
+          allow(Settings).to receive(:copy_of_answers_enabled).and_return(false)
+        end
+
+        it "returns false" do
+          expect(form.copy_of_answers_enabled?).to be false
+        end
+      end
     end
 
     context "when send_copy_of_answers is \"disabled\"" do

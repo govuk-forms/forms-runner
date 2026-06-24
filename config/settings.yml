@@ -74,3 +74,6 @@ show_browser_during_tests: false
 cloudwatch_metrics_enabled: false
 
 analytics_enabled: false
+
+# Allows us to globally disable users getting a copy of their answers in the case that One Login is unavailable.
+copy_of_answers_enabled: true
