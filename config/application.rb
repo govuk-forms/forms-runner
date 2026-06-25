@@ -89,5 +89,7 @@ module FormsRunner
 
     I18n.available_locales = %i[en cy]
     I18n.default_locale = :en
+
+    JWT.configuration.jwk.kid_generator_type = :rfc7638_thumbprint
   end
 end
