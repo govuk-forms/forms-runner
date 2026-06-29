@@ -93,6 +93,22 @@ RSpec.describe SesEmailFormatter do
       end
     end
 
+    context "when there are newline characters in the answer" do
+      let(:steps) { [text_step] }
+
+      it "converts single newlines into markdown linebreaks" do
+        text_question.text = "Test\nTest 2"
+
+        expect(ses_email_formatter.build_question_answers_section_markdown).to eq("### What is the meaning of life?\n\nTest  \nTest 2")
+      end
+
+      it "Converts multiple newlines into double newlines" do
+        text_question.text = "Test\n\n\nTest 2\n\nTest 3"
+
+        expect(ses_email_formatter.build_question_answers_section_markdown).to eq("### What is the meaning of life?\n\nTest\n\nTest 2\n\nTest 3")
+      end
+    end
+
     context "when none of the above is selected in a none of the above question" do
       let(:steps) { [none_of_the_above_step] }
 

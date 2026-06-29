@@ -72,7 +72,7 @@ private
 
   def sanitize(text)
     text
-      .then { normalize_whitespace _1 }
+      .then { normalize_and_convert_whitespace_to_markdown _1 }
   end
 
   def skipped_question_text
