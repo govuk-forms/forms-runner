@@ -256,13 +256,9 @@ cy:
           column_1: Yn ein helpu i gyfrif faint o bobl sy’n ymweld â GOV.UK Forms trwy ddweud wrthym a ydych wedi ymweld o’r blaen.
           column_2: 2 flynedd
         row_2:
-          column_0: _gid
-          column_1: Yn ein helpu i gyfrif faint o bobl sy’n ymweld â GOV.UK Forms trwy ddweud wrthym a ydych wedi ymweld o’r blaen.
-          column_2: 24 awr
-        row_3:
-          column_0: _gat_UA-[random number]
-          column_1: Yn ein helpu i leihau nifer y ceisiadau olrhain diangen rydyn ni’n eu hanfon at Google Analytics.
-          column_2: 1 munud
+          column_0: _ga_[random number]
+          column_1: Defnyddir gan Google Analytics i ddod o hyd i ac olrhain sesiwn unigol gyda'ch dyfais.
+          column_2: 2 flynedd
     essential_cookies:
       heading: Cwcis hanfodol
       section_0: Rydym yn defnyddio cwcis hanfodol i wneud i ffurflenni weithio.
