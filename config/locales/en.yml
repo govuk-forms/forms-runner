@@ -256,7 +256,7 @@ en:
           column_1: Helps us count how many people visit GOV.UK Forms by telling us if you’ve visited before.
           column_2: 2 years
         row_2:
-          column_0: _gat_[random number]
+          column_0: _ga_[random number]
           column_1: Used by Google Analytics to find and track an individual session with your device.
           column_2: 2 years
     essential_cookies:
