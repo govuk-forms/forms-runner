@@ -102,6 +102,16 @@ RSpec.describe FormSubmissionService, :capture_logging do
       expect(log_line["submission_reference"]).to eq(reference)
     end
 
+    it "records a submission count metric" do
+      expect(Metrics::SubmissionCounter).to receive(:record).with(
+        form_id: form.id,
+        form_name: form.name,
+        mode:,
+      )
+
+      service.submit
+    end
+
     shared_examples "logging" do
       it "logs submission" do
         allow(LogEventService).to receive(:log_submit).once
