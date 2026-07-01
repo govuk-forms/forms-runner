@@ -104,21 +104,6 @@ module Question
       "#{none_of_the_above_question.question_text} #{I18n.t('page.optional')}"
     end
 
-    def selection=(value)
-      # TODO: This setter can be removed after 15/06/2026
-      if allow_multiple_answers?
-        if value.include?(I18n.t("page.none_of_the_above", locale: :en)) || value.include?(I18n.t("page.none_of_the_above", locale: :cy))
-          super([NONE_OF_THE_ABOVE_VALUE])
-          return
-        end
-      elsif value == I18n.t("page.none_of_the_above", locale: :en) || value == I18n.t("page.none_of_the_above", locale: :cy)
-        super(NONE_OF_THE_ABOVE_VALUE)
-        return
-      end
-
-      super(value)
-    end
-
   private
 
     def clear_none_of_the_above_answer_if_not_selected
