@@ -116,6 +116,12 @@ RSpec.describe SesEmailFormatter do
         expect(ses_email_formatter.build_question_answers_section_markdown).to eq("### What sandwich do you want?\n\nNone of the above\n\n#### Specify your desired sandwich\n\nCheese and pickle")
       end
 
+      context "when heading level is set to 4" do
+        it "formats the none of the above question at the correct heading level" do
+          expect(ses_email_formatter.build_question_answers_section_markdown(heading_level: 4)).to eq("#### What sandwich do you want?\n\nNone of the above\n\n##### Specify your desired sandwich\n\nCheese and pickle")
+        end
+      end
+
       context "when the none of the above question is optional and no answer is provided" do
         let(:none_of_the_above_answer) { nil }
         let(:none_of_the_above_question_is_optional) { "true" }

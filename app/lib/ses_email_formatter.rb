@@ -15,7 +15,7 @@ class SesEmailFormatter
   def build_question_answers_section_markdown(heading_level: 3)
     @steps.map { |step|
       [prep_question_title_markdown(step, heading_level),
-       prep_answer_text_markdown(step)].join("\n\n")
+       prep_answer_text_markdown(step, heading_level: heading_level + 1)].join("\n\n")
     }.join(H_RULE_PLAIN_TEXT)
   end
 
@@ -32,9 +32,9 @@ private
     end
   end
 
-  def prep_answer_text_markdown(step)
+  def prep_answer_text_markdown(step, heading_level:)
     if step.is_selection_with_none_of_the_above_answer?
-      prep_none_of_the_above_answer_text_markdown(step)
+      prep_none_of_the_above_answer_text_markdown(step, heading_level:)
     else
       prep_answer_text(step)
     end
@@ -42,10 +42,12 @@ private
     raise FormattingError, "could not format answer for question step #{step.id}"
   end
 
-  def prep_none_of_the_above_answer_text_markdown(step)
+  def prep_none_of_the_above_answer_text_markdown(step, heading_level:)
+    heading_prefix = heading_level == 5 ? "##### " : "#### "
+
     [
       prep_answer_text(step),
-      "#### #{step.question.none_of_the_above_question_text}",
+      "#{heading_prefix}#{step.question.none_of_the_above_question_text}",
       prep_none_of_the_above_answer_markdown(step),
     ].join("\n\n")
   end
