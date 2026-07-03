@@ -564,31 +564,33 @@ en:
       section_0_link_text: Read about the cookies we use
     data_we_collect:
       heading: Data we collect from you and what we do with it
+      if_you_contact_us_by_email:
+        heading: If you contact us by email
+        section_0: If you contact us by email, we’ll collect your email address and any other personal information you choose to include in your email.
+        section_1: We may share your data with data controllers where it is appropriate. For example, if you provide feedback that relates to their function or if you make a data protection request.
+      legal_bases:
+        heading: Legal bases for processing this data
+        section_0: The legal basis for processing any data collected using analytics cookies is that you consent to us processing that data.
+        section_1: The legal basis for processing other data is that it’s necessary to perform a task in the public interest in the exercise of our functions as a government department.
+        section_2:
+          caption: 'We will not:'
+          list_item_0: sell or rent your data to third parties
+          list_item_1: share your data with third parties for marketing purposes
+        section_3: We will share your data if we are required to do so by law – for example, by court order, or to prevent fraud or other crime.
       section_0:
-        caption: 'When you use this form your device sends information such as your:'
-        list_item_0: IP address
-        list_item_1: "%{browsers_link} and version number"
-        list_item_1_link_text: web browser
-        list_item_2: time zone and language settings
+        caption: 'When you use this form your device sends information such as:'
+        list_item_0: the name and url of the form you’re completing
+        list_item_1: your IP address
+        list_item_2: your device’s %{browsers_link} and version number
+        list_item_2_link_text: web browser
+        list_item_3: your device’s time zone and language settings
       section_1:
         caption: 'We use this information to:'
         list_item_0: give you the information and web pages you request
         list_item_1: monitor the use of the site for security threats
         list_item_2: monitor the performance of the site to identify inefficiencies and JavaScript errors
-      section_2: We collect this information in system logs. These logs are stored in Amazon Web Services in Ireland.
-      section_3: We move some of this information to our security and network monitoring tools in Ireland and the USA which are provided by companies acting as our data processors.
-      section_4: We may also use this information to produce anonymised reports about the GOV.UK Forms service. This helps us understand where we can make improvements. We may share this information with the data controller of the form.
-      section_5: If you email us feedback about this form, we’ll collect your email address and any other personal information you choose to include in your email.
-      section_6: We may share your data with data controllers where it is appropriate. For example, if you provide feedback that relates to their function or if you make a data protection request.
-      section_7:
-        caption: 'The legal basis for processing this data is that it’s necessary:'
-        list_item_0: to perform a task in the public interest
-        list_item_1: in the exercise of our functions as a government department
-      section_8:
-        caption: 'We will not:'
-        list_item_0: sell or rent your data to third parties
-        list_item_1: share your data with third parties for marketing purposes
-      section_9: We will share your data if we are required to do so by law – for example, by court order, or to prevent fraud or other crime.
+      section_2: We collect this information in system logs. These logs are stored in the EU.
+      section_3: We may also use this information to produce anonymised reports about the GOV.UK Forms service. This helps us understand where we can make improvements. We may share this information with the data controller of the form.
     heading: 'Privacy notice: how we use your data'
     how_long_we_keep_data:
       heading: How long we keep your data
@@ -601,7 +603,7 @@ en:
       heading: How we protect your data and keep it secure
       section_0: We are committed to doing all that we can to keep your data secure. To prevent unauthorised access or disclosure we have put in place technical and organisational procedures to secure the data we collect about you – for example, we protect your data using varying levels of encryption. We also make sure that any third parties that we deal with have an obligation to keep all personal data they process on our behalf secure.
     preamble:
-      section_0: 'Last updated: 19 January 2026'
+      section_0: 'Last updated: 6 July 2026'
       section_1: This form was created using GOV.UK Forms. GOV.UK Forms is a product provided by the Government Digital Service (GDS) which is part of the Department for Science, Innovation and Technology. It lets UK government teams create online forms to collect information from people and organisations.
       section_2: The organisation that created this online form using GOV.UK Forms is the data controller of personal data they collect using the form, whilst the Department for Science, Innovation and Technology, through GDS, is the data processor. The data controller must tell you about what they are doing with your personal data - %{privacy_policy_link}.
       section_2_link_text: read the data controller’s privacy information for this form
@@ -629,8 +631,15 @@ en:
         line_3: Wilmslow
         line_4: Cheshire SK9 5AF
     title: Privacy
-    what_are_your_rights:
-      heading: What are your rights
+    using_one_login:
+      heading: Using GOV.UK One Login
+      section_0: When filling in a form, you may be asked to use GOV.UK One Login to confirm your details. You can find information about how GOV.UK One Login uses your data in the %{one_login_link}.
+      section_0_link_text: GOV.UK One Login privacy notice
+    where_data_is_stored:
+      heading: Where your data is processed and stored
+      section_0: Your personal data may be transferred outside the United Kingdom while being processed by GDS. If this happens, we’ll make sure you’re given the same level of technical and legal protection as you are within the United Kingdom by relying on the UK Government’s data adequacy decisions or by including clauses in contracts that require the recipient to protect the data in accordance with UK standards.
+    your_rights:
+      heading: Your rights
       section_0:
         caption: 'You have the right to request:'
         list_item_0: information about how your personal data is processed
@@ -642,9 +651,6 @@ en:
         list_item_1: request that your personal data is erased if there is no longer a justification for it
         list_item_2: ask that the processing of your personal data is restricted in certain circumstances
       section_2: If you have any of these requests, get in contact with our Data Protection Officer - you can find their contact details below.
-    where_data_is_stored:
-      heading: Where your data is processed and stored
-      section_0: Your personal data may be transferred outside the United Kingdom while being processed by GDS. If this happens, we’ll make sure you’re given the same level of technical and legal protection as you are within the United Kingdom by relying on the UK Government’s data adequacy decisions or by including clauses in contracts that require the recipient to protect the data in accordance with UK standards.
   question/address:
     label:
       international_address:

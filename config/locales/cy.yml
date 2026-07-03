@@ -564,31 +564,33 @@ cy:
       section_0_link_text: Darllenwch am y cwcis rydym yn eu defnyddio
     data_we_collect:
       heading: Data rydyn ni’n ei gasglu gennych a beth rydym yn ei wneud ag ef
+      if_you_contact_us_by_email:
+        heading: Os ydych yn cysylltu â ni drwy e-bost
+        section_0: Os byddwch yn cysylltu â ni drwy e-bost, byddwn yn casglu eich cyfeiriad e-bost ac unrhyw wybodaeth bersonol arall rydych yn dewis ei chynnwys yn eich e-bost.
+        section_1: Efallai y byddwn yn rhannu eich data gyda rheolwyr data lle mae’n briodol. Er enghraifft, os ydych yn darparu adborth sy’n ymwneud â’u swyddogaeth neu os ydych yn gwneud cais diogelu data.
+      legal_bases:
+        heading: Sail gyfreithiol dros brosesu’r data hwn
+        section_0: Y sail gyfreithiol ar gyfer prosesu unrhyw ddata a gesglir gan ddefnyddio cwcis dadansoddeg yw eich bod yn cydsynio i ni brosesu’r data hwnnw.
+        section_1: Y sail gyfreithiol ar gyfer prosesu data arall yw ei bod yn angenrheidiol i gyflawni tasg er budd y cyhoedd wrth arfer ein swyddogaethau fel adran y llywodraeth.
+        section_2:
+          caption: 'Ni fyddwn yn:'
+          list_item_0: gwerthu neu rentu eich data i drydydd partïon
+          list_item_1: rhannu eich data gyda thrydydd partïon at ddibenion marchnata
+        section_3: Byddwn yn rhannu eich data os yw’n ofynnol i ni wneud hynny yn ôl y gyfraith – er enghraifft, trwy orchymyn llys, neu i atal twyll neu droseddau eraill.
       section_0:
-        caption: 'Pan fyddwch yn defnyddio’r ffurflen hon, mae eich dyfais yn anfon gwybodaeth fel:'
-        list_item_0: Cyfeiriad IP
-        list_item_1: "%{browsers_link} a rhif fersiwn"
-        list_item_1_link_text: porwr gwe
-        list_item_2: gosodiadau amser ac iaith
+        caption: 'Pan fyddwch yn defnyddio’r ffurflen hon mae eich dyfais yn anfon gwybodaeth fel:'
+        list_item_0: enw ac url y ffurflen rydych yn ei llenwi
+        list_item_1: eich cyfeiriad IP
+        list_item_2: "%{browsers_link} a rhif fersiwn eich dyfais"
+        list_item_2_link_text: porwr gwe
+        list_item_3: parth amser a gosodiadau iaith eich dyfais
       section_1:
         caption: 'Rydym yn defnyddio’r wybodaeth hon i:'
         list_item_0: roi’r wybodaeth a’r tudalennau gwe rydych yn gofyn amdanynt
         list_item_1: monitro’r defnydd o’r wefan ar gyfer bygythiadau diogelwch
         list_item_2: monitro perfformiad y wefan i nodi aneffeithlonrwydd a gwallau JavaScript
-      section_2: Rydym yn casglu’r wybodaeth hon mewn logiau system. Mae’r logiau hyn yn cael eu cadw yn Amazon Web Services yn Iwerddon.
+      section_2: Rydym yn casglu’r wybodaeth hon mewn cofnodion system. Mae’r cofnodion hyn yn cael eu storio yn yr UE.
       section_3: Rydym yn symud rhywfaint o’r wybodaeth hon i’n teclynau monitro diogelwch a rhwydwaith yn Iwerddon a’r UDA, sy’n cael eu darparu gan gwmnïau sy’n gweithredu fel ein proseswyr data.
-      section_4: Efallai y byddwn hefyd yn defnyddio’r wybodaeth hon i gynhyrchu adroddiadau dienw am wasanaeth GOV.UK Forms. Mae hyn yn ein helpu i ddeall ble y gallwn wneud gwelliannau. Efallai y byddwn yn rhannu’r wybodaeth hon gyda rheolydd data y ffurflen.
-      section_5: Os byddwch yn anfon adborth atom am y ffurflen hon, byddwn yn casglu eich cyfeiriad e-bost ac unrhyw wybodaeth bersonol arall rydych yn dewis ei chynnwys yn eich e-bost.
-      section_6: Efallai y byddwn yn rhannu eich data gyda rheolwyr data lle mae’n briodol. Er enghraifft, os ydych yn darparu adborth sy’n ymwneud â’u swyddogaeth neu os ydych yn gwneud cais diogelu data.
-      section_7:
-        caption: 'Y sail gyfreithiol dros brosesu’r data hwn yw ei fod yn angenrheidiol:'
-        list_item_0: i gyflawni tasg er budd y cyhoedd
-        list_item_1: wrth arfer ein swyddogaethau fel adran y llywodraeth
-      section_8:
-        caption: 'Ni fyddwn yn:'
-        list_item_0: gwerthu neu rentu eich data i drydydd partïon
-        list_item_1: rhannu eich data gyda thrydydd partïon at ddibenion marchnata
-      section_9: Byddwn yn rhannu eich data os yw’n ofynnol i ni wneud hynny yn ôl y gyfraith – er enghraifft, trwy orchymyn llys, neu i atal twyll neu droseddau eraill.
     heading: 'Hysbysiad preifatrwydd: sut rydym yn defnyddio’ch data'
     how_long_we_keep_data:
       heading: Am faint o amser rydym yn cadw’ch data
@@ -601,7 +603,7 @@ cy:
       heading: Sut rydym yn diogelu eich data a’i gadw’n ddiogel
       section_0: Rydym wedi ymrwymo i wneud popeth y gallwn i gadw’ch data yn ddiogel. Er mwyn atal mynediad neu ddatgelu anawdurdodedig, rydym wedi rhoi gweithdrefnau technegol a sefydliadol ar waith i ddiogelu’r data rydym yn ei gasglu amdanoch chi – er enghraifft, rydym yn diogelu’ch data gan ddefnyddio lefelau amrywiol o amgryptio. Rydym hefyd yn sicrhau bod gan unrhyw drydydd partïon rydym yn delio â nhw rwymedigaeth i gadw’r holl ddata personol y maent yn ei brosesu ar ein rhan yn ddiogel.
     preamble:
-      section_0: 'Diweddarwyd ddiwethaf: 25 Mehefin 2025'
+      section_0: 'Diweddarwyd ddiwethaf: 6 Gorffennaf 2025'
       section_1: Crëwyd y ffurflen hon gan ddefnyddio GOV.UK Forms. Mae GOV.UK Forms yn gynnyrch a ddarperir gan Wasanaeth Digidol y Llywodraeth (GDS) sy’n rhan o’r Adran Gwyddoniaeth, Arloesi a Thechnoleg. Mae’n caniatáu i dimau llywodraeth y DU greu ffurflenni ar-lein i gasglu gwybodaeth gan bobl a sefydliadau.
       section_2: Y sefydliad a greodd y ffurflen ar-lein hon gan ddefnyddio GOV.UK Forms yw rheolydd data y data personol y maent yn ei gasglu gan ddefnyddio’r ffurflen, a’r Adran Gwyddoniaeth, Arloesi a Thechnoleg, trwy GDS, yw’r prosesydd data. Rhaid i’r rheolydd data ddweud wrthych am yr hyn maent yn ei wneud gyda’ch data personol - %{privacy_policy_link}.
       section_2_link_text: darllenwch wybodaeth preifatrwydd y rheolydd data ar gyfer y ffurflen hon
@@ -629,8 +631,15 @@ cy:
         line_3: Wilmslow
         line_4: Cheshire SK9 5AF
     title: Preifatrwydd
-    what_are_your_rights:
-      heading: Beth yw eich hawliau
+    using_one_login:
+      heading: Defnyddio GOV.UK One Login
+      section_0: Wrth lenwi ffurflen, efallai y gofynnir i chi ddefnyddio GOV.UK One Login i gadarnhau eich manylion. Gallwch ddod o hyd i wybodaeth am sut mae GOV.UK One Login yn defnyddio’ch data yn %{one_login_link}.
+      section_0_link_text: hysbysiad preifatrwydd GOV.UK One Login
+    where_data_is_stored:
+      heading: Lle mae eich data yn cael ei brosesu a’i gadw
+      section_0: Efallai y bydd eich data personol yn cael ei drosglwyddo y tu allan i’r Deyrnas Unedig wrth gael ei brosesu gan GDS. Os bydd hyn yn digwydd, byddwn yn gwneud yn siŵr eich bod yn cael yr un lefel o amddiffyniad technegol a chyfreithiol ag yr ydych yn y Deyrnas Unedig drwy ddibynnu ar benderfyniadau digonolrwydd data Llywodraeth y DU neu drwy gynnwys cymalau mewn contractau sy’n ei gwneud yn ofynnol i’r derbynnydd ddiogelu’r data yn unol â safonau’r DU.
+    your_rights:
+      heading: Eich hawliau
       section_0:
         caption: 'Mae gennych yr hawl i ofyn am:'
         list_item_0: wybodaeth am sut mae eich data personol yn cael ei brosesu
@@ -642,9 +651,6 @@ cy:
         list_item_1: gofyn i’ch data personol gael ei ddileu os nad oes cyfiawnhad amdano mwyach
         list_item_2: gofyn i brosesu eich data personol gael ei gyfyngu mewn amgylchiadau penodol
       section_2: Os oes gennych unrhyw un o’r ceisiadau hyn, cysylltwch â’n Swyddog Diogelu Data - gallwch ddod o hyd i’w manylion cyswllt isod.
-    where_data_is_stored:
-      heading: Lle mae eich data yn cael ei brosesu a’i gadw
-      section_0: Efallai y bydd eich data personol yn cael ei drosglwyddo y tu allan i’r Deyrnas Unedig wrth gael ei brosesu gan GDS. Os bydd hyn yn digwydd, byddwn yn gwneud yn siŵr eich bod yn cael yr un lefel o amddiffyniad technegol a chyfreithiol ag yr ydych yn y Deyrnas Unedig drwy ddibynnu ar benderfyniadau digonolrwydd data Llywodraeth y DU neu drwy gynnwys cymalau mewn contractau sy’n ei gwneud yn ofynnol i’r derbynnydd ddiogelu’r data yn unol â safonau’r DU.
   question/address:
     label:
       international_address:
