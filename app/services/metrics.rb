@@ -10,7 +10,6 @@ module Metrics
       submission_counter.add(
         1,
         attributes: {
-          "deployment.environment.name" => Settings.forms_env.downcase,
           "form.id" => form_id.to_s,
           "form.submission.mode" => mode_label(form_name:, mode:),
         },
