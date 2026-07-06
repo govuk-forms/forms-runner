@@ -29,6 +29,8 @@ class FormSubmissionService
     submission = create_submission_record
     enqueue_deliveries(submission)
 
+    Metrics.record_submission(form_id: form.id, form_name: form.name, mode:)
+
     LogEventService.log_submit(
       current_context,
       requested_email_confirmation: requested_confirmation?,
@@ -105,7 +107,7 @@ private
   end
 
   def create_submission_record
-    submission = Submission.create!(
+    Submission.create!(
       reference: submission_reference,
       form_id: form.id,
       answers: current_context.answers,
@@ -115,10 +117,6 @@ private
       submission_locale:,
       created_at: timestamp,
     )
-
-    Metrics.record_submission(form_id: form.id, form_name: form.name, mode:)
-
-    submission
   end
 
   def enqueue_deliver_submission_job(job_class, submission, delivery)
