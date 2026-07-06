@@ -28,9 +28,9 @@ describe Metrics do
         have_attributes(
           value: 1,
           attributes: {
-            "Environment" => forms_env,
-            "FormId" => form_id.to_s,
-            "Mode" => "form",
+            "deployment.environment.name" => forms_env,
+            "form.id" => form_id.to_s,
+            "form.submission.mode" => "form",
           },
         ),
       )
@@ -45,7 +45,7 @@ describe Metrics do
         expect(exported_data_points).to contain_exactly(
           have_attributes(
             value: 1,
-            attributes: include("Mode" => "preview-live"),
+            attributes: include("form.submission.mode" => "preview-live"),
           ),
         )
       end
@@ -57,7 +57,7 @@ describe Metrics do
       expect(exported_data_points).to contain_exactly(
         have_attributes(
           value: 2,
-          attributes: include("FormId" => form_id.to_s),
+          attributes: include("form.id" => form_id.to_s),
         ),
       )
     end
@@ -69,11 +69,11 @@ describe Metrics do
       expect(exported_data_points).to contain_exactly(
         have_attributes(
           value: 1,
-          attributes: include("FormId" => form_id.to_s),
+          attributes: include("form.id" => form_id.to_s),
         ),
         have_attributes(
           value: 1,
-          attributes: include("FormId" => "99"),
+          attributes: include("form.id" => "99"),
         ),
       )
     end
@@ -85,11 +85,11 @@ describe Metrics do
       expect(exported_data_points).to contain_exactly(
         have_attributes(
           value: 1,
-          attributes: include("Mode" => "form"),
+          attributes: include("form.submission.mode" => "form"),
         ),
         have_attributes(
           value: 1,
-          attributes: include("Mode" => "preview-draft"),
+          attributes: include("form.submission.mode" => "preview-draft"),
         ),
       )
     end
@@ -109,7 +109,7 @@ describe Metrics do
             expect(exported_data_points).to contain_exactly(
               have_attributes(
                 value: 1,
-                attributes: include("Mode" => "test"),
+                attributes: include("form.submission.mode" => "test"),
               ),
             )
           end
