@@ -6,6 +6,7 @@ describe Metrics do
   let(:metric_exporter) { OpenTelemetry::SDK::Metrics::Export::InMemoryMetricPullExporter.new }
   let(:forms_env) { "test" }
   let(:form_id) { 42 }
+  let(:form_name) { "Apply for a juggling licence" }
   let(:mode) { Mode.new("form") }
 
   before do
@@ -21,7 +22,7 @@ describe Metrics do
 
   describe ".record_submission" do
     it "records a submission count metric" do
-      described_class.record_submission(form_id:, mode:)
+      described_class.record_submission(form_id:, form_name:, mode:)
 
       expect(exported_data_points).to contain_exactly(
         have_attributes(
@@ -39,7 +40,7 @@ describe Metrics do
       let(:mode) { Mode.new("preview-live") }
 
       it "records a metric with the preview mode label" do
-        described_class.record_submission(form_id:, mode:)
+        described_class.record_submission(form_id:, form_name:, mode:)
 
         expect(exported_data_points).to contain_exactly(
           have_attributes(
@@ -51,7 +52,7 @@ describe Metrics do
     end
 
     it "accumulates counts for the same form" do
-      2.times { described_class.record_submission(form_id:, mode:) }
+      2.times { described_class.record_submission(form_id:, form_name:, mode:) }
 
       expect(exported_data_points).to contain_exactly(
         have_attributes(
@@ -62,8 +63,8 @@ describe Metrics do
     end
 
     it "records separate counts per form" do
-      described_class.record_submission(form_id:, mode:)
-      described_class.record_submission(form_id: 99, mode:)
+      described_class.record_submission(form_id:, form_name:, mode:)
+      described_class.record_submission(form_id: 99, form_name:, mode:)
 
       expect(exported_data_points).to contain_exactly(
         have_attributes(
@@ -78,8 +79,8 @@ describe Metrics do
     end
 
     it "records separate counts per mode" do
-      described_class.record_submission(form_id:, mode:)
-      described_class.record_submission(form_id:, mode: Mode.new("preview-draft"))
+      described_class.record_submission(form_id:, form_name:, mode:)
+      described_class.record_submission(form_id:, form_name:, mode: Mode.new("preview-draft"))
 
       expect(exported_data_points).to contain_exactly(
         have_attributes(
@@ -93,6 +94,29 @@ describe Metrics do
       )
     end
 
+    context "when the form is a test form" do
+      [
+        "capybara test form",
+        "Automated smoke test form",
+        "s3 submission test form",
+      ].each do |test_form_name|
+        context "with the name #{test_form_name.inspect}" do
+          let(:form_name) { test_form_name }
+
+          it "records a metric with the test mode label" do
+            described_class.record_submission(form_id:, form_name:, mode:)
+
+            expect(exported_data_points).to contain_exactly(
+              have_attributes(
+                value: 1,
+                attributes: include("Mode" => "test"),
+              ),
+            )
+          end
+        end
+      end
+    end
+
     context "when recording the metric raises an error" do
       let(:error) { StandardError.new("metrics unavailable") }
 
@@ -103,7 +127,7 @@ describe Metrics do
       it "captures the exception in Sentry and does not raise" do
         expect(Sentry).to receive(:capture_exception).with(error)
 
-        expect { described_class.record_submission(form_id:, mode:) }.not_to raise_error
+        expect { described_class.record_submission(form_id:, form_name:, mode:) }.not_to raise_error
       end
     end
   end

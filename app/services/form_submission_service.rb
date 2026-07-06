@@ -116,7 +116,7 @@ private
       created_at: timestamp,
     )
 
-    Metrics.record_submission(form_id: form.id, mode:)
+    Metrics.record_submission(form_id: form.id, form_name: form.name, mode:)
 
     submission
   end
