@@ -10,9 +10,9 @@ module Metrics
       submission_counter.add(
         1,
         attributes: {
-          "Environment" => Settings.forms_env.downcase,
-          "FormId" => form_id.to_s,
-          "Mode" => mode_label(form_name:, mode:),
+          "deployment.environment.name" => Settings.forms_env.downcase,
+          "form.id" => form_id.to_s,
+          "form.submission.mode" => mode_label(form_name:, mode:),
         },
       )
     rescue StandardError => e
@@ -33,9 +33,9 @@ module Metrics
 
     def submission_counter
       @submission_counter ||= meter.create_counter(
-        "SubmissionCount",
-        unit: "1",
-        description: "Number of form submissions",
+        "form.submission.created",
+        unit: "{submission}",
+        description: "The number of form submissions queued for delivery",
       )
     end
 
