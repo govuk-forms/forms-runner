@@ -5,6 +5,8 @@ RSpec.describe ReceiveSubmissionDeliveriesJob, type: :job do
   include ActiveJob::TestHelper
 
   let(:sqs_client) { instance_double(Aws::SQS::Client) }
+  let(:aws_account_id) { "123456789012" }
+  let(:queue_name) { "deliveries-queue" }
   let(:receipt_handle) { "delivery-receipt-handle" }
   let(:sqs_message_id) { "sqs-message-id" }
   let(:event_type) { "Delivery" }
@@ -18,29 +20,25 @@ RSpec.describe ReceiveSubmissionDeliveriesJob, type: :job do
   let(:reference) { "submission-reference" }
   let!(:submission) { create :submission, :sent, delivery_reference:, reference:, created_at: Time.zone.parse("2025-05-09T10:25:35.001Z") }
 
-  let(:output) { StringIO.new }
-  let(:logger) do
-    ApplicationLogger.new(output).tap do |logger|
-      logger.formatter = JsonLogFormatter.new
-    end
-  end
-
   before do
+    allow(Settings.aws).to receive(:submission_email_deliveries_sqs_queue_name).and_return(queue_name)
+
     sts_client = instance_double(Aws::STS::Client)
     allow(Aws::STS::Client).to receive(:new).and_return(sts_client)
-    allow(sts_client).to receive(:get_caller_identity).and_return(OpenStruct.new(account: "123456789012"))
+    allow(sts_client).to receive(:get_caller_identity).and_return(OpenStruct.new(account: aws_account_id))
 
     allow(Aws::SQS::Client).to receive(:new).and_return(sqs_client)
     allow(sqs_client).to receive(:receive_message).and_return(OpenStruct.new(messages: messages), OpenStruct.new(messages: []))
     allow(sqs_client).to receive(:delete_message)
 
     allow(CloudWatchService).to receive(:record_job_started_metric)
-
-    Rails.logger.broadcast_to logger
   end
 
-  after do
-    Rails.logger.stop_broadcasting_to logger
+  it "calls SQS with the expected queue URL" do
+    described_class.perform_now
+    expect(sqs_client).to have_received(:receive_message).with(
+      hash_including(queue_url: "https://sqs.eu-west-2.amazonaws.com/#{aws_account_id}/#{queue_name}"),
+    ).once
   end
 
   describe "CloudWatch metrics" do
@@ -60,6 +58,32 @@ RSpec.describe ReceiveSubmissionDeliveriesJob, type: :job do
       # latency is ses_delivery_timestamp - submission.created_at
       expect(CloudWatchService).to have_received(:record_submission_delivery_latency_metric).with(6122, "Email")
     end
+
+    context "when the delivery is a daily batch delivery" do
+      let(:submission) { create :submission, :sent, delivery_reference: "something-else", created_at: Time.zone.parse("2025-05-09T10:25:35.001Z") }
+
+      before do
+        create :delivery, :daily, delivery_reference:, submissions: [submission], created_at: Time.zone.parse("2025-05-09T10:25:35.001Z")
+      end
+
+      it "does not send submission delivery latency metric" do
+        described_class.perform_now
+        expect(CloudWatchService).not_to have_received(:record_submission_delivery_latency_metric)
+      end
+    end
+
+    context "when the delivery is a weekly batch delivery" do
+      let(:submission) { create :submission, :sent, delivery_reference: "something-else", created_at: Time.zone.parse("2025-05-09T10:25:35.001Z") }
+
+      before do
+        create :delivery, :weekly, delivery_reference:, submissions: [submission], created_at: Time.zone.parse("2025-05-09T10:25:35.001Z")
+      end
+
+      it "does not send submission delivery latency metric" do
+        described_class.perform_now
+        expect(CloudWatchService).not_to have_received(:record_submission_delivery_latency_metric)
+      end
+    end
   end
 
   describe "processing delivery notifications" do
@@ -76,7 +100,7 @@ RSpec.describe ReceiveSubmissionDeliveriesJob, type: :job do
       expect(submission.deliveries.first.reload.delivered_at).to eq ses_delivery_timestamp
     end
 
-    it "logs form event with correct details" do
+    it "logs form event with correct details", :capture_logging do
       perform_enqueued_jobs
 
       expect(log_lines).to include(hash_including(
@@ -86,10 +110,62 @@ RSpec.describe ReceiveSubmissionDeliveriesJob, type: :job do
                                      "form_id" => submission.form_id,
                                      "submission_reference" => reference,
                                      "preview" => "false",
+                                     "delivered_at" => Time.zone.parse(ses_delivery_timestamp),
+                                     "delivery_latency" => 6122,
                                      "sns_message_timestamp" => sns_message_timestamp,
                                      "job_id" => @job_id,
                                      "job_class" => "ReceiveSubmissionDeliveriesJob",
                                    ))
+    end
+
+    context "when the delivery is a daily batch delivery" do
+      let!(:submission) { create :submission, :sent, delivery_reference: "something-else" }
+      let!(:delivery) { create(:delivery, :daily_scheduled_delivery, delivery_reference:, submissions: [submission], created_at: Time.zone.parse("2025-05-09T10:25:35.001Z")) }
+
+      it "logs form event with batch delivery details", :capture_logging do
+        perform_enqueued_jobs
+
+        expect(log_lines).to include(hash_including(
+                                       "level" => "INFO",
+                                       "message" => "Form event",
+                                       "event" => "form_submission_batch_delivered",
+                                       "form_id" => submission.form_id,
+                                       "form_name" => submission.form.name,
+                                       "delivery_reference" => delivery_reference,
+                                       "delivery_id" => delivery.id,
+                                       "delivery_schedule" => "daily",
+                                       "batch_begin_at" => delivery.batch_begin_at,
+                                       "preview" => "false",
+                                       "sns_message_timestamp" => sns_message_timestamp,
+                                       "job_id" => @job_id,
+                                       "job_class" => "ReceiveSubmissionDeliveriesJob",
+                                     ))
+      end
+    end
+
+    context "when the delivery is a weekly batch delivery" do
+      let!(:submission) { create :submission, :sent, delivery_reference: "something-else" }
+      let!(:delivery) { create(:delivery, :weekly_scheduled_delivery, delivery_reference:, submissions: [submission], created_at: Time.zone.parse("2025-05-09T10:25:35.001Z")) }
+
+      it "logs form event with batch delivery details", :capture_logging do
+        perform_enqueued_jobs
+
+        expect(log_lines).to include(hash_including(
+                                       "level" => "INFO",
+                                       "message" => "Form event",
+                                       "event" => "form_submission_batch_delivered",
+                                       "form_id" => submission.form_id,
+                                       "form_name" => submission.form.name,
+                                       "delivery_reference" => delivery_reference,
+                                       "delivery_id" => delivery.id,
+                                       "delivery_schedule" => "weekly",
+                                       "batch_begin_at" => delivery.batch_begin_at,
+                                       "preview" => "false",
+                                       "sns_message_timestamp" => sns_message_timestamp,
+                                       "job_id" => @job_id,
+                                       "job_class" => "ReceiveSubmissionDeliveriesJob",
+                                     ))
+      end
     end
   end
 
@@ -108,8 +184,18 @@ RSpec.describe ReceiveSubmissionDeliveriesJob, type: :job do
     end
   end
 
-  def log_lines
-    output.string.split("\n").map { |line| JSON.parse(line) }
+  context "when the delivery is not found" do
+    let(:messages) { [sqs_message] }
+    let(:submission) { nil }
+
+    it "captures the error and does not delete the message" do
+      allow(Sentry).to receive(:capture_exception)
+
+      described_class.perform_now
+
+      expect(Sentry).to have_received(:capture_exception).with(an_instance_of(ActiveRecord::RecordNotFound))
+      expect(sqs_client).not_to have_received(:delete_message)
+    end
   end
 end
 # rubocop:enable RSpec/InstanceVariable

@@ -1,12 +1,12 @@
 class CheckYourAnswersStep
-  CHECK_YOUR_ANSWERS_PAGE_SLUG = "check-your-answers".freeze
+  CHECK_YOUR_ANSWERS_STEP_SLUG = "check-your-answers".freeze
 
-  attr_reader :next_page_slug, :page_slug, :page_id
+  attr_reader :next_step_slug, :step_slug, :id
 
   def initialize
-    @page_id = CHECK_YOUR_ANSWERS_PAGE_SLUG
-    @next_page_slug = "_submit" # not used for now
-    @page_slug = CHECK_YOUR_ANSWERS_PAGE_SLUG
+    @id = CHECK_YOUR_ANSWERS_STEP_SLUG
+    @next_step_slug = "_submit" # not used for now
+    @step_slug = CHECK_YOUR_ANSWERS_STEP_SLUG
   end
 
   def ==(other)

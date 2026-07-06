@@ -1,12 +1,13 @@
 class SendS3SubmissionJob < SubmissionDeliveryJob
   def perform(submission)
-    set_submission_logging_attributes(submission)
+    delivery = submission.single_submission_delivery
+    set_submission_logging_attributes(submission:, delivery:)
 
-    new_delivery_attempt!(submission)
+    delivery.new_attempt!
 
     key = S3SubmissionService.new(submission:).submit
 
-    update_delivery_reference!(submission, delivery_reference: key)
+    delivery.update!(delivery_reference: key)
     record_submission_sent!
   rescue StandardError
     CloudWatchService.record_job_failure_metric(self.class.name)

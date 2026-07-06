@@ -55,12 +55,9 @@ private
 
       ses_message = JSON.parse(sns_message["Message"])
       ses_message_id = ses_message["mail"]["messageId"]
-      CurrentJobLoggingAttributes.delivery_reference = ses_message_id
 
-      delivery = Delivery.find_by!(delivery_reference: ses_message_id)
-
-      # Call the provided block with the delivery and ses_message
-      block.call(delivery, ses_message)
+      # Call the provided block with the SES message ID and contents
+      block.call(ses_message_id, ses_message)
 
       sqs_client.delete_message(queue_url: queue_url, receipt_handle: receipt_handle)
     rescue StandardError => e

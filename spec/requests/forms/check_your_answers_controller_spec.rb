@@ -1,11 +1,12 @@
 require "rails_helper"
 
-RSpec.describe Forms::CheckYourAnswersController, type: :request do
+RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :request do
   include Capybara::RSpecMatchers
 
   let(:timestamp_of_request) { Time.utc(2022, 12, 14, 10, 0o0, 0o0) }
 
   let(:form_id) { 2 }
+  let(:send_copy_of_answers) { "disabled" }
   let(:form_data) do
     build(:v2_form_document, :with_support, :with_submission_email,
           form_id: form_id,
@@ -18,6 +19,7 @@ RSpec.describe Forms::CheckYourAnswersController, type: :request do
           support_email: "help@example.gov.uk",
           support_url: "https://example.gov.uk/help",
           support_url_text: "Get help",
+          send_copy_of_answers:,
           submission_email:)
   end
 
@@ -29,48 +31,41 @@ RSpec.describe Forms::CheckYourAnswersController, type: :request do
 
   let(:submission_email) { Faker::Internet.email(domain: "example.gov.uk") }
 
-  let(:store) do
+  let(:answers) do
     {
-      answers: {
-        form_id.to_s => {
-          "1" => {
-            "date_year" => "2000",
-            "date_month" => "1",
-            "date_day" => "1",
-          },
-          "2" => {
-            "date_year" => "2023",
-            "date_month" => "6",
-            "date_day" => "9",
-          },
+      form_id.to_s => {
+        "1" => {
+          "date_year" => "2000",
+          "date_month" => "1",
+          "date_day" => "1",
+        },
+        "2" => {
+          "date_year" => "2023",
+          "date_month" => "6",
+          "date_day" => "9",
         },
       },
     }
   end
+  let(:store) { { answers: }.with_indifferent_access }
 
   let(:steps_data) do
     [
-      {
-        id: 1,
-        position: 1,
-        next_step_id: 2,
-        type: "question_page",
-        data: {
-          answer_type: "date",
-          is_optional: nil,
-          question_text: "Question one",
-        },
-      },
-      {
-        id: 2,
-        position: 2,
-        type: "question_page",
-        data: {
-          answer_type: "date",
-          is_optional: nil,
-          question_text: "Question two",
-        },
-      },
+      build(:v2_question_step,
+            id: 1,
+            position: 1,
+            next_step_id: 2,
+            type: "question",
+            answer_type: "date",
+            is_optional: nil,
+            question_text: "Question one"),
+      build(:v2_question_step,
+            id: 2,
+            position: 2,
+            type: "question",
+            answer_type: "date",
+            is_optional: nil,
+            question_text: "Question two"),
     ]
   end
 
@@ -89,24 +84,22 @@ RSpec.describe Forms::CheckYourAnswersController, type: :request do
   let(:confirmation_email_id) { "2222" }
   let(:confirmation_email_reference) { "confirmation-email-ref" }
 
-  let(:output) { StringIO.new }
-  let(:logger) { ActiveSupport::Logger.new(output) }
-
   before do
-    # Intercept the request logs so we can do assertions on them
-    allow(Lograge).to receive(:logger).and_return(logger)
-
     ActiveResource::HttpMock.respond_to do |mock|
       mock.get "/api/v2/forms/#{form_id}#{api_url_suffix}", req_headers, form_data.to_json, 200
     end
 
     allow(Flow::Context).to receive(:new).and_wrap_original do |original_method, *args|
-      context_spy = original_method.call(form: args[0][:form], store:)
+      context_spy = original_method.call(form: args[0][:form], form_document: args[0][:form_document], store:)
       allow(context_spy).to receive(:form_submitted?).and_return(repeat_form_submission)
       context_spy
     end
+    allow(Store::AuthStore).to receive(:new).and_wrap_original do |original_method, *_args|
+      original_method.call(store)
+    end
 
     allow(ReferenceNumberService).to receive(:generate).and_return(reference)
+    allow(FeatureService).to receive(:enabled?).with("filler_answer_email_enabled").and_return(true)
   end
 
   describe "#show" do
@@ -135,7 +128,7 @@ RSpec.describe Forms::CheckYourAnswersController, type: :request do
         it "redirects to first incomplete page of form" do
           get check_your_answers_path(mode:, form_id:, form_slug: form_data.form_slug)
           expect(response).to have_http_status(:found)
-          expect(response.location).to eq(form_page_url(mode:, form_id:, form_slug: form_data.form_slug, page_slug: 1))
+          expect(response.location).to eq(form_step_url(mode:, form_id:, form_slug: form_data.form_slug, step_slug: 1))
         end
       end
     end
@@ -145,8 +138,8 @@ RSpec.describe Forms::CheckYourAnswersController, type: :request do
         expect(response).to have_http_status(:ok)
       end
 
-      it "Displays a back link to the last page of the form" do
-        expect(response.body).to include(form_page_path(mode:, form_id:, form_slug: form_data.form_slug, page_slug: 2))
+      it "Displays a back link to the last step" do
+        expect(response.body).to include(form_step_path(mode:, form_id:, form_slug: form_data.form_slug, step_slug: 2))
       end
 
       it "Returns the correct X-Robots-Tag header" do
@@ -203,6 +196,85 @@ RSpec.describe Forms::CheckYourAnswersController, type: :request do
 
         include_examples "for notification references"
       end
+
+      context "when the user has said yes to copy of answers and has a One Login email" do
+        let(:send_copy_of_answers) { "enabled" }
+        let(:store) do
+          {
+            answers:,
+            confirmation_details: {
+              form_id.to_s => {
+                "wants_copy_of_answers" => true,
+                "copy_of_answers_email_address" => "user@example.gov.uk",
+              },
+            },
+          }.with_indifferent_access
+        end
+
+        before do
+          get check_your_answers_path(mode:, form_id:, form_slug: form_data.form_slug)
+        end
+
+        it "hides the confirmation email question" do
+          expect(response.body).not_to include("email_confirmation_input[send_confirmation]")
+        end
+      end
+
+      context "when the user has said yes to copy of answers but has no One Login email" do
+        let(:send_copy_of_answers) { "enabled" }
+        let(:store) do
+          {
+            answers:,
+            confirmation_details: {
+              form_id.to_s => {
+                "wants_copy_of_answers" => true,
+              },
+            },
+          }.with_indifferent_access
+        end
+
+        before do
+          get check_your_answers_path(mode:, form_id:, form_slug: form_data.form_slug)
+        end
+
+        it "shows the confirmation email question" do
+          expect(response.body).to include("email_confirmation_input[send_confirmation]")
+        end
+      end
+
+      context "when the user has said no to copy of answers" do
+        let(:send_copy_of_answers) { "enabled" }
+        let(:store) do
+          {
+            answers:,
+            confirmation_details: {
+              form_id.to_s => {
+                "wants_copy_of_answers" => false,
+              },
+            },
+          }.with_indifferent_access
+        end
+
+        before do
+          get check_your_answers_path(mode:, form_id:, form_slug: form_data.form_slug)
+        end
+
+        it "shows the confirmation email question" do
+          expect(response.body).to include("email_confirmation_input[send_confirmation]")
+        end
+      end
+
+      context "when send_copy_of_answers is enabled on the form" do
+        let(:send_copy_of_answers) { "enabled" }
+
+        before do
+          get check_your_answers_path(mode:, form_id:, form_slug: form_data.form_slug)
+        end
+
+        it "Displays a back link to the copy of answers page" do
+          expect(response.body).to include(copy_of_answers_path(mode:, form_id:, form_slug: form_data.form_slug))
+        end
+      end
     end
   end
 
@@ -217,7 +289,7 @@ RSpec.describe Forms::CheckYourAnswersController, type: :request do
 
     shared_examples "for notification references" do
       it "includes the confirmation_email_reference in the logging_context" do
-        expect(log_lines[0]["confirmation_email_reference"]).to eq(confirmation_email_reference)
+        expect(log_line["confirmation_email_reference"]).to eq(confirmation_email_reference)
       end
     end
 
@@ -247,7 +319,7 @@ RSpec.describe Forms::CheckYourAnswersController, type: :request do
       end
 
       it "includes the confirmation_email_id in the logging context" do
-        expect(log_lines[0]["confirmation_email_id"]).to eq(confirmation_email_id)
+        expect(log_lines.last["confirmation_email_id"]).to eq(confirmation_email_id)
       end
 
       include_examples "for notification references"
@@ -279,10 +351,36 @@ RSpec.describe Forms::CheckYourAnswersController, type: :request do
       end
 
       it "includes the confirmation_email_id in the logging context" do
-        expect(log_lines[0]["confirmation_email_id"]).to eq(confirmation_email_id)
+        expect(log_lines.last["confirmation_email_id"]).to eq(confirmation_email_id)
       end
 
       include_examples "for notification references"
+    end
+
+    context "when the user has said yes to copy of answers and has a One Login email" do
+      let(:store) do
+        {
+          answers:,
+          confirmation_details: {
+            form_id.to_s => {
+              "wants_copy_of_answers" => true,
+              "copy_of_answers_email_address" => "user@example.gov.uk",
+            },
+          },
+        }.with_indifferent_access
+      end
+
+      before do
+        travel_to frozen_time do
+          perform_enqueued_jobs do
+            post form_submit_answers_path(form_id:, form_slug: "form-name", mode:), params: {}
+          end
+        end
+      end
+
+      it "submits successfully without email_confirmation_input params" do
+        expect(response).to redirect_to(form_submitted_path)
+      end
     end
 
     context "when the submission type is s3" do
@@ -322,6 +420,43 @@ RSpec.describe Forms::CheckYourAnswersController, type: :request do
             key: expected_key_name,
           },
         )
+      end
+    end
+
+    context "when the user has logged in with One Login" do
+      let(:token) { Faker::Alphanumeric.alphanumeric }
+      let(:store) do
+        {
+          answers:,
+          auth: { token: },
+        }.with_indifferent_access
+      end
+      let(:end_session_endpoint) { "http://example.com/one-login-mock/logout" }
+
+      before do
+        allow(AuthService).to receive(:new).and_wrap_original do |original_method, *_args|
+          original_method.call(store)
+        end
+
+        idp_configuration = instance_double(OmniAuth::GovukOneLogin::IdpConfiguration, end_session_endpoint:)
+        allow(Rails.application.config.x).to receive(:one_login).and_return(double(idp_configuration:))
+
+        post form_submit_answers_path(form_id:, form_slug: "form-name", mode:), params: { email_confirmation_input: }
+      end
+
+      it "saves the path params for returning from One Login on the session" do
+        expect(store).to have_key "return_from_one_login"
+        expect(store["return_from_one_login"]).to eq({
+          "last_form_id" => form_data.form_id,
+          "last_form_slug" => form_data.form_slug,
+          "last_mode" => mode.to_s,
+          "last_locale" => nil,
+        })
+      end
+
+      it "redirects to the One Login logout page" do
+        post_logout_redirect_url = CGI.escape("http://www.example.com/auth/logged-out")
+        expect(response).to redirect_to(/#{end_session_endpoint}\?id_token_hint=#{token}&post_logout_redirect_uri=#{post_logout_redirect_url}/)
       end
     end
 
@@ -432,11 +567,11 @@ RSpec.describe Forms::CheckYourAnswersController, type: :request do
       end
 
       it "does not include the confirmation_email_id in the logging context" do
-        expect(log_lines[0].keys).not_to include("confirmation_email_id")
+        expect(log_line.keys).not_to include("confirmation_email_id")
       end
 
       it "does not include confirmation_email_reference in logging context" do
-        expect(log_lines[0].keys).not_to include("confirmation_email_reference")
+        expect(log_line.keys).not_to include("confirmation_email_reference")
       end
     end
 
@@ -468,14 +603,19 @@ RSpec.describe Forms::CheckYourAnswersController, type: :request do
 
         expected_personalisation = {
           title: form_data.name,
+          title_cy: form_data.name,
           what_happens_next_text: form_data.what_happens_next_markdown,
+          what_happens_next_text_cy: form_data.what_happens_next_markdown,
           support_contact_details: contact_support_details_format,
+          support_contact_details_cy: I18n.with_locale(:cy) { contact_support_details_format },
           submission_time: "10:00am",
           submission_date: "14 December 2022",
+          submission_date_cy: "14 Rhagfyr 2022",
           test: "no",
           submission_reference: reference,
           include_payment_link: "no",
           payment_link: "",
+          payment_link_cy: "",
         }
 
         expect(mail.body.raw_source).to include(expected_personalisation.to_s)
@@ -484,7 +624,7 @@ RSpec.describe Forms::CheckYourAnswersController, type: :request do
       end
 
       it "includes the confirmation_email_id in the logging context" do
-        expect(log_lines[0]["confirmation_email_id"]).to eq(confirmation_email_id)
+        expect(log_lines.last["confirmation_email_id"]).to eq(confirmation_email_id)
       end
 
       include_examples "for notification references"
@@ -551,9 +691,5 @@ private
     email = "[#{form_data.support_email}](mailto:#{form_data.support_email})"
     online = "[#{form_data.support_url_text}](#{form_data.support_url})"
     [phone_number, email, online].compact_blank.join("\n\n")
-  end
-
-  def log_lines
-    output.string.split("\n").map { |line| JSON.parse(line) }
   end
 end

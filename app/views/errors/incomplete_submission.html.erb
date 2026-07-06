@@ -3,6 +3,6 @@
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
     <h1 class="govuk-heading-l"><%= t('errors.incomplete_submission.title') %></h1>
-    <%= t("errors.incomplete_submission.body_html", link_url: form_page_path(@form.id, @form.form_slug, current_context.next_page_slug)) %>
+    <%= t("errors.incomplete_submission.body_html", link_url: form_step_path(@form.id, @form.form_slug, current_context.next_step_slug)) %>
   </div>
 </div>

@@ -1,5 +1,5 @@
 FactoryBot.define do
-  factory :v2_form_document, class: DataStruct do
+  factory :v2_form_document, class: Api::V2::FormDocumentResource do
     form_id { Faker::Number.number(digits: 5) }
 
     sequence(:name) { |n| "Form #{n}" }
@@ -8,7 +8,6 @@ FactoryBot.define do
     steps { [] }
 
     declaration_text { nil }
-    declaration_section_completed { false }
     payment_url { nil }
     privacy_policy_url { nil }
     submission_email { nil }
@@ -18,13 +17,15 @@ FactoryBot.define do
     support_phone { nil }
     support_url { nil }
     support_url_text { nil }
-    question_section_completed { false }
     what_happens_next_markdown { nil }
     language { "en" }
     s3_bucket_aws_account_id { nil }
     s3_bucket_name { nil }
     s3_bucket_region { nil }
     updated_at { Time.current.iso8601(3) }
+    send_copy_of_answers { "disabled" }
+    send_daily_submission_batch { false }
+    send_weekly_submission_batch { false }
 
     trait :with_steps do
       transient do
@@ -32,11 +33,10 @@ FactoryBot.define do
       end
 
       steps do
-        Array.new(steps_count) { attributes_for(:v2_question_page_step) }
+        Array.new(steps_count) { build(:v2_question_step) }
       end
 
-      question_section_completed { true }
-      start_page { steps.first[:id] }
+      start_page { steps.first.id }
     end
 
     trait :with_privacy_policy_url do
@@ -64,7 +64,7 @@ FactoryBot.define do
       what_happens_next_markdown { "We usually respond to applications within 10 working days." }
     end
 
-    trait :live? do
+    trait :live do
       ready_for_live
     end
 

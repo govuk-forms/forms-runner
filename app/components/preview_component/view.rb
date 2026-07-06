@@ -21,7 +21,7 @@ module PreviewComponent
       elsif @mode.preview_archived?
         "orange"
       else
-        "turquoise"
+        "teal"
       end
     end
 

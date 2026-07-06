@@ -6,17 +6,21 @@ class SendSubmissionBatchJob < ApplicationJob
 
   retry_on Aws::SESV2::Errors::ServiceError, wait: :polynomially_longer, attempts: TOTAL_ATTEMPTS
 
-  def perform(form_id:, mode_string:, date:, delivery:)
-    submissions = Submission.for_daily_batch(form_id, date, mode_string)
+  def perform(delivery:)
+    submissions = delivery.submissions
 
     if submissions.empty?
-      Rails.logger.info("No submissions to batch for form_id: #{form_id}, mode: #{mode_string}, date: #{date}")
-      return
+      raise StandardError, "No submissions found for delivery id: #{delivery.id} when running job: #{job_id}"
     end
 
-    form = submissions.first.form
-    mode = Mode.new(mode_string)
-    set_submission_batch_logging_attributes(form:, mode:)
+    # Get the form details from the latest submission to get the most recent submission email and form name.
+    latest_submission = submissions.order(created_at: :desc).first
+    form = latest_submission.form
+    mode = latest_submission.mode_object
+
+    batch_begin_date = delivery.batch_begin_at.in_time_zone(TimeZoneUtils.submission_time_zone).to_date
+
+    set_submission_batch_logging_attributes(form:, mode:, delivery:)
 
     if form.submission_email.blank?
       if mode.preview?
@@ -27,24 +31,47 @@ class SendSubmissionBatchJob < ApplicationJob
       end
     end
 
-    message_id = AwsSesSubmissionBatchService.new(submissions_query: submissions, form:, date:, mode:).send_batch
+    batch_service = AwsSesSubmissionBatchService.new(submissions_query: submissions, form:, mode:)
 
+    message_id = send_email(batch_service, delivery, batch_begin_date)
+
+    delivery.new_attempt!
     delivery.update!(
       delivery_reference: message_id,
-      last_attempt_at: Time.zone.now,
-      submissions: submissions,
     )
 
-    EventLogger.log_form_event("daily_batch_email_sent", {
-      mode:,
-      batch_date: date,
-      number_of_submissions: submissions.count,
-    })
+    CurrentJobLoggingAttributes.delivery_reference = delivery.delivery_reference
+    log_batch_sent(delivery, batch_begin_date, mode)
+    log_submissions_included_in_batch(delivery, batch_begin_date)
+  end
 
-    submissions.each do |submission|
-      EventLogger.log_form_event("included_in_daily_batch_email", {
+private
+
+  def send_email(batch_service, delivery, batch_begin_date)
+    if delivery.daily?
+      batch_service.send_daily_batch(date: batch_begin_date)
+    elsif delivery.weekly?
+      batch_service.send_weekly_batch(begin_date: batch_begin_date, end_date: batch_begin_date + 6.days)
+    else
+      raise StandardError, "Unexpected delivery schedule: #{delivery.delivery_schedule}"
+    end
+  end
+
+  def log_batch_sent(delivery, batch_begin_date, mode)
+    event_name = delivery.daily? ? "daily_batch_email_sent" : "weekly_batch_email_sent"
+    EventLogger.log_form_event(event_name, {
+      mode: mode.to_s,
+      batch_begin_date: batch_begin_date,
+      number_of_submissions: delivery.submissions.count,
+    })
+  end
+
+  def log_submissions_included_in_batch(delivery, batch_begin_date)
+    event_name = delivery.daily? ? "included_in_daily_batch_email" : "included_in_weekly_batch_email"
+    delivery.submissions.each do |submission|
+      EventLogger.log_form_event(event_name, {
         submission_reference: submission.reference,
-        batch_date: date,
+        batch_begin_date: batch_begin_date,
       })
     end
   end

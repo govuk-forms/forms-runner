@@ -1,14 +1,6 @@
 require "rails_helper"
 
-RSpec.describe ApplicationLogger do
-  subject(:logger) do
-    described_class.new(output).tap do |logger|
-      logger.formatter = JsonLogFormatter.new
-    end
-  end
-
-  let(:output) { StringIO.new }
-
+RSpec.describe ApplicationLogger, :capture_logging do
   context "when CurrentLoggingAttributes has attributes set" do
     before do
       CurrentRequestLoggingAttributes.request_id = "a-request-id"
@@ -16,15 +8,34 @@ RSpec.describe ApplicationLogger do
     end
 
     it "includes the message as a field" do
-      expect(log_lines[0]["message"]).to eq "A message"
+      expect(log_line["message"]).to eq "A message"
     end
 
     it "includes attributes with values on the log line" do
-      expect(log_lines[0]["request_id"]).to eq "a-request-id"
+      expect(log_line["request_id"]).to eq "a-request-id"
     end
 
     it "does not include attributes without values on the log line" do
-      expect(log_lines[0].keys).not_to include "user_id"
+      expect(log_line.keys).not_to include "user_id"
+    end
+  end
+
+  context "when CurrentTaskLoggingAttributes has attributes set" do
+    before do
+      CurrentTaskLoggingAttributes.task_name = "task:example"
+      logger.info("A message")
+    end
+
+    it "includes the message as a field" do
+      expect(log_line["message"]).to eq "A message"
+    end
+
+    it "includes attributes with values on the log line" do
+      expect(log_line["task_name"]).to eq "task:example"
+    end
+
+    it "does not include attributes without values on the log line" do
+      expect(log_line.keys).not_to include "user_id"
     end
   end
 
@@ -35,15 +46,15 @@ RSpec.describe ApplicationLogger do
     end
 
     it "includes the message as a field" do
-      expect(log_lines[0]["message"]).to eq "A message"
+      expect(log_line["message"]).to eq "A message"
     end
 
     it "includes entries in the hash on the log line" do
-      expect(log_lines[0]["foo"]).to eq "bar"
+      expect(log_line["foo"]).to eq "bar"
     end
 
     it "includes attributes set on CurrentLoggingAttributes on the log line" do
-      expect(log_lines[0]["request_id"]).to eq "a-request-id"
+      expect(log_line["request_id"]).to eq "a-request-id"
     end
   end
 
@@ -54,19 +65,15 @@ RSpec.describe ApplicationLogger do
     end
 
     it "does not include a message field" do
-      expect(log_lines[0].keys).not_to include "message"
+      expect(log_line.keys).not_to include "message"
     end
 
     it "includes entries in the hash on the log line" do
-      expect(log_lines[0]["foo"]).to eq "bar"
+      expect(log_line["foo"]).to eq "bar"
     end
 
     it "includes attributes set on CurrentLoggingAttributes on the log line" do
-      expect(log_lines[0]["request_id"]).to eq "a-request-id"
+      expect(log_line["request_id"]).to eq "a-request-id"
     end
-  end
-
-  def log_lines
-    output.string.split("\n").map { |line| JSON.parse(line) }
   end
 end

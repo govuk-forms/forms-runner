@@ -4,14 +4,14 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 ruby file: ".ruby-version"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "8.1.2"
+gem "rails", "~> 8.1.3"
 
 # Use the Puma web server [https://github.com/puma/puma]
-gem "puma", "~> 7.2.0"
+gem "puma", "~> 8.0.2"
 
 # Use Sentry (https://sentry.io/for/ruby/?platform=sentry.ruby.rails#)
-gem "sentry-rails"
-gem "sentry-ruby"
+gem "sentry-rails", "~> 6"
+gem "sentry-ruby", "~> 6"
 
 gem "config"
 
@@ -23,7 +23,7 @@ gem "redis"
 gem "redis-session-store"
 
 # Use SolidQueue for ActiveJob
-gem "solid_queue", "~> 1.3"
+gem "solid_queue", "~> 1.4"
 
 # Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]
 # gem "kredis"
@@ -45,11 +45,11 @@ gem "activeresource"
 gem "pg", "~> 1.6"
 
 # For GOV.UK branding
-gem "govuk-components"
-gem "govuk_design_system_formbuilder"
+gem "govuk-components", "~> 6"
+gem "govuk_design_system_formbuilder", "~> 6"
 
 # Our own custom markdown renderer
-gem "govuk-forms-markdown", github: "alphagov/govuk-forms-markdown", tag: "0.7.0"
+gem "govuk-forms-markdown", github: "govuk-forms/govuk-forms-markdown", tag: "0.12.0"
 
 # For compiling our frontend assets
 gem "vite_rails"
@@ -61,14 +61,14 @@ gem "uk_postcode"
 gem "lograge"
 
 # For distributed tracing and telemetry
-gem "opentelemetry-exporter-otlp", "~> 0.31.1"
-gem "opentelemetry-instrumentation-all", "~> 0.90.1"
-gem "opentelemetry-propagator-xray", "~> 0.26.0"
-gem "opentelemetry-sdk", "~> 1.10"
+gem "opentelemetry-exporter-otlp", "~> 0.34.0"
+gem "opentelemetry-instrumentation-all", "~> 0.94.0"
+gem "opentelemetry-propagator-xray", "~> 0.27.0"
+gem "opentelemetry-sdk", "~> 1.12"
 
 # For AWS interactions
 gem "aws-sdk-cloudwatch"
-gem "aws-sdk-codepipeline", "~> 1.112"
+gem "aws-sdk-codepipeline", "~> 1.117"
 gem "aws-sdk-kms"
 gem "aws-sdk-s3"
 gem "aws-sdk-sesv2"
@@ -89,6 +89,9 @@ gem "rails-i18n", "~> 8.1"
 
 # IDNA conversion needed for validating email addresses
 gem "uri-idna"
+
+gem "omniauth_govuk_one_login", github: "OfficeForProductSafetyAndStandards/omniauth-govuk-one-login", ref: "6c6b68e186bd7ae08d6c16b8983ddad1eeb6cfc7"
+gem "omniauth-rails_csrf_protection"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem

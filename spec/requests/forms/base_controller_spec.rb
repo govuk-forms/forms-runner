@@ -27,13 +27,13 @@ RSpec.describe Forms::BaseController, type: :request do
 
   let(:steps_data) do
     [
-      (attributes_for :v2_question_page_step,
+      (attributes_for :v2_question_step,
                       id: 1,
                       next_page: 2,
                       answer_type: "text",
                       answer_settings: { input_type: "single_line" }
       ),
-      (attributes_for :v2_question_page_step,
+      (attributes_for :v2_question_step,
                       id: 2,
                       answer_type: "text",
                       answer_settings: { input_type: "single_line" }
@@ -45,38 +45,27 @@ RSpec.describe Forms::BaseController, type: :request do
 
   let(:api_url_suffix) { "/live" }
 
-  let(:output) { StringIO.new }
-  let(:logger) do
-    ApplicationLogger.new(output).tap do |logger|
-      logger.formatter = JsonLogFormatter.new
-    end
-  end
-
   before do
     ActiveResource::HttpMock.respond_to do |mock|
       mock.get "/api/v2/forms/2#{api_url_suffix}", req_headers, form_response_data.to_json, 200
       mock.get "/api/v2/forms/2#{api_url_suffix}?language=cy", req_headers, form_response_data.to_json, 200
       mock.get "/api/v2/forms/9999#{api_url_suffix}", req_headers, no_data_found_response, 404
       mock.get "/api/v2/forms/9999#{api_url_suffix}?language=cy", req_headers, no_data_found_response, 404
+      mock.get "/api/v2/forms/9999/archived", req_headers, no_data_found_response, 404
+      mock.get "/api/v2/forms/9999/archived?language=cy", req_headers, no_data_found_response, 404
     end
   end
 
-  describe "logging" do
+  describe "logging", :capture_logging do
     let(:form_id) { 2 }
     let(:trace_id) { "Root=1-63441c4a-abcdef012345678912345678" }
     let(:request_id) { "a-request-id" }
 
     before do
-      Rails.logger.broadcast_to logger
-
       get form_id_path(mode: "form", form_id:), headers: {
         "HTTP_X_AMZN_TRACE_ID": trace_id,
         "X-REQUEST-ID": request_id,
       }
-    end
-
-    after do
-      Rails.logger.stop_broadcasting_to logger
     end
 
     it "logs when the form is visited" do
@@ -133,7 +122,7 @@ RSpec.describe Forms::BaseController, type: :request do
     end
 
     it "renders the page with a link back to the form start page" do
-      expect(response.body).to include(form_page_path(mode: "form", form_id: 2, form_slug: form_response_data.form_slug, page_slug: 1))
+      expect(response.body).to include(form_step_path(mode: "form", form_id: 2, form_slug: form_response_data.form_slug, step_slug: 1))
     end
   end
 
@@ -152,7 +141,7 @@ RSpec.describe Forms::BaseController, type: :request do
 
           context "when the form has a start page" do
             it "Redirects to the first page" do
-              expect(response).to redirect_to(form_page_path(mode: "preview-draft", form_id: 2, form_slug: form_response_data.form_slug, page_slug: 1))
+              expect(response).to redirect_to(form_step_path(mode: "preview-draft", form_id: 2, form_slug: form_response_data.form_slug, step_slug: 1))
             end
 
             it "does not log the form_visit event" do
@@ -229,7 +218,7 @@ RSpec.describe Forms::BaseController, type: :request do
 
           context "when the form has a start page" do
             it "Redirects to the first page" do
-              expect(response).to redirect_to(form_page_path(mode: "preview-live", form_id: 2, form_slug: form_response_data.form_slug, page_slug: 1))
+              expect(response).to redirect_to(form_step_path(mode: "preview-live", form_id: 2, form_slug: form_response_data.form_slug, step_slug: 1))
             end
 
             it "does not log the form_visit event" do
@@ -306,7 +295,7 @@ RSpec.describe Forms::BaseController, type: :request do
 
           context "when the form has a start page" do
             it "Redirects to the first page" do
-              expect(response).to redirect_to(form_page_path(mode: "form", form_id: 2, form_slug: form_response_data.form_slug, page_slug: 1))
+              expect(response).to redirect_to(form_step_path(mode: "form", form_id: 2, form_slug: form_response_data.form_slug, step_slug: 1))
             end
 
             it "Logs the form_visit event" do
@@ -356,6 +345,22 @@ RSpec.describe Forms::BaseController, type: :request do
           expect(response.body).to include(I18n.t("form.archived.title"))
         end
       end
+
+      context "when the form is an archived Welsh form with a live English version" do
+        before do
+          ActiveResource::HttpMock.respond_to do |mock|
+            mock.get "/api/v2/forms/2/live", req_headers, form_response_data.to_json, 200
+            mock.get "/api/v2/forms/2/live?language=cy", req_headers, nil, 404
+            mock.get "/api/v2/forms/2/archived?language=cy", req_headers, form_response_data.to_json, 200
+          end
+
+          get form_path(mode: "form", form_id: 2, form_slug: form_response_data.form_slug, locale: :cy)
+        end
+
+        it "Renders the form archived page" do
+          expect(Capybara.string(response.body)).to have_text(I18n.t("forms.archived_welsh.show.heading", locale: :cy))
+        end
+      end
     end
   end
 
@@ -364,7 +369,7 @@ RSpec.describe Forms::BaseController, type: :request do
 
     context "when getting a form page that exists" do
       before do
-        get form_page_path(mode: "form", form_id: 2, form_slug: form_response_data.form_slug, page_slug: 1, locale:)
+        get form_step_path(mode: "form", form_id: 2, form_slug: form_response_data.form_slug, step_slug: 1, locale:)
       end
 
       context "when the locale param is not set" do
@@ -410,31 +415,6 @@ RSpec.describe Forms::BaseController, type: :request do
             .to include ActiveResource::Request.new(:get, "/api/v2/forms/2/live?language=cy", nil, req_headers)
         end
       end
-
-      context "when the language attribute is not set for the form" do
-        let(:form_response_data) do
-          form_document = build(
-            :v2_form_document,
-            :with_support,
-            id: 2,
-            start_page:,
-            privacy_policy_url: "http://www.example.gov.uk/privacy_policy",
-            what_happens_next_markdown: "Good things come to those that wait",
-            declaration_text: "agree to the declaration",
-            steps: steps_data,
-          )
-          form_document.delete_field(:language)
-          form_document
-        end
-
-        it "renders content in English" do
-          expect(response.body).to include(I18n.t("support_details.get_help_with_this_form"))
-        end
-      end
     end
-  end
-
-  def log_lines
-    output.string.split("\n").map { |line| JSON.parse(line) }
   end
 end

@@ -3,13 +3,13 @@ require "rails_helper"
 RSpec.describe CheckYourAnswersComponent::View, type: :component do
   include Rails.application.routes.url_helpers
 
-  let(:form) { build :form, id: 1 }
+  let(:form) { build :form }
   let(:question) { build :text, question_text: "Do you want to remain anonymous?", text: "Yes" }
   let(:optional_question) { build :text, question_text: "Optional question", is_optional: true, text: "" }
   let(:steps) do
     [
-      build(:step, question: question, page: build(:page, :with_text_settings)),
-      build(:step, question: optional_question, page: build(:page, :with_text_settings)),
+      build(:step, question: question, form_document_step: build(:v2_question_step, :with_text_settings)),
+      build(:step, question: optional_question, form_document_step: build(:v2_question_step, :with_text_settings)),
     ]
   end
   let(:mode) { Mode.new("form") }
@@ -43,15 +43,15 @@ RSpec.describe CheckYourAnswersComponent::View, type: :component do
   end
 
   it "includes change links for each step" do
-    expect(page).to have_link("Change", href: form_change_answer_path(mode: mode, form_id: form.id, form_slug: form.form_slug, page_slug: steps[0].id))
-    expect(page).to have_link("Change", href: form_change_answer_path(mode: mode, form_id: form.id, form_slug: form.form_slug, page_slug: steps[1].id))
+    expect(page).to have_link("Change", href: form_change_answer_path(mode: mode, form_id: form.id, form_slug: form.form_slug, step_slug: steps[0].id))
+    expect(page).to have_link("Change", href: form_change_answer_path(mode: mode, form_id: form.id, form_slug: form.form_slug, step_slug: steps[1].id))
   end
 
   context "when a step is repeatable and has an answer" do
-    let(:steps) { [build(:repeatable_step, question: question, page: build(:page, :with_text_settings))] }
+    let(:steps) { [build(:repeatable_step, question: question, form_document_step: build(:v2_question_step, :with_text_settings))] }
 
     it "uses the add another answer path for the change link" do
-      expect(page).to have_link("Change", href: change_add_another_answer_path(mode: mode, form_id: form.id, form_slug: form.form_slug, page_slug: steps[0].id))
+      expect(page).to have_link("Change", href: change_add_another_answer_path(mode: mode, form_id: form.id, form_slug: form.form_slug, step_slug: steps[0].id))
     end
   end
 
@@ -107,20 +107,20 @@ RSpec.describe CheckYourAnswersComponent::View, type: :component do
     end
 
     context "when 'None of the above' is selected" do
-      let(:selection) { "None of the above" }
+      let(:selection) { Question::Selection::NONE_OF_THE_ABOVE_VALUE }
 
       context "and an answer is provided for the 'None of the above' question" do
         let(:none_of_the_above_answer) { "This one" }
 
         it "displays the 'None of the above' question and answer in the answers" do
           expect(page).to have_css(".govuk-summary-list__key", text: question_text)
-          expect(page).to have_css(".govuk-summary-list__value", text: selection)
+          expect(page).to have_css(".govuk-summary-list__value", text: I18n.t("page.none_of_the_above"))
           expect(page).to have_css(".govuk-summary-list__key", text: none_of_the_above_question_text)
           expect(page).to have_css(".govuk-summary-list__value", text: none_of_the_above_answer)
         end
 
         it "has a change link for the 'None of the above' question" do
-          expect(page).to have_link("Change", href: form_change_answer_path(mode: mode, form_id: form.id, form_slug: form.form_slug, page_slug: steps[0].id))
+          expect(page).to have_link("Change", href: form_change_answer_path(mode: mode, form_id: form.id, form_slug: form.form_slug, step_slug: steps[0].id))
         end
       end
 
@@ -142,7 +142,7 @@ RSpec.describe CheckYourAnswersComponent::View, type: :component do
         let(:selection_options) { Array.new(31).map { |i| OpenStruct.new(name: "Option #{i}", value: "Option #{i}") } }
 
         it "has a change link to the 'None of the above' specific path" do
-          expect(page).to have_link("Change", href: change_selection_none_of_the_above_path(mode: mode, form_id: form.id, form_slug: form.form_slug, page_slug: steps[0].id))
+          expect(page).to have_link("Change", href: change_selection_none_of_the_above_path(mode: mode, form_id: form.id, form_slug: form.form_slug, step_slug: steps[0].id))
         end
       end
     end

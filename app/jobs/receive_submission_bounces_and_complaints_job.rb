@@ -1,45 +1,52 @@
 class ReceiveSubmissionBouncesAndComplaintsJob < ApplicationJob
   queue_as :background
 
-  SQS_QUEUE_NAME = "submission_email_ses_bounces_and_complaints_queue".freeze
-
   def perform
     CloudWatchService.record_job_started_metric(self.class.name)
     CurrentJobLoggingAttributes.job_class = self.class.name
     CurrentJobLoggingAttributes.job_id = job_id
 
     poller = AwsSesMessagePoller.new(
-      queue_name: SQS_QUEUE_NAME,
+      queue_name: Settings.aws.submission_email_bounces_and_complaints_sqs_queue_name,
       job_class_name: self.class.name,
       job_id: job_id,
     )
 
-    poller.poll do |delivery, ses_message|
+    poller.poll do |ses_message_id, ses_message|
+      CurrentJobLoggingAttributes.delivery_reference = ses_message_id
+      delivery = Delivery.find_by!(delivery_reference: ses_message_id)
       submission = delivery.submissions.first
       ses_event_type = ses_message["eventType"]
 
       raise "Unexpected event type:#{ses_event_type}" unless %w[Bounce Complaint].include?(ses_event_type)
 
+      set_logging_attributes(submission:, delivery:)
+
       process_bounce(delivery, submission, ses_message) if ses_event_type == "Bounce"
-      process_complaint(submission) if ses_event_type == "Complaint"
+      process_complaint(delivery) if ses_event_type == "Complaint"
     end
   end
 
 private
 
-  def process_bounce(delivery, submission, ses_message)
-    set_submission_logging_attributes(submission)
+  def set_logging_attributes(submission:, delivery:)
+    if delivery.immediate?
+      set_submission_logging_attributes(submission:, delivery:)
+    elsif delivery.daily? || delivery.weekly?
+      set_submission_batch_logging_attributes(form: submission.form, mode: submission.mode_object, delivery:)
+    end
+  end
 
+  def process_bounce(delivery, submission, ses_message)
     bounce_object = ses_message["bounce"] || {}
 
-    # Don't mark preview submissions as bounced, just log that they bounced. We don't need to attempt to resend preview
-    # submissions so these can be deleted as normal by the deletion job.
     unless submission.preview?
       bounced_timestamp = Time.zone.parse(bounce_object["timestamp"])
 
       delivery.update!(
         failed_at: bounced_timestamp,
         failure_reason: "bounced",
+        failure_details: bounce_object,
       )
     end
 
@@ -60,23 +67,23 @@ private
       }
     end
 
-    EventLogger.log_form_event("submission_bounced", ses_bounce: ses_bounce.merge(bounced_recipients:))
-
-    unless submission.preview?
-      Sentry.capture_message("Submission email bounced for form #{submission.form_id} - #{self.class.name}:",
-                             fingerprint: ["{{ default }}", submission.form_id],
-                             extra: {
-                               form_id: submission.form_id,
-                               submission_reference: submission.reference,
-                               job_id:,
-                               ses_bounce:,
-                             })
+    case delivery.delivery_schedule
+    when "immediate"
+      EventLogger.log_form_event("submission_bounced", ses_bounce: ses_bounce.merge(bounced_recipients:))
+    when "daily"
+      EventLogger.log_form_event("daily_batch_email_bounced", ses_bounce: ses_bounce.merge(bounced_recipients:))
+    when "weekly"
+      EventLogger.log_form_event("weekly_batch_email_bounced", ses_bounce: ses_bounce.merge(bounced_recipients:))
     end
   end
 
-  def process_complaint(submission)
-    set_submission_logging_attributes(submission)
-
-    EventLogger.log_form_event("submission_complaint")
+  def process_complaint(delivery)
+    if delivery.immediate?
+      EventLogger.log_form_event("submission_complaint")
+    elsif delivery.daily?
+      EventLogger.log_form_event("daily_batch_email_complaint")
+    elsif delivery.weekly?
+      EventLogger.log_form_event("weekly_batch_email_complaint")
+    end
   end
 end

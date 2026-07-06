@@ -33,11 +33,11 @@ RSpec.describe DeleteSubmissionsJob, type: :job do
   let(:form_without_file_upload) { build :v2_form_document, form_id: 2, steps: [text_step], start_page: text_step.id }
   let(:file_upload_steps) do
     [
-      build(:v2_question_page_step, answer_type: "file", id: 1, next_step_id: 2),
-      build(:v2_question_page_step, answer_type: "file", id: 2),
+      build(:v2_question_step, answer_type: "file", id: 1, next_step_id: 2),
+      build(:v2_question_step, answer_type: "file", id: 2),
     ]
   end
-  let(:text_step) { build(:v2_question_page_step, :with_text_settings, id: 3) }
+  let(:text_step) { build(:v2_question_step, :with_text_settings, id: 3) }
 
   let(:file_upload_s3_service_spy) { instance_double(Question::FileUploadS3Service) }
 
@@ -48,25 +48,12 @@ RSpec.describe DeleteSubmissionsJob, type: :job do
     }
   end
 
-  let(:output) { StringIO.new }
-  let(:logger) do
-    ApplicationLogger.new(output).tap do |logger|
-      logger.formatter = JsonLogFormatter.new
-    end
-  end
-
   before do
-    Rails.logger.broadcast_to logger
-
     allow(Question::FileUploadS3Service).to receive(:new).and_return(file_upload_s3_service_spy)
     allow(CloudWatchService).to receive_messages(record_job_started_metric: nil, record_submission_deleted_metric: nil)
 
     job = described_class.perform_later
     @job_id = job.job_id
-  end
-
-  after do
-    Rails.logger.stop_broadcasting_to logger
   end
 
   context "when deleting uploaded files is successful" do
@@ -95,7 +82,7 @@ RSpec.describe DeleteSubmissionsJob, type: :job do
       expect(Submission.exists?(sent_submission_created_29_days_ago.id)).to be true
     end
 
-    it "logs deletion" do
+    it "logs deletion", :capture_logging do
       perform_enqueued_jobs
       expect(log_lines).to include(
         hash_including(
@@ -142,7 +129,7 @@ RSpec.describe DeleteSubmissionsJob, type: :job do
       allow(Sentry).to receive(:capture_exception)
     end
 
-    it "logs at warn level" do
+    it "logs at warn level", :capture_logging do
       perform_enqueued_jobs
       expect(log_lines).to include(hash_including(
                                      "level" => "WARN",
@@ -179,10 +166,6 @@ RSpec.describe DeleteSubmissionsJob, type: :job do
       perform_enqueued_jobs
       expect(CloudWatchService).to have_received(:record_submission_deleted_metric).once.with(:pending)
     end
-  end
-
-  def log_lines
-    output.string.split("\n").map { |line| JSON.parse(line) }
   end
 end
 # rubocop:enable RSpec/InstanceVariable

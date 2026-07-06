@@ -8,33 +8,36 @@ module Flow
   #
   # Journey#completed_steps is an array of the steps that the form filler has
   # visited so far in the form, in the order defined by the form. If their
-  # answer to a question page step causes a routing rule to be applied, for
+  # answer to a question step causes a routing rule to be applied, for
   # instance by skipping over the next two questions, only the questions in the
   # resulting route are included.
   #
   # Note: the completed_steps array is ordered, from start to last step
-  # answered; if the form filler has not yet visited the forms first page the
+  # answered; if the form filler has not yet visited the form's first step, the
   # array will be empty.
 
   class Journey
-    attr_reader :completed_steps
+    include Flow::Errors
 
-    def initialize(answer_store:, form:)
+    attr_reader :completed_steps, :all_steps
+
+    def initialize(answer_store:, form_document:)
       @answer_store = answer_store
-      @form = form
-      @step_factory = StepFactory.new(form:)
+      @form_document = form_document
+      @step_factory = StepFactory.new(form_document:)
+      # generate completed_steps first to load answers only for steps that will be visited taking routing into account
       @completed_steps = generate_completed_steps
+      @all_steps = generate_all_steps
 
       populate_file_suffixes
     end
 
-    def find_or_create(page_slug)
-      step = completed_steps.find { |s| s.id == page_slug }
-      step || @step_factory.create_step(page_slug)
+    def step_by_id(id)
+      @all_steps.find { |s| s.id.to_s == id.to_s } || raise(StepNotFoundError, "Can't find step #{id}")
     end
 
-    def previous_step(page_slug)
-      index = completed_steps.find_index { |step| step.id == page_slug }
+    def previous_step(step_slug)
+      index = completed_steps.find_index { |step| step.id == step_slug }
       return nil if completed_steps.empty? || index&.zero?
 
       return completed_steps.last if index.nil?
@@ -42,24 +45,14 @@ module Flow
       completed_steps[index - 1]
     end
 
-    def next_page_slug
+    def next_step_slug
       return nil if completed_steps.last&.end_page?
 
-      completed_steps.last&.next_page_slug_after_routing || @step_factory.start_step.id
+      completed_steps.last&.next_step_slug_after_routing || @step_factory.start_step.id
     end
 
-    def next_step
-      return nil if completed_steps.last&.end_page?
-
-      find_or_create(completed_steps.last&.next_page_slug_after_routing) || @step_factory.start_step
-    end
-
-    def can_visit?(page_slug)
-      (completed_steps.map(&:id).include? page_slug) || page_slug == next_page_slug
-    end
-
-    def all_steps
-      @form.pages.map { |page| find_or_create(page.id.to_s) }
+    def can_visit?(step_slug)
+      (completed_steps.map(&:id).include? step_slug) || step_slug == next_step_slug
     end
 
     def completed_file_upload_questions
@@ -82,9 +75,9 @@ module Flow
 
   private
 
-    def step_is_completed?(question_page_step)
-      # A step has been completed if it is a question page that has been answered.
-      question_page_step.question.answered?
+    def step_is_completed?(step)
+      # A step has been completed if it is a question that has been answered.
+      step.question.answered?
     end
 
     def generate_completed_steps
@@ -95,7 +88,7 @@ module Flow
 
     def each_step_with_routing
       current_step = @step_factory.create_step(:_start)
-      visited_page_slugs = []
+      visited_step_slugs = []
 
       Enumerator.new do |yielder|
         loop do
@@ -105,17 +98,17 @@ module Flow
           # We need to load the answer into the step for next_page_with_routing to give the correct result.
           current_step = safe_load_from_store(current_step)
 
-          next_page_slug = current_step.next_page_slug_after_routing
+          next_step_slug = current_step.next_step_slug_after_routing
 
           # Prevent infinite loop if a route goes back on itself
-          break if visited_page_slugs.include?(next_page_slug)
+          break if visited_step_slugs.include?(next_step_slug)
 
           yielder << current_step
-          visited_page_slugs << current_step.id
+          visited_step_slugs << current_step.id
 
-          break if next_page_slug.nil?
+          break if next_step_slug.nil?
 
-          current_step = @step_factory.create_step(next_page_slug)
+          current_step = @step_factory.create_step(next_step_slug)
         end
       end
     end
@@ -127,9 +120,18 @@ module Flow
 
       begin
         step.load_from_store(@answer_store)
-      rescue ActiveModel::UnknownAttributeError, ArgumentError
+      rescue Step::StoredAnswerMismatch
         original_step
       end
+    end
+
+    def generate_all_steps
+      @form_document.steps.map { |form_document_step| find_or_create(form_document_step.id.to_s) }
+    end
+
+    def find_or_create(step_slug)
+      step = completed_steps.find { |s| s.id == step_slug }
+      step || @step_factory.create_step(step_slug)
     end
   end
 end

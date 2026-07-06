@@ -1,5 +1,5 @@
 module Forms
-  class RemoveFileController < PageController
+  class RemoveFileController < StepController
     before_action :redirect_if_not_answered_file_question
 
     def show
@@ -21,7 +21,7 @@ module Forms
         return redirect_to redirect_after_delete_path, success: t("banner.success.file_removed")
       end
 
-      redirect_to review_file_path(form_id: @form.id, form_slug: @form.form_slug, page_slug: @step.id, changing_existing_answer:)
+      redirect_to review_file_path(form_id: @form.id, form_slug: @form.form_slug, step_slug: @step.id, changing_existing_answer:)
     end
 
   private
@@ -32,15 +32,15 @@ module Forms
 
     def redirect_after_delete_path
       if changing_existing_answer
-        return form_change_answer_path(form_id: @form.id, form_slug: @form.form_slug, page_slug: @step.id)
+        return form_change_answer_path(form_id: @form.id, form_slug: @form.form_slug, step_slug: @step.id)
       end
 
-      form_page_path(form_id: @form.id, form_slug: @form.form_slug, page_slug: @step.id)
+      form_step_path(form_id: @form.id, form_slug: @form.form_slug, step_slug: @step.id)
     end
 
     def setup_urls
-      @back_link = review_file_path(form_id: @form.id, form_slug: @form.form_slug, page_slug: @step.id, changing_existing_answer:)
-      @remove_file_url = remove_file_path(form_id: @form.id, form_slug: @form.form_slug, page_slug: @step.id, changing_existing_answer:)
+      @back_link = review_file_path(form_id: @form.id, form_slug: @form.form_slug, step_slug: @step.id, changing_existing_answer:)
+      @remove_file_url = remove_file_path(form_id: @form.id, form_slug: @form.form_slug, step_slug: @step.id, changing_existing_answer:)
     end
   end
 end

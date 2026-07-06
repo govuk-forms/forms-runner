@@ -1,7 +1,7 @@
 module Flow
   class QuestionRegister
-    def self.from_page(page)
-      klass = case page.answer_type.to_sym
+    def self.from_form_document_step(form_document_step)
+      klass = case form_document_step.answer_type.to_sym
               when :date
                 Question::Date
               when :address
@@ -25,15 +25,15 @@ module Flow
               when :file
                 Question::File
               else
-                raise ArgumentError, "Unexpected answer_type for page #{page.id}: #{page.answer_type}"
+                raise ArgumentError, "Unexpected answer_type for form_document_step #{form_document_step.id}: #{form_document_step.answer_type}"
               end
-      hint_text = page.respond_to?(:hint_text) ? page.hint_text : nil
-      page_heading = page.respond_to?(:page_heading) ? page.page_heading : nil
-      guidance_markdown = page.respond_to?(:guidance_markdown) ? page.guidance_markdown : nil
-      klass.new({}, { question_text: page.question_text,
+      hint_text = form_document_step.respond_to?(:hint_text) ? form_document_step.hint_text : nil
+      page_heading = form_document_step.respond_to?(:page_heading) ? form_document_step.page_heading : nil
+      guidance_markdown = form_document_step.respond_to?(:guidance_markdown) ? form_document_step.guidance_markdown : nil
+      klass.new({}, { question_text: form_document_step.question_text,
                       hint_text:,
-                      is_optional: page.is_optional,
-                      answer_settings: page.answer_settings,
+                      is_optional: form_document_step.is_optional,
+                      answer_settings: form_document_step.answer_settings,
                       page_heading:,
                       guidance_markdown: })
     end

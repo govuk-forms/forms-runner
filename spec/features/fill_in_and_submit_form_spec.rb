@@ -1,8 +1,8 @@
 require "rails_helper"
 
 feature "Fill in and submit a form", type: :feature do
-  let(:steps) { [build(:v2_question_page_step, :with_text_settings, id: 1, routing_conditions: [], question_text:)] }
-  let(:form) { build :v2_form_document, :live?, form_id: 1, name: "Fill in this form", steps:, start_page: 1 }
+  let(:steps) { [build(:v2_question_step, :with_text_settings, id: 1, routing_conditions: [], question_text:)] }
+  let(:form) { build :v2_form_document, :live, form_id: 1, name: "Fill in this form", steps:, start_page: 1, send_copy_of_answers: "enabled" }
   let(:question_text) { Faker::Lorem.question }
   let(:answer_text) { "Answer text" }
   let(:reference) { Faker::Alphanumeric.alphanumeric(number: 8).upcase }
@@ -23,6 +23,10 @@ feature "Fill in and submit a form", type: :feature do
     then_i_should_see_the_first_question
 
     when_i_fill_in_the_question
+    and_i_click_on_continue
+    then_i_should_see_the_copy_of_answers_page
+
+    when_i_choose_not_to_receive_a_copy
     and_i_click_on_continue
     then_i_should_see_the_check_your_answers_page
 
@@ -48,6 +52,15 @@ feature "Fill in and submit a form", type: :feature do
 
   def and_i_click_on_continue
     click_button "Continue"
+  end
+
+  def then_i_should_see_the_copy_of_answers_page
+    expect(page.find("h1")).to have_text "Do you want to get an email with a copy of your answers?"
+    expect_page_to_have_no_axe_errors(page)
+  end
+
+  def when_i_choose_not_to_receive_a_copy
+    choose "No"
   end
 
   def then_i_should_see_the_check_your_answers_page

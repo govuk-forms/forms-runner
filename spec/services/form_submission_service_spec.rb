@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe FormSubmissionService do
+RSpec.describe FormSubmissionService, :capture_logging do
   include ActiveJob::TestHelper
 
   subject(:service) { described_class.call(current_context:, email_confirmation_input:, mode:) }
@@ -8,10 +8,10 @@ RSpec.describe FormSubmissionService do
   let(:mode) { Mode.new }
   let(:confirmation_email_address) { "testing@gov.uk" }
   let(:email_confirmation_input) { build :email_confirmation_input_opted_in, confirmation_email_address: }
-  let(:form) { build(:form, **document_json, document_json:) }
-  let(:welsh_form) { build(:form, **welsh_document_json, document_json: welsh_document_json) }
+  let(:form) { Form.new(form_document) }
+  let(:welsh_form) { Form.new(welsh_form_document) }
 
-  let(:document_json) do
+  let(:form_document) do
     build(
       :v2_form_document,
       form_id: 1,
@@ -26,13 +26,32 @@ RSpec.describe FormSubmissionService do
       submission_type:,
       submission_format:,
       steps:,
-      language:,
-    ).as_json
+      language: "en",
+    )
   end
+  let(:document_json) { form_document.as_json }
 
-  let(:welsh_document_json) { document_json.merge("language" => "cy", "name" => "Welsh Form 1") }
+  let(:welsh_form_document) do
+    build(
+      :v2_form_document,
+      form_id: 1,
+      name: "Welsh Form 1",
+      what_happens_next_markdown:,
+      support_email:,
+      support_phone:,
+      support_url:,
+      support_url_text:,
+      submission_email:,
+      payment_url:,
+      submission_type:,
+      submission_format:,
+      steps:,
+      language: "cy",
+    )
+  end
+  let(:welsh_document_json) { welsh_form_document.as_json }
 
-  let(:steps) { [build(:v2_question_page_step, id: 2, answer_type: "text")] }
+  let(:steps) { [build(:v2_question_step, id: 2, answer_type: "text")] }
   let(:submission_type) { "email" }
   let(:submission_format) { [] }
   let(:what_happens_next_markdown) { "We usually respond to applications within 10 working days." }
@@ -42,7 +61,6 @@ RSpec.describe FormSubmissionService do
   let(:support_url_text) { Faker::Lorem.sentence(word_count: 1, random_words_to_add: 4) }
   let(:payment_url) { nil }
   let(:submission_email) { "testing@gov.uk" }
-  let(:language) { "en" }
 
   let(:reference) { Faker::Alphanumeric.alphanumeric(number: 8).upcase }
 
@@ -60,23 +78,18 @@ RSpec.describe FormSubmissionService do
     }
   end
   let(:locales_used) { [:en] }
-  let(:current_context) { instance_double(Flow::Context, form:, journey:, completed_steps: all_steps, answers:, locales_used:) }
-
-  let(:output) { StringIO.new }
-  let(:logger) do
-    ApplicationLogger.new(output).tap do |logger|
-      logger.formatter = JsonLogFormatter.new
-    end
+  let(:wants_copy_of_answers) { false }
+  let(:copy_of_answers_email_address) { nil }
+  let(:will_send_copy_of_answers) { wants_copy_of_answers && copy_of_answers_email_address.present? }
+  let(:current_context) do
+    instance_double(Flow::Context, form:, journey:, completed_steps: all_steps, answers:, locales_used:,
+                                   wants_copy_of_answers?: wants_copy_of_answers,
+                                   get_copy_of_answers_email_address: copy_of_answers_email_address,
+                                   will_send_copy_of_answers?: will_send_copy_of_answers)
   end
 
   before do
-    Rails.logger.broadcast_to logger
-
     allow(ReferenceNumberService).to receive(:generate).and_return(reference)
-  end
-
-  after do
-    Rails.logger.stop_broadcasting_to logger
   end
 
   describe "#submit" do
@@ -86,7 +99,7 @@ RSpec.describe FormSubmissionService do
 
     it "includes the submission reference in the logging context" do
       service.submit
-      expect(log_lines[0]["submission_reference"]).to eq(reference)
+      expect(log_line["submission_reference"]).to eq(reference)
     end
 
     shared_examples "logging" do
@@ -118,7 +131,7 @@ RSpec.describe FormSubmissionService do
             expect {
               service.submit
             }.to change(Submission, :count).by(1)
-             .and change(Delivery, :count).by(1)
+                                           .and change(Delivery, :count).by(1)
 
             expect(Submission.last).to have_attributes(reference:, form_id: form.id, answers: answers.deep_stringify_keys,
                                                        mode: "form", form_document: document_json,
@@ -183,10 +196,14 @@ RSpec.describe FormSubmissionService do
           expect {
             service.submit
           }.to change(Submission, :count).by(1)
-           .and change(Delivery, :count).by(1)
+                                         .and change(Delivery, :count).by(1)
 
-          expect(Submission.last).to have_attributes(reference:, form_id: form.id, answers: answers.deep_stringify_keys,
-                                                     mode: "form", form_document: document_json,
+          expect(Submission.last).to have_attributes(reference:,
+                                                     form_id: form.id,
+                                                     answers: answers.deep_stringify_keys,
+                                                     mode: "form",
+                                                     form_document: document_json,
+                                                     welsh_form_document: nil,
                                                      submission_locale: "en")
         end
 
@@ -278,11 +295,36 @@ RSpec.describe FormSubmissionService do
         end
       end
 
+      context "when Welsh has been used to complete the form" do
+        let(:locales_used) { %i[en cy] }
+
+        before do
+          ActiveResource::HttpMock.respond_to do |mock|
+            mock.get "/api/v2/forms/1/live?language=cy", {}, welsh_form_document.to_json, 200
+          end
+        end
+
+        it "fetches the Welsh form" do
+          service.submit
+          expect(ActiveResource::HttpMock.requests).to include ActiveResource::Request.new(:get, "/api/v2/forms/1/live?language=cy")
+        end
+
+        it "saves the submission data including the Welsh version of the form" do
+          expect {
+            service.submit
+          }.to change(Submission, :count).by(1)
+
+          expect(Submission.last.form_document["language"]).to eq("en")
+          expect(Submission.last.form_document["name"]).to eq("Form 1")
+          expect(Submission.last.welsh_form_document["language"]).to eq("cy")
+          expect(Submission.last.welsh_form_document["name"]).to eq("Welsh Form 1")
+        end
+      end
+
       context "when form is not in english" do
         let(:submission_type) { "email" }
         let(:submission_format) { [] }
-
-        let(:current_context) { instance_double(Flow::Context, form: welsh_form, journey:, completed_steps: all_steps, answers:, locales_used:) }
+        let(:form) { welsh_form }
 
         before do
           ActiveResource::HttpMock.respond_to do |mock|
@@ -300,64 +342,122 @@ RSpec.describe FormSubmissionService do
             service.submit
           }.to change(Submission, :count).by(1)
 
-          # expect(Submission.last).to have_attributes(form_id: form.id, answers: answers.deep_stringify_keys, form_document: document_json)
           expect(Submission.last.form_document["language"]).to eq("en")
           expect(Submission.last.form_document["name"]).to eq("Form 1")
+        end
+
+        context "when Welsh has been used to complete the form" do
+          let(:locales_used) { %i[en cy] }
+
+          it "saves the original Welsh version of the form on the submission" do
+            expect {
+              service.submit
+            }.to change(Submission, :count).by(1)
+
+            expect(Submission.last.welsh_form_document["language"]).to eq("cy")
+            expect(Submission.last.welsh_form_document["name"]).to eq("Welsh Form 1")
+          end
         end
       end
     end
 
     describe "sending the confirmation email to the user" do
-      it "calls FormSubmissionConfirmationMailer" do
-        freeze_time do
-          allow(FormSubmissionConfirmationMailer).to receive(:send_confirmation_email).and_call_original
-          service.submit
-          expect(FormSubmissionConfirmationMailer).to have_received(:send_confirmation_email).with(
-            { what_happens_next_markdown: form.what_happens_next_markdown,
-              support_contact_details: form.support_details,
-              notify_response_id: email_confirmation_input.confirmation_email_reference,
-              confirmation_email_address: email_confirmation_input.confirmation_email_address,
-              mailer_options: instance_of(FormSubmissionService::MailerOptions) },
-          ).once
-        end
-      end
-
-      context "when the to email address is rejected by ActionMailer" do
-        let(:confirmation_email_address) { "rejected-email@gov.uk\n" }
-
-        it "raises a ConfirmationEmailToAddressError" do
-          expect {
+      context "when the user has not asked for a copy of their answers" do
+        it "enqueues a job to send the confirmation email without a copy of the answers" do
+          assert_enqueued_with(job: SendConfirmationEmailJob) do
             service.submit
-          }.to raise_error(FormSubmissionService::ConfirmationEmailToAddressError)
+          end
+
+          args = enqueued_jobs.last["arguments"].first
+
+          expect(args).to include(
+            "submission" => hash_including("_aj_globalid"),
+            "notify_response_id" => email_confirmation_input.confirmation_email_reference,
+            "confirmation_email_address" => confirmation_email_address,
+            "include_copy_of_answers" => false,
+          )
         end
 
-        it "sends an error to Sentry" do
-          expect(Sentry).to receive(:capture_message).with("ActionMailer error for To email address in confirmation email", {
-            extra: {
-              action_mailer_error: /Mail::AddressList can not parse |r\*\*\*\*\*\*\*-e\*\*\*\*(at)g\*\*.u\*\n|: Only able to parse up to "r\*\*\*\*\*\*\*-e\*\*\*\*@g\*\*.u\*\\/,
-            },
-          })
-          service.submit
-        rescue FormSubmissionService::ConfirmationEmailToAddressError
-          nil
+        context "when the confirmation email job fails to enqueue" do
+          let(:enqueue_error) { nil }
+
+          before do
+            allow(SendConfirmationEmailJob).to receive(:perform_later).and_yield(instance_double(SendConfirmationEmailJob, successfully_enqueued?: false, enqueue_error:))
+          end
+
+          context "and there is no enqueue error" do
+            it "raises an error" do
+              expect { service.submit }.to change(Submission, :count).by(1).and raise_error(StandardError, "Failed to enqueue confirmation email for reference #{reference}")
+            end
+          end
+
+          context "and there is an enqueue error" do
+            let(:enqueue_error) { ActiveJob::EnqueueError.new("An error occurred enqueueing job") }
+
+            it "raises an error" do
+              expect { service.submit }.to change(Submission, :count).by(1).and raise_error(StandardError, "Failed to enqueue confirmation email for reference #{reference}: An error occurred enqueueing job")
+            end
+          end
         end
 
-        it "does not queue sending the submission email" do
-          assert_no_enqueued_jobs do
+        context "when the to email address is rejected by ActionMailer" do
+          let(:confirmation_email_address) { "rejected-email@gov.uk\n" }
+
+          it "raises a ConfirmationEmailToAddressError" do
+            expect {
+              service.submit
+            }.to raise_error(FormSubmissionService::ConfirmationEmailToAddressError)
+          end
+
+          it "sends an error to Sentry" do
+            expect(Sentry).to receive(:capture_message).with("ActionMailer error for To email address in confirmation email", {
+              extra: {
+                action_mailer_error: /Mail::AddressList can not parse |r\*\*\*\*\*\*\*-e\*\*\*\*(at)g\*\*.u\*\n|: Only able to parse up to "r\*\*\*\*\*\*\*-e\*\*\*\*@g\*\*.u\*\\/,
+              },
+            })
             service.submit
           rescue FormSubmissionService::ConfirmationEmailToAddressError
             nil
           end
+
+          it "does not queue sending the submission email" do
+            assert_no_enqueued_jobs do
+              service.submit
+            rescue FormSubmissionService::ConfirmationEmailToAddressError
+              nil
+            end
+          end
+        end
+
+        context "when user does not want a confirmation email" do
+          let(:email_confirmation_input) { build :email_confirmation_input }
+
+          it "does not call FormSubmissionConfirmationMailer" do
+            allow(FormSubmissionConfirmationMailer).to receive(:send_confirmation_email)
+            service.submit
+            expect(FormSubmissionConfirmationMailer).not_to have_received(:send_confirmation_email)
+          end
         end
       end
 
-      context "when user does not want a confirmation email" do
+      context "when the user has asked for a copy of their answers" do
+        let(:wants_copy_of_answers) { true }
+        let(:copy_of_answers_email_address) { "copy-of-answers@example.com" }
         let(:email_confirmation_input) { build :email_confirmation_input }
 
-        it "does not call FormSubmissionConfirmationMailer" do
-          allow(FormSubmissionConfirmationMailer).to receive(:send_confirmation_email)
-          service.submit
-          expect(FormSubmissionConfirmationMailer).not_to have_received(:send_confirmation_email)
+        it "enqueues a job to send the confirmation email to the copy of answers email with a copy of the answers" do
+          assert_enqueued_with(job: SendConfirmationEmailJob) do
+            service.submit
+          end
+
+          args = enqueued_jobs.last["arguments"].first
+
+          expect(args).to include(
+            "submission" => hash_including("_aj_globalid"),
+            "notify_response_id" => email_confirmation_input.confirmation_email_reference,
+            "confirmation_email_address" => copy_of_answers_email_address,
+            "include_copy_of_answers" => true,
+          )
         end
       end
     end
@@ -387,9 +487,5 @@ RSpec.describe FormSubmissionService do
         expect(service.submission_locale).to eq(:en)
       end
     end
-  end
-
-  def log_lines
-    output.string.split("\n").map { |line| JSON.parse(line) }
   end
 end

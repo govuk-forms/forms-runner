@@ -12,7 +12,7 @@ describe "forms/archived/show.html.erb" do
   end
 
   it "has the correct title" do
-    expect(view.content_for(:title)).to eq "Form archived - Archived form"
+    expect(view.content_for(:title)).to eq "Sorry, this service is no longer available - Archived form"
   end
 
   it "has the correct heading" do

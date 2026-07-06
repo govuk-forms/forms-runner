@@ -15,7 +15,7 @@ FactoryBot.define do
       }
     end
     mode { is_preview ? "preview-live" : "form" }
-    form_document { build :v2_form_document, form_id: }
+    form_document { build :v2_form_document, :with_steps, form_id: }
     submission_locale { :en }
 
     transient do

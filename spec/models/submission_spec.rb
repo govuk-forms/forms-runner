@@ -2,53 +2,152 @@ require "rails_helper"
 
 RSpec.describe Submission, type: :model do
   describe "scopes" do
-    describe ".for_daily_batch" do
-      context "when the date is during BST" do
-        let(:form_id) { 101 }
-        let!(:start_of_day_submission) { create(:submission, form_id:, created_at: Time.utc(2022, 5, 31, 23, 0, 0), mode:) }
-        let!(:end_of_day_submission) { create(:submission, form_id:, created_at: Time.utc(2022, 6, 1, 22, 59, 59), mode:) }
-        let(:mode) { "form" }
+    describe ".for_form_and_mode" do
+      let(:form_id) { 101 }
+      let!(:form_and_mode_submission) { create(:submission, form_id:, mode: "form") }
+
+      before do
+        create(:submission, form_id: 5, mode: "form")
+        create(:submission, form_id:, mode: "preview-live")
+      end
+
+      it "returns only submissions for the given form and mode" do
+        submissions = described_class.for_form_and_mode(form_id, "form")
+        expect(submissions.size).to eq(1)
+        expect(submissions).to contain_exactly(form_and_mode_submission)
+      end
+    end
+
+    describe ".on_day" do
+      context "when the date is around the start of BST" do
+        # London local date 2025-03-29 => UTC 2025-03-29 00:00:00..2025-03-29 23:59:59
+        let!(:start_of_gmt_day_submission) { create(:submission, created_at: Time.utc(2025, 3, 29, 0, 0, 0)) }
+        let!(:end_of_gmt_day_submission) { create(:submission, created_at: Time.utc(2025, 3, 29, 23, 59, 59)) }
+
+        # London local date 2025-03-30 => UTC 2025-03-30 00:00:00..2025-03-30 22:59:59
+        let!(:start_of_change_day_submission) { create(:submission, created_at: Time.utc(2025, 3, 30, 0, 0, 0)) }
+        let!(:end_of_change_day_submission) { create(:submission, created_at: Time.utc(2025, 3, 30, 22, 59, 59)) }
+
+        # London local date 2025-03-31 => UTC 2025-03-30 23:00:00..2025-03-31 22:59:59
+        let!(:start_of_bst_day_submission) { create(:submission, created_at: Time.utc(2025, 3, 30, 23, 0, 0)) }
+        let!(:end_of_bst_day_submission) { create(:submission, created_at: Time.utc(2025, 3, 31, 22, 59, 59)) }
         let(:date) { Date.new(2022, 6, 1) }
 
-        before do
-          create(:submission, form_id: 5, created_at: Time.utc(2022, 6, 1, 12, 0, 0), mode:)
-          create(:submission, form_id:, created_at: Time.utc(2022, 5, 31, 22, 59, 59), mode:)
-          create(:submission, form_id:, created_at: Time.utc(2022, 6, 1, 23, 0, 0), mode:)
-          create(:submission, form_id:, created_at: Time.utc(2022, 6, 2, 12, 0, 0), mode: "preview-live")
+        it "returns submissions on the day before the clocks change" do
+          submissions = described_class.on_day(Date.new(2025, 3, 29))
+          expect(submissions.size).to eq(2)
+          expect(submissions).to contain_exactly(start_of_gmt_day_submission, end_of_gmt_day_submission)
         end
 
-        it "returns only submissions for the given form, date and mode" do
-          submissions = described_class.for_daily_batch(form_id, date, mode)
+        it "returns submissions on the day of the clocks change" do
+          submissions = described_class.on_day(Date.new(2025, 3, 30))
           expect(submissions.size).to eq(2)
-          expect(submissions).to contain_exactly(start_of_day_submission, end_of_day_submission)
+          expect(submissions).to contain_exactly(start_of_change_day_submission, end_of_change_day_submission)
+        end
+
+        it "returns submissions on the day after the clocks change" do
+          submissions = described_class.on_day(Date.new(2025, 3, 31))
+          expect(submissions.size).to eq(2)
+          expect(submissions).to contain_exactly(start_of_bst_day_submission, end_of_bst_day_submission)
         end
       end
 
-      context "when the date is not during BST" do
-        let(:form_id) { 101 }
-        let!(:start_of_day_submission) { create(:submission, form_id:, created_at: Time.utc(2022, 12, 1, 0, 0, 0), mode:) }
-        let!(:end_of_day_submission) { create(:submission, form_id:, created_at: Time.utc(2022, 12, 1, 23, 59, 59), mode:) }
-        let(:mode) { "form" }
-        let(:date) { Date.new(2022, 12, 1) }
+      context "when the date is around the end of BST" do
+        # London local date 2025-10-25 => UTC 2025-10-24 23:00:00..2025-10-25 22:59:59
+        let!(:start_of_bst_day_submission) { create(:submission, created_at: Time.utc(2025, 10, 24, 23, 0, 0)) }
+        let!(:end_of_bst_day_submission) { create(:submission, created_at: Time.utc(2025, 10, 25, 22, 59, 59)) }
 
-        before do
-          create(:submission, form_id: 5, created_at: Time.utc(2022, 12, 1, 12, 0, 0), mode:)
-          create(:submission, form_id:, created_at: Time.utc(2022, 11, 30, 23, 59, 59), mode:)
-          create(:submission, form_id:, created_at: Time.utc(2022, 12, 2, 0, 0, 0), mode:)
-          create(:submission, form_id:, created_at: Time.utc(2022, 12, 1, 12, 0, 0), mode: "preview-live")
+        # London local date 2025-10-26 => UTC 2025-10-25 23:00:00..2025-10-26 23:59:59
+        let!(:start_of_change_day_submission) { create(:submission, created_at: Time.utc(2025, 10, 25, 23, 0, 0)) }
+        let!(:end_of_change_day_submission) { create(:submission, created_at: Time.utc(2025, 10, 26, 23, 59, 59)) }
+
+        # London local date 2025-10-27 => UTC 2025-10-27 00:00:00..2025-10-27 23:59:59
+        let!(:start_of_gmt_day_submission) { create(:submission, created_at: Time.utc(2025, 10, 27, 0, 0, 0)) }
+        let!(:end_of_gmt_day_submission) { create(:submission, created_at: Time.utc(2025, 10, 27, 23, 59, 59)) }
+
+        it "returns submissions on the day before the clocks change" do
+          submissions = described_class.on_day(Date.new(2025, 10, 25))
+          expect(submissions.size).to eq(2)
+          expect(submissions).to contain_exactly(start_of_bst_day_submission, end_of_bst_day_submission)
         end
 
-        it "returns only submissions for the given form, date and mode" do
-          submissions = described_class.for_daily_batch(form_id, date, mode)
+        it "returns submissions on the day of the clocks change" do
+          submissions = described_class.on_day(Date.new(2025, 10, 26))
           expect(submissions.size).to eq(2)
-          expect(submissions).to contain_exactly(start_of_day_submission, end_of_day_submission)
+          expect(submissions).to contain_exactly(start_of_change_day_submission, end_of_change_day_submission)
+        end
+
+        it "returns submissions on the day after the clocks change" do
+          submissions = described_class.on_day(Date.new(2025, 10, 27))
+          expect(submissions.size).to eq(2)
+          expect(submissions).to contain_exactly(start_of_gmt_day_submission, end_of_gmt_day_submission)
+        end
+      end
+    end
+
+    describe ".in_week" do
+      context "when the date is around the start of BST" do
+        let!(:gmt_monday_submission) { create(:submission, created_at: Time.utc(2025, 3, 17, 0, 0, 0)) }
+        let!(:gmt_sunday_submission) { create(:submission, created_at: Time.utc(2025, 3, 23, 23, 59, 59)) }
+
+        let!(:clock_change_week_monday_submission) { create(:submission, created_at: Time.utc(2025, 3, 24, 0, 0, 0)) }
+        let!(:clock_change_week_sunday_submission) { create(:submission, created_at: Time.utc(2025, 3, 30, 22, 59, 59)) }
+
+        let!(:bst_monday_submission) { create(:submission, created_at: Time.utc(2025, 3, 30, 23, 0, 0)) }
+        let!(:bst_sunday_submission) { create(:submission, created_at: Time.utc(2025, 4, 6, 22, 59, 59)) }
+
+        it "returns the submissions for the week before the clocks change" do
+          submissions = described_class.in_week(Time.utc(2025, 3, 17, 0, 0, 0))
+          expect(submissions.size).to eq(2)
+          expect(submissions).to contain_exactly(gmt_monday_submission, gmt_sunday_submission)
+        end
+
+        it "returns the submissions for the week of the clocks change" do
+          submissions = described_class.in_week(Time.utc(2025, 3, 24, 0, 0, 0))
+          expect(submissions.size).to eq(2)
+          expect(submissions).to contain_exactly(clock_change_week_monday_submission, clock_change_week_sunday_submission)
+        end
+
+        it "returns the submissions for the week after the clocks change" do
+          submissions = described_class.in_week(Time.utc(2025, 3, 30, 23, 0, 0))
+          expect(submissions.size).to eq(2)
+          expect(submissions).to contain_exactly(bst_monday_submission, bst_sunday_submission)
+        end
+      end
+
+      context "when the date is around the end of BST" do
+        let!(:bst_monday_submission) { create(:submission, created_at: Time.utc(2025, 10, 12, 23, 0, 0)) }
+        let!(:bst_sunday_submission) { create(:submission, created_at: Time.utc(2025, 10, 19, 22, 59, 59)) }
+
+        let!(:clock_change_week_monday_submission) { create(:submission, created_at: Time.utc(2025, 10, 19, 23, 0, 0)) }
+        let!(:clock_change_week_sunday_submission) { create(:submission, created_at: Time.utc(2025, 10, 26, 23, 59, 59)) }
+
+        let!(:gmt_monday_submission) { create(:submission, created_at: Time.utc(2025, 10, 27, 0, 0, 0)) }
+        let!(:gmt_sunday_submission) { create(:submission, created_at: Time.utc(2025, 11, 2, 23, 59, 59)) }
+
+        it "returns the submissions for the week before the clocks change" do
+          submissions = described_class.in_week(Time.utc(2025, 10, 13, 23, 0, 0))
+          expect(submissions.size).to eq(2)
+          expect(submissions).to contain_exactly(bst_monday_submission, bst_sunday_submission)
+        end
+
+        it "returns the submissions for the week of the clocks change" do
+          submissions = described_class.in_week(Time.utc(2025, 10, 20, 23, 0, 0))
+          expect(submissions.size).to eq(2)
+          expect(submissions).to contain_exactly(clock_change_week_monday_submission, clock_change_week_sunday_submission)
+        end
+
+        it "returns the submissions for the week after the clocks change" do
+          submissions = described_class.in_week(Time.utc(2025, 10, 27, 0, 0, 0))
+          expect(submissions.size).to eq(2)
+          expect(submissions).to contain_exactly(gmt_monday_submission, gmt_sunday_submission)
         end
       end
     end
 
     describe ".ordered_by_form_version_and_date" do
-      let(:first_form_version) { create :v2_form_document, updated_at: Time.utc(2022, 6, 1, 12, 0, 0) }
-      let(:second_form_version) { create :v2_form_document, updated_at: Time.utc(2022, 12, 1, 12, 0, 0) }
+      let(:first_form_version) { build :v2_form_document, updated_at: Time.utc(2022, 6, 1, 12, 0, 0) }
+      let(:second_form_version) { build :v2_form_document, updated_at: Time.utc(2022, 12, 1, 12, 0, 0) }
 
       before do
         create :submission, form_document: second_form_version, created_at: Time.utc(2022, 12, 1, 21, 0, 0), reference: "fourth_submission"
@@ -59,6 +158,42 @@ RSpec.describe Submission, type: :model do
 
       it "returns the submissions in order" do
         expect(described_class.all.ordered_by_form_version_and_date.pluck(:reference)).to eq(%w[first_submission third_submission second_submission fourth_submission])
+      end
+    end
+  end
+
+  describe "answer content methods" do
+    subject(:submission) { create(:submission, form_document:, welsh_form_document:, answers:) }
+
+    let(:form_document) do
+      build(:v2_form_document,
+            steps: [
+              build(:v2_question_step, :with_text_settings, question_text: "What is your favourite colour?", id: "q1", next_step_id: "q2"),
+              build(:v2_question_step, :with_name_settings, question_text: "What is your name?", id: "q2"),
+            ],
+            start_page: "q1")
+    end
+    let(:welsh_form_document) do
+      build(:v2_form_document,
+            steps: [
+              build(:v2_question_step, :with_text_settings, question_text: "Beth yw eich hoff liw?", id: "q1", next_step_id: "q2"),
+              build(:v2_question_step, :with_name_settings, question_text: "Beth yw dy enw?", id: "q2"),
+            ],
+            start_page: "q1")
+    end
+    let(:answers) { { "q1" => { text: "blue" }, "q2" => { first_name: "Jane", last_name: "Doe" } } }
+
+    describe "#answer_content_for_email_markdown" do
+      it "uses the English form document to construct the markdown by default" do
+        result = submission.answer_content_for_email_markdown(heading_level: 4)
+
+        expect(result).to include("What is your favourite colour?")
+      end
+
+      it "uses the Welsh form document to construct the markdown when the locale is :cy" do
+        result = submission.answer_content_for_email_markdown(heading_level: 4, locale: :cy)
+
+        expect(result).to include("Beth yw eich hoff liw?")
       end
     end
   end

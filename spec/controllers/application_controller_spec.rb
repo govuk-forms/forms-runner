@@ -30,26 +30,18 @@ RSpec.describe ApplicationController do
     expect(response).to have_http_status :internal_server_error
   end
 
-  describe "adding exception to logging context" do
-    let(:output) { StringIO.new }
-    let(:logger) { ActiveSupport::Logger.new(output) }
-
-    before do
-      # Intercept the request logs so we can do assertions on them
-      allow(Lograge).to receive(:logger).and_return(logger)
-    end
-
+  describe "adding exception to logging context", :capture_logging do
     it "adds rescued exception to logging context" do
       get :raise_error
 
-      expect(log_lines[0]["rescued_exception"]).to eq(["RuntimeError", "oh no\nwhat happened"])
+      expect(log_lines.last["rescued_exception"]).to eq(["RuntimeError", "oh no\nwhat happened"])
     end
 
     it "adds exception trace to logging context" do
       get :raise_error
 
-      expect(log_lines[0].keys).to include("rescued_exception_trace")
-      expect(log_lines[0]["rescued_exception_trace"]).to include(
+      expect(log_lines.last.keys).to include("rescued_exception_trace")
+      expect(log_lines.last["rescued_exception_trace"]).to include(
         "spec/controllers/application_controller_spec.rb:11:in 'raise_error'",
       )
     end
@@ -57,44 +49,29 @@ RSpec.describe ApplicationController do
     it "adds exception causes to logging context" do
       get :raise_error_with_cause
 
-      expect(log_lines[0].keys).to include("rescued_exception_trace")
-      expect(log_lines[0]["rescued_exception_trace"]).to include(
+      expect(log_lines.last.keys).to include("rescued_exception_trace")
+      expect(log_lines.last["rescued_exception_trace"]).to include(
         "\nCauses:",
         "RuntimeError (inner error)",
       )
     end
   end
 
-  describe "logging exception" do
-    let(:output) { StringIO.new }
-    let(:logger) do
-      ApplicationLogger.new(output).tap do |logger|
-        logger.formatter = JsonLogFormatter.new
-      end
-    end
-
-    before do
-      Rails.logger.broadcast_to logger
-    end
-
-    after do
-      Rails.logger.stop_broadcasting_to logger
-    end
-
+  describe "logging exception", :capture_logging do
     it "logs rescued exceptions as warnings" do
       get :raise_error
 
-      expect(output.string.lines.first)
-        .to include('"level":"WARN"')
-              .and include('Rescued exception:\n  \nRuntimeError (oh no\nwhat happened)')
+      expect(log_line)
+        .to include("level" => "WARN",
+                    "message" => a_string_including("Rescued exception:\n  \nRuntimeError (oh no\nwhat happened)"))
     end
 
     it "logs causes of rescued exceptions" do
       get :raise_error_with_cause
 
-      expect(output.string.lines.first)
-        .to include('"level":"WARN"')
-              .and include('RuntimeError (outer error):\n\nCauses:\nRuntimeError (inner error)')
+      expect(log_line)
+        .to include("level" => "WARN",
+                    "message" => a_string_including("RuntimeError (outer error):\n\nCauses:\nRuntimeError (inner error)"))
     end
   end
 
@@ -108,9 +85,5 @@ RSpec.describe ApplicationController do
 
       expect(Sentry).to have_received(:capture_exception)
     end
-  end
-
-  def log_lines
-    output.string.split("\n").map { |line| JSON.parse(line) }
   end
 end

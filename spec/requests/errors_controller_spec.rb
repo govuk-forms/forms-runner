@@ -45,7 +45,7 @@ RSpec.describe ErrorsController, type: :request do
         submission_email: "submission@email.com",
         start_page: 1,
         steps: [
-          build(:v2_question_page_step, id: 1, answer_type: "text", answer_settings: { input_type: "single_line" }),
+          build(:v2_question_step, id: 1, answer_type: "text", answer_settings: { input_type: "single_line" }),
         ],
       )
     end
@@ -58,8 +58,8 @@ RSpec.describe ErrorsController, type: :request do
       end
 
       # setup the context in the session
-      get form_page_path(mode: "form", form_id: 2, form_slug: "form-name", page_slug: 1)
-      post save_form_page_path(mode: "form", form_id: 2, form_slug: "form-name", page_slug: 1, question: { text: "test" })
+      get form_step_path(mode: "form", form_id: 2, form_slug: "form-name", step_slug: 1)
+      post save_form_step_path(mode: "form", form_id: 2, form_slug: "form-name", step_slug: 1, question: { text: "test" })
 
       allow(FormSubmissionService).to receive(:call).and_wrap_original do |original_method, **args|
         form_submission_service = original_method.call(**args)

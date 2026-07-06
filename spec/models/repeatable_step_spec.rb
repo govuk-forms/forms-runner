@@ -1,10 +1,10 @@
 require "rails_helper"
 
 RSpec.describe RepeatableStep, type: :model do
-  subject(:repeatable_step) { described_class.new(question:, page:) }
+  subject(:repeatable_step) { described_class.new(question:, form_document_step:) }
 
-  let(:form) { build :form, id: 1, form_slug: "form-slug", pages: [page, build(:page, id: 2)] }
-  let(:page) { build :page }
+  let(:form) { build :form, form_slug: "form-slug", steps: [form_document_step, build(:v2_question_step, id: 2)] }
+  let(:form_document_step) { build :v2_question_step }
   let(:question) { build :name, is_optional: false }
   let(:submission_reference) { "abc123" }
 
@@ -27,9 +27,9 @@ RSpec.describe RepeatableStep, type: :model do
     let(:answer_store) { instance_double(Store::SessionAnswerStore) }
 
     context "when form context contains a non-array questions attribute" do
-      it "raises an argument error" do
+      it "raises an error" do
         allow(answer_store).to receive(:get_stored_answer).with(repeatable_step).and_return("a string")
-        expect { repeatable_step.load_from_store(answer_store) }.to raise_error(ArgumentError)
+        expect { repeatable_step.load_from_store(answer_store) }.to raise_error(Step::StoredAnswerMismatch)
       end
     end
 
@@ -158,25 +158,6 @@ RSpec.describe RepeatableStep, type: :model do
   end
 
   describe "#show_answer_in_csv" do
-    let(:first_question) { build :first_middle_last_name_question, question_text: "What is your name?" }
-    let(:second_question) { build :first_middle_last_name_question, question_text: "What is your name?" }
-
-    context "when the question has multiple attributes" do
-      before do
-        repeatable_step.questions = [first_question, second_question]
-      end
-
-      it "returns a hash of all answers with keys containing the answer numbers" do
-        # we convert to an array to test the ordering of the hash
-        expect(repeatable_step.show_answer_in_csv(submission_reference:, is_s3_submission: false).to_a).to eq({
-          "What is your name? - First name - Answer 1" => first_question.first_name,
-          "What is your name? - Last name - Answer 1" => first_question.last_name,
-          "What is your name? - First name - Answer 2" => second_question.first_name,
-          "What is your name? - Last name - Answer 2" => second_question.last_name,
-        }.to_a)
-      end
-    end
-
     context "when the question has a single attribute" do
       let(:first_question) { build :text, :with_answer, question_text: "What is the meaning of life?" }
       let(:second_question) { build :text, :with_answer, question_text: "What is the meaning of life?" }
@@ -185,12 +166,60 @@ RSpec.describe RepeatableStep, type: :model do
         repeatable_step.questions = [first_question, second_question]
       end
 
-      it "returns a hash of all answers with keys containing the answer numbers" do
+      it "returns a hash with a single pair containing all answers separated by newlines" do
+        show_answer_in_csv = repeatable_step.show_answer_in_csv(submission_reference:, is_s3_submission: false)
+        expect(show_answer_in_csv).to eq({
+          "What is the meaning of life?" => "Answer: #{first_question.text}\nAnswer: #{second_question.text}",
+        })
+      end
+    end
+
+    context "when the question has multiple attributes" do
+      let(:first_question) { build :first_and_last_name_question, question_text: "What is your name?" }
+      let(:second_question) { build :first_and_last_name_question, question_text: "What is your name?" }
+
+      before do
+        repeatable_step.questions = [first_question, second_question]
+      end
+
+      it "returns a hash with a key for each attribute and values containing all answers separated by newlines" do
+        show_answer_in_csv = repeatable_step.show_answer_in_csv(submission_reference:, is_s3_submission: false)
         # we convert to an array to test the ordering of the hash
-        expect(repeatable_step.show_answer_in_csv(submission_reference:, is_s3_submission: false).to_a).to eq({
-          "What is the meaning of life? - Answer 1" => first_question.text,
-          "What is the meaning of life? - Answer 2" => second_question.text,
+        expect(show_answer_in_csv.to_a).to eq({
+          "What is your name? - First name" => "Answer: #{first_question.first_name}\nAnswer: #{second_question.first_name}",
+          "What is your name? - Last name" => "Answer: #{first_question.last_name}\nAnswer: #{second_question.last_name}",
         }.to_a)
+      end
+
+      context "when one of the attributes is optional and has not been answered in one answer" do
+        let(:first_question) { build :first_middle_last_name_question, question_text: "What is your name?", first_name: "Gabriel", middle_names: "", last_name: "Garciá Márquez" }
+        let(:second_question) { build :first_middle_last_name_question, question_text: "What is your name?", first_name: "Prince", middle_names: "Rogers", last_name: "Nelson" }
+
+        it "includes a blank answer line for the missing answer" do
+          show_answer_in_csv = repeatable_step.show_answer_in_csv(submission_reference:, is_s3_submission: false)
+          # we convert to an array to test the ordering of the hash
+          expect(show_answer_in_csv.to_a).to eq({
+            "What is your name? - First name" => "Answer: Gabriel\nAnswer: Prince",
+            "What is your name? - Middle names" => "Answer: \nAnswer: Rogers",
+            "What is your name? - Last name" => "Answer: Garciá Márquez\nAnswer: Nelson",
+          }.to_a)
+        end
+      end
+    end
+
+    context "when the answer can contain newlines" do
+      let(:first_question) { build :text, :with_long_text, question_text: "What is your text?", text: "Lorem ipsum\n\nDolor sit amet\nconsectetur adipiscing elit." }
+      let(:second_question) { build :text, :with_long_text, question_text: "What is your text?", text: "Donec ac fingilla nisi\nIn tempor quam.\n" }
+
+      before do
+        repeatable_step.questions = [first_question, second_question]
+      end
+
+      it "returns a hash with values containing all answers separated by a single newline" do
+        show_answer_in_csv = repeatable_step.show_answer_in_csv(submission_reference:, is_s3_submission: false)
+        expect(show_answer_in_csv).to eq({
+          "What is your text?" => "Answer: Lorem ipsum\n\nDolor sit amet\nconsectetur adipiscing elit.\nAnswer: Donec ac fingilla nisi\nIn tempor quam.\n",
+        })
       end
     end
 
@@ -199,7 +228,7 @@ RSpec.describe RepeatableStep, type: :model do
 
       it "returns a hash containing a key for the first answer with a blank value" do
         expect(repeatable_step.show_answer_in_csv(submission_reference:, is_s3_submission: false)).to eq({
-          "#{question.question_text} - Answer 1" => "",
+          question.question_text => "",
         })
       end
     end
@@ -207,18 +236,18 @@ RSpec.describe RepeatableStep, type: :model do
 
   describe "#show_answer_in_json" do
     context "when the step has multiple answers" do
-      let(:page) { build(:page, :with_name_settings, id: 2) }
+      let(:form_document_step) { build(:v2_question_step, :with_name_settings, id: 2) }
       let(:questions) { [first_question, second_question] }
-      let(:first_question) { build :first_and_last_name_question, question_text: page.question_text }
-      let(:second_question) { build :first_and_last_name_question, question_text: page.question_text }
+      let(:first_question) { build :first_and_last_name_question, question_text: form_document_step.question_text }
+      let(:second_question) { build :first_and_last_name_question, question_text: form_document_step.question_text }
 
       before { repeatable_step.questions = questions }
 
       it "returns a hash containing arrays with every answer" do
         expect(repeatable_step.show_answer_in_json(submission_reference:, is_s3_submission: false)).to eq(
           {
-            question_id: page.id,
-            question_text: page.question_text,
+            question_id: form_document_step.id,
+            question_text: form_document_step.question_text,
             can_have_multiple_answers: true,
             first_name: [first_question.first_name, second_question.first_name],
             last_name: [first_question.last_name, second_question.last_name],
@@ -240,14 +269,14 @@ RSpec.describe RepeatableStep, type: :model do
     end
 
     context "when the question is optional and has no answers" do
-      let(:page) { build(:page, :with_name_settings, id: 2) }
-      let(:question) { build :first_and_last_name_question, :unanswered, question_text: page.question_text }
+      let(:form_document_step) { build(:v2_question_step, :with_name_settings, id: 2) }
+      let(:question) { build :first_and_last_name_question, :unanswered, question_text: form_document_step.question_text }
 
       it "returns a hash with an array containing a blank answer" do
         expect(repeatable_step.show_answer_in_json(submission_reference:, is_s3_submission: false)).to eq(
           {
-            question_id: page.id,
-            question_text: page.question_text,
+            question_id: form_document_step.id,
+            question_text: form_document_step.question_text,
             can_have_multiple_answers: true,
             answer_text: [],
             first_name: [],

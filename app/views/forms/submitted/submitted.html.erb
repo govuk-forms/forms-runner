@@ -3,6 +3,9 @@
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
     <%= render partial: "forms/submitted/submitted_panel", locals: {current_context: @current_context, } %>
+    <% if @current_context.will_send_copy_of_answers? %>
+      <p><%= t('form.submitted.copy_of_answers_sent') %></p>
+    <% end %>
 
     <% if @current_context.requested_email_confirmation? %>
       <p><%= t('form.submitted.email_sent') %></p>

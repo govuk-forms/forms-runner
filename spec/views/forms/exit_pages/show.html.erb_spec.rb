@@ -1,7 +1,7 @@
 require "rails_helper"
 
 describe "forms/exit_pages/show.html.erb" do
-  let(:form) { build :form, :with_support, id: 1, name: "exit page form" }
+  let(:form) { build :form, :with_support, name: "exit page form" }
   let(:mode) { OpenStruct.new(preview_draft?: false, preview_archived?: false, preview_live?: false) }
   let(:condition) { OpenStruct.new({ exit_page_heading: "heading", exit_page_markdown: "  * first line\n  * second line\n" }) }
   let(:support_details) { OpenStruct.new(email: form.support_email) }

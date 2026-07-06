@@ -77,17 +77,19 @@ module FormsRunner
     # Turn off logging from ActiveResource
     config.after_initialize { ActiveResource::Base.logger = nil }
 
-    # custom configuration for the SES mailer delivery method
-    config.x.aws_ses_form_submission_mailer.delivery_method = :aws_ses
+    # Turn off logging of job arguments for ActiveJob jobs
+    # Any information we want logged should be in the structured logging instead
+    config.active_job.log_arguments = false
+
+    # We also send emails using Notify, but we use GovukNotifyRails::Mailer which sets its own delivery method
+    config.action_mailer.delivery_method = :aws_ses
 
     # Prevent ActiveRecord::PreparedStatementCacheExpired errors when adding columns
     config.active_record.enumerate_columns_in_select_statements = true
 
-    # TODO: remove this when all sensitive data is encrypted
-    # See https://guides.rubyonrails.org/active_record_encryption.html#support-for-unencrypted-data
-    config.active_record.encryption.support_unencrypted_data = true
-
     I18n.available_locales = %i[en cy]
     I18n.default_locale = :en
+
+    JWT.configuration.jwk.kid_generator_type = :rfc7638_thumbprint
   end
 end

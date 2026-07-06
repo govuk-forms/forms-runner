@@ -44,10 +44,14 @@ module Question
       original_filename
     end
 
-    def show_answer_in_email(submission_reference:)
+    def show_answer_in_email(submission_reference:, confirmation_email: false)
       return nil if original_filename.blank?
 
-      I18n.t("mailer.submission.file_attached", filename: email_filename(submission_reference:))
+      if confirmation_email
+        I18n.t("mailer.submission_confirmation.file_answer", filename: original_filename)
+      else
+        I18n.t("mailer.submission.file_attached", filename: email_filename(submission_reference:))
+      end
     end
 
     def show_answer_in_csv(submission_reference:, is_s3_submission:)
@@ -111,6 +115,10 @@ module Question
 
       caption = tag.span(page_heading, class: %w[govuk-caption-m govuk-!-margin-bottom-1])
       [caption, question_text_with_optional_suffix].join(" ")
+    end
+
+    def answered?
+      @attributes.to_hash.reject { |key, value| key == "filename_suffix" && value == "" }.any? { |_key, value| !value.nil? }
     end
 
   private

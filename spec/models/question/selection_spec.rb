@@ -152,13 +152,13 @@ RSpec.describe Question::Selection, type: :model do
       end
 
       it "returns valid with none of the above selected" do
-        question.selection = [I18n.t("page.none_of_the_above")]
+        question.selection = [Question::Selection::NONE_OF_THE_ABOVE_VALUE]
         expect(question).to be_valid
         expect(question.errors[:selection]).to be_empty
       end
 
       it "returns invalid with both an item and none selected" do
-        question.selection = ["Option 1", I18n.t("page.none_of_the_above")]
+        question.selection = ["Option 1", Question::Selection::NONE_OF_THE_ABOVE_VALUE]
         expect(question).not_to be_valid
         expect(question.errors[:selection]).to include(I18n.t("activemodel.errors.models.question/selection.attributes.selection.both_none_and_value_selected"))
       end
@@ -281,7 +281,7 @@ RSpec.describe Question::Selection, type: :model do
       let(:is_optional) { true }
 
       it "returns valid with none of the above selected" do
-        question.selection = I18n.t("page.none_of_the_above")
+        question.selection = Question::Selection::NONE_OF_THE_ABOVE_VALUE
         expect(question).to be_valid
         expect(question.errors[:selection]).to be_empty
       end
@@ -357,7 +357,7 @@ RSpec.describe Question::Selection, type: :model do
         context "when none_of_the_above_question is optional" do
           context "when 'None of the above' is selected" do
             before do
-              question.selection = [I18n.t("page.none_of_the_above")]
+              question.selection = [Question::Selection::NONE_OF_THE_ABOVE_VALUE]
             end
 
             it "is valid when there is no none_of_the_above_answer" do
@@ -441,7 +441,7 @@ RSpec.describe Question::Selection, type: :model do
 
           context "when 'None of the above' is selected" do
             before do
-              question.selection = [I18n.t("page.none_of_the_above")]
+              question.selection = [Question::Selection::NONE_OF_THE_ABOVE_VALUE]
             end
 
             it "is invalid when there is no none_of_the_above_answer" do
@@ -512,7 +512,7 @@ RSpec.describe Question::Selection, type: :model do
 
         context "when 'None of the above' is selected" do
           before do
-            question.selection = I18n.t("page.none_of_the_above")
+            question.selection = Question::Selection::NONE_OF_THE_ABOVE_VALUE
           end
 
           it "is invalid when there is no none_of_the_above_answer" do
@@ -610,7 +610,7 @@ RSpec.describe Question::Selection, type: :model do
       end
 
       context "when 'None of the above' is selected" do
-        let(:selection) { I18n.t("page.none_of_the_above") }
+        let(:selection) { Question::Selection::NONE_OF_THE_ABOVE_VALUE }
 
         it "returns false when no none_of_the_above_answer is present" do
           question.none_of_the_above_answer = nil
@@ -653,7 +653,7 @@ RSpec.describe Question::Selection, type: :model do
       end
 
       context "when 'None of the above' is selected" do
-        let(:selection) { I18n.t("page.none_of_the_above") }
+        let(:selection) { Question::Selection::NONE_OF_THE_ABOVE_VALUE }
 
         it "returns true" do
           expect(question.answered?).to be true
@@ -664,7 +664,7 @@ RSpec.describe Question::Selection, type: :model do
 
   describe "#selection_options_with_none_of_the_above" do
     let(:only_one_option) { "true" }
-    let(:none_of_the_above_option) { OpenStruct.new(name: I18n.t("page.none_of_the_above"), value: I18n.t("page.none_of_the_above")) }
+    let(:none_of_the_above_option) { OpenStruct.new(name: I18n.t("page.none_of_the_above"), value: Question::Selection::NONE_OF_THE_ABOVE_VALUE) }
 
     context "when the user can select 'None of the above'" do
       let(:is_optional) { true }

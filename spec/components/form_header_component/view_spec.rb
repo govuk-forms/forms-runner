@@ -15,7 +15,7 @@ RSpec.describe FormHeaderComponent::View, type: :component do
   it "links to the GOV.UK homepage" do
     render_inline(described_class.new(current_context:, mode:))
 
-    expect(page.find("a.govuk-header__link--homepage")[:href]).to eq "https://www.gov.uk/"
+    expect(page.find("a.govuk-header__homepage-link")[:href]).to eq "https://www.gov.uk/"
   end
 
   it "links to the form start page" do
@@ -55,7 +55,7 @@ RSpec.describe FormHeaderComponent::View, type: :component do
 
       render_inline(described_class.new(current_context:, mode:))
 
-      expect(page.find(".govuk-header__link--homepage")[:href]).to eq "http://forms-admin/"
+      expect(page.find(".govuk-header__homepage-link")[:href]).to eq "http://forms-admin/"
     end
   end
 
@@ -75,7 +75,7 @@ RSpec.describe FormHeaderComponent::View, type: :component do
 
       render_inline(described_class.new(current_context:, mode:))
 
-      expect(page.find(".govuk-header__link--homepage")[:href]).to eq "http://forms-admin/"
+      expect(page.find(".govuk-header__homepage-link")[:href]).to eq "http://forms-admin/"
     end
   end
 
@@ -111,7 +111,7 @@ RSpec.describe FormHeaderComponent::View, type: :component do
   end
 
   [
-    { name: "Local", colour: "pink" },
+    { name: "Local", colour: "magenta" },
     { name: "Development", colour: "green" },
     { name: "User research", colour: "blue" },
     { name: "Staging", colour: "yellow" },

@@ -1,29 +1,32 @@
 class Step
-  attr_accessor :page, :question
+  attr_accessor :question
+  private attr_reader :form_document_step
 
   GOTO_PAGE_ERROR_NAMES = %w[cannot_have_goto_page_before_routing_page goto_page_doesnt_exist].freeze
 
-  def initialize(page:, question:)
-    @page = page
+  class StoredAnswerMismatch < StandardError; end
+
+  def initialize(form_document_step:, question:)
+    @form_document_step = form_document_step
     @question = question
   end
 
-  alias_attribute :id, :page_id
+  delegate :answer_type, to: :form_document_step
 
-  def page_id
-    page&.id.to_s
+  def id
+    form_document_step&.id.to_s
   end
 
-  def page_number
-    page&.position
+  def step_number
+    form_document_step&.position
   end
 
-  def next_page_slug
-    page.has_next_page? ? page.next_page.to_s : CheckYourAnswersStep::CHECK_YOUR_ANSWERS_PAGE_SLUG
+  def next_step_slug
+    form_document_step.next_step_id.present? ? form_document_step.next_step_id.to_s : CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG
   end
 
   def routing_conditions
-    page.respond_to?(:routing_conditions) ? page.routing_conditions : []
+    form_document_step.respond_to?(:routing_conditions) ? form_document_step.routing_conditions : []
   end
 
   def ==(other)
@@ -44,7 +47,17 @@ class Step
 
   def load_from_store(answer_store)
     attrs = answer_store.get_stored_answer(self)
-    question.assign_attributes(attrs || {})
+
+    if attrs.is_a?(Array)
+      raise StoredAnswerMismatch
+    end
+
+    begin
+      question.assign_attributes(attrs || {})
+    rescue ActiveModel::UnknownAttributeError
+      raise StoredAnswerMismatch
+    end
+
     self
   end
 
@@ -53,7 +66,7 @@ class Step
   end
 
   def params
-    question.attribute_names.concat([selection: []])
+    question.attribute_names.concat([{ selection: [] }])
   end
 
   delegate :valid?, to: :question
@@ -66,30 +79,30 @@ class Step
 
   def show_answer_in_json(submission_reference:, is_s3_submission:)
     {
-      question_id: page&.id,
+      question_id: form_document_step&.id,
       question_text: question_text,
       **question.show_answer_in_json(submission_reference:, is_s3_submission:),
     }
   end
 
   def end_page?
-    next_page_slug.nil?
+    next_step_slug.nil?
   end
 
-  def next_page_slug_after_routing
+  def next_step_slug_after_routing
     if exit_page_condition_matches?
       return nil
     end
 
     if first_condition_default?
-      return goto_condition_page_slug(routing_conditions.first)
+      return goto_condition_step_slug(routing_conditions.first)
     end
 
-    if first_condition_matches?
-      return goto_condition_page_slug(routing_conditions.first)
+    if (matching_condition = find_matching_condition)
+      return goto_condition_step_slug(matching_condition)
     end
 
-    next_page_slug
+    next_step_slug
   end
 
   def repeatable?
@@ -132,27 +145,33 @@ class Step
 
 private
 
-  def goto_condition_page_slug(condition)
+  def goto_condition_step_slug(condition)
     if condition.goto_page_id.nil? && condition.skip_to_end
-      CheckYourAnswersStep::CHECK_YOUR_ANSWERS_PAGE_SLUG
+      CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG
     else
       condition.goto_page_id.to_s
     end
   end
 
+  def find_matching_condition
+    return unless question.respond_to?(:selection)
+
+    routing_conditions.find { condition_matches? it }
+  end
+
+  def condition_matches?(condition)
+    return question.selection == Question::Selection::NONE_OF_THE_ABOVE_VALUE if condition.answer_value == :none_of_the_above.to_s
+
+    condition.answer_value == question.selection
+  end
+
   def first_condition_matches?
     return unless question.respond_to?(:selection)
 
-    return question.selection == I18n.t("page.none_of_the_above") if routing_condition_none_of_the_above
-
-    routing_conditions.any? && (routing_conditions.first.answer_value == question.selection)
+    routing_conditions.any? && condition_matches?(routing_conditions.first)
   end
 
   def first_condition_default?
     routing_conditions.any? && routing_conditions.first.answer_value.blank?
-  end
-
-  def routing_condition_none_of_the_above
-    routing_conditions.any? && routing_conditions.first.answer_value == :none_of_the_above.to_s
   end
 end

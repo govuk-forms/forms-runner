@@ -35,9 +35,7 @@ private
       files.merge!({ csv_filename => generate_csv_submission })
     end
 
-    mail = AwsSesFormSubmissionMailer.submission_email(answer_content_html:,
-                                                       answer_content_plain_text:,
-                                                       submission: @submission,
+    mail = AwsSesFormSubmissionMailer.submission_email(submission: @submission,
                                                        files:,
                                                        csv_filename:,
                                                        json_filename:).deliver_now
@@ -58,14 +56,6 @@ private
       submission: @submission,
       is_s3_submission: false,
     )
-  end
-
-  def answer_content_html
-    SesEmailFormatter.new(submission_reference: @submission.reference, steps: @journey.completed_steps).build_question_answers_section_html
-  end
-
-  def answer_content_plain_text
-    SesEmailFormatter.new(submission_reference: @submission.reference, steps: @journey.completed_steps).build_question_answers_section_plain_text
   end
 
   def uploaded_files_in_answers

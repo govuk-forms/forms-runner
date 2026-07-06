@@ -8,30 +8,34 @@ module Forms
     end
 
     def show
-      return redirect_to form_page_path(current_context.form.id, current_context.form.form_slug, current_context.next_page_slug, nil) unless current_context.can_visit?(CheckYourAnswersStep::CHECK_YOUR_ANSWERS_PAGE_SLUG)
+      return redirect_to form_step_path(current_context.form.id, current_context.form.form_slug, current_context.next_step_slug, nil) unless current_context.can_visit?(CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG)
 
       setup_check_your_answers
-      email_confirmation_input = EmailConfirmationInput.new
+      copy_of_answers_enabled = current_context.form.copy_of_answers_enabled?
+      will_send_copy_of_answers = will_send_copy_of_answers?
+      email_confirmation_input = will_send_copy_of_answers ? EmailConfirmationInput.new(send_confirmation: "skip_confirmation") : EmailConfirmationInput.new
 
       @support_details = current_context.support_details
 
-      render template: "forms/check_your_answers/show", locals: { email_confirmation_input: }
+      render template: "forms/check_your_answers/show", locals: { email_confirmation_input:, copy_of_answers_enabled:, will_send_copy_of_answers: }
     end
 
     def submit_answers
       @support_details = current_context.support_details
-      email_confirmation_input = EmailConfirmationInput.new(email_confirmation_input_params)
+      copy_of_answers_enabled = current_context.form.copy_of_answers_enabled?
+      will_send_copy_of_answers = will_send_copy_of_answers?
+      email_confirmation_input = will_send_copy_of_answers ? EmailConfirmationInput.new(send_confirmation: "skip_confirmation") : EmailConfirmationInput.new(email_confirmation_input_params)
       requested_email_confirmation = email_confirmation_input.send_confirmation == "send_email"
 
       unless email_confirmation_input.valid?
         setup_check_your_answers
 
-        return render template: "forms/check_your_answers/show", locals: { email_confirmation_input: }, status: :unprocessable_content
+        return render template: "forms/check_your_answers/show", locals: { email_confirmation_input:, copy_of_answers_enabled:, will_send_copy_of_answers: }, status: :unprocessable_content
       end
 
       return redirect_to error_repeat_submission_path(@form.id) if current_context.form_submitted?
 
-      unless current_context.can_visit?(CheckYourAnswersStep::CHECK_YOUR_ANSWERS_PAGE_SLUG)
+      unless current_context.can_visit?(CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG)
         EventLogger.log_form_event("incomplete_or_repeat_submission_error")
         return render template: "errors/incomplete_submission", locals: { form: @form, current_context: }
       end
@@ -43,11 +47,16 @@ module Forms
 
         current_context.save_submission_details(submission_reference, requested_email_confirmation)
 
-        redirect_to :form_submitted
+        if auth_service.logged_in?
+          auth_service.store_return_params(form: current_context.form, mode: mode, locale: locale_param)
+          redirect_to auth_service.logout_redirect_uri(omniauth_logged_out_url), allow_other_host: true
+        else
+          redirect_to :form_submitted
+        end
       rescue FormSubmissionService::ConfirmationEmailToAddressError
         setup_check_your_answers
         email_confirmation_input.errors.add(:confirmation_email_address, :invalid_email)
-        render template: "forms/check_your_answers/show", locals: { email_confirmation_input: }, status: :unprocessable_content
+        render template: "forms/check_your_answers/show", locals: { email_confirmation_input:, copy_of_answers_enabled:, will_send_copy_of_answers: }, status: :unprocessable_content
       end
     rescue StandardError => e
       log_rescued_exception(e)
@@ -71,11 +80,19 @@ module Forms
       end
     end
 
-    def back_link
-      previous_step = current_context.previous_step(CheckYourAnswersStep::CHECK_YOUR_ANSWERS_PAGE_SLUG)
+    def will_send_copy_of_answers?
+      current_context.will_send_copy_of_answers?
+    end
 
-      if previous_step.present?
-        previous_step.repeatable? ? add_another_answer_path(form_id: current_context.form.id, form_slug: current_context.form.form_slug, page_slug: previous_step.id) : form_page_path(current_context.form.id, current_context.form.form_slug, previous_step.id)
+    def back_link
+      if current_context.form.copy_of_answers_enabled?
+        copy_of_answers_path(form_id: current_context.form.id, form_slug: current_context.form.form_slug)
+      else
+        previous_step = current_context.previous_step(CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG)
+
+        if previous_step.present?
+          previous_step.repeatable? ? add_another_answer_path(form_id: current_context.form.id, form_slug: current_context.form.form_slug, step_slug: previous_step.id) : form_step_path(current_context.form.id, current_context.form.form_slug, previous_step.id)
+        end
       end
     end
   end

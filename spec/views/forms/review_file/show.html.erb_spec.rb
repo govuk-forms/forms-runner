@@ -1,7 +1,7 @@
 require "rails_helper"
 
 describe "forms/review_file/show.html.erb" do
-  let(:form) { build :form, :with_support, id: 1 }
+  let(:form) { build :form, :with_support }
   let(:mode) { OpenStruct.new(preview_draft?: false, preview_archived?: false, preview_live?: false) }
   let(:back_link) { "/back" }
   let(:continue_url) { "/review_file" }

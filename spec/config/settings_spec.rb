@@ -45,7 +45,7 @@ describe "Settings" do
     include_examples expected_value_test, :form_submission_email_reply_to_id, govuk_notify, "fab9373b-fb7c-483f-ae25-5a9852bfcc04"
     include_examples expected_value_test, :form_submission_email_template_id, govuk_notify, "427eb8bc-ce0d-40a3-bf54-d76e8c3ec916"
     include_examples expected_value_test, :form_filler_confirmation_email_template_id, govuk_notify, "2d1f36dc-9799-43dd-8673-b631f9e0b4a5"
-    include_examples expected_value_test, :form_filler_confirmation_email_welsh_template_id, govuk_notify, "4c5c75df-3a48-48ec-80d9-df9cabcdc9fc"
+    include_examples expected_value_test, :form_filler_confirmation_email_welsh_template_id, govuk_notify, "b297c8f1-419e-4af4-b067-b8cad6364daf"
   end
 
   describe "sentry" do

@@ -1,0 +1,45 @@
+<% if @submission.preview? %>
+<%= I18n.t("mailer.submission.preview") %>
+
+<% end %>
+<%= I18n.t("mailer.form_name", form_name: @submission.form.name) %>
+
+<%= I18n.t("mailer.submission.time", time: format_time(@submission.submission_time), date: format_date(@submission.submission_time) ) %>
+
+<% if @welsh_submission %>
+<%= I18n.t("mailer.submission.welsh_submission") %>
+
+<% end %>
+<%= I18n.t("mailer.submission.reference", submission_reference: @submission.reference) %>
+
+<% if @submission.payment_url.present? %>
+<%= I18n.t("mailer.submission.payment") %>
+
+<% end %>
+^<%= I18n.t("mailer.check_before_using") %>^
+
+---
+
+## <%= I18n.t("mailer.submission.answers_submitted") %>
+
+<% if @csv_filename.present? %>
+<%= I18n.t("mailer.submission.csv_file", filename: @csv_filename) %>
+
+<% end %>
+<% if @json_filename.present? %>
+<%= I18n.t("mailer.submission.json_file", filename: @json_filename) %>
+
+<% end %>
+<%= @submission.answer_content_for_email_markdown(heading_level: 3) %>
+
+---
+
+^^^
+
+## <%= I18n.t("mailer.cannot_reply.heading") %>
+
+<%= I18n.t("mailer.cannot_reply.contact_form_filler_markdown") %>
+
+<%= I18n.t("mailer.cannot_reply.contact_forms_team_markdown") %>
+
+^^^

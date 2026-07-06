@@ -16,7 +16,7 @@ $app-language-switcher-list-gap: 0.25em;
   @include govuk-font($size: 16);
   margin: 0;
   padding-right: $app-language-switcher-list-gap;
-  border-right: 1px solid $govuk-border-colour;
+  border-right: 1px solid govuk-functional-colour(border);
 }
 
 .app-language-switcher__list-item:last-child {

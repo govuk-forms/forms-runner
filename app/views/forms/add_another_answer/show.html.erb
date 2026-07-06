@@ -6,7 +6,7 @@
   <% end %>
 <% end %>
 
-<%= form_with(model: @add_another_answer_input , method: :post, url: add_another_answer_path(form_id: @form.id, form_slug: @form.form_slug, page_slug: @step.id, changing_existing_answer: @changing_existing_answer)) do |f| %>
+<%= form_with(model: @add_another_answer_input , method: :post, url: add_another_answer_path(form_id: @form.id, form_slug: @form.form_slug, step_slug: @step.id, changing_existing_answer: @changing_existing_answer)) do |f| %>
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
       <% if @add_another_answer_input&.errors.any? %>

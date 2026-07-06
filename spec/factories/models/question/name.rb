@@ -50,7 +50,7 @@ FactoryBot.define do
       middle_names { nil }
       last_name { Faker::Name.last_name }
 
-      answer_settings { DataStruct.new(input_type: (middle_names.present? ? "first_middle_and_last_name" : "first_and_last_name"), title_needed: with_title) }
+      answer_settings { DataStruct.new(input_type: "first_middle_and_last_name", title_needed: with_title) }
     end
   end
 end

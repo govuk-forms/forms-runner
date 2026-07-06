@@ -27,12 +27,18 @@ class RepeatableStep < Step
     question_attrs = answer_store.get_stored_answer(self)
 
     unless question_attrs.is_a?(Array)
-      raise ArgumentError
+      raise StoredAnswerMismatch
     end
 
     @questions = question_attrs.map do |attrs|
       q = @question.dup
-      q.assign_attributes(attrs || {})
+
+      begin
+        q.assign_attributes(attrs || {})
+      rescue ActiveModel::UnknownAttributeError
+        raise StoredAnswerMismatch
+      end
+
       q
     end
 
@@ -77,19 +83,28 @@ class RepeatableStep < Step
     end
   end
 
-  def show_answer_in_email(submission_reference:)
+  def show_answer_in_email(submission_reference:, confirmation_email: false)
     questions.map.with_index(1) { |question, index|
-      "#{index}. #{question.show_answer_in_email(submission_reference:)}"
+      "#{index}. #{question.show_answer_in_email(submission_reference:, confirmation_email:)}"
     }.join("\n\n")
   end
 
   def show_answer_in_csv(submission_reference:, is_s3_submission:)
     header_values_hash = {}
-    questions.each.with_index(1) do |question, index|
-      question.show_answer_in_csv(submission_reference:, is_s3_submission:).each do |header, value|
-        header_values_hash[I18n.t("submission_csv.repeatable_answer_header", header:, index:)] = value
+
+    if questions.one? && questions.first.show_answer.blank?
+      header_values_hash = question.show_answer_in_csv(submission_reference:, is_s3_submission:)
+    else
+      questions.each do |question|
+        question.show_answer_in_csv(submission_reference:, is_s3_submission:).each do |header, value|
+          header_values_hash[header] ||= []
+          header_values_hash[header] << "Answer: #{value}"
+        end
       end
+
+      header_values_hash.transform_values! { |answers| answers.join("\n") }
     end
+
     header_values_hash
   end
 
@@ -105,8 +120,8 @@ class RepeatableStep < Step
     end
 
     {
-      question_id: page&.id,
-      question_text: page.question_text,
+      question_id: form_document_step&.id,
+      question_text: form_document_step.question_text,
       can_have_multiple_answers: true,
       **answer_hash,
     }

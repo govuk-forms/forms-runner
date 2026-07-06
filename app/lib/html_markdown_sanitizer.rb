@@ -17,8 +17,14 @@ class HtmlMarkdownSanitizer
 
   # renders Markdown to HTML and strips out all tags not explicitly allowed in LimitedHtmlScrubber.
   # Use this instead of rendering Markdown directly in views.
-  def render_scrubbed_markdown(markdown)
-    sanitize_html(GovukFormsMarkdown.render(markdown), LimitedHtmlScrubber.new(allow_headings: true))
+  def render_scrubbed_markdown(markdown, allow_headings: true, for_email: false)
+    html = if for_email
+             GovukFormsMarkdown.render_for_email(markdown)
+           else
+             GovukFormsMarkdown.render(markdown, locale: I18n.locale.to_s)
+           end
+
+    sanitize_html(html, LimitedHtmlScrubber.new(allow_headings:, for_email:))
   end
 
   # renders the limited subset of HTML allowed by LimitedHtmlScrubber and strips all other tags.

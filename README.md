@@ -1,4 +1,4 @@
-# GOV.UK Forms Runner [![Tests](https://github.com/alphagov/forms-runner/actions/workflows/test.yml/badge.svg)](https://github.com/alphagov/forms-runner/actions/workflows/test.yml)
+# GOV.UK Forms Runner [![Tests](https://github.com/govuk-forms/forms-runner/actions/workflows/test.yml/badge.svg)](https://github.com/govuk-forms/forms-runner/actions/workflows/test.yml)
 
 GOV.UK Forms is a service for creating forms. GOV.UK Forms Runner is a an application which displays those forms to end users so that they can be filled in. It's a Ruby on Rails application without a database. It uses Redis for state.
 
@@ -21,7 +21,7 @@ We recommend using a version manager to install and manage these, such as:
 
 ```bash
 # 1. Clone the git repository and change directory to the new folder
-git clone git@github.com:alphagov/forms-runner.git
+git clone git@github.com:govuk-forms/forms-runner.git
 cd forms-runner
 
 # 2. Run the setup script
@@ -47,7 +47,7 @@ or run the rails server:
 npm run dev
 ```
 
-You will also need to run the [forms-admin service](https://github.com/alphagov/forms-admin), as this app needs the API to create and access forms.
+You will also need to run the [forms-admin service](https://github.com/govuk-forms/forms-admin), as this app needs the API to create and access forms.
 
 #### Getting AWS credentials
 
@@ -191,7 +191,9 @@ You can enable Redis sessions by providing the Redis connection URL in the envir
 
 ### Configuring GOV.UK Notify
 
-We use [GOV.UK Notify] to send emails from our apps.
+We use [GOV.UK Notify] to send the following emails:
+- confirmation emails to users who have submitted a form, if they have not asked for a copy of their answers
+- bounce notifications to group and organisation admins
 
 If you want to test the Notify functionality locally, you will need to get a test API key from the Notify service. Add it as an environment variable under `SETTINGS__GOVUK_NOTIFY__API_KEY` or add it to a local config file:
 
@@ -204,6 +206,25 @@ govuk_notify:
 ```
 
 [GOV.UK Notify]: https://www.notifications.service.gov.uk/
+
+### Configuring GOV.UK One Login
+
+We use [GOV.UK One Login] for authenticating users if they want to receive a copy of their answers by email.
+
+To test this functionality locally, you will need to create a test One Login service using the [One Login admin tool](https://admin.sign-in.service.gov.uk/sign-in).
+
+In your service, configure the following:
+
+- Add `http://localhost:3001/auth/govuk_one_login/callback` to the "Redirect URIs"
+- Add `http://localhost:3001/auth/logged-out` to the "Post logout redirect URIs"
+- [Generate a key pair](https://docs.sign-in.service.gov.uk/before-integrating/set-up-your-public-and-private-keys/) and add the public key
+
+Start the service with the following environment variables set:
+
+- `SETTINGS__GOVUK_ONE_LOGIN__CLIENT_ID` - the client ID from your One Login service
+- `SETTINGS__GOVUK_ONE_LOGIN__PRIVATE_KEY` - the private key you generated, base64 encoded (you can use `cat private_key.pem | base64 | pbcopy` to encode the key)
+
+[GOV.UK One Login]: https://www.sign-in.service.gov.uk/
 
 ### Configuring Sentry
 
@@ -261,7 +282,7 @@ If the jobs you need to test interact with AWS, follow the instructions for [Get
 
 The forms-runner app is containerised (see [Dockerfile](Dockerfile)) and can be deployed in the same way you'd normally deploy a containerised app.
 
-We host our apps using Amazon Web Services (AWS). You can [read about how deployments happen on our team wiki](https://github.com/alphagov/forms-team/wiki/Deploying-code-changes-AWS), if you have access.
+We host our apps using Amazon Web Services (AWS). You can [read about how deployments happen on our team wiki](https://github.com/govuk-forms/forms-team/wiki/Deploying-code-changes-AWS), if you have access.
 
 ### Logging
 
@@ -272,7 +293,7 @@ We host our apps using Amazon Web Services (AWS). You can [read about how deploy
 
 ### Updating Docker files
 
-To update the version of [Alpine Linux] and Ruby used in the Dockerfile, use the [update_app_versions.sh script in forms-deploy](https://github.com/alphagov/forms-deploy/blob/main/support/update_app_versions.sh)
+To update the version of [Alpine Linux] and Ruby used in the Dockerfile, use the [update_app_versions.sh script in forms-deploy](https://github.com/govuk-forms/forms-deploy/blob/main/support/update_app_versions.sh)
 
 [Alpine Linux]: https://www.alpinelinux.org/
 

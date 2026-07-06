@@ -1,0 +1,9 @@
+<% set_page_title(t('errors.auth_error.title'), t("gov_uk_forms")) %>
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    <h1 class="govuk-heading-l"><%= t('errors.auth_error.title') %></h1>
+
+    <%= t("errors.auth_error.body_html", link_url:) %>
+  </div>
+</div>

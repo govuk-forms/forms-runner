@@ -4,12 +4,12 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 6.30.0"
+      version = "~> 6.51.0"
     }
 
     time = {
       source  = "hashicorp/time"
-      version = "0.13.1"
+      version = "0.14.0"
     }
   }
 
@@ -28,8 +28,8 @@ provider "aws" {
   default_tags {
     tags = {
       Environment = "review"
-      Deployment  = "github.com/alphagov/forms-admin/.review_apps"
-      PullRequest = "https://github.com/alphagov/forms-admin/pull/${var.pull_request_number}"
+      Deployment  = "github.com/govuk-forms/forms-admin/.review_apps"
+      PullRequest = "https://github.com/govuk-forms/forms-admin/pull/${var.pull_request_number}"
     }
   }
 }

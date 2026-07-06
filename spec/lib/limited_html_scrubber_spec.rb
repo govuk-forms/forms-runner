@@ -80,4 +80,25 @@ RSpec.describe LimitedHtmlScrubber do
       end
     end
   end
+
+  context "when for_email is true" do
+    let(:limited_html_scrubber) { described_class.new(for_email: true) }
+
+    it "returns an array of html tags allowed including table tags" do
+      expect(limited_html_scrubber.tags).to eq %w[a ol ul li p br table tr td]
+    end
+
+    it "returns an array of html attributes allowed including style" do
+      expect(limited_html_scrubber.attributes).to eq %w[href class rel target title style]
+    end
+
+    context "when used with sanitize" do
+      let(:input) { "<a href=\"#\" style=\"color:#0B0C0C;\">A perfectly innocent link</a><table><tr><td><ul><li>An item</li></ul></td></tr></table>" }
+
+      it "returns the allowed markup unchanged" do
+        sanitized_string = ActionController::Base.helpers.sanitize(input, scrubber: limited_html_scrubber)
+        expect(sanitized_string).to eq "<a href=\"#\" style=\"color:#0B0C0C;\">A perfectly innocent link</a><table><tr><td><ul><li>An item</li></ul></td></tr></table>"
+      end
+    end
+  end
 end

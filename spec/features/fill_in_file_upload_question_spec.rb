@@ -3,8 +3,8 @@ require "rails_helper"
 feature "Fill in and submit a form with a file upload question", type: :feature do
   include ActiveJob::TestHelper
 
-  let(:steps) { [build(:v2_question_page_step, answer_type: "file", id: 1, routing_conditions: [], question_text:)] }
-  let(:form) { build :v2_form_document, :live?, form_id: 1, name: "Fill in this form", steps:, start_page: 1 }
+  let(:steps) { [build(:v2_question_step, answer_type: "file", id: 1, routing_conditions: [], question_text:)] }
+  let(:form) { build :v2_form_document, :live, form_id: 1, name: "Fill in this form", steps:, start_page: 1, send_copy_of_answers: "enabled" }
   let(:question_text) { Faker::Lorem.question }
   let(:answer_text) { "Answer 1" }
   let(:reference) { Faker::Alphanumeric.alphanumeric(number: 8).upcase }
@@ -50,6 +50,10 @@ feature "Fill in and submit a form with a file upload question", type: :feature 
       and_i_click_on_continue
       then_i_see_the_review_file_page
       and_i_click_on_continue
+      then_i_should_see_the_copy_of_answers_page
+
+      when_i_choose_not_to_receive_a_copy
+      and_i_click_on_continue
       then_i_should_see_the_check_your_answers_page
 
       when_i_opt_out_of_email_confirmation
@@ -86,6 +90,10 @@ feature "Fill in and submit a form with a file upload question", type: :feature 
       and_i_click_on_continue
       then_i_see_the_review_file_page
       and_i_click_on_continue
+      then_i_should_see_the_copy_of_answers_page
+
+      when_i_choose_not_to_receive_a_copy
+      and_i_click_on_continue
       then_i_should_see_the_check_your_answers_page
 
       when_i_opt_out_of_email_confirmation
@@ -106,11 +114,12 @@ feature "Fill in and submit a form with a file upload question", type: :feature 
   end
 
   def then_i_see_the_file_upload_component
-    expect(page).to have_css("input[type=file]")
+    expect(page).to have_css("input[type=file]", visible: :hidden)
+    expect(page).to have_css("[data-module='govuk-file-upload']")
   end
 
   def when_i_upload_a_file
-    attach_file question_text, test_file
+    attach_file test_file, make_visible: true
   end
 
   def and_i_click_on_continue
@@ -121,6 +130,15 @@ feature "Fill in and submit a form with a file upload question", type: :feature 
     expect(page.find("h1")).to have_text question_text
     expect(page).to have_text "Check your uploaded file"
     expect(page).to have_text File.basename(File.path(test_file))
+  end
+
+  def then_i_should_see_the_copy_of_answers_page
+    expect(page.find("h1")).to have_text "Do you want to get an email with a copy of your answers?"
+    expect_page_to_have_no_axe_errors(page)
+  end
+
+  def when_i_choose_not_to_receive_a_copy
+    choose "No"
   end
 
   def then_i_should_see_the_check_your_answers_page
@@ -158,6 +176,6 @@ feature "Fill in and submit a form with a file upload question", type: :feature 
 
   def then_i_see_an_error_message_that_the_file_contains_a_virus
     expect(page.find(".govuk-error-summary")).to have_text "The selected file contains a virus"
-    expect(page).to have_css("input[type=file]")
+    expect(page).to have_css("input[type=file]", visible: :hidden)
   end
 end

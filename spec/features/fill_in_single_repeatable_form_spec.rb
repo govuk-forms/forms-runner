@@ -1,8 +1,8 @@
 require "rails_helper"
 
 feature "Fill in and submit a form with a single repeatable question", type: :feature do
-  let(:steps) { [build(:v2_question_page_step, :with_repeatable, answer_type: "number", question_text:)] }
-  let(:form) { build :v2_form_document, :live?, form_id: 42, name: "Form with repeating question", steps:, start_page: steps.first.id }
+  let(:steps) { [build(:v2_question_step, :with_repeatable, answer_type: "number", question_text:)] }
+  let(:form) { build :v2_form_document, :live, form_id: 42, name: "Form with repeating question", steps:, start_page: steps.first.id, send_copy_of_answers: "enabled" }
 
   let(:question_text) { Faker::Lorem.question }
   let(:first_answer_text) { "99" }
@@ -39,6 +39,10 @@ feature "Fill in and submit a form with a single repeatable question", type: :fe
     then_i_should_see_the_add_another_page_with_my_second_answer
 
     when_i_choose_not_to_add_another
+    and_i_click_on_continue
+
+    then_i_should_see_the_copy_of_answers_page
+    when_i_choose_not_to_receive_a_copy
     and_i_click_on_continue
 
     then_i_should_see_the_check_your_answers_page
@@ -86,6 +90,15 @@ feature "Fill in and submit a form with a single repeatable question", type: :fe
   end
 
   def when_i_choose_not_to_add_another
+    choose "No"
+  end
+
+  def then_i_should_see_the_copy_of_answers_page
+    expect(page.find("h1")).to have_text "Do you want to get an email with a copy of your answers?"
+    expect_page_to_have_no_axe_errors(page)
+  end
+
+  def when_i_choose_not_to_receive_a_copy
     choose "No"
   end
 

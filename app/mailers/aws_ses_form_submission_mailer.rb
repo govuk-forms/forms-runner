@@ -1,11 +1,5 @@
 class AwsSesFormSubmissionMailer < ApplicationMailer
-  default from: I18n.t("mailer.submission.from", email_address: Settings.ses_submission_email.from_email_address),
-          reply_to: Settings.ses_submission_email.reply_to_email_address,
-          delivery_method: Rails.configuration.x.aws_ses_form_submission_mailer["delivery_method"]
-
-  def submission_email(answer_content_html:, answer_content_plain_text:, submission:, files:, csv_filename: nil, json_filename: nil)
-    @answer_content_html = answer_content_html
-    @answer_content_plain_text = answer_content_plain_text
+  def submission_email(submission:, files:, csv_filename: nil, json_filename: nil)
     @submission = submission
     @subject = email_subject
     @csv_filename = csv_filename

@@ -83,6 +83,10 @@ en:
             add_another_answer:
               blank: Select ‘Yes’ if you need to add another answer
               max_answers_reached: You cannot add another answer
+        copy_of_answers_input:
+          attributes:
+            copy_of_answers:
+              blank: Select 'Yes' if you want to get a copy of your answers
         email_confirmation_input:
           attributes:
             confirmation_email_address:
@@ -252,13 +256,9 @@ en:
           column_1: Helps us count how many people visit GOV.UK Forms by telling us if you’ve visited before.
           column_2: 2 years
         row_2:
-          column_0: _gid
-          column_1: Helps us count how many people visit GOV.UK Forms by telling us if you’ve visited before.
-          column_2: 24 hours
-        row_3:
-          column_0: _gat_UA-[random number]
-          column_1: Helps us reduce the number of unnecessary tracking requests we send to Google Analytics.
-          column_2: 1 minute
+          column_0: _ga_[random number]
+          column_1: Used by Google Analytics to find and track an individual session with your device.
+          column_2: 2 years
     essential_cookies:
       heading: Essential cookies
       section_0: We use essential cookies to make forms work.
@@ -292,6 +292,12 @@ en:
     user-research: User research
   error_summary_title: There is a problem
   errors:
+    auth_error:
+      body_html: |
+        <p>We could not confirm your email address using GOV.UK One Login.</p>
+        <p>You’ll need to go back to the form and submit your answers.</p>
+        <p><a href="%{link_url}">Back to form</a></p>
+      title: Sorry, something has gone wrong
     goto_page_routing_error:
       cannot_have_goto_page_before_routing_page:
         body_html: |
@@ -325,6 +331,11 @@ en:
       body_2: If you want to submit the form again, you need to
       link_text: go back to the start
       title: For your security, we deleted your answers
+    return_from_one_login_session_missing:
+      body_html: |
+        <p>We could not confirm your email address using GOV.UK One Login.</p>
+        <p>You’ll need to go back to the form and submit your answers - try clicking the ‘Back’ button in your browser.</p>
+      title: Sorry, something has gone wrong
     submission_error:
       body: |
         There was a problem with the service and we have been unable to submit your answers.
@@ -344,15 +355,21 @@ en:
     archived:
       heading: Sorry, this service is no longer available
       service_unavailable: "“%{form_name}” has been archived and is no longer available."
-      title: Form archived
+      title: Sorry, this service is no longer available
     check_your_answers:
       agree_and_submit: Agree and submit
+      change: Change
+      copy_of_answers: Get a copy of your answers
       declaration: Declaration
+      'no': 'No'
+      no_copy_of_answers: You’ve chosen to not get a copy of your answers
       not_completed: Not completed
+      send_copy: 'We’ll send a confirmation email with a copy of your answers to your GOV.UK One Login email address: %{email_address}'
       submit: Submit
       title: Check your answers before submitting your form
     submitted:
       continue_to_pay: Continue to pay
+      copy_of_answers_sent: We’ve sent you a confirmation email with a copy of your answers.
       email_sent: We’ve sent you a confirmation email.
       need_to_pay: You still need to pay
       title: Your form has been submitted
@@ -372,7 +389,22 @@ en:
         max_answers: You cannot add another answer to this question as you’ve entered the maximum of %{max_answers}
         radios_legend: Do you need to add another answer?
         title: Add or remove answer to %{page_title}
+    archived_welsh:
+      show:
+        heading: Sorry, this service is no longer available in Welsh
+        view_english_form: 'You can still complete the form in English:'
+        welsh_version_archived: The Welsh version of this form has been archived and is no longer available.
     back: Back
+    continue_to_one_login:
+      show:
+        body_html: "<p>The email with your answers will be sent to the email address linked to your GOV.UK One Login.</p><p>If you need the answers sent to a different email address - for example, your work email - you can create a new GOV.UK One Login.</p>"
+        continue_button: Continue to GOV.UK One Login
+        title: Use GOV.UK One Login to keep your information secure
+    copy_of_answers:
+      show:
+        heading: Do you want to get an email with a copy of your answers?
+        hint: You’ll need a GOV.UK One Login for this - you’ll be able to sign in or create a new one.
+        title: Do you want a copy of your answers?
     remove_answer:
       show:
         address_heading: Remove an address
@@ -398,6 +430,13 @@ en:
   govuk_components:
     govuk_summary_list:
       change: Change
+  govuk_design_system_formbuilder:
+    govuk_file_field:
+      choose_files_button_text: Choose file
+      drop_instruction_text: or drop file
+      entered_drop_zone_text: Entered drop zone
+      left_drop_zone_text: Left drop zone
+      no_file_chosen_text: No file chosen
   helpers:
     error:
       message_prefix: Error
@@ -406,6 +445,10 @@ en:
         send_confirmation: We’ll only use the email address you provide here to send a confirmation that your form’s been successfully submitted. It will not contain a copy of your answers.
     label:
       add_another_answer_input:
+        options:
+          'no': 'No'
+          'yes': 'Yes'
+      copy_of_answers_input:
         options:
           'no': 'No'
           'yes': 'Yes'
@@ -427,11 +470,14 @@ en:
   layout:
     skip_link: Skip to main content
   mailer:
+    bounce_notification:
+      bounced_daily_batch: Daily batch sent at %{sent_at_time} on %{sent_at_date}
+      bounced_submission: "%{submission_reference} at %{sent_at_time} on %{sent_at_date}"
+      bounced_weekly_batch: Weekly batch sent at %{sent_at_time} on %{sent_at_date}
+      contacted_group_admins_paragraph: The form is in the group “%{group_name}”, which has no group admins or whose group admins have not responded.
     cannot_reply:
-      contact_form_filler_html: "<p>If you need to contact the person who completed this form, you’ll need to contact them directly.</p>"
-      contact_form_filler_plain: If you need to contact the person who completed this form, you’ll need to contact them directly.
-      contact_forms_team_html: <p>If you’re experiencing a technical issue with this form, <a href="https://www.forms.service.gov.uk/support">contact the GOV.​UK Forms team</a> with details of the issue and the form it relates to.</p>
-      contact_forms_team_plain: If you’re experiencing a technical issue with this form, contact the GOV.​UK Forms team (https://www.forms.service.gov.uk/support) with details of the issue and the form it relates to.
+      contact_form_filler_markdown: If you need to contact the person who completed this form, you’ll need to contact them directly.
+      contact_forms_team_markdown: If you’re experiencing a technical issue with this form, [contact the GOV.​UK Forms team](https://www.forms.service.gov.uk/support) with details of the issue and the form it relates to.
       heading: You cannot reply to this email
     check_before_using: Check that these answers look safe before you use them
     form_name: 'Form name: “%{form_name}”'
@@ -450,16 +496,40 @@ en:
       time: 'Submitted at: %{time} on %{date}'
       welsh_submission: At least one of the questions was answered in Welsh
     submission_batch:
-      file_upload_questions: For forms with file upload questions, the uploaded files will only be attached to the individual completed form emails.
-      multiple_files_explainer: 'All submissions to this form from %{date} are attached to this email in CSV files named:'
-      preview: These are test submissions to a preview of a %{tag} form.
-      single_file_explainer: 'All submissions to this form from %{date} are attached to this email in a CSV file named:'
-      subject: 'Daily form submissions: ‘%{form_name}’ - %{date}'
-      subject_preview: 'TEST DAILY FORM SUBMISSIONS: ‘%{form_name}’ - %{date}'
-      submissions_are_split: Submissions are split into separate CSV files if a change has been made to the form that has changed the structure of the CSV.
+      daily:
+        multiple_files_explainer: 'All submissions to this form from %{date} are attached to this email in CSV files named:'
+        single_file_explainer: 'All submissions to this form from %{date} are attached to this email in a CSV file named:'
+        subject: 'Daily form submissions: ‘%{form_name}’ - %{date}'
+        subject_preview: 'TEST DAILY FORM SUBMISSIONS: ‘%{form_name}’ - %{date}'
+      file_upload_questions: For forms with file upload questions, the uploaded files will only be attached to the individual completed form submissions.
+      preview:
+        archived: These are test submissions to a preview of an archived form.
+        draft: These are test submissions to a preview of a draft form.
+        live: These are test submissions to a preview of a live form.
+      submissions_are_split: Submissions are split into separate CSV files if the form’s been changed in a way that affects the structure of the CSV.
+      weekly:
+        multiple_files_explainer: 'All submissions to this form from %{begin_date} to %{end_date} are attached to this email in CSV files named:'
+        single_file_explainer: 'All submissions to this form from %{begin_date} to %{end_date} are attached to this email in a CSV file named:'
+        subject: 'Weekly form submissions: ‘%{form_name}’ - %{begin_date} to %{end_date}'
+        subject_preview: 'TEST WEEKLY FORM SUBMISSIONS: ‘%{form_name}’ - %{begin_date} to %{end_date}'
     submission_confirmation:
+      answers_submitted_heading: Answers submitted
+      contact_details_heading: Contact details
       default_support_contact_details: The form’s contact details for support will appear here once they’ve been added.
       default_what_happens_next: The form’s information about what happens next will appear here once it has been added.
+      file_answer: You uploaded a file called %{filename}
+      not_completed: Not completed
+      payment_link_heading: If you still need to pay
+      payment_link_markdown: 'If you need to make a payment and have not done so already, use this payment link to pay now: [%{payment_link}](%{payment_link})'
+      reference_number: Your form reference number is %{reference}.
+      subject: 'Your form has been successfully submitted – reference: %{reference}'
+      subject_preview: 'TEST EMAIL CONFIRMING SUBMISSION: Your form has been successfully submitted – reference: %{reference}'
+      submitted_at: "“%{form_name}” was successfully submitted at %{time} on %{date}."
+      this_is_a_test: This is a test email confirming that a form’s been submitted.
+      title: Your form has been successfully submitted
+      title_preview: 'TEST EMAIL CONFIRMING SUBMISSION: Your form has been successfully submitted'
+      what_happens_next_heading: What happens next
+      you_cannot_reply: You cannot reply to this email. Use the contact details below if you need help with your form.
   mode:
     phase_banner_tag_preview-archived: Archived preview
     phase_banner_tag_preview-draft: Draft preview
@@ -612,7 +682,6 @@ en:
   submission_csv:
     language: Language
     reference: Reference
-    repeatable_answer_header: "%{header} - Answer %{index}"
     submitted_at: Submitted at
   support_details:
     call_charges: Find out about call charges
@@ -621,3 +690,7 @@ en:
     link_text: "%{link} (opens in new tab)"
     online: Online
     phone: Phone
+  unknown_form_submitted:
+    show:
+      email_sent: We’ve sent you a confirmation email with a copy of your answers.
+      title: Your form has been submitted

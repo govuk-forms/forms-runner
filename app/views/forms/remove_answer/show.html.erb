@@ -2,7 +2,7 @@
   <%= link_to t("forms.back"), add_another_answer_path(@form.id, @form.form_slug, @step.id), class: "govuk-back-link" %>
 <% end %>
 
-<%= form_with(model: @remove_input , method: :delete, url: delete_form_remove_answer_path(form_id: @form.id, form_slug: @form.form_slug, page_slug: @step.id, answer_index: @step.answer_index, changing_existing_answer: @changing_existing_answer, mode: @mode)) do |f| %>
+<%= form_with(model: @remove_input , method: :delete, url: delete_form_remove_answer_path(form_id: @form.id, form_slug: @form.form_slug, step_slug: @step.id, answer_index: @step.answer_index, changing_existing_answer: @changing_existing_answer, mode: @mode)) do |f| %>
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       <% if @remove_input&.errors.any? %>

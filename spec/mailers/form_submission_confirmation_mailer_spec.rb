@@ -1,28 +1,42 @@
 require "rails_helper"
 
 describe FormSubmissionConfirmationMailer, type: :mailer do
+  let(:submission_locale) { :en }
   let(:mail) do
-    described_class.send_confirmation_email(what_happens_next_markdown:,
-                                            support_contact_details:,
+    described_class.send_confirmation_email(submission:,
                                             notify_response_id: "for-my-ref",
-                                            confirmation_email_address:,
-                                            mailer_options:)
+                                            confirmation_email_address:)
   end
-  let(:mailer_options) do
-    FormSubmissionService::MailerOptions.new(title:,
-                                             is_preview:,
-                                             timestamp: submission_timestamp,
-                                             submission_reference:,
-                                             payment_url:)
-  end
-  let(:title) { "Form 1" }
   let(:what_happens_next_markdown) { "Please wait for a response" }
-  let(:support_contact_details) { OpenStruct.new(phone: "0203 222 2222", email: nil, support_url: nil, support_url_text: nil, call_charges_url: "https://www.gov.uk/call-charges") }
+  let(:support_email) { nil }
+  let(:support_phone) { "0203 222 2222" }
+  let(:support_url) { nil }
+  let(:support_url_text) { nil }
   let(:is_preview) { false }
   let(:confirmation_email_address) { "testing@gov.uk" }
   let(:submission_timestamp) { Time.zone.now }
   let(:submission_reference) { Faker::Alphanumeric.alphanumeric(number: 8).upcase }
   let(:payment_url) { nil }
+  let(:submission) do
+    build :submission,
+          form_document:,
+          welsh_form_document:,
+          created_at: submission_timestamp,
+          reference: submission_reference,
+          submission_locale:,
+          is_preview:
+  end
+  let(:form_document) do
+    build :v2_form_document,
+          what_happens_next_markdown:,
+          support_email:,
+          support_phone:,
+          support_url:,
+          support_url_text:,
+          payment_url:
+  end
+  let(:form) { Form.new(form_document) }
+  let(:welsh_form_document) { nil }
 
   context "when form filler wants an form submission confirmation email" do
     before do
@@ -30,34 +44,26 @@ describe FormSubmissionConfirmationMailer, type: :mailer do
       Settings.govuk_notify.form_filler_confirmation_email_welsh_template_id = "7891011"
     end
 
-    context "when the request locale is not set" do
-      it "uses the English language template" do
-        expect(mail.govuk_notify_template).to eq("123456")
-      end
-    end
-
-    context "when the request locale is set to :en" do
-      include_context "with locale set to :en"
-
-      it "uses the English language template" do
-        expect(mail.govuk_notify_template).to eq("123456")
-      end
-    end
-
-    context "when the request locale is set to :cy" do
-      include_context "with locale set to :cy"
-
-      it "uses the Welsh language template" do
-        expect(mail.govuk_notify_template).to eq("7891011")
-      end
-    end
-
     it "sends an email to the form filler's email address" do
       expect(mail.to).to eq(["testing@gov.uk"])
     end
 
     it "includes the form title" do
-      expect(mail.govuk_notify_personalisation[:title]).to eq("Form 1")
+      expect(mail.govuk_notify_personalisation[:title]).to eq(form.name)
+    end
+
+    context "when no Welsh form is provided" do
+      it "falls back to the English title for title_cy" do
+        expect(mail.govuk_notify_personalisation[:title_cy]).to eq(form.name)
+      end
+    end
+
+    context "when a Welsh form is provided" do
+      let(:welsh_form_document) { build(:v2_form_document, name: "Ffurflen 1") }
+
+      it "uses the Welsh form name as title_cy" do
+        expect(mail.govuk_notify_personalisation[:title_cy]).to eq("Ffurflen 1")
+      end
     end
 
     it "includes the forms what happens next" do
@@ -85,15 +91,7 @@ describe FormSubmissionConfirmationMailer, type: :mailer do
     end
 
     context "when support contact details are missing" do
-      let(:support_contact_details) { OpenStruct.new(phone: nil, email: nil, url: nil, url_text: nil, call_charges_url: "https://www.gov.uk/call-charges") }
-
-      it "uses placeholder text" do
-        expect(mail.govuk_notify_personalisation[:support_contact_details]).to eq(I18n.t("mailer.submission_confirmation.default_support_contact_details"))
-      end
-    end
-
-    context "when support contact details are blank" do
-      let(:support_contact_details) { OpenStruct.new(phone: "", email: "", url: "", url_text: "", call_charges_url: "https://www.gov.uk/call-charges") }
+      let(:support_phone) { nil }
 
       it "uses placeholder text" do
         expect(mail.govuk_notify_personalisation[:support_contact_details]).to eq(I18n.t("mailer.submission_confirmation.default_support_contact_details"))
@@ -109,19 +107,32 @@ describe FormSubmissionConfirmationMailer, type: :mailer do
       expect(mail.govuk_notify_email_reply_to).to eq("send-this-to-me@gov.uk")
     end
 
-    context "when a payment url is in" do
-      let(:payment_url) { "https://www.gov.uk/payments/test-service/pay-for-licence?reference=#{submission_reference}" }
+    context "when a payment url is set" do
+      let(:payment_url) { "https://www.gov.uk/payments/test-service/pay-for-licence" }
 
       it "sets the boolean for the payment content to 'yes'" do
         expect(mail.govuk_notify_personalisation[:include_payment_link]).to eq("yes")
       end
 
       it "sets the payment_link" do
-        expect(mail.govuk_notify_personalisation[:payment_link]).to eq(payment_url)
+        expect(mail.govuk_notify_personalisation[:payment_link]).to eq("#{payment_url}?reference=#{submission_reference}")
+      end
+
+      it "sets payment_link_cy to an empty string when no Welsh form is provided" do
+        expect(mail.govuk_notify_personalisation[:payment_link_cy]).to eq("")
+      end
+
+      context "when the Welsh form has a payment url" do
+        let(:welsh_payment_url) { "https://www.gov.uk/payments/welsh-service/pay-for-licence" }
+        let(:welsh_form_document) { build(:v2_form_document, payment_url: welsh_payment_url) }
+
+        it "sets payment_link_cy to the Welsh payment url with reference" do
+          expect(mail.govuk_notify_personalisation[:payment_link_cy]).to eq("#{welsh_payment_url}?reference=#{submission_reference}")
+        end
       end
     end
 
-    context "when a payment link is not set" do
+    context "when a payment url is not set" do
       let(:payment_url) { nil }
 
       it "sets the boolean for the payment content to 'no'" do
@@ -130,6 +141,60 @@ describe FormSubmissionConfirmationMailer, type: :mailer do
 
       it "sets the payment link personalisation to an empty string" do
         expect(mail.govuk_notify_personalisation[:payment_link]).to eq("")
+      end
+
+      it "sets the Welsh payment link personalisation to an empty string" do
+        expect(mail.govuk_notify_personalisation[:payment_link_cy]).to eq("")
+      end
+    end
+
+    context "when submission_locale is :en" do
+      let(:submission_locale) { :en }
+
+      it "uses the English language template" do
+        expect(mail.govuk_notify_template).to eq("123456")
+      end
+    end
+
+    context "when submission_locale is :cy" do
+      let(:submission_locale) { :cy }
+
+      it "uses the bilingual template" do
+        expect(mail.govuk_notify_template).to eq("7891011")
+      end
+
+      context "when a Welsh version of the form is present" do
+        let(:welsh_what_happens_next_markdown) { "Arhoswch am ymateb" }
+        let(:welsh_support_phone) { "0291 111 1111" }
+        let(:welsh_form_document) do
+          build :v2_form_document,
+                what_happens_next_markdown: welsh_what_happens_next_markdown,
+                support_phone: welsh_support_phone
+        end
+
+        it "includes the Welsh what happens next" do
+          expect(mail.govuk_notify_personalisation[:what_happens_next_text_cy]).to eq(welsh_what_happens_next_markdown)
+        end
+
+        it "uses the Welsh support details formatted with Welsh locale" do
+          expect(mail.govuk_notify_personalisation[:support_contact_details_cy]).to eq("0291 111 1111\n\n[Darganfyddwch am gostau galwadau](https://www.gov.uk/call-charges)")
+        end
+
+        context "when the what happens next is not set on the Welsh form" do
+          let(:welsh_what_happens_next_markdown) { nil }
+
+          it "falls back to the English what happens next" do
+            expect(mail.govuk_notify_personalisation[:what_happens_next_text_cy]).to eq(what_happens_next_markdown)
+          end
+        end
+
+        context "when the contact details are not set on the Welsh form" do
+          let(:welsh_support_phone) { nil }
+
+          it "falls back to support_contact_details formatted with Welsh locale" do
+            expect(mail.govuk_notify_personalisation[:support_contact_details_cy]).to eq("0203 222 2222\n\n[Darganfyddwch am gostau galwadau](https://www.gov.uk/call-charges)")
+          end
+        end
       end
     end
 
@@ -143,30 +208,15 @@ describe FormSubmissionConfirmationMailer, type: :mailer do
           end
         end
 
-        context "when the request locale is not set" do
-          it "includes the date user submitted the form in English" do
-            travel_to timestamp do
-              expect(mail.govuk_notify_personalisation[:submission_date]).to eq("14 September 2022")
-            end
+        it "includes the date user submitted the form in English" do
+          travel_to timestamp do
+            expect(mail.govuk_notify_personalisation[:submission_date]).to eq("14 September 2022")
           end
         end
 
-        context "when the request locale is set to :en" do
-          include_context "with locale set to :en"
-          it "includes the date user submitted the form in English" do
-            travel_to timestamp do
-              expect(mail.govuk_notify_personalisation[:submission_date]).to eq("14 September 2022")
-            end
-          end
-        end
-
-        context "when the request locale is set to :cy" do
-          include_context "with locale set to :cy"
-
-          it "includes the date user submitted the form in Welsh" do
-            travel_to timestamp do
-              expect(mail.govuk_notify_personalisation[:submission_date]).to eq("14 Medi 2022")
-            end
+        it "includes the date user submitted the form in Welsh" do
+          travel_to timestamp do
+            expect(mail.govuk_notify_personalisation[:submission_date_cy]).to eq("14 Medi 2022")
           end
         end
       end

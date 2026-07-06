@@ -5,7 +5,7 @@
     <h1 class="govuk-heading-l"><%= t('errors.repeat_submission.title') %></h1>
     <%= simple_format(t('errors.repeat_submission.body'), class: 'govuk-body') %>
     <p class="govuk-body">
-      <%= t("errors.repeat_submission.body_2") %> <%= govuk_link_to t("errors.repeat_submission.link_text"), form_page_path(@form.id, @form.form_slug, @form.start_page) %>.
+      <%= t("errors.repeat_submission.body_2") %> <%= govuk_link_to t("errors.repeat_submission.link_text"), form_step_path(@form.id, @form.form_slug, @form.start_page) %>.
     </p>
   </div>
 </div>

@@ -10,16 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_18_110428) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_20_093250) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
   create_table "deliveries", force: :cascade do |t|
+    t.datetime "batch_begin_at"
     t.datetime "created_at", null: false
     t.datetime "delivered_at"
     t.string "delivery_reference"
     t.string "delivery_schedule", default: "immediate", null: false, comment: "Either 'immediate' if the delivery is for a single submission or a value representing the schedule for sending multiple submissions."
     t.datetime "failed_at"
+    t.jsonb "failure_details"
     t.string "failure_reason"
     t.datetime "last_attempt_at"
     t.datetime "updated_at", null: false
@@ -44,6 +46,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_18_110428) do
     t.string "reference"
     t.string "submission_locale", default: "en", null: false, comment: "The language the form was submitted in ISO 2 letter format. Normally either 'en' or 'cy'"
     t.datetime "updated_at", null: false
+    t.jsonb "welsh_form_document"
     t.index ["created_at", "form_id", "mode"], name: "index_submissions_on_created_at_and_form_id_and_mode"
   end
 

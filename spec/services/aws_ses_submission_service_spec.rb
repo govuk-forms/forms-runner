@@ -22,21 +22,6 @@ RSpec.describe AwsSesSubmissionService do
   let(:from_email_address) { "govukforms@example.gov.uk" }
   let(:available_languages) { %i[en] }
 
-  let(:output) { StringIO.new }
-  let(:logger) do
-    ApplicationLogger.new(output).tap do |logger|
-      logger.formatter = JsonLogFormatter.new
-    end
-  end
-
-  before do
-    Rails.logger.broadcast_to logger
-  end
-
-  after do
-    Rails.logger.stop_broadcasting_to logger
-  end
-
   describe "#submit" do
     before do
       allow(CsvGenerator).to receive(:generate_submission).and_call_original
@@ -64,8 +49,6 @@ RSpec.describe AwsSesSubmissionService do
           service.submit
 
           expect(AwsSesFormSubmissionMailer).to have_received(:submission_email).with(
-            answer_content_html: "<h3>What is the meaning of life?</h3><p>42</p>",
-            answer_content_plain_text: "What is the meaning of life?\n\n42",
             submission:,
             files: {},
             csv_filename: nil,
@@ -100,8 +83,6 @@ RSpec.describe AwsSesSubmissionService do
         service.submit
 
         expect(AwsSesFormSubmissionMailer).to have_received(:submission_email).with(
-          answer_content_html: "<h3>#{question.question_text}</h3><p>#{I18n.t('mailer.submission.file_attached', filename: attachment_name)}</p>",
-          answer_content_plain_text: "#{question.question_text}\n\n#{I18n.t('mailer.submission.file_attached', filename: attachment_name)}",
           submission:,
           files: { attachment_name => file_content },
           csv_filename: nil,
@@ -165,8 +146,6 @@ RSpec.describe AwsSesSubmissionService do
         expected_csv_content = "Reference,Submitted at,What is the meaning of life?\n#{submission_reference},2022-12-14T08:00:00+00:00,42\n"
 
         expect(AwsSesFormSubmissionMailer).to have_received(:submission_email).with(
-          answer_content_html: "<h3>What is the meaning of life?</h3><p>42</p>",
-          answer_content_plain_text: "What is the meaning of life?\n\n42",
           submission: submission,
           files: { "govuk_forms_a_great_form_#{submission_reference}.csv" => expected_csv_content },
           csv_filename: "govuk_forms_a_great_form_#{submission_reference}.csv",
@@ -196,8 +175,6 @@ RSpec.describe AwsSesSubmissionService do
             expected_csv_content = "Reference,Submitted at,#{question.question_text}\n#{submission_reference},2022-12-14T08:00:00+00:00,#{attachment_name}\n"
 
             expect(AwsSesFormSubmissionMailer).to have_received(:submission_email).with(
-              answer_content_html: "<h3>#{question.question_text}</h3><p>#{I18n.t('mailer.submission.file_attached', filename: attachment_name)}</p>",
-              answer_content_plain_text: "#{question.question_text}\n\n#{I18n.t('mailer.submission.file_attached', filename: attachment_name)}",
               submission:,
               files: {
                 "govuk_forms_a_great_form_#{submission_reference}.csv" => expected_csv_content,
@@ -290,8 +267,6 @@ RSpec.describe AwsSesSubmissionService do
           service.submit
 
           expect(AwsSesFormSubmissionMailer).to have_received(:submission_email).with(
-            answer_content_html: "<h3>What is the meaning of life?</h3><p>42</p>",
-            answer_content_plain_text: "What is the meaning of life?\n\n42",
             submission:,
             files: {},
             csv_filename: nil,

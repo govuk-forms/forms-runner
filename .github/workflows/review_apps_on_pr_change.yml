@@ -1,113 +1,20 @@
 name: "Review apps: on PR change"
 on:
   pull_request:
-    # being explicit about what to trigger on.
-    # matches the docs for the default types
-    # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#pull_request
     types: [opened, reopened, synchronize]
+
+concurrency:
+  group: "review-apps-pr-${{ github.event.pull_request.number }}"
+  cancel-in-progress: false
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
 jobs:
   update-review-app:
-    # this references a codebuild project configured in forms-deploy
-    # see: https://docs.aws.amazon.com/codebuild/latest/userguide/action-runner.html
-    runs-on: codebuild-review-forms-runner-gha-runner-${{github.run_id}}-${{github.run_attempt}}
-
-    permissions:
-      pull-requests: write
-
-    steps:
-      - name: Generate container image URI
-        run: |
-          echo "CONTAINER_IMAGE_URI=842676007477.dkr.ecr.eu-west-2.amazonaws.com/forms-runner:pr-${{github.event.pull_request.number}}-${{github.event.pull_request.head.sha}}-$(date +%s)" >> "$GITHUB_ENV"
-
-      - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - name: Build container
-        run: |
-          # Docker credentials are configured in CodeBuild
-          # CodeBuild retrieves the credentials from ParameterStore
-          echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
-          docker build \
-            --tag "${{env.CONTAINER_IMAGE_URI}}" \
-            .
-
-      - name: Push container
-        id: build-container
-        run: |
-          aws ecr get-login-password --region eu-west-2 \
-          | docker login --username AWS --password-stdin 842676007477.dkr.ecr.eu-west-2.amazonaws.com
-
-          echo "Pushing container image"
-          echo "${{env.CONTAINER_IMAGE_URI}}"
-
-          docker push "${CONTAINER_IMAGE_URI}"
-
-      - name: Determine Terraform version
-        id: terraform-version
-        run: |
-          echo "TF_VERSION=$(< .review_apps/.terraform-version)" >> "$GITHUB_OUTPUT"
-
-      - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
-        with:
-          terraform_version: ${{steps.terraform-version.outputs.TF_VERSION}}
-
-      - name: Deploy review app
-        id: deploy
-        run: |
-          cd .review_apps/
-
-          terraform init -backend-config="key=review-apps/forms-runner/pr-${{github.event.pull_request.number}}.tfstate"
-
-          terraform apply \
-            -var "pull_request_number=${{github.event.pull_request.number}}" \
-            -var "forms_runner_container_image=${{env.CONTAINER_IMAGE_URI}}" \
-            -no-color \
-            -auto-approve
-
-            # shellcheck disable=SC2129 # SC2129 is "mainly a stylistic issue" and it breaks our flow
-            echo "REVIEW_APP_URL=$(terraform output -raw review_app_url)" >> "$GITHUB_OUTPUT"
-            echo "ADMIN_APP_URL=$(terraform output -raw admin_app_url)" >> "$GITHUB_OUTPUT"
-            echo "ECS_CLUSTER_ID=$(terraform output -raw review_app_ecs_cluster_id)" >> "$GITHUB_OUTPUT"
-            echo "ECS_SERVICE_NAME=$(terraform output -raw review_app_ecs_service_name)" >> "$GITHUB_OUTPUT"
-
-      - name: Wait for AWS ECS deployments to finish
-        run: |
-          aws ecs wait services-stable \
-            --cluster "${{steps.deploy.outputs.ECS_CLUSTER_ID}}" \
-            --services "${{steps.deploy.outputs.ECS_SERVICE_NAME}}"
-
-      - name: Comment on PR
-        env:
-          COMMENT_MARKER: <!-- review apps on pr change -->
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          cat <<EOF > "${{runner.temp}}/pr-comment.md"
-          :tada: A review copy of this PR has been deployed! It is made of up two components
-
-          1. [A review copy of forms-runner](${{steps.deploy.outputs.REVIEW_APP_URL}})
-          2. [A production copy of forms-admin](${{steps.deploy.outputs.ADMIN_APP_URL}})
-
-          > [!IMPORTANT]
-          > Not all of the functionality of forms-runner is present in review apps.
-          > Functionality such as sending emails, file upload, and S3 submission types are
-          > deliberately disabled for the sake of simplifying review apps.
-          >
-          > You should use the full dev environment to test the functionality which is disabled here.
-
-          It may take 5 minutes or so for the application to be fully deployed and working. If it still isn't ready
-          after 5 minutes, there may be something wrong with the ECS task. You will need to go to the integration AWS account
-          to debug, or otherwise ask an infrastructure person.
-
-          For the sign in details and more information, [see the review apps wiki page](https://github.com/alphagov/forms-team/wiki/Review-apps).
-
-          $COMMENT_MARKER
-          EOF
-
-          # shellcheck disable=SC2016
-          # `jq` uses single-quote characters on Unix shells
-          old_comment_ids=$(gh api "repos/{owner}/{repo}/issues/${{github.event.pull_request.number}}/comments" --jq 'map(select((.user.login == "github-actions[bot]") and (.body | endswith($ENV.COMMENT_MARKER + "\n")))) | .[].id')
-          for comment_id in $old_comment_ids; do
-            gh api -X DELETE "repos/{owner}/{repo}/issues/comments/${comment_id}"
-          done
-
-          gh pr comment "${{github.event.pull_request.html_url}}" --body-file "${{runner.temp}}/pr-comment.md"
+    name: Update review app
+    uses: govuk-forms/forms-deploy/.github/workflows/reusable-review_apps_on_pr_change.yml@main
+    with:
+      app-name: forms-runner

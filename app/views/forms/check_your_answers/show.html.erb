@@ -19,27 +19,57 @@
 
   <%= render CheckYourAnswersComponent::View.new(form: @form, steps: @steps, mode: @mode) %>
 
+  <% if copy_of_answers_enabled && !will_send_copy_of_answers %>
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds-from-desktop">
+        <h2 class="govuk-heading-m"><%= t('form.check_your_answers.no_copy_of_answers') %></h2>
+        <%= govuk_summary_list do |summary_list|
+          summary_list.with_row do |row|
+            row.with_key { t('form.check_your_answers.copy_of_answers') }
+            row.with_value { t('form.check_your_answers.no') }
+            row.with_action(text: t('form.check_your_answers.change'), href: @back_link, visually_hidden_text: "")
+          end
+        end %>
+      </div>
+    </div>
+  <% end %>
+
+  <% if will_send_copy_of_answers %>
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds-from-desktop">
+        <p><%= t('form.check_your_answers.send_copy', email_address: @current_context.get_copy_of_answers_email_address) %></p>
+      </div>
+    </div>
+  <% else %>
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds-from-desktop">
+        <%= form.govuk_radio_buttons_fieldset(:send_confirmation, legend: { size: 'm', tag: 'h2' }) do %>
+          <%= form.govuk_radio_button :send_confirmation, 'send_email', link_errors: :true do %>
+            <%= form.govuk_email_field :confirmation_email_address, autocomplete: 'email', spellcheck: false %>
+          <% end %>
+          <%= form.govuk_radio_button :send_confirmation, 'skip_confirmation' %>
+        <% end %>
+
+        <%= form.hidden_field :confirmation_email_reference, id: 'confirmation-email-reference' %>
+      </div>
+    </div>
+  <% end %>
+
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds-from-desktop">
-      <%= form.govuk_radio_buttons_fieldset(:send_confirmation, legend: { size: 'm', tag: 'h2' }) do %>
-        <%= form.govuk_radio_button :send_confirmation, 'send_email', link_errors: :true do %>
-          <%= form.govuk_email_field :confirmation_email_address, autocomplete: 'email', spellcheck: false  %>
-        <% end %>
-        <%= form.govuk_radio_button :send_confirmation, 'skip_confirmation' %>
-      <% end %>
-
-      <%= form.hidden_field :confirmation_email_reference, id: 'confirmation-email-reference' %>
-
-      <%if @current_context.form.declaration_text.present? %>
+      <% if @current_context.form.try(:declaration_markdown).present? %>
+        <h2 class="govuk-heading-m govuk-!-margin-top-7"><%= t('form.check_your_answers.declaration') %></h2>
+        <%= HtmlMarkdownSanitizer.new.render_scrubbed_markdown(@current_context.form.declaration_markdown) %>
+      <% elsif @current_context.form.declaration_text.present? %>
         <h2 class="govuk-heading-m govuk-!-margin-top-7"><%= t('form.check_your_answers.declaration') %></h2>
         <%= HtmlMarkdownSanitizer.new.render_scrubbed_html(@current_context.form.declaration_text) %>
       <% end %>
 
-      <%= form.govuk_submit(@current_context.form.declaration_text.present? ? t('form.check_your_answers.agree_and_submit') : t('form.check_your_answers.submit')) %>
+      <% declaration_present = @current_context.form.try(:declaration_markdown).present? || @current_context.form.declaration_text.present? %>
+      <%= form.govuk_submit(declaration_present ? t('form.check_your_answers.agree_and_submit') : t('form.check_your_answers.submit')) %>
     </div>
-
-
   </div>
+
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds-from-desktop">
       <%= render SupportDetailsComponent::View.new(@support_details) %>

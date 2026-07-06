@@ -4,10 +4,7 @@ class Api::V2::FormDocumentResource < ActiveResource::Base
   self.prefix = "/api/v2/"
   self.include_format_in_path = false
 
-  class Step < ActiveResource::Base
-    self.site = Settings.forms_api.base_url
-    self.prefix = "/api/v2/"
-  end
+  has_many :steps, class_name: "Api::V2::StepResource"
 
   class << self
     def find(form_id, tag, params: {})

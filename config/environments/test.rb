@@ -33,12 +33,13 @@ Rails.application.configure do
   # Tell Action Mailer not to deliver emails to the real world.
   # The :test delivery method accumulates sent emails in the
   # ActionMailer::Base.deliveries array.
-  config.action_mailer.delivery_method = :govuk_notify_test
+  config.action_mailer.delivery_method = :test
 
   # Set host to be used by links generated in mailer templates.
   config.action_mailer.default_url_options = { host: "example.com" }
 
   GovukNotifyRails::Mailer.default(delivery_method: :govuk_notify_test, from: "forms@example.com")
+
   # Print deprecation notices to the stderr.
   config.active_support.deprecation = :stderr
 
@@ -66,11 +67,6 @@ Rails.application.configure do
   # Disable log output for tests - remove these lines to enable
   config.lograge.logger = ActiveSupport::Logger.new(nil)
   config.logger = ApplicationLogger.new(nil)
-
-  # Don't interact with SES in the test environment.
-  # The :test delivery method accumulates sent emails in the
-  # ActionMailer::Base.deliveries array.
-  config.x.aws_ses_form_submission_mailer.delivery_method = :test
 
   # Set ActiveRecord Encryption keys - this is overriding the default which is to use active_kms gem in application.rb
   config.active_record.encryption.primary_key = Settings.active_record_encryption.primary_key

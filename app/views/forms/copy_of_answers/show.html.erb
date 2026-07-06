@@ -1,0 +1,24 @@
+<% set_page_title(form_title(form_name: @current_context.form.name, page_name: t('.title'), mode: @mode, error: @copy_of_answers_input&.errors&.any?)) %>
+
+<% content_for :back_link do %>
+  <% if @back_link.present? %>
+    <%= link_to t("forms.back"), @back_link, class: "govuk-back-link" %>
+  <% end %>
+<% end %>
+
+<%= form_with(model: @copy_of_answers_input, method: :post, url: save_copy_of_answers_path(form_id: @form.id, form_slug: @form.form_slug)) do |f| %>
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <% if @copy_of_answers_input&.errors&.any? %>
+        <%= f.govuk_error_summary(t("error_summary_title")) %>
+      <% end %>
+
+      <%= f.govuk_collection_radio_buttons :copy_of_answers,
+        @copy_of_answers_input.values, ->(option) { option }, ->(option) { t("helpers.label.copy_of_answers_input.options.#{option}") },
+        legend: { text: t('.heading'), tag: 'h1', size: 'l' },
+        hint: { text: t('.hint') } %>
+
+      <%= f.govuk_submit(t("continue")) %>
+    </div>
+  </div>
+<% end %>
