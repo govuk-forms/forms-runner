@@ -21,8 +21,9 @@
 
     <ul class="govuk-list govuk-list--bullet">
       <li><%= t("privacy.data_we_collect.section_0.list_item_0") %></li>
-      <li><%= t("privacy.data_we_collect.section_0.list_item_1", browsers_link: link_to(t("privacy.data_we_collect.section_0.list_item_1_link_text"), "https://www.gov.uk/help/browsers")).html_safe %></li>
-      <li><%= t("privacy.data_we_collect.section_0.list_item_2") %></li>
+      <li><%= t("privacy.data_we_collect.section_0.list_item_1") %></li>
+      <li><%= t("privacy.data_we_collect.section_0.list_item_2", browsers_link: link_to(t("privacy.data_we_collect.section_0.list_item_2_link_text"), "https://www.gov.uk/help/browsers")).html_safe %></li>
+      <li><%= t("privacy.data_we_collect.section_0.list_item_3") %></li>
     </ul>
 
     <p><%= t("privacy.data_we_collect.section_1.caption") %></p>
@@ -35,25 +36,29 @@
 
     <p><%= t("privacy.data_we_collect.section_2") %></p>
     <p><%= t("privacy.data_we_collect.section_3") %></p>
-    <p><%= t("privacy.data_we_collect.section_4") %></p>
-    <p><%= t("privacy.data_we_collect.section_5") %></p>
-    <p><%= t("privacy.data_we_collect.section_6") %></p>
 
-    <p><%= t("privacy.data_we_collect.section_7.caption") %></p>
+    <h3 class="govuk-heading-s"><%= t("privacy.data_we_collect.if_you_contact_us_by_email.heading") %></h3>
+
+    <p><%= t("privacy.data_we_collect.if_you_contact_us_by_email.section_0") %></p>
+    <p><%= t("privacy.data_we_collect.if_you_contact_us_by_email.section_1") %></p>
+
+    <h3 class="govuk-heading-s"><%= t("privacy.data_we_collect.legal_bases.heading") %></h3>
+
+    <p><%= t("privacy.data_we_collect.legal_bases.section_0") %></p>
+    <p><%= t("privacy.data_we_collect.legal_bases.section_1") %></p>
+
+    <p><%= t("privacy.data_we_collect.legal_bases.section_2.caption") %></p>
 
     <ul class="govuk-list govuk-list--bullet">
-      <li><%= t("privacy.data_we_collect.section_7.list_item_0") %></li>
-      <li><%= t("privacy.data_we_collect.section_7.list_item_1") %></li>
+      <li><%= t("privacy.data_we_collect.legal_bases.section_2.list_item_0") %></li>
+      <li><%= t("privacy.data_we_collect.legal_bases.section_2.list_item_1") %></li>
     </ul>
 
-    <p><%= t("privacy.data_we_collect.section_8.caption") %></p>
+    <p><%= t("privacy.data_we_collect.legal_bases.section_3") %></p>
 
-    <ul class="govuk-list govuk-list--bullet">
-      <li><%= t("privacy.data_we_collect.section_8.list_item_0") %></li>
-      <li><%= t("privacy.data_we_collect.section_8.list_item_1") %></li>
-    </ul>
+    <h2 class="govuk-heading-m"><%= t("privacy.using_one_login.heading") %></h2>
 
-    <p><%= t("privacy.data_we_collect.section_9") %></p>
+    <p><%= t("privacy.using_one_login.section_0", one_login_link: link_to(t("privacy.using_one_login.section_0_link_text"), "https://www.gov.uk/government/publications/govuk-one-login-privacy-notice")).html_safe %></p>
 
     <h2 class="govuk-heading-m"><%= t("privacy.cookies.heading") %></h2>
 
@@ -78,25 +83,25 @@
 
     <p><%= t("privacy.how_we_protect_data.section_0") %></p>
 
-    <h2 class="govuk-heading-m"><%= t("privacy.what_are_your_rights.heading") %></h2>
+    <h2 class="govuk-heading-m"><%= t("privacy.your_rights.heading") %></h2>
 
-    <p><%= t("privacy.what_are_your_rights.section_0.caption") %></p>
-
-    <ul class="govuk-list govuk-list--bullet">
-      <li><%= t("privacy.what_are_your_rights.section_0.list_item_0") %></li>
-      <li><%= t("privacy.what_are_your_rights.section_0.list_item_1") %></li>
-      <li><%= t("privacy.what_are_your_rights.section_0.list_item_2") %></li>
-    </ul>
-
-    <p><%= t("privacy.what_are_your_rights.section_1.caption") %></p>
+    <p><%= t("privacy.your_rights.section_0.caption") %></p>
 
     <ul class="govuk-list govuk-list--bullet">
-      <li><%= t("privacy.what_are_your_rights.section_1.list_item_0") %></li>
-      <li><%= t("privacy.what_are_your_rights.section_1.list_item_1") %></li>
-      <li><%= t("privacy.what_are_your_rights.section_1.list_item_2") %></li>
+      <li><%= t("privacy.your_rights.section_0.list_item_0") %></li>
+      <li><%= t("privacy.your_rights.section_0.list_item_1") %></li>
+      <li><%= t("privacy.your_rights.section_0.list_item_2") %></li>
     </ul>
 
-    <p><%= t("privacy.what_are_your_rights.section_2") %></p>
+    <p><%= t("privacy.your_rights.section_1.caption") %></p>
+
+    <ul class="govuk-list govuk-list--bullet">
+      <li><%= t("privacy.your_rights.section_1.list_item_0") %></li>
+      <li><%= t("privacy.your_rights.section_1.list_item_1") %></li>
+      <li><%= t("privacy.your_rights.section_1.list_item_2") %></li>
+    </ul>
+
+    <p><%= t("privacy.your_rights.section_2") %></p>
 
     <h2 class="govuk-heading-m"><%= t("privacy.changes.heading") %></h2>
 
