@@ -4,13 +4,11 @@ require "opentelemetry-metrics-sdk"
 describe Metrics do
   let(:meter_provider) { OpenTelemetry::SDK::Metrics::MeterProvider.new }
   let(:metric_exporter) { OpenTelemetry::SDK::Metrics::Export::InMemoryMetricPullExporter.new }
-  let(:forms_env) { "test" }
   let(:form_id) { 42 }
   let(:form_name) { "Apply for a juggling licence" }
   let(:mode) { Mode.new("form") }
 
   before do
-    allow(Settings).to receive(:forms_env).and_return(forms_env)
     allow(OpenTelemetry).to receive(:meter_provider).and_return(meter_provider)
     meter_provider.add_metric_reader(metric_exporter)
     reset_memoized_instruments
@@ -28,7 +26,6 @@ describe Metrics do
         have_attributes(
           value: 1,
           attributes: {
-            "deployment.environment.name" => forms_env,
             "form.id" => form_id.to_s,
             "form.submission.mode" => "form",
           },
