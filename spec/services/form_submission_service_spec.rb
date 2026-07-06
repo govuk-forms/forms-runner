@@ -162,6 +162,12 @@ RSpec.describe FormSubmissionService, :capture_logging do
             allow(SendS3SubmissionJob).to receive(:perform_later).and_yield(instance_double(SendS3SubmissionJob, successfully_enqueued?: false, enqueue_error:))
           end
 
+          it "does not record a submission count metric" do
+            expect(Metrics).not_to receive(:record_submission)
+
+            expect { service.submit }.to raise_error(StandardError)
+          end
+
           context "and there is no enqueue error" do
             it "raises an error" do
               expect { service.submit }
@@ -246,6 +252,12 @@ RSpec.describe FormSubmissionService, :capture_logging do
 
           before do
             allow(SendSubmissionJob).to receive(:perform_later).and_yield(instance_double(SendSubmissionJob, successfully_enqueued?: false, enqueue_error:))
+          end
+
+          it "does not record a submission count metric" do
+            expect(Metrics).not_to receive(:record_submission)
+
+            expect { service.submit }.to raise_error(StandardError)
           end
 
           context "and there is no enqueue error" do
