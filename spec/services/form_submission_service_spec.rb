@@ -101,6 +101,7 @@ RSpec.describe FormSubmissionService, :capture_logging do
     it "records a submission count metric" do
       expect(Metrics).to receive(:record_submission).with(
         form_id: form.id,
+        form_name: form.name,
         mode:,
       )
 
