@@ -73,6 +73,10 @@ RUN chmod 0755 bin/*
 COPY --chown=ruby:ruby --from=build /usr/local/bundle /usr/local/bundle
 COPY --chown=ruby:ruby --from=build /app /app
 
+# Add the RDS CA certificate to the container so that we can verify the RDS server's identity when connecting to it.
+# Cert bundle from https://truststore.pki.rds.amazonaws.com/eu-west-2/eu-west-2-bundle.pem (https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/UsingWithRDS.SSL.html#UsingWithRDS.SSL.CertificatesDownload)
+COPY --chown=ruby:ruby ./docker/eu-west-2-bundle.pem /home/ruby/.postgresql/root.crt
+
 RUN mkdir -p "/app/tmp/" && chown ruby:ruby "/app/tmp/" && chown ruby:ruby "/app/db/"
 VOLUME "/tmp/"
 VOLUME "/app/tmp/"
