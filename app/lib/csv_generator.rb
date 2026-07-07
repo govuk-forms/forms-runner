@@ -56,7 +56,16 @@ class CsvGenerator
         values.push(submission.submission_locale)
       end
 
-      values
+      csv_safe_values(values)
+    end
+
+    def csv_safe_values(values)
+      # this sanitizes values commonly used in CSV injection attacks by prepending a single quote
+      sanitized_values = []
+      values.map do |value|
+        sanitized_values.push(value.match?(/\A[=+\-@\t\r]/) ? "0x09#{value}" : value)
+      end
+      sanitized_values
     end
   end
 end
