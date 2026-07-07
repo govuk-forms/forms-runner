@@ -3,7 +3,6 @@ require "rails_helper"
 RSpec.describe CsvGenerator do
   let(:form_document) { build(:v2_form_document, form_id: 42, available_languages:, steps: [text_step, name_step, file_upload_step], start_page: text_step.id) }
   let(:submission) { create(:submission, form_document:, created_at: timestamp, reference: submission_reference, mode:, submission_locale:, answers:) }
-  let(:submission_with_unsanitized_answers) { create(:submission, form_document:, created_at: timestamp, reference: submission_reference, mode:, submission_locale:, answers: unsanitized_answers) }
   let(:text_step) { build :v2_question_step, :with_text_settings, question_text: "What is the meaning of life?", next_step_id: name_step.id }
   let(:name_step) { build :v2_question_step, :with_name_settings, question_text: "What is your name?", next_step_id: file_upload_step.id }
   let(:file_upload_step) { build :v2_question_step, :with_file_upload_settings, question_text: "Upload a file" }
@@ -15,13 +14,6 @@ RSpec.describe CsvGenerator do
     {
       text_step.id => { "text" => text_answer },
       name_step.id => { "first_name" => first_name_answer, "last_name" => last_name_answer },
-      file_upload_step.id => { "original_filename" => file_upload_answer },
-    }
-  end
-  let(:unsanitized_answers) do
-    {
-      text_step.id => { "text" => "=#{text_answer}" },
-      name_step.id => { "first_name" => "+#{first_name_answer}", "last_name" => "-#{last_name_answer}" },
       file_upload_step.id => { "original_filename" => file_upload_answer },
     }
   end
@@ -119,13 +111,20 @@ RSpec.describe CsvGenerator do
       end
 
       context "when answers contain possible CSV formula injections" do
-        let(:csv_with_unsanitized_answers) { described_class.generate_submission(submission: submission_with_unsanitized_answers, is_s3_submission:) }
+        let(:csv_with_unsanitized_answers) { described_class.generate_submission(submission: submission, is_s3_submission:) }
+        let(:answers) do
+          {
+            text_step.id => { "text" => "=#{text_answer}" },
+            name_step.id => { "first_name" => "+#{first_name_answer}", "last_name" => "-#{last_name_answer}" },
+            file_upload_step.id => { "original_filename" => "@#{file_upload_answer}" },
+          }
+        end
 
         it "sanitizes input to prevent CSV injection" do
           expect(CSV.parse(csv_with_unsanitized_answers)).to eq(
             [
               ["Reference", "Submitted at", "What is the meaning of life?", "What is your name? - First name", "What is your name? - Last name", "Upload a file"],
-              [submission_reference, "2022-09-14T08:00:00+01:00", "0x09=#{text_answer}", "0x09+#{first_name_answer}", "0x09-#{last_name_answer}", "file_#{submission_reference}.txt"],
+              [submission_reference, "2022-09-14T08:00:00+01:00", "\t=#{text_answer}", "\t+#{first_name_answer}", "\t-#{last_name_answer}", "\t@file_#{submission_reference}.txt"],
             ],
           )
         end
@@ -149,14 +148,15 @@ RSpec.describe CsvGenerator do
   describe "#generate_batched_submissions" do
     subject(:csv_list) { described_class.generate_batched_submissions(submissions_query:, is_s3_submission:) }
 
-    let(:submission_reference_2) { Faker::Alphanumeric.alphanumeric(number: 8).upcase }
+    let(:second_submission_reference) { Faker::Alphanumeric.alphanumeric(number: 8).upcase }
+    let(:third_submission_reference) { Faker::Alphanumeric.alphanumeric(number: 8).upcase }
     let(:is_s3_submission) { false }
     let(:submissions_query) { Submission.all }
 
     context "when all submissions result in the same CSV headers" do
       before do
         submission
-        create(:submission, form_document:, created_at: timestamp + 1.hour, reference: submission_reference_2, mode:, submission_locale: :cy, answers:)
+        create(:submission, form_document:, created_at: timestamp + 1.hour, reference: second_submission_reference, mode:, submission_locale: :cy, answers:)
       end
 
       it "returns an array with a single CSV string" do
@@ -172,7 +172,7 @@ RSpec.describe CsvGenerator do
           [
             ["Reference", "Submitted at", "What is the meaning of life?", "What is your name? - First name", "What is your name? - Last name", "Upload a file"],
             [submission_reference, "2022-09-14T08:00:00+01:00", text_answer, first_name_answer, last_name_answer, "file_#{submission_reference}.txt"],
-            [submission_reference_2, "2022-09-14T09:00:00+01:00", text_answer, first_name_answer, last_name_answer, "file_#{submission_reference_2}.txt"],
+            [second_submission_reference, "2022-09-14T09:00:00+01:00", text_answer, first_name_answer, last_name_answer, "file_#{second_submission_reference}.txt"],
           ],
         )
       end
@@ -185,7 +185,7 @@ RSpec.describe CsvGenerator do
             [
               ["Reference", "Submitted at", "What is the meaning of life?", "What is your name? - First name", "What is your name? - Last name", "Upload a file", "Language"],
               [submission_reference, "2022-09-14T08:00:00+01:00", text_answer, first_name_answer, last_name_answer, "file_#{submission_reference}.txt", "en"],
-              [submission_reference_2, "2022-09-14T09:00:00+01:00", text_answer, first_name_answer, last_name_answer, "file_#{submission_reference_2}.txt", "cy"],
+              [second_submission_reference, "2022-09-14T09:00:00+01:00", text_answer, first_name_answer, last_name_answer, "file_#{second_submission_reference}.txt", "cy"],
             ],
           )
         end
@@ -199,7 +199,7 @@ RSpec.describe CsvGenerator do
             [
               ["Reference", "Submitted at", "What is the meaning of life?", "What is your name? - First name", "What is your name? - Last name", "Upload a file"],
               [submission_reference, "2022-09-14T08:00:00+01:00", text_answer, first_name_answer, last_name_answer, file_upload_answer],
-              [submission_reference_2, "2022-09-14T09:00:00+01:00", text_answer, first_name_answer, last_name_answer, file_upload_answer],
+              [second_submission_reference, "2022-09-14T09:00:00+01:00", text_answer, first_name_answer, last_name_answer, file_upload_answer],
             ],
           )
         end
@@ -207,19 +207,36 @@ RSpec.describe CsvGenerator do
     end
 
     context "when answers contain possible CSV formula injections" do
+      let(:unsanitized_answers) do
+        {
+          text_step.id => { "text" => "=#{text_answer}" },
+          name_step.id => { "first_name" => "+#{first_name_answer}", "last_name" => "-#{last_name_answer}" },
+          file_upload_step.id => { "original_filename" => file_upload_answer.to_s },
+        }
+      end
+      let(:second_unsanitized_answers) do
+        {
+          text_step.id => { "text" => "\r#{text_answer}" },
+          name_step.id => { "first_name" => "\t#{first_name_answer}", "last_name" => "@#{last_name_answer}" },
+          file_upload_step.id => { "original_filename" => file_upload_answer.to_s },
+        }
+      end
+
       before do
         submission
-        create(:submission, form_document:, created_at: timestamp + 1.hour, reference: submission_reference_2, mode:, submission_locale: :cy, answers: unsanitized_answers)
+        create(:submission, form_document:, created_at: timestamp + 1.hour, reference: second_submission_reference, mode:, submission_locale: :cy, answers: unsanitized_answers)
+        create(:submission, form_document:, created_at: timestamp + 1.hour, reference: third_submission_reference, mode:, submission_locale: :cy, answers: second_unsanitized_answers)
       end
 
       it "sanitizes input to prevent CSV injection" do
         csv = CSV.parse(csv_list.first)
-        expect(csv.size).to eq(3) # header row + 2 submissions
+        expect(csv.size).to eq(4) # header row + 3 submissions
         expect(csv).to eq(
           [
             ["Reference", "Submitted at", "What is the meaning of life?", "What is your name? - First name", "What is your name? - Last name", "Upload a file"],
             [submission_reference, "2022-09-14T08:00:00+01:00", text_answer, first_name_answer, last_name_answer, "file_#{submission_reference}.txt"],
-            [submission_reference_2, "2022-09-14T09:00:00+01:00", "0x09=#{text_answer}", "0x09+#{first_name_answer}", "0x09-#{last_name_answer}", "file_#{submission_reference_2}.txt"],
+            [second_submission_reference, "2022-09-14T09:00:00+01:00", "\t=#{text_answer}", "\t+#{first_name_answer}", "\t-#{last_name_answer}", "file_#{second_submission_reference}.txt"],
+            [third_submission_reference, "2022-09-14T09:00:00+01:00", "\t\r#{text_answer}", "\t\t#{first_name_answer}", "\t@#{last_name_answer}", "file_#{third_submission_reference}.txt"],
           ],
         )
       end
