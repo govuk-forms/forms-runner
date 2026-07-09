@@ -23,6 +23,15 @@ module FooterComponent
       links
     end
 
+    def custom_branding
+      branding = BRANDING_CONFIG[@form.form_slug.to_s.gsub("-", "_")]
+      return unless branding
+
+      content_tag(:style) do
+        ":root { --custom-footer-border-colour: #{branding['border_colour']}; }".html_safe
+      end
+    end
+
   private
 
     def locale
