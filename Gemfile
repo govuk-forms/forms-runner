@@ -45,7 +45,7 @@ gem "activeresource"
 gem "pg", "~> 1.6"
 
 # For GOV.UK branding
-gem "govuk-components", "~> 6"
+gem "govuk-components", "~> 6.4"
 gem "govuk_design_system_formbuilder", "~> 6"
 
 # Our own custom markdown renderer
