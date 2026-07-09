@@ -11,24 +11,56 @@ module FormHeaderComponent
 
     def call
       if @current_context.present?
-        homepage_url = @mode.preview? ? Settings.forms_admin.base_url : GOVUK_BASE_URL
+        if BRANDING_CONFIG.key?(@current_context.form.form_slug.gsub("-", "_"))
+          branding = BRANDING_CONFIG[@current_context.form.form_slug.gsub("-", "_")]
 
-        safe_join([
-          govuk_header(homepage_url:,
-                       classes:) do |header|
-            header.with_product_name(name: product_name_with_tag)
-          end,
-          govuk_service_navigation(
-            service_name: form_name,
-            service_url: form_start_page_url,
-            navigation_items: navigation_items,
-          ),
-        ], "\n")
+          safe_join([
+            "<style>
+              :root {
+                --custom-background-colour: #{branding['background_colour']};
+                --custom-border-colour: #{branding['border_colour']};
+              }
+            </style>".html_safe,
+            govuk_generic_header(logo_text: custom_heading(branding), url: branding["organisation_url"]) do |header|
+              header.with_service_navigation(
+                service_name: form_name,
+                service_url: form_start_page_url,
+                navigation_items: navigation_items,
+              )
+            end,
+          ]).html_safe
+        else
+          homepage_url = @mode.preview? ? Settings.forms_admin.base_url : GOVUK_BASE_URL
+
+          safe_join([
+            govuk_header(homepage_url:,
+                         classes:) do |header|
+              header.with_product_name(name: product_name_with_tag)
+            end,
+            govuk_service_navigation(
+              service_name: form_name,
+              service_url: form_start_page_url,
+              navigation_items: navigation_items,
+            ),
+          ], "\n")
+        end
       else
         govuk_header(homepage_url: GOVUK_BASE_URL, classes:) do |header|
           header.with_product_name(name: product_name_with_tag)
         end
       end
+    end
+
+    def custom_background_colour
+      BRANDING_CONFIG[@current_context.form.form_slug]["background_colour"]
+    end
+
+    def custom_heading(branding)
+      branding["logo"].html_safe + branding["organisation_name"]
+    end
+
+    def custom_org_url
+      BRANDING_CONFIG[@current_context.form.form_slug]["organisation_url"]
     end
 
   private

@@ -16,3 +16,8 @@
   gap: .25em;
   flex-wrap: wrap;
 }
+
+.govuk-generic-header {
+  background: var(--custom-background-colour);
+  border-bottom-color: var(--custom-border-colour);
+}
