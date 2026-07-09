@@ -1,0 +1,11 @@
+form_with_branding:
+  background_colour: "blue"
+  border_colour: "green"
+  organisation_name: "Branded Forms County Council"
+  organisation_url: "https://www.example.com"
+  logo: | 
+    <svg width="120" height="40" viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg">
+      <rect width="120" height="40" rx="4" fill="#3366FF"/>
+      <text x="60" y="25" font-family="sans-serif" font-size="14" fill="white" text-anchor="middle">BFCC Logo</text>
+    </svg>
+  
