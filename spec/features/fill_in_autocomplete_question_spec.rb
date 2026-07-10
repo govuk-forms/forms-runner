@@ -1,7 +1,7 @@
 require "rails_helper"
 
 feature "Fill in and submit a form with an autocomplete question", type: :feature do
-  let(:steps) { [build(:v2_selection_question_step, id: 1, routing_conditions: [], question_text:, selection_options:)] }
+  let(:steps) { [build(:v2_selection_question_step, id: 1, routing_conditions: [], question_text:, selection_options:, is_optional: true)] }
   let(:form) { build :v2_form_document, :live, form_id: 1, name: "Fill in this form", steps:, start_page: 1, send_copy_of_answers: "enabled" }
   let(:selection_options) { Array.new(31).each_with_index.map { |_element, index| { name: "Answer #{index}", value: "Answer #{index}" } } }
   let(:question_text) { Faker::Lorem.question }
@@ -39,6 +39,21 @@ feature "Fill in and submit a form with an autocomplete question", type: :featur
     and_i_should_receive_a_reference_number
   end
 
+  scenario "As a form filler choosing 'None of the above'" do
+    when_i_visit_the_form_start_page
+    then_i_should_see_the_first_question
+
+    when_i_start_typing_none_of_the_above
+    then_i_should_see_the_none_of_the_above_option
+    when_i_choose_none_of_the_above
+    and_i_click_on_continue
+    then_i_should_see_the_copy_of_answers_page
+
+    when_i_choose_not_to_receive_a_copy
+    and_i_click_on_continue
+    then_i_should_see_the_check_your_answers_page_with_none_of_the_above
+  end
+
   def when_i_visit_the_form_start_page
     visit form_path(mode: "form", form_id: 1, form_slug: "fill-in-this-form")
     expect_page_to_have_no_axe_errors(page)
@@ -64,6 +79,18 @@ feature "Fill in and submit a form with an autocomplete question", type: :featur
 
   def when_i_choose_an_option
     page.find('li[role="option"]', exact_text: answer_text).click
+  end
+
+  def when_i_start_typing_none_of_the_above
+    fill_in question_text, with: "None"
+  end
+
+  def then_i_should_see_the_none_of_the_above_option
+    expect(page).to have_css('li[role="option"]', text: I18n.t("page.none_of_the_above"))
+  end
+
+  def when_i_choose_none_of_the_above
+    page.find('li[role="option"]', exact_text: I18n.t("page.none_of_the_above")).click
   end
 
   def and_i_click_on_continue
@@ -101,5 +128,13 @@ feature "Fill in and submit a form with an autocomplete question", type: :featur
 
   def and_i_should_receive_a_reference_number
     expect(page).to have_text reference
+  end
+
+  def then_i_should_see_the_check_your_answers_page_with_none_of_the_above
+    expect(page.find("h1")).to have_text "Check your answers before submitting your form"
+    expect(page).to have_text question_text
+    expect(page).to have_text I18n.t("page.none_of_the_above")
+    expect(page).not_to have_text I18n.t("activemodel.errors.models.question/selection.attributes.selection.inclusion")
+    expect_page_to_have_no_axe_errors(page)
   end
 end
