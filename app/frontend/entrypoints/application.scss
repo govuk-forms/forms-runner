@@ -4,6 +4,7 @@ $govuk-global-styles: true;
 @import "pkg:govuk-frontend";
 @import "pkg:dfe-autocomplete";
 @import "../../components/form_header_component/";
+@import "../../components/footer_component/";
 @import "../../components/language_switcher_component/";
 @import "../../components/question/file_review_component/";
 @import "../styles/app-panel";

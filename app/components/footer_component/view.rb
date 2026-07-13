@@ -23,10 +23,33 @@ module FooterComponent
       links
     end
 
+    def custom_branding_style
+      return unless custom_branding?
+
+      branding = @form.branding
+
+      content_tag(:style) do
+        ":root {
+          --custom-footer-border-colour: #{branding['border_colour']};
+          --govuk-template-background-colour: #f3f3f3;
+        }".html_safe
+      end
+    end
+
+    def custom_branding_footer_class
+      "app-custom-govuk-footer" if custom_branding?
+    end
+
   private
 
     def locale
       I18n.locale if I18n.locale != I18n.default_locale
+    end
+
+    def custom_branding?
+      return false if @form.blank?
+
+      @form.has_custom_branding?
     end
   end
 end
