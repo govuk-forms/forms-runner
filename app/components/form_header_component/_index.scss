@@ -13,6 +13,10 @@
 .app-header .govuk-header__link--homepage {
   display: inline-flex;
   align-items: center;
-  gap: .25em;
+  gap: 0.25em;
   flex-wrap: wrap;
+}
+
+.app-header__logo-link {
+  display: inline-block;
 }
