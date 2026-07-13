@@ -56,7 +56,15 @@ class CsvGenerator
         values.push(submission.submission_locale)
       end
 
-      values
+      csv_safe_values(values)
+    end
+
+    def csv_safe_values(values)
+      # Sanitizes values commonly used in CSV injection attacks by prepending a tab character.
+      values.map do |value|
+        str = value.to_s
+        str.match?(/\A[=+\-@\t\r]/) ? "\t#{str}" : str
+      end
     end
   end
 end
