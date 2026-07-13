@@ -13,12 +13,19 @@ module FormHeaderComponent
       if @current_context.present?
 
         if @current_context.form.has_custom_branding?
+          branding = @current_context.form.branding
+
           safe_join([
+            "<style> :root {
+               --custom-background-colour: #{branding['background_colour']};
+               --custom-border-colour: #{branding['border_colour']};
+              }
+            </style>".html_safe,
             govuk_generic_header do |header|
               header.with_logo do
-                content_tag("a", href: @current_context.form.branding["organisation_url"], class: "app-header__logo-link") do
-                  tag.img(src: @current_context.form.branding["logo"],
-                          alt: @current_context.form.branding["organisation_name"])
+                content_tag("a", href: branding["organisation_url"], class: "app-header__logo-link") do
+                  tag.img(src: branding["logo"],
+                          alt: branding["organisation_name"])
                 end
               end
             end,
@@ -26,6 +33,7 @@ module FormHeaderComponent
               service_name: form_name,
               service_url: form_start_page_url,
               navigation_items: navigation_items,
+              classes: "app-custom-service-navigation",
             ),
           ], "\n")
         else
