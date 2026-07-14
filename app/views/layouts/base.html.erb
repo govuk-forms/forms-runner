@@ -4,11 +4,10 @@
     <meta charset="utf-8">
     <title><%= yield(:title) + " – GOV.UK" %></title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="theme-color" content="#0b0c0c">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
-    <meta name="theme-color" content="#1d70b8">
+    <meta name="theme-color" content="<%= theme_colour(form: @current_context&.form) %>">
     <link rel="icon" sizes="48x48" href="<%= vite_asset_path "#{govuk_assets_path}/images/favicon.ico" %>">
     <link rel="icon" sizes="any" href="<%= vite_asset_path "#{govuk_assets_path}/images/favicon.svg" %>" type="image/svg+xml">
     <link rel="mask-icon" href="<%= vite_asset_path "#{govuk_assets_path}/images/govuk-icon-mask.svg" %>" color="#1d70b8">
