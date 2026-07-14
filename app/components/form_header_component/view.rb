@@ -33,7 +33,6 @@ module FormHeaderComponent
               service_name: form_name,
               service_url: form_start_page_url,
               navigation_items: navigation_items,
-              classes: "app-custom-service-navigation",
             ),
           ], "\n")
         else

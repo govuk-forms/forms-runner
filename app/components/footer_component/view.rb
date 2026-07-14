@@ -36,10 +36,6 @@ module FooterComponent
       end
     end
 
-    def custom_branding_footer_class
-      "app-custom-govuk-footer" if custom_branding?
-    end
-
   private
 
     def locale

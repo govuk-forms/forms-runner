@@ -23,7 +23,10 @@
 
   </head>
   <%= tag.body(
-    class: "govuk-template__body ",
+    class: [
+      "govuk-template__body",
+      ("app-custom-branding" if @current_context&.form&.has_custom_branding?),
+    ],
     data: { "google-analytics-enabled": Settings.analytics_enabled }
     ) do %>
 
