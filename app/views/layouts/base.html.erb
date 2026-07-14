@@ -2,7 +2,7 @@
 <html lang="<%= locale %>" class="govuk-template">
   <head>
     <meta charset="utf-8">
-    <title><%= yield(:title) + " – GOV.UK" %></title>
+    <title><%= yield(:title) + " – " + site_name(form: @current_context&.form) %></title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
