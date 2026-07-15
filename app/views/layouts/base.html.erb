@@ -20,6 +20,8 @@
 
     <%= vite_stylesheet_tag 'application.scss' %>
 
+    <%= render CustomBrandingComponent::View.new(form: @current_context&.form ) %>
+
   </head>
   <%= tag.body(
     class: [

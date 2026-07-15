@@ -16,11 +16,6 @@ module FormHeaderComponent
           branding = @current_context.form.branding
 
           safe_join([
-            "<style> :root {
-               --custom-background-colour: #{branding['background_colour']};
-               --custom-border-colour: #{branding['border_colour']};
-              }
-            </style>".html_safe,
             govuk_generic_header do |header|
               header.with_logo do
                 content_tag("a", href: branding["organisation_url"], class: "app-header__logo-link") do
