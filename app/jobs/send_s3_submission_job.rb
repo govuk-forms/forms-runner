@@ -1,6 +1,6 @@
 class SendS3SubmissionJob < SubmissionDeliveryJob
-  def perform(submission)
-    delivery = submission.single_submission_delivery
+  def perform(delivery_or_submission)
+    delivery, submission = resolve_delivery_and_submission(delivery_or_submission)
     set_submission_logging_attributes(submission:, delivery:)
 
     delivery.new_attempt!

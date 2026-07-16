@@ -8,6 +8,7 @@ RSpec.describe SendSubmissionJob, type: :job do
   let(:submission) do
     create(:submission, :sent, form_document:, created_at: submission_created_at, answers:)
   end
+  let(:delivery) { submission.single_submission_delivery }
   let(:form_document) do
     build(:v2_form_document,
           :ready_for_live,
@@ -24,7 +25,58 @@ RSpec.describe SendSubmissionJob, type: :job do
     allow(CloudWatchService).to receive(:record_job_failure_metric)
   end
 
-  context "when the job is processed" do
+  context "when the job is processed with a Delivery argument" do
+    before do
+      allow(AwsSesSubmissionService).to receive(:new).with(submission:).and_return(aws_ses_submission_service_spy)
+      allow(aws_ses_submission_service_spy).to receive(:submit).and_return(delivery_reference)
+
+      described_class.perform_later(delivery)
+      travel 5.seconds do
+        @job_ran_at = Time.zone.now
+        perform_enqueued_jobs
+      end
+    end
+
+    it "submits via AWS SES" do
+      expect(aws_ses_submission_service_spy).to have_received(:submit)
+    end
+
+    it "sets the delivery reference on the existing delivery record" do
+      expect(delivery.reload.delivery_reference).to eq(delivery_reference)
+    end
+
+    it "sets the last attempt time on the existing delivery record" do
+      expect(delivery.reload.last_attempt_at).to be_within(1.second).of(@job_ran_at)
+    end
+
+    it "sends cloudwatch metric for the submission being sent" do
+      expect(CloudWatchService).to have_received(:record_submission_sent_metric).with(
+        satisfy { |value| value.is_a?(Integer) && value >= 0 },
+      )
+    end
+
+    context "when the delivery is being retried" do
+      let(:submission) do
+        delivery = create(:delivery,
+                          delivery_reference: "old-ref",
+                          delivered_at: Time.zone.now,
+                          failed_at: Time.zone.now,
+                          failure_reason: "bounced")
+        create(:submission, form_document:, deliveries: [delivery])
+      end
+
+      it "clears the delivery status fields" do
+        updated_delivery = delivery.reload
+        expect(updated_delivery.delivery_reference).to eq(delivery_reference)
+        expect(updated_delivery.last_attempt_at).to be_within(1.second).of(@job_ran_at)
+        expect(updated_delivery.delivered_at).to be_nil
+        expect(updated_delivery.failed_at).to be_nil
+        expect(updated_delivery.failure_reason).to be_nil
+      end
+    end
+  end
+
+  context "when the job is processed with a Submission argument (backwards compatibility)" do
     before do
       allow(AwsSesSubmissionService).to receive(:new).with(submission:).and_return(aws_ses_submission_service_spy)
       allow(aws_ses_submission_service_spy).to receive(:submit).and_return(delivery_reference)
@@ -47,32 +99,6 @@ RSpec.describe SendSubmissionJob, type: :job do
     it "sets the last attempt time on the existing delivery record" do
       expect(submission.reload.deliveries.first.last_attempt_at).to be_within(1.second).of(@job_ran_at)
     end
-
-    it "sends cloudwatch metric for the submission being sent" do
-      expect(CloudWatchService).to have_received(:record_submission_sent_metric).with(
-        satisfy { |value| value.is_a?(Integer) && value >= 0 },
-      )
-    end
-
-    context "when the delivery is being retried" do
-      let(:submission) do
-        delivery = create(:delivery,
-                          delivery_reference: "old-ref",
-                          delivered_at: Time.zone.now,
-                          failed_at: Time.zone.now,
-                          failure_reason: "bounced")
-        create(:submission, form_document:, deliveries: [delivery])
-      end
-
-      it "clears the delivery status fields" do
-        updated_delivery = submission.deliveries.first.reload
-        expect(updated_delivery.delivery_reference).to eq(delivery_reference)
-        expect(updated_delivery.last_attempt_at).to be_within(1.second).of(@job_ran_at)
-        expect(updated_delivery.delivered_at).to be_nil
-        expect(updated_delivery.failed_at).to be_nil
-        expect(updated_delivery.failure_reason).to be_nil
-      end
-    end
   end
 
   context "when there is an error during processing" do
@@ -85,18 +111,18 @@ RSpec.describe SendSubmissionJob, type: :job do
 
       it "retries for the configured number of attempts" do
         assert_performed_jobs SendSubmissionJob::TOTAL_ATTEMPTS do
-          described_class.perform_later(submission)
+          described_class.perform_later(delivery)
         rescue Aws::SESV2::Errors::ServiceError # If we don't catch the error, the test aborts prematurely
           nil
         end
       end
 
       it "raises an error after all attempts fail" do
-        expect { described_class.new.perform(submission) }.to raise_error(Aws::SESV2::Errors::ServiceError)
+        expect { described_class.new.perform(delivery) }.to raise_error(Aws::SESV2::Errors::ServiceError)
       end
 
       it "sends cloudwatch metric for failure" do
-        described_class.new.perform(submission)
+        described_class.new.perform(delivery)
         expect(CloudWatchService).to have_received(:record_job_failure_metric).with("SendSubmissionJob")
       rescue Aws::SESV2::Errors::ServiceError # If we don't catch the error, the test aborts prematurely
         nil
@@ -110,18 +136,18 @@ RSpec.describe SendSubmissionJob, type: :job do
 
       it "doesn't retry" do
         assert_performed_jobs 1 do
-          described_class.perform_later(submission)
+          described_class.perform_later(delivery)
         rescue StandardError # If we don't catch the error, the test aborts prematurely
           nil
         end
       end
 
       it "raises an error immediately" do
-        expect { described_class.new.perform(submission) }.to raise_error(StandardError)
+        expect { described_class.new.perform(delivery) }.to raise_error(StandardError)
       end
 
       it "sends cloudwatch metric for failure" do
-        described_class.new.perform(submission)
+        described_class.new.perform(delivery)
         expect(CloudWatchService).to have_received(:record_job_failure_metric).with("SendSubmissionJob")
       rescue StandardError # If we don't catch the error, the test aborts prematurely
         nil
@@ -132,7 +158,7 @@ RSpec.describe SendSubmissionJob, type: :job do
   context "when the job was enqueued with Welsh locale" do
     it "uses English I18n translations in the submission email" do
       I18n.with_locale(:cy) do
-        described_class.perform_later(submission)
+        described_class.perform_later(delivery)
         perform_enqueued_jobs
       end
 
