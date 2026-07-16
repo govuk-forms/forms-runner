@@ -85,7 +85,8 @@ feature "Fill in and submit a form with a CSV submission", type: :feature do
   end
 
   def and_an_email_submission_should_have_been_sent
-    expect(SendSubmissionJob).to have_been_enqueued.with(an_instance_of(Submission) do |submission|
+    expect(SendSubmissionJob).to have_been_enqueued.with(an_instance_of(Delivery) do |delivery|
+      submission = delivery.submissions.sole
       expect(submission.form_id).to eq(form.id)
       expect(submission.reference).to eq(reference)
       expect(submission.answers).to eq({ "1" => { "selection" => "Option 1" } })

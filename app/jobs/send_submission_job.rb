@@ -4,11 +4,11 @@ class SendSubmissionJob < SubmissionDeliveryJob
 
   retry_on Aws::SESV2::Errors::ServiceError, wait: :polynomially_longer, attempts: TOTAL_ATTEMPTS
 
-  def perform(submission)
+  def perform(delivery_or_submission)
     # The job will use the locale at the time it was created. Force it to be "en" as we always send submission emails in
     # English.
     I18n.with_locale("en") do
-      delivery = submission.single_submission_delivery
+      delivery, submission = resolve_delivery_and_submission(delivery_or_submission)
       set_submission_logging_attributes(submission:, delivery:)
 
       delivery.new_attempt!

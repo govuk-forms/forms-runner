@@ -91,7 +91,7 @@ private
   end
 
   def create_submission_record
-    submission = Submission.create!(
+    Submission.create!(
       reference: submission_reference,
       form_id: form.id,
       answers: current_context.answers,
@@ -101,16 +101,13 @@ private
       submission_locale:,
       created_at: timestamp,
     )
-
-    submission.deliveries.create!(delivery_schedule: :immediate)
-
-    submission
   end
 
   def enqueue_deliver_submission_job(job_class)
     submission = create_submission_record
+    delivery = submission.deliveries.create!(delivery_schedule: :immediate)
 
-    job_class.perform_later(submission) do |job|
+    job_class.perform_later(delivery) do |job|
       next if job.successfully_enqueued?
 
       submission.destroy!
