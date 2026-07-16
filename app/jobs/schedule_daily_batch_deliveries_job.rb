@@ -21,6 +21,8 @@ class ScheduleDailyBatchDeliveriesJob < ApplicationJob
 
       delivery = Delivery.create!(
         delivery_schedule: :daily,
+        delivery_method: "email",
+        formats: %w[csv],
         submissions: batch.submissions,
         batch_begin_at:,
       )

@@ -20,6 +20,8 @@ class ScheduleWeeklyBatchDeliveriesJob < ApplicationJob
 
       delivery = Delivery.create!(
         delivery_schedule: :weekly,
+        delivery_method: "email",
+        formats: %w[csv],
         submissions: batch.submissions,
         batch_begin_at:,
       )
