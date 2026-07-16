@@ -24,6 +24,7 @@ class Form
            :support_url,
            :support_url_text,
            :what_happens_next_markdown,
+           :delivery_configurations,
            to: :form_document
 
   alias_method :id, :form_id

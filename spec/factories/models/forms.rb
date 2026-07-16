@@ -21,6 +21,8 @@ FactoryBot.define do
     s3_bucket_name { nil }
     s3_bucket_aws_account_id { nil }
 
+    delivery_configurations { [build(:v2_delivery_configuration, :immediate_email)] }
+
     trait :live do
       with_steps
       support_email { Faker::Internet.email(domain: "example.gov.uk") }
