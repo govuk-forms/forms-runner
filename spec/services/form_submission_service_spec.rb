@@ -23,10 +23,9 @@ RSpec.describe FormSubmissionService, :capture_logging do
       support_url_text:,
       submission_email:,
       payment_url:,
-      submission_type:,
-      submission_format:,
       steps:,
       language: "en",
+      delivery_configurations:,
     )
   end
   let(:document_json) { form_document.as_json }
@@ -43,8 +42,6 @@ RSpec.describe FormSubmissionService, :capture_logging do
       support_url_text:,
       submission_email:,
       payment_url:,
-      submission_type:,
-      submission_format:,
       steps:,
       language: "cy",
     )
@@ -52,8 +49,6 @@ RSpec.describe FormSubmissionService, :capture_logging do
   let(:welsh_document_json) { welsh_form_document.as_json }
 
   let(:steps) { [build(:v2_question_step, id: 2, answer_type: "text")] }
-  let(:submission_type) { "email" }
-  let(:submission_format) { [] }
   let(:what_happens_next_markdown) { "We usually respond to applications within 10 working days." }
   let(:support_email) { Faker::Internet.email(domain: "example.gov.uk") }
   let(:support_phone) { Faker::Lorem.paragraph(sentence_count: 2, supplemental: true, random_sentences_to_add: 4) }
@@ -61,6 +56,7 @@ RSpec.describe FormSubmissionService, :capture_logging do
   let(:support_url_text) { Faker::Lorem.sentence(word_count: 1, random_words_to_add: 4) }
   let(:payment_url) { nil }
   let(:submission_email) { "testing@gov.uk" }
+  let(:delivery_configurations) { [build(:v2_delivery_configuration, :immediate_email)] }
 
   let(:reference) { Faker::Alphanumeric.alphanumeric(number: 8).upcase }
 
@@ -112,16 +108,13 @@ RSpec.describe FormSubmissionService, :capture_logging do
           current_context,
           requested_email_confirmation: true,
           preview: mode.preview?,
-          submission_type:,
-          submission_format: form.submission_format,
         )
       end
     end
 
     describe "submitting the form to the processing team" do
       context "when the submission type is s3" do
-        let(:submission_type) { "s3" }
-        let(:submission_format) { %w[csv] }
+        let(:delivery_configurations) { [build(:v2_delivery_configuration, :immediate_s3, formats: %w[csv])] }
 
         it "enqueues a job to send the submission to S3" do
           assert_enqueued_with(job: SendS3SubmissionJob) do
@@ -143,6 +136,9 @@ RSpec.describe FormSubmissionService, :capture_logging do
             expect(Submission.last.deliveries.sole).to have_attributes(
               delivery_reference: nil,
               last_attempt_at: nil,
+              delivery_method: "s3",
+              delivery_schedule: "immediate",
+              formats: %w[csv],
             )
           end
         end
@@ -158,7 +154,7 @@ RSpec.describe FormSubmissionService, :capture_logging do
 
           context "and there is no enqueue error" do
             it "raises an error" do
-              expect { service.submit }.to not_change(Submission, :count).and raise_error(StandardError, "Failed to enqueue submission for reference #{reference}")
+              expect { service.submit }.to not_change(Submission, :count).and not_change(Delivery, :count).and raise_error(StandardError, "Failed to enqueue delivery for method s3 for submission with reference #{reference}")
             end
           end
 
@@ -166,7 +162,7 @@ RSpec.describe FormSubmissionService, :capture_logging do
             let(:enqueue_error) { ActiveJob::EnqueueError.new("An error occurred enqueueing job") }
 
             it "raises an error" do
-              expect { service.submit }.to not_change(Submission, :count).and raise_error(StandardError, "Failed to enqueue submission for reference #{reference}: An error occurred enqueueing job")
+              expect { service.submit }.to not_change(Submission, :count).and not_change(Delivery, :count).and raise_error(StandardError, "Failed to enqueue delivery for method s3 for submission with reference #{reference}: An error occurred enqueueing job")
             end
           end
         end
@@ -175,8 +171,8 @@ RSpec.describe FormSubmissionService, :capture_logging do
       end
 
       context "when the submission type is email" do
-        let(:submission_type) { "email" }
-        let(:submission_format) { [] }
+        let(:delivery_configurations) { [build(:v2_delivery_configuration, :immediate_email, formats: %w[json])] }
+
         let(:aws_ses_submission_service_spy) { instance_double(AwsSesSubmissionService) }
         let(:mail_message_id) { "1234" }
 
@@ -214,7 +210,7 @@ RSpec.describe FormSubmissionService, :capture_logging do
                                                      submission_locale: "en")
         end
 
-        it "creates an initial delivery record for the submission" do
+        it "creates a delivery record for the submission" do
           expect {
             service.submit
           }.to change(Delivery, :count).by(1)
@@ -222,6 +218,9 @@ RSpec.describe FormSubmissionService, :capture_logging do
           delivery = Submission.last.deliveries.sole
           expect(delivery.delivery_reference).to be_nil
           expect(delivery.last_attempt_at).to be_nil
+          expect(delivery.delivery_method).to eq "email"
+          expect(delivery.delivery_schedule).to eq "immediate"
+          expect(delivery.formats).to eq %w[json]
         end
 
         context "when the job fails to enqueue" do
@@ -235,7 +234,7 @@ RSpec.describe FormSubmissionService, :capture_logging do
 
           context "and there is no enqueue error" do
             it "raises an error" do
-              expect { service.submit }.to not_change(Submission, :count).and(not_change(Delivery, :count)).and raise_error(StandardError, "Failed to enqueue submission for reference #{reference}")
+              expect { service.submit }.to not_change(Submission, :count).and not_change(Delivery, :count).and raise_error(StandardError, "Failed to enqueue delivery for method email for submission with reference #{reference}")
             end
           end
 
@@ -243,12 +242,31 @@ RSpec.describe FormSubmissionService, :capture_logging do
             let(:enqueue_error) { ActiveJob::EnqueueError.new("An error occurred enqueueing job") }
 
             it "raises an error" do
-              expect { service.submit }.to not_change(Submission, :count).and(not_change(Delivery, :count)).and raise_error(StandardError, "Failed to enqueue submission for reference #{reference}: An error occurred enqueueing job")
+              expect { service.submit }.to not_change(Submission, :count).and not_change(Delivery, :count).and raise_error(StandardError, "Failed to enqueue delivery for method email for submission with reference #{reference}: An error occurred enqueueing job")
             end
           end
         end
 
         include_examples "logging"
+      end
+
+      context "when the form has both email and s3 delivery configurations" do
+        let(:email_confirmation_input) { build :email_confirmation_input }
+        let(:delivery_configurations) do
+          [
+            build(:v2_delivery_configuration, :immediate_email),
+            build(:v2_delivery_configuration, :immediate_s3),
+            build(:v2_delivery_configuration, :daily_email), # will be ignored
+          ]
+        end
+
+        it "enqueues jobs to send by both email and s3" do
+          service.submit
+          enqueued_jobs = ActiveJob::Base.queue_adapter.enqueued_jobs
+          expect(enqueued_jobs.size).to eq(2)
+          expect(enqueued_jobs).to include(hash_including(job: SendSubmissionJob))
+          expect(enqueued_jobs).to include(hash_including(job: SendS3SubmissionJob))
+        end
       end
 
       context "when form being submitted is from previewed form" do
@@ -295,8 +313,6 @@ RSpec.describe FormSubmissionService, :capture_logging do
       end
 
       context "when form is not in english" do
-        let(:submission_type) { "email" }
-        let(:submission_format) { [] }
         let(:form) { welsh_form }
 
         before do

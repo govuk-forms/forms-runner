@@ -385,7 +385,14 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
 
     context "when the submission type is s3" do
       let(:form_data) do
-        build(:v2_form_document, :s3_submissions_enabled, form_id:, steps: steps_data, start_page: 1)
+        build(:v2_form_document,
+              :s3_submissions_enabled,
+              form_id:,
+              steps: steps_data,
+              start_page: 1,
+              delivery_configurations: [
+                build(:v2_delivery_configuration, :immediate_s3),
+              ])
       end
       let(:mock_credentials) { { foo: "bar" } }
       let(:mock_sts_client) { Aws::STS::Client.new(stub_responses: true) }

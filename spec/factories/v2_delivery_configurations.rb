@@ -1,5 +1,5 @@
 FactoryBot.define do
-  factory :delivery_configuration, class: DataStruct do
+  factory :v2_delivery_configuration, class: DataStruct do
     delivery_method { "email" }
     delivery_schedule { "immediate" }
     formats { [] }
