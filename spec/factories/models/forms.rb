@@ -16,8 +16,6 @@ FactoryBot.define do
     language { "en" }
     declaration_text { nil }
 
-    submission_type { "email" }
-
     s3_bucket_name { nil }
     s3_bucket_aws_account_id { nil }
 
