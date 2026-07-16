@@ -80,8 +80,8 @@ RSpec.describe "submissions.rake", type: :task do
 
     it "logs the bounced submissions" do
       expect(Rails.logger).to receive(:info).with("Found 4 bounced submission deliveries for form with ID #{form_id}")
-      expect(Rails.logger).to receive(:info).with "Immediate delivery - submission reference: #{bounced_submission.reference}, created_at: #{bounced_submission.created_at}, last_attempt_at: #{bounced_submission.single_submission_delivery.last_attempt_at}"
-      expect(Rails.logger).to receive(:info).with "Immediate delivery - submission reference: #{another_bounced_submission.reference}, created_at: #{another_bounced_submission.created_at}, last_attempt_at: #{another_bounced_submission.single_submission_delivery.last_attempt_at}"
+      expect(Rails.logger).to receive(:info).with "Immediate delivery - submission reference: #{bounced_submission.reference}, created_at: #{bounced_submission.created_at}, last_attempt_at: #{bounced_submission.deliveries.first.last_attempt_at}"
+      expect(Rails.logger).to receive(:info).with "Immediate delivery - submission reference: #{another_bounced_submission.reference}, created_at: #{another_bounced_submission.created_at}, last_attempt_at: #{another_bounced_submission.deliveries.first.last_attempt_at}"
       expect(Rails.logger).to receive(:info).with "Daily batch delivery - delivery_reference: #{bounced_daily_delivery.delivery_reference}, created_at: #{bounced_daily_delivery.created_at}, last_attempt_at: #{bounced_daily_delivery.last_attempt_at}"
       expect(Rails.logger).to receive(:info).with "Weekly batch delivery - delivery_reference: #{bounced_weekly_delivery.delivery_reference}, created_at: #{bounced_weekly_delivery.created_at}, last_attempt_at: #{bounced_weekly_delivery.last_attempt_at}"
       task.invoke(form_id)

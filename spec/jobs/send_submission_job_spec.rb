@@ -8,7 +8,7 @@ RSpec.describe SendSubmissionJob, type: :job do
   let(:submission) do
     create(:submission, :sent, form_document:, created_at: submission_created_at, answers:)
   end
-  let(:delivery) { submission.single_submission_delivery }
+  let(:delivery) { submission.deliveries.first }
   let(:form_document) do
     build(:v2_form_document,
           :ready_for_live,

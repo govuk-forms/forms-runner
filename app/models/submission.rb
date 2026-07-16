@@ -46,10 +46,6 @@ class Submission < ApplicationRecord
     form.payment_url_with_reference(reference)
   end
 
-  def single_submission_delivery
-    deliveries.immediate.sole
-  end
-
   def delivery_status
     delivery_statuses = deliveries.map(&:status)
 

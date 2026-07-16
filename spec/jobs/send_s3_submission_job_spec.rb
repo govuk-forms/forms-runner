@@ -10,7 +10,7 @@ RSpec.describe SendS3SubmissionJob, type: :job do
       submission.deliveries.create!
     end
   end
-  let(:delivery) { submission.single_submission_delivery }
+  let(:delivery) { submission.deliveries.first }
   let(:journey) { instance_double(Flow::Journey) }
   let(:delivery_reference) { "s3-submission-key" }
   let(:s3_submission_service_spy) { instance_double(S3SubmissionService, submit: delivery_reference) }
