@@ -105,7 +105,11 @@ private
 
   def enqueue_deliver_submission_job(job_class)
     submission = create_submission_record
-    delivery = submission.deliveries.create!(delivery_schedule: :immediate)
+    delivery = submission.deliveries.create!(
+      delivery_schedule: :immediate,
+      delivery_method: form.submission_type,
+      formats: form.submission_format,
+    )
 
     job_class.perform_later(delivery) do |job|
       next if job.successfully_enqueued?

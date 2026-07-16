@@ -143,6 +143,9 @@ RSpec.describe FormSubmissionService, :capture_logging do
             expect(Submission.last.deliveries.sole).to have_attributes(
               delivery_reference: nil,
               last_attempt_at: nil,
+              delivery_method: "s3",
+              delivery_schedule: "immediate",
+              formats: %w[csv],
             )
           end
         end
@@ -176,7 +179,7 @@ RSpec.describe FormSubmissionService, :capture_logging do
 
       context "when the submission type is email" do
         let(:submission_type) { "email" }
-        let(:submission_format) { [] }
+        let(:submission_format) { %w[json] }
         let(:aws_ses_submission_service_spy) { instance_double(AwsSesSubmissionService) }
         let(:mail_message_id) { "1234" }
 
@@ -222,6 +225,9 @@ RSpec.describe FormSubmissionService, :capture_logging do
           delivery = Submission.last.deliveries.sole
           expect(delivery.delivery_reference).to be_nil
           expect(delivery.last_attempt_at).to be_nil
+          expect(delivery.delivery_method).to eq "email"
+          expect(delivery.delivery_schedule).to eq "immediate"
+          expect(delivery.formats).to eq %w[json]
         end
 
         context "when the job fails to enqueue" do
