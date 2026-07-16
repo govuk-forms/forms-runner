@@ -4,3 +4,5 @@ cheshire-east:
   organisation_name: "Cheshire East Council"
   organisation_url: "https://www.cheshireeast.gov.uk"
   logo: /brand_assets/cheshire-east/logo.png
+  favicon: /brand_assets/cheshire-east/favicon.ico
+  opengraph: /brand_assets/cheshire-east/opengraph.jpg
