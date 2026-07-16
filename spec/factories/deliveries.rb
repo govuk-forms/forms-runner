@@ -4,6 +4,8 @@ FactoryBot.define do
     created_at { Time.current }
     delivery_schedule { :immediate }
     last_attempt_at { Time.current + 10.seconds }
+    delivery_method { "email" }
+    formats { [] }
 
     trait :not_sent do
       delivery_reference { nil }

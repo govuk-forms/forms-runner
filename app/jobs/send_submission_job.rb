@@ -13,7 +13,7 @@ class SendSubmissionJob < SubmissionDeliveryJob
 
       delivery.new_attempt!
 
-      message_id = AwsSesSubmissionService.new(submission:).submit
+      message_id = AwsSesSubmissionService.new(submission:, delivery:).submit
 
       delivery.update!(delivery_reference: message_id)
       record_submission_sent!

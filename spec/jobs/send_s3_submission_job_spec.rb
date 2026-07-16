@@ -29,7 +29,7 @@ RSpec.describe SendS3SubmissionJob, type: :job do
         described_class.perform_later(delivery)
       end
 
-      expect(S3SubmissionService).to have_received(:new).with(submission:)
+      expect(S3SubmissionService).to have_received(:new).with(submission:, delivery:)
       expect(s3_submission_service_spy).to have_received(:submit)
     end
 

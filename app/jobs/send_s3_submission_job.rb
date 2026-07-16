@@ -5,7 +5,7 @@ class SendS3SubmissionJob < SubmissionDeliveryJob
 
     delivery.new_attempt!
 
-    key = S3SubmissionService.new(submission:).submit
+    key = S3SubmissionService.new(submission:, delivery:).submit
 
     delivery.update!(delivery_reference: key)
     record_submission_sent!

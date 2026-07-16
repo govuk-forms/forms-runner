@@ -1,6 +1,7 @@
 class S3SubmissionService
-  def initialize(submission:)
+  def initialize(submission:, delivery:)
     @submission = submission
+    @delivery = delivery
     @journey = submission.journey
     @form = submission.form
     @file_upload_bucket_name = Settings.aws.file_upload_s3_bucket_name
@@ -15,14 +16,19 @@ class S3SubmissionService
     # file arrives and the referenced files will already be present
     copy_uploaded_files_to_bucket
 
+    # This handles deliveries that were created before we started storing the formats on the delivery. This fallback and
+    # the deprecated `Form.submission_format` attribute can be removed from September 2026 when any failed deliveries
+    # will have been removed.
+    formats = @delivery.formats || @form.submission_format
+
     submission_content, key =
-      case @form.submission_format
+      case formats
       when %w[csv]
         [generate_csv_submission, generate_key("form_submission.csv")]
       when %w[json]
         [generate_json_submission, generate_key("form_submission.json")]
       else
-        raise StandardError, "Unsupported submission format: #{@form.submission_format.inspect}"
+        raise StandardError, "Unsupported submission format: #{formats.inspect}"
       end
 
     upload_submission_to_s3(submission_content, key)
