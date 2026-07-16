@@ -250,6 +250,54 @@ RSpec.describe Submission, type: :model do
     end
   end
 
+  describe "#delivery_status" do
+    subject(:submission) { create(:submission) }
+
+    context "when all deliveries are delivered" do
+      before do
+        submission.deliveries.create!(delivery_schedule: :immediate, delivered_at: Time.zone.now)
+        submission.deliveries.create!(delivery_schedule: :daily, delivered_at: Time.zone.now)
+      end
+
+      it "returns :delivered" do
+        expect(submission.delivery_status).to eq(:delivered)
+      end
+    end
+
+    context "when any delivery is pending and none are failed" do
+      before do
+        submission.deliveries.create!(delivery_schedule: :immediate, delivered_at: Time.zone.now)
+        submission.deliveries.create!(delivery_schedule: :daily)
+      end
+
+      it "returns :pending" do
+        expect(submission.delivery_status).to eq(:pending)
+      end
+    end
+
+    context "when any delivery has failed" do
+      before do
+        submission.deliveries.create!(delivery_schedule: :immediate, delivered_at: Time.zone.now)
+        submission.deliveries.create!(delivery_schedule: :daily, failed_at: Time.zone.now, failure_reason: "bounced")
+      end
+
+      it "returns :failed" do
+        expect(submission.delivery_status).to eq(:failed)
+      end
+    end
+
+    context "when there are both failed and pending deliveries" do
+      before do
+        submission.deliveries.create!(delivery_schedule: :immediate, failed_at: Time.zone.now, failure_reason: "bounced")
+        submission.deliveries.create!(delivery_schedule: :daily)
+      end
+
+      it "returns :failed" do
+        expect(submission.delivery_status).to eq(:failed)
+      end
+    end
+  end
+
   describe "#single_submission_delivery" do
     context "when there is a single delivery with 'immediate' delivery_schedule" do
       let(:submission) { create :submission }

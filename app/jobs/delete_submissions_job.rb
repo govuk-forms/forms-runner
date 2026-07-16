@@ -15,7 +15,7 @@ class DeleteSubmissionsJob < ApplicationJob
 
   def delete_submission_data(submission)
     set_submission_logging_attributes(submission:)
-    delivery_status = submission&.single_submission_delivery&.status
+    delivery_status = submission.delivery_status
 
     files = submission.journey.completed_file_upload_questions
     files.each(&:delete_from_s3)

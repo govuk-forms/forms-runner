@@ -50,6 +50,15 @@ class Submission < ApplicationRecord
     deliveries.immediate.sole
   end
 
+  def delivery_status
+    delivery_statuses = deliveries.map(&:status)
+
+    return :failed if delivery_statuses.include?(:failed)
+    return :pending if delivery_statuses.include?(:pending)
+
+    :delivered
+  end
+
   def self.sent?(reference)
     submission = Submission.find_by(reference: reference)
     submission&.single_submission_delivery&.delivery_reference&.present?
