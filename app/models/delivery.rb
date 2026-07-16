@@ -17,6 +17,11 @@ class Delivery < ApplicationRecord
     weekly: "weekly",
   }
 
+  enum :delivery_method, {
+    email: "email",
+    s3: "s3",
+  }
+
   def status
     return :pending if delivered_at.nil? && failed_at.nil?
     return :delivered if delivered_at.present? && failed_at.nil?
