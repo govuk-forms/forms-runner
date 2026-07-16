@@ -76,31 +76,6 @@ RSpec.describe SendSubmissionJob, type: :job do
     end
   end
 
-  context "when the job is processed with a Submission argument (backwards compatibility)" do
-    before do
-      allow(AwsSesSubmissionService).to receive(:new).with(submission:).and_return(aws_ses_submission_service_spy)
-      allow(aws_ses_submission_service_spy).to receive(:submit).and_return(delivery_reference)
-
-      described_class.perform_later(submission)
-      travel 5.seconds do
-        @job_ran_at = Time.zone.now
-        perform_enqueued_jobs
-      end
-    end
-
-    it "submits via AWS SES" do
-      expect(aws_ses_submission_service_spy).to have_received(:submit)
-    end
-
-    it "sets the delivery reference on the existing delivery record" do
-      expect(submission.reload.deliveries.first.delivery_reference).to eq(delivery_reference)
-    end
-
-    it "sets the last attempt time on the existing delivery record" do
-      expect(submission.reload.deliveries.first.last_attempt_at).to be_within(1.second).of(@job_ran_at)
-    end
-  end
-
   context "when there is an error during processing" do
     context "and the error is an Aws::SESV2::Errors::ServiceError" do
       before do

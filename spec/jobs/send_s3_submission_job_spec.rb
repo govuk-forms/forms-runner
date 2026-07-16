@@ -103,27 +103,6 @@ RSpec.describe SendS3SubmissionJob, type: :job do
     end
   end
 
-  context "when the job is processed with a Submission argument (backwards compatibility)" do
-    it "submits via S3" do
-      perform_enqueued_jobs do
-        described_class.perform_later(submission)
-      end
-
-      expect(S3SubmissionService).to have_received(:new).with(submission:)
-      expect(s3_submission_service_spy).to have_received(:submit)
-    end
-
-    it "sets the delivery reference" do
-      freeze_time do
-        perform_enqueued_jobs do
-          described_class.perform_later(submission)
-        end
-
-        expect(submission.reload.deliveries.sole.delivery_reference).to eq(delivery_reference)
-      end
-    end
-  end
-
   context "when there is an error during processing" do
     before do
       allow(s3_submission_service_spy).to receive(:submit).and_raise(StandardError, "Test error")
