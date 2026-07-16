@@ -61,7 +61,7 @@ class Submission < ApplicationRecord
 
   def self.sent?(reference)
     submission = Submission.find_by(reference: reference)
-    submission&.single_submission_delivery&.delivery_reference&.present?
+    submission&.deliveries&.immediate&.all? { |d| d.delivery_reference.present? }
   end
 
   def mode_object

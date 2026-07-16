@@ -220,6 +220,19 @@ RSpec.describe Submission, type: :model do
         expect(described_class).not_to be_sent("999")
       end
     end
+
+    context "when there are multiple deliveries for the submission" do
+      it "returns false if any delivery is not sent" do
+        submission = create(:submission, deliveries: [create(:delivery), create(:delivery, :not_sent)])
+
+        expect(described_class).not_to be_sent(submission.reference)
+      end
+
+      it "returns true if all deliveries are sent" do
+        submission = create(:submission, deliveries: [create(:delivery), create(:delivery)])
+        expect(described_class).to be_sent(submission.reference)
+      end
+    end
   end
 
   describe "#submission_time" do
