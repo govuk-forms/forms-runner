@@ -119,7 +119,10 @@ RSpec.describe FormSubmissionService, :capture_logging do
     end
 
     describe "submitting the form to the processing team" do
-      shared_examples "submits via AWS S3" do
+      context "when the submission type is s3" do
+        let(:submission_type) { "s3" }
+        let(:submission_format) { %w[csv] }
+
         it "enqueues a job to send the submission to S3" do
           assert_enqueued_with(job: SendS3SubmissionJob) do
             service.submit
@@ -167,9 +170,13 @@ RSpec.describe FormSubmissionService, :capture_logging do
             end
           end
         end
+
+        include_examples "logging"
       end
 
-      shared_examples "submits via AWS SES" do
+      context "when the submission type is email" do
+        let(:submission_type) { "email" }
+        let(:submission_format) { [] }
         let(:aws_ses_submission_service_spy) { instance_double(AwsSesSubmissionService) }
         let(:mail_message_id) { "1234" }
 
@@ -240,40 +247,6 @@ RSpec.describe FormSubmissionService, :capture_logging do
             end
           end
         end
-      end
-
-      context "when the submission type is s3" do
-        let(:submission_type) { "s3" }
-        let(:submission_format) { %w[csv] }
-
-        include_examples "submits via AWS S3"
-
-        include_examples "logging"
-      end
-
-      context "when the submission type is s3 with json" do
-        let(:submission_type) { "s3" }
-        let(:submission_format) { %w[json] }
-
-        include_examples "submits via AWS S3"
-
-        include_examples "logging"
-      end
-
-      context "when the submission type is email" do
-        let(:submission_type) { "email" }
-        let(:submission_format) { [] }
-
-        include_examples "submits via AWS SES"
-
-        include_examples "logging"
-      end
-
-      context "when the submission type is email with csv" do
-        let(:submission_type) { "email" }
-        let(:submission_format) { %w[csv] }
-
-        include_examples "submits via AWS SES"
 
         include_examples "logging"
       end
