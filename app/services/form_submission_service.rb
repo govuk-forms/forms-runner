@@ -121,11 +121,31 @@ private
     job_class.perform_later(delivery) do |job|
       next if job.successfully_enqueued?
 
-      delivery.destroy!
-      submission.destroy! if submission.deliveries.reload.empty?
+      message_suffix = " Error: #{job.enqueue_error&.message}" if job.enqueue_error
 
-      message_suffix = ": #{job.enqueue_error&.message}" if job.enqueue_error
-      raise StandardError, "Failed to enqueue delivery for method #{delivery.delivery_method} for submission with reference #{submission_reference}#{message_suffix}"
+      # If the first or only delivery job fails to enqueue, delete the submission and raise an error so the user sees an
+      # error and can retry
+      if submission.deliveries.reload.one?
+        submission.destroy!
+        raise StandardError, "Failed to enqueue delivery for method #{delivery.delivery_method} for submission with reference #{submission_reference}. The submission was deleted, so the user can retry.#{message_suffix}"
+      else
+        delivery.update!(
+          failed_at: Time.zone.now,
+          failure_reason: "enqueue_failed",
+        )
+
+        # Don't raise an exception so we will attempt to queue delivery remaining delivery methods
+        message = "Failed to enqueue submission delivery. Some delivery methods were successfully enqueued, so this delivery needs to be re-attempted by running a rake task"
+        log_extra_attributes = {
+          delivery_id: delivery.id,
+          delivery_method: delivery.delivery_method,
+          enqueue_error: job.enqueue_error&.message,
+        }
+        Sentry.capture_message(message, extra: log_extra_attributes.merge({
+          submission_reference: submission_reference,
+        }))
+        Rails.logger.error(message, log_extra_attributes)
+      end
     end
 
     submission

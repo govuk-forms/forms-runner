@@ -154,7 +154,10 @@ RSpec.describe FormSubmissionService, :capture_logging do
 
           context "and there is no enqueue error" do
             it "raises an error" do
-              expect { service.submit }.to not_change(Submission, :count).and not_change(Delivery, :count).and raise_error(StandardError, "Failed to enqueue delivery for method s3 for submission with reference #{reference}")
+              expect { service.submit }
+                .to not_change(Submission, :count)
+                      .and not_change(Delivery, :count)
+                             .and raise_error(StandardError, "Failed to enqueue delivery for method s3 for submission with reference #{reference}. The submission was deleted, so the user can retry.")
             end
           end
 
@@ -162,7 +165,10 @@ RSpec.describe FormSubmissionService, :capture_logging do
             let(:enqueue_error) { ActiveJob::EnqueueError.new("An error occurred enqueueing job") }
 
             it "raises an error" do
-              expect { service.submit }.to not_change(Submission, :count).and not_change(Delivery, :count).and raise_error(StandardError, "Failed to enqueue delivery for method s3 for submission with reference #{reference}: An error occurred enqueueing job")
+              expect { service.submit }
+                .to not_change(Submission, :count)
+                      .and not_change(Delivery, :count)
+                             .and raise_error(StandardError, "Failed to enqueue delivery for method s3 for submission with reference #{reference}. The submission was deleted, so the user can retry. Error: An error occurred enqueueing job")
             end
           end
         end
@@ -234,7 +240,10 @@ RSpec.describe FormSubmissionService, :capture_logging do
 
           context "and there is no enqueue error" do
             it "raises an error" do
-              expect { service.submit }.to not_change(Submission, :count).and not_change(Delivery, :count).and raise_error(StandardError, "Failed to enqueue delivery for method email for submission with reference #{reference}")
+              expect { service.submit }
+                .to not_change(Submission, :count)
+                      .and not_change(Delivery, :count)
+                             .and raise_error(StandardError, "Failed to enqueue delivery for method email for submission with reference #{reference}. The submission was deleted, so the user can retry.")
             end
           end
 
@@ -242,7 +251,10 @@ RSpec.describe FormSubmissionService, :capture_logging do
             let(:enqueue_error) { ActiveJob::EnqueueError.new("An error occurred enqueueing job") }
 
             it "raises an error" do
-              expect { service.submit }.to not_change(Submission, :count).and not_change(Delivery, :count).and raise_error(StandardError, "Failed to enqueue delivery for method email for submission with reference #{reference}: An error occurred enqueueing job")
+              expect { service.submit }
+                .to not_change(Submission, :count)
+                      .and not_change(Delivery, :count)
+                             .and raise_error(StandardError, "Failed to enqueue delivery for method email for submission with reference #{reference}. The submission was deleted, so the user can retry. Error: An error occurred enqueueing job")
             end
           end
         end
@@ -266,6 +278,61 @@ RSpec.describe FormSubmissionService, :capture_logging do
           expect(enqueued_jobs.size).to eq(2)
           expect(enqueued_jobs).to include(hash_including(job: SendSubmissionJob))
           expect(enqueued_jobs).to include(hash_including(job: SendS3SubmissionJob))
+        end
+
+        context "and there is an enqueue error with the first job" do
+          before do
+            enqueue_error = ActiveJob::EnqueueError.new("An error occurred enqueueing job")
+            allow(SendSubmissionJob).to receive(:perform_later).and_yield(instance_double(SendSubmissionJob, successfully_enqueued?: false, enqueue_error:))
+          end
+
+          it "raises an error and destroys the submission and delivery" do
+            expect { service.submit }
+              .to not_change(Submission, :count)
+                    .and not_change(Delivery, :count)
+                           .and raise_error(StandardError, "Failed to enqueue delivery for method email for submission with reference #{reference}. The submission was deleted, so the user can retry. Error: An error occurred enqueueing job")
+          end
+        end
+
+        context "and there is an enqueue error with the second job" do
+          before do
+            enqueue_error = ActiveJob::EnqueueError.new("An error occurred enqueueing job")
+            allow(SendS3SubmissionJob).to receive(:perform_later).and_yield(instance_double(SendS3SubmissionJob, successfully_enqueued?: false, enqueue_error:))
+          end
+
+          it "does not delete the submission or delivery" do
+            expect { service.submit }
+              .to change(Submission, :count).by(1)
+                                            .and change(Delivery, :count).by(2)
+          end
+
+          it "updates the delivery to failed" do
+            service.submit
+            delivery = Submission.last.deliveries.find_by(delivery_method: "s3")
+            expect(delivery.failed_at).not_to be_nil
+            expect(delivery.failure_reason).to eq("enqueue_failed")
+          end
+
+          it "sends an event to Sentry" do
+            allow(Sentry).to receive(:capture_message)
+            service.submit
+            expect(Sentry).to have_received(:capture_message).with("Failed to enqueue submission delivery. Some delivery methods were successfully enqueued, so this delivery needs to be re-attempted by running a rake task", extra: {
+              delivery_id: Delivery.last.id,
+              delivery_method: "s3",
+              submission_reference: reference,
+              enqueue_error: "An error occurred enqueueing job",
+            })
+          end
+
+          it "logs an error" do
+            allow(Rails.logger).to receive(:error)
+            service.submit
+            expect(Rails.logger).to have_received(:error).with("Failed to enqueue submission delivery. Some delivery methods were successfully enqueued, so this delivery needs to be re-attempted by running a rake task", {
+              delivery_id: Delivery.last.id,
+              delivery_method: "s3",
+              enqueue_error: "An error occurred enqueueing job",
+            })
+          end
         end
       end
 
