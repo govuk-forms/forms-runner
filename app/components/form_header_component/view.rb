@@ -20,7 +20,8 @@ module FormHeaderComponent
               header.with_logo do
                 content_tag("a", href: branding["organisation_url"], class: "app-header__logo-link") do
                   tag.img(src: branding["logo"],
-                          alt: branding["organisation_name"])
+                          alt: branding["organisation_name"],
+                          class: "app-header__logo-image")
                 end
               end
             end,

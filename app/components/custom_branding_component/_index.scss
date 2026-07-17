@@ -11,6 +11,16 @@
 
 .app-custom-branding .app-header__logo-link {
   display: inline-block;
+  height: govuk-px-to-rem(100);
+  width: govuk-px-to-rem(250);
+}
+
+.app-custom-branding .app-header__logo-image {
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-position: left;
 }
 
 .app-custom-branding .govuk-generic-header {
