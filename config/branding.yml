@@ -6,3 +6,9 @@ cheshire-east:
   logo: /brand_assets/cheshire-east/logo.png
   favicon: /brand_assets/cheshire-east/favicon.ico
   opengraph: /brand_assets/cheshire-east/opengraph.jpg
+south-gloucestershire:
+  background_colour: "white"
+  border_colour: "#427730"
+  organisation_name: "South Gloucestershire Council"
+  organisation_url: "https://www.southglos.gov.uk"
+  logo: /brand_assets/south-gloucestershire/logo.png
