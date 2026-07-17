@@ -18,12 +18,12 @@ class Form
            :send_daily_submission_batch,
            :send_weekly_submission_batch,
            :submission_email,
-           :submission_type,
            :support_email,
            :support_phone,
            :support_url,
            :support_url_text,
            :what_happens_next_markdown,
+           :delivery_configurations,
            to: :form_document
 
   alias_method :id, :form_id
@@ -38,6 +38,8 @@ class Form
     "#{form_document.payment_url}?reference=#{reference}"
   end
 
+  # Deprecated: kept for historic Submission records. Use delivery_configurations on form_document.
+  # Can be removed in September 2026 when historic Submissions with this field have been deleted.
   def submission_format
     form_document.try(:submission_format) || []
   end

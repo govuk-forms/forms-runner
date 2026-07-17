@@ -10,7 +10,7 @@ RSpec.describe SendS3SubmissionJob, type: :job do
       submission.deliveries.create!
     end
   end
-  let(:delivery) { submission.single_submission_delivery }
+  let(:delivery) { submission.deliveries.first }
   let(:journey) { instance_double(Flow::Journey) }
   let(:delivery_reference) { "s3-submission-key" }
   let(:s3_submission_service_spy) { instance_double(S3SubmissionService, submit: delivery_reference) }
@@ -29,7 +29,7 @@ RSpec.describe SendS3SubmissionJob, type: :job do
         described_class.perform_later(delivery)
       end
 
-      expect(S3SubmissionService).to have_received(:new).with(submission:)
+      expect(S3SubmissionService).to have_received(:new).with(submission:, delivery:)
       expect(s3_submission_service_spy).to have_received(:submit)
     end
 
@@ -99,27 +99,6 @@ RSpec.describe SendS3SubmissionJob, type: :job do
           expect(updated_delivery.failed_at).to be_nil
           expect(updated_delivery.failure_reason).to be_nil
         end
-      end
-    end
-  end
-
-  context "when the job is processed with a Submission argument (backwards compatibility)" do
-    it "submits via S3" do
-      perform_enqueued_jobs do
-        described_class.perform_later(submission)
-      end
-
-      expect(S3SubmissionService).to have_received(:new).with(submission:)
-      expect(s3_submission_service_spy).to have_received(:submit)
-    end
-
-    it "sets the delivery reference" do
-      freeze_time do
-        perform_enqueued_jobs do
-          described_class.perform_later(submission)
-        end
-
-        expect(submission.reload.deliveries.sole.delivery_reference).to eq(delivery_reference)
       end
     end
   end

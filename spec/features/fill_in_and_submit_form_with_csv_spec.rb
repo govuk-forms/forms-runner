@@ -7,7 +7,16 @@ feature "Fill in and submit a form with a CSV submission", type: :feature do
       build(:v2_selection_question_step, only_one_option: false, id: 2, question_text: "Skipped question", next_step_id: 3),
     ]
   end
-  let(:form) { build :v2_form_document, :live, form_id: 1, name: "Fill in this form", steps:, start_page: steps.first.id, submission_type: "email", submssion_format: %w[csv], send_copy_of_answers: "enabled" }
+  let(:form) do
+    build(:v2_form_document,
+          :live,
+          form_id: 1,
+          name: "Fill in this form",
+          steps:,
+          start_page: steps.first.id,
+          send_copy_of_answers: "enabled",
+          delivery_configurations: [build(:v2_delivery_configuration, :immediate_email, formats: %w[csv])])
+  end
   let(:reference) { Faker::Alphanumeric.alphanumeric(number: 8).upcase }
   let(:req_headers) { { "Accept" => "application/json" } }
 
@@ -92,8 +101,6 @@ feature "Fill in and submit a form with a CSV submission", type: :feature do
       expect(submission.answers).to eq({ "1" => { "selection" => "Option 1" } })
       expect(submission.created_at).to eq(Time.zone.parse("2029-01-24T05:05:50+00:00"))
       expect(submission.form_document["name"]).to eq("Fill in this form")
-      expect(submission.form_document["submission_type"]).to eq("email")
-      expect(submission.form_document["submission_format"]).to eq(%w[csv])
       expect(submission.form_document["submission_email"]).to eq(form.submission_email)
     end)
   end

@@ -26,7 +26,15 @@ class FormSubmissionService
     validate_submission
     validate_confirmation_email_address if requested_confirmation?
 
-    submission = deliver_submission
+    submission = create_submission_record
+    enqueue_deliveries(submission)
+
+    LogEventService.log_submit(
+      current_context,
+      requested_email_confirmation: requested_confirmation?,
+      preview: mode.preview?,
+    )
+
     enqueue_send_confirmation_email_job(submission:) if requested_confirmation? || send_copy_of_answers?
 
     submission_reference
@@ -68,26 +76,32 @@ private
     raise StandardError, "Form id(#{form.id}) has no completed steps i.e questions/answers to submit" if current_context.completed_steps.blank?
   end
 
-  def deliver_submission
-    submission =
-      case form.submission_type
-      when "s3"
-        enqueue_deliver_submission_job(SendS3SubmissionJob)
-      when "email"
-        enqueue_deliver_submission_job(SendSubmissionJob)
-      else
-        raise "unrecognized submission delivery method #{form.submission_type.inspect}"
-      end
+  def enqueue_deliveries(submission)
+    form.delivery_configurations
+        .filter { |c| c.delivery_schedule == "immediate" }
+        .each { |c| enqueue_delivery(c, submission) }
+  end
 
-    LogEventService.log_submit(
-      current_context,
-      requested_email_confirmation: requested_confirmation?,
-      preview: mode.preview?,
-      submission_type: form.submission_type,
-      submission_format: form.submission_format,
+  def enqueue_delivery(delivery_configuration, submission)
+    delivery = submission.deliveries.create!(
+      delivery_schedule: :immediate,
+      delivery_method: delivery_configuration.delivery_method,
+      formats: delivery_configuration.formats,
     )
 
-    submission
+    job_class = resolve_submission_job_class(delivery_configuration)
+    enqueue_deliver_submission_job(job_class, submission, delivery)
+  end
+
+  def resolve_submission_job_class(delivery_configuration)
+    case delivery_configuration.delivery_method
+    when "s3"
+      SendS3SubmissionJob
+    when "email"
+      SendSubmissionJob
+    else
+      raise "unrecognized delivery method #{delivery_configuration.delivery_method.inspect}"
+    end
   end
 
   def create_submission_record
@@ -103,16 +117,35 @@ private
     )
   end
 
-  def enqueue_deliver_submission_job(job_class)
-    submission = create_submission_record
-    delivery = submission.deliveries.create!(delivery_schedule: :immediate)
-
+  def enqueue_deliver_submission_job(job_class, submission, delivery)
     job_class.perform_later(delivery) do |job|
       next if job.successfully_enqueued?
 
-      submission.destroy!
-      message_suffix = ": #{job.enqueue_error&.message}" if job.enqueue_error
-      raise StandardError, "Failed to enqueue submission for reference #{submission_reference}#{message_suffix}"
+      message_suffix = " Error: #{job.enqueue_error&.message}" if job.enqueue_error
+
+      # If the first or only delivery job fails to enqueue, delete the submission and raise an error so the user sees an
+      # error and can retry
+      if submission.deliveries.reload.one?
+        submission.destroy!
+        raise StandardError, "Failed to enqueue delivery for method #{delivery.delivery_method} for submission with reference #{submission_reference}. The submission was deleted, so the user can retry.#{message_suffix}"
+      else
+        delivery.update!(
+          failed_at: Time.zone.now,
+          failure_reason: "enqueue_failed",
+        )
+
+        # Don't raise an exception so we will attempt to queue delivery remaining delivery methods
+        message = "Failed to enqueue submission delivery. Some delivery methods were successfully enqueued, so this delivery needs to be re-attempted by running a rake task"
+        log_extra_attributes = {
+          delivery_id: delivery.id,
+          delivery_method: delivery.delivery_method,
+          enqueue_error: job.enqueue_error&.message,
+        }
+        Sentry.capture_message(message, extra: log_extra_attributes.merge({
+          submission_reference: submission_reference,
+        }))
+        Rails.logger.error(message, log_extra_attributes)
+      end
     end
 
     submission

@@ -46,13 +46,18 @@ class Submission < ApplicationRecord
     form.payment_url_with_reference(reference)
   end
 
-  def single_submission_delivery
-    deliveries.immediate.sole
+  def delivery_status
+    delivery_statuses = deliveries.map(&:status)
+
+    return :failed if delivery_statuses.include?(:failed)
+    return :pending if delivery_statuses.include?(:pending)
+
+    :delivered
   end
 
   def self.sent?(reference)
     submission = Submission.find_by(reference: reference)
-    submission&.single_submission_delivery&.delivery_reference&.present?
+    submission&.deliveries&.immediate&.all? { |d| d.delivery_reference.present? }
   end
 
   def mode_object

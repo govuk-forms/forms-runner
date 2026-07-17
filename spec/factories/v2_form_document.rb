@@ -11,7 +11,6 @@ FactoryBot.define do
     payment_url { nil }
     privacy_policy_url { nil }
     submission_email { nil }
-    submission_type { nil }
     submission_format { nil }
     support_email { nil }
     support_phone { nil }
@@ -26,6 +25,7 @@ FactoryBot.define do
     send_copy_of_answers { "disabled" }
     send_daily_submission_batch { false }
     send_weekly_submission_batch { false }
+    delivery_configurations { [build(:v2_delivery_configuration, :immediate_email)] }
 
     trait :with_steps do
       transient do
@@ -44,7 +44,6 @@ FactoryBot.define do
     end
 
     trait :with_submission_email do
-      submission_type { "email" }
       submission_format { [] }
       submission_email { Faker::Internet.email domain: "example.gov.uk" }
     end
@@ -70,8 +69,6 @@ FactoryBot.define do
 
     trait :s3_submissions_enabled do
       ready_for_live
-      submission_type { "s3" }
-      submission_format { %w[csv] }
       s3_bucket_aws_account_id { "21487124" }
       s3_bucket_name { "a-bucket-name" }
       s3_bucket_region { "eu-west-2" }

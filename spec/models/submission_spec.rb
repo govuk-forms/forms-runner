@@ -220,6 +220,19 @@ RSpec.describe Submission, type: :model do
         expect(described_class).not_to be_sent("999")
       end
     end
+
+    context "when there are multiple deliveries for the submission" do
+      it "returns false if any delivery is not sent" do
+        submission = create(:submission, deliveries: [create(:delivery), create(:delivery, :not_sent)])
+
+        expect(described_class).not_to be_sent(submission.reference)
+      end
+
+      it "returns true if all deliveries are sent" do
+        submission = create(:submission, deliveries: [create(:delivery), create(:delivery)])
+        expect(described_class).to be_sent(submission.reference)
+      end
+    end
   end
 
   describe "#submission_time" do
@@ -250,46 +263,50 @@ RSpec.describe Submission, type: :model do
     end
   end
 
-  describe "#single_submission_delivery" do
-    context "when there is a single delivery with 'immediate' delivery_schedule" do
-      let(:submission) { create :submission }
-      let!(:delivery) { submission.deliveries.create!(delivery_schedule: :immediate) }
+  describe "#delivery_status" do
+    subject(:submission) { create(:submission) }
 
+    context "when all deliveries are delivered" do
       before do
-        submission.deliveries.create!(delivery_schedule: :daily)
+        submission.deliveries.create!(delivery_schedule: :immediate, delivered_at: Time.zone.now)
+        submission.deliveries.create!(delivery_schedule: :daily, delivered_at: Time.zone.now)
       end
 
-      it "returns the delivery without a batch frequency" do
-        expect(submission.single_submission_delivery).to eq(delivery)
+      it "returns :delivered" do
+        expect(submission.delivery_status).to eq(:delivered)
       end
     end
 
-    context "when there are multiple deliveries with 'immediate' delivery_schedule" do
-      let(:submission) { create :submission }
-
+    context "when any delivery is pending and none are failed" do
       before do
-        submission.deliveries.create!(delivery_schedule: :immediate)
-        submission.deliveries.create!(delivery_schedule: :immediate)
-      end
-
-      it "raises an error" do
-        expect {
-          submission.single_submission_delivery
-        }.to raise_error(ActiveRecord::SoleRecordExceeded)
-      end
-    end
-
-    context "when there is a single delivery with 'daily' delivery_schedule" do
-      let(:submission) { create :submission }
-
-      before do
+        submission.deliveries.create!(delivery_schedule: :immediate, delivered_at: Time.zone.now)
         submission.deliveries.create!(delivery_schedule: :daily)
       end
 
-      it "raises an error" do
-        expect {
-          submission.single_submission_delivery
-        }.to raise_error(ActiveRecord::RecordNotFound)
+      it "returns :pending" do
+        expect(submission.delivery_status).to eq(:pending)
+      end
+    end
+
+    context "when any delivery has failed" do
+      before do
+        submission.deliveries.create!(delivery_schedule: :immediate, delivered_at: Time.zone.now)
+        submission.deliveries.create!(delivery_schedule: :daily, failed_at: Time.zone.now, failure_reason: "bounced")
+      end
+
+      it "returns :failed" do
+        expect(submission.delivery_status).to eq(:failed)
+      end
+    end
+
+    context "when there are both failed and pending deliveries" do
+      before do
+        submission.deliveries.create!(delivery_schedule: :immediate, failed_at: Time.zone.now, failure_reason: "bounced")
+        submission.deliveries.create!(delivery_schedule: :daily)
+      end
+
+      it "returns :failed" do
+        expect(submission.delivery_status).to eq(:failed)
       end
     end
   end

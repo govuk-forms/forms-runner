@@ -1,24 +1,19 @@
 require "rails_helper"
 
 RSpec.describe S3SubmissionService do
-  subject(:service) do
-    described_class.new(submission:)
-  end
+  subject(:service) { described_class.new(submission:, delivery:) }
 
   let(:submission) { build(:submission, form_document:, created_at: timestamp, reference: submission_reference, mode:, submission_locale:) }
+  let(:delivery) { build :delivery, formats: %w[csv] }
 
   let(:form_document) do
     build(:v2_form_document,
           form_id: 42,
-          submission_type:,
-          submission_format:,
           s3_bucket_name:,
           s3_bucket_aws_account_id:,
           s3_bucket_region:,
           available_languages:)
   end
-  let(:submission_type) { "s3" }
-  let(:submission_format) { %w[csv] }
   let(:s3_bucket_name) { "a-bucket" }
   let(:s3_bucket_aws_account_id) { "23423423423423" }
   let(:s3_bucket_region) { "eu-west-1" }
@@ -72,6 +67,8 @@ RSpec.describe S3SubmissionService do
       end
 
       context "when the submission format is CSV" do
+        let(:delivery) { build :delivery, formats: %i[csv] }
+
         it "calls put_object with a CSV file and filename" do
           expected_key_name = "form_submissions/#{form_document.form_id}/#{expected_timestamp}_#{submission_reference}/form_submission.csv"
           expected_csv_content = "Reference,Submitted at,What is the meaning of life?\n#{submission_reference},2022-09-14T08:24:34+01:00,42\n"
@@ -87,7 +84,7 @@ RSpec.describe S3SubmissionService do
           service.submit
         end
 
-        context "when the submssion is Welsh" do
+        context "when the submission is Welsh" do
           let(:submission_locale) { "cy" }
           let(:available_languages) { %i[en cy] }
 
@@ -101,8 +98,7 @@ RSpec.describe S3SubmissionService do
       end
 
       context "when the submission format is JSON" do
-        let(:submission_type) { "s3" }
-        let(:submission_format) { %w[json] }
+        let(:delivery) { build :delivery, formats: %w[json] }
 
         it "calls put_object with a JSON file and filename" do
           expected_key_name = "form_submissions/#{form_document.form_id}/#{expected_timestamp}_#{submission_reference}/form_submission.json"
@@ -118,7 +114,7 @@ RSpec.describe S3SubmissionService do
           service.submit
         end
 
-        context "when the submssion is Welsh" do
+        context "when the submission is Welsh" do
           let(:submission_locale) { "cy" }
           let(:available_languages) { %i[en cy] }
 
@@ -127,6 +123,20 @@ RSpec.describe S3SubmissionService do
 
             service.submit
           end
+        end
+      end
+
+      context "when the formats are nil on the delivery" do
+        let(:delivery) { build :delivery, formats: nil }
+        let(:form_document) do
+          build(:v2_form_document, :s3_submissions_enabled, submission_format: %w[json])
+        end
+
+        it "falls back to using the submission_format on the form" do
+          expected_key_name = "form_submissions/#{form_document.form_id}/#{expected_timestamp}_#{submission_reference}/form_submission.json"
+          expect(mock_s3_client).to receive(:put_object).with(hash_including(key: expected_key_name))
+
+          service.submit
         end
       end
 
@@ -142,6 +152,8 @@ RSpec.describe S3SubmissionService do
         end
 
         context "when the submission format is CSV" do
+          let(:delivery) { build :delivery, formats: %i[csv] }
+
           it "creates the CSV file with the expected filenames" do
             expected_key_name = "form_submissions/#{form_document.form_id}/#{expected_timestamp}_#{submission_reference}/form_submission.csv"
             expected_csv_content = "Reference,Submitted at,#{first_file_upload_question.question_text},#{second_file_upload_question.question_text}\n" \
@@ -160,8 +172,7 @@ RSpec.describe S3SubmissionService do
         end
 
         context "when the submission format is JSON" do
-          let(:submission_type) { "s3" }
-          let(:submission_format) { %w[json] }
+          let(:delivery) { build :delivery, formats: %w[json] }
 
           it "creates the JSON file with the expected filenames" do
             expected_key_name = "form_submissions/#{form_document.form_id}/#{expected_timestamp}_#{submission_reference}/form_submission.json"

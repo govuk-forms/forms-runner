@@ -1,8 +1,9 @@
 class AwsSesSubmissionService
   include SubmissionFilenameGenerator
 
-  def initialize(submission:)
+  def initialize(submission:, delivery:)
     @submission = submission
+    @delivery = delivery
     @journey = submission.journey
     @form = submission.form
   end
@@ -25,12 +26,17 @@ private
   def deliver_submission_email
     files = uploaded_files_in_answers
 
+    # This handles deliveries that were created before we started storing the formats on the delivery. This fallback and
+    # the deprecated `Form.submission_format` attribute can be removed from September 2026 when any failed deliveries
+    # will have been removed.
+    formats = @delivery.formats || @form.submission_format
+
     csv_filename = nil
-    if @form.submission_format.include? "json"
+    if formats.include? "json"
       json_filename = generate_json_filename
       files.merge!({ json_filename => generate_json_submission })
     end
-    if @form.submission_format.include? "csv"
+    if formats.include? "csv"
       csv_filename = generate_csv_filename
       files.merge!({ csv_filename => generate_csv_submission })
     end
