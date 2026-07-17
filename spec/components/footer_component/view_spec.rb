@@ -48,6 +48,14 @@ RSpec.describe FooterComponent::View, type: :component do
     it "includes the privacy link" do
       expect(page).to have_link("Privacy", href: form_privacy_path(mode:, form_id: form.id, form_slug: form.form_slug))
     end
+
+    context "when the form has custom branding" do
+      let(:form) { build :form, brand_id: "cheshire-east", id: 1 }
+
+      it "includes a link to the branded accessbility statement" do
+        expect(page).to have_link("Accessibility statement", href: form_branded_accessibility_statement_path(mode:, form_id: form.id, form_slug: form.form_slug))
+      end
+    end
   end
 
   context "when a form is not present for the request" do
