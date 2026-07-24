@@ -29,6 +29,8 @@ class FormSubmissionService
     submission = create_submission_record
     enqueue_deliveries(submission)
 
+    Metrics.record_submission(form_id: form.id, form_name: form.name, mode:)
+
     LogEventService.log_submit(
       current_context,
       requested_email_confirmation: requested_confirmation?,
