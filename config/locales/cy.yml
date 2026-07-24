@@ -5,6 +5,7 @@ cy:
       accessibility_regulations: Mae’r Comisiwn Cydraddoldeb a Hawliau Dynol (EHRC) yn gyfrifol am orfodi Rheoliadau Hygyrchedd Cyrff y Sector Cyhoeddus (Gwefannau a Chymwysiadau Symudol) (Rhif 2) 2018 (y ‘rheoliadau hygyrchedd’).
       complaints_html: Os nad ydych yn hapus â sut rydym yn ymateb i’ch cwyn, cysylltwch â’r <a href="https://www.equalityadvisoryservice.com/">Gwasanaeth Cynghori a Chymorth Cydraddoldeb</a>, sy’n cael ei redeg ar ran EHRC.
       heading: Os nad ydych yn hapus â’n hymateb
+    coverage_branded: This accessibility statement covers only the form, which will have a URL starting with https://submit.forms.service.gov.uk. The organisation publishing the form will have a separate statement covering the accessibility of its own website.
     explains_list:
       list_item_0: pa mor hygyrch yw’r ffurflen
       list_item_1: beth i’w wneud os ydych yn cael trafferth ei ddefnyddio
@@ -18,6 +19,7 @@ cy:
     inset_text_html: Mae’r ffurflen hon yn rhan o’r wefan ehangach GOV.UK. Mae <a href="https://www.gov.uk/help/accessibility-statement">datganiad hygyrchedd ar wahân ar gyfer y brif wefan GOV.UK</a>.
     limitations:
       departmental_responsibility: Mae’r cwestiynau yn y ffurflen yn cael eu hysgrifennu gan bobl yn adrannau ac asiantaethau’r llywodraeth. Mae pob adran ac asiantaeth sy’n cyhoeddi cynnwys ar GOV.UK yn gyfrifol am sicrhau eu bod yn bodloni’r rheoliadau hygyrchedd. Fodd bynnag, efallai na fydd y testun a ddefnyddir yn y ffurflen yn iaith plaen ac efallai na fydd y strwythur yn gwbl hygyrch.
+      departmental_responsibility_branded: The questions in the form are written by people in government departments, agencies and other public sector organisations. Each organisation is responsible for making sure it meets the accessibility regulations. However, the text used in the form might not be plain language and the structure may not be fully accessible.
       forms_issues: Mae materion sy’n ymwneud â rhyngwyneb GOV.UK Forms wedi’u rhestru yn ‘Gwybodaeth dechnegol am hygyrchedd y ffurflen hon’ isod.
       guidance: Er mwyn annog cynnwys hygyrch, rydym yn darparu canllawiau o fewn platfform GOV.UK Forms. Rydym hefyd yn defnyddio adborth a dadansoddeg i nodi problemau hygyrchedd.
       heading: Pa mor hygyrch yw’r ffurflen hon
@@ -47,6 +49,7 @@ cy:
         preamble: Er nad yw’r materion canlynol yn methu WCAG 2.2 AA, rydym yn bwriadu ymchwilio iddynt a’u cywiro cyn gynted â phosibl.
       preamble: Nid yw’r cynnwys a restrir isod yn hygyrch am y rhesymau canlynol.
     preamble: Mae’r datganiad hygyrchedd hwn yn berthnasol i ffurflenni ar-lein gydag URL sy’n dechrau gyda https://submit.forms.service.gov.uk.
+    preamble_branded: This form was created using a platform called GOV.UK Forms, built by the Government Digital Service (GDS). Public sector organisations create and publish forms using the platform, and may link to those forms from their website.
     reporting:
       email_html: Os ydych yn dod o hyd i unrhyw broblemau, neu os ydych yn meddwl nad ydym yn bodloni gofynion hygyrchedd, anfonwch e-bost atom yn <a href="mailto:govuk-forms@digital.cabinet-office.gov.uk">govuk-forms@digital.cabinet-office.gov.uk</a>.
       heading: Rhoi gwybod am broblemau hygyrchedd
@@ -73,6 +76,7 @@ cy:
       accessibility_recommendations_text: 'Dylech allu:'
       content_guidance: Dylai’r testun yn y ffurflen fod yn glir ac yn syml i’w ddeall.
       disability_advice_html: <a href="https://mcmw.abilitynet.org.uk/">Mae gan AbilityNet</a> gyngor ar wneud eich dyfais yn haws i’w defnyddio os oes gennych anabledd.
+      forms_description_branded_html: GOV.UK Forms is designed to create forms that can be used by as many people as possible.
       forms_description_html: Crëwyd y ffurflen hon gan ddefnyddio platfform o’r enw <a href="http://www.gov.uk/forms">GOV.UK Forms</a>. Mae GOV.UK Forms yn cael ei adeiladu gan Wasanaeth Digidol y Llywodraeth (GDS). Mae wedi’i gynllunio i greu ffurflenni y gellir eu defnyddio gan cyn gymaint o bobl â phosibl.
       heading: Defnyddio’r ffurflen hon
   activemodel:

@@ -3,6 +3,7 @@ $govuk-global-styles: true;
 
 @import "pkg:govuk-frontend";
 @import "pkg:dfe-autocomplete";
+@import "../../components/custom_branding_component/";
 @import "../../components/form_header_component/";
 @import "../../components/language_switcher_component/";
 @import "../../components/question/file_review_component/";

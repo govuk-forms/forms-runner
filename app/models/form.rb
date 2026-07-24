@@ -84,4 +84,16 @@ class Form
   def declaration_markdown
     form_document.try(:declaration_markdown)
   end
+
+  def has_custom_branding?
+    return false if form_document.try(:brand_id).blank?
+
+    BRANDING_CONFIG.key?(form_document.brand_id)
+  end
+
+  def branding
+    return nil unless has_custom_branding?
+
+    BRANDING_CONFIG[form_document.brand_id]
+  end
 end

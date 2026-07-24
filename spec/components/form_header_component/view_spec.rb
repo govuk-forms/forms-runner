@@ -128,6 +128,35 @@ RSpec.describe FormHeaderComponent::View, type: :component do
     end
   end
 
+  context "when the form has custom branding configured" do
+    let(:form) do
+      OpenStruct.new(id: 1,
+                     name: "test_form_name",
+                     form_slug: "test",
+                     has_custom_branding?: true,
+                     branding: {
+                       "background_colour" => "white",
+                       "border_colour" => "#206c49",
+                       "organisation_name" => "Cheshire East Council",
+                       "organisation_url" => "https://www.cheshireeast.gov.uk",
+                       "logo" => "/brand_assets/cheshire-east/logo.png",
+                     })
+    end
+
+    it "renders the brand logo with the organisation name as alt text" do
+      render_inline(described_class.new(current_context:, mode:))
+
+      expect(page.find(".app-header__logo-link img")["src"]).to have_content "/brand_assets/cheshire-east/logo.png"
+      expect(page.find(".app-header__logo-link img")["alt"]).to have_content "Cheshire East Council"
+    end
+
+    it "links to the brand homepage" do
+      render_inline(described_class.new(current_context:, mode:))
+
+      expect(page.find("a.app-header__logo-link")[:href]).to eq "https://www.cheshireeast.gov.uk"
+    end
+  end
+
   it "does not show if current_context is nil" do
     render_inline(described_class.new(current_context: nil, mode:))
     expect(page).not_to have_selector(".govuk-header__service-name")
