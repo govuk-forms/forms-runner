@@ -336,6 +336,27 @@ RSpec.describe FormSubmissionService, :capture_logging do
         end
       end
 
+      context "when the form has no immediate delivery configurations" do
+        let(:delivery_configurations) { [build(:v2_delivery_configuration, :daily_email)] }
+
+        context "when the mode is live" do
+          it "raises an error" do
+            expect { service.submit }
+              .to not_change(Submission, :count)
+                    .and not_change(Delivery, :count)
+                           .and raise_error(StandardError, "Form id(#{form.id}) has no immediate delivery configurations")
+          end
+        end
+
+        context "when form being submitted is from previewed form" do
+          let(:mode) { Mode.new("preview-draft") }
+
+          it "does not raise an error" do
+            expect { service.submit }.not_to raise_error
+          end
+        end
+      end
+
       context "when form being submitted is from previewed form" do
         let(:mode) { Mode.new("preview-live") }
 
