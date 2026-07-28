@@ -77,9 +77,14 @@ private
   end
 
   def enqueue_deliveries(submission)
-    form.delivery_configurations
-        .filter { |c| c.delivery_schedule == "immediate" }
-        .each { |c| enqueue_delivery(c, submission) }
+    delivery_configurations = form.delivery_configurations.filter { |c| c.delivery_schedule == "immediate" }
+
+    if delivery_configurations.blank? && mode.live?
+      submission.destroy!
+      raise StandardError, "Form id(#{form.id}) has no immediate delivery configurations" if delivery_configurations.blank? && mode.live?
+    end
+
+    delivery_configurations.each { |c| enqueue_delivery(c, submission) }
   end
 
   def enqueue_delivery(delivery_configuration, submission)
