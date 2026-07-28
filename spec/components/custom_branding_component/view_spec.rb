@@ -35,7 +35,7 @@ RSpec.describe CustomBrandingComponent::View, type: :component do
                             form_slug: "test",
                             has_custom_branding?: true,
                             branding: {
-                              "background_colour" => "white",
+                              "background_colour" => "#ffffff",
                               "border_colour" => "#206c49",
                               "organisation_name" => "Cheshire East Council",
                               "organisation_url" => "https://www.cheshireeast.gov.uk",
@@ -48,7 +48,7 @@ RSpec.describe CustomBrandingComponent::View, type: :component do
     it "renders a style component setting the branded CSS variables" do
       style_element = page.find("style", visible: :all)
 
-      expect(style_element.native.inner_html).to include "--custom-background-colour: white;"
+      expect(style_element.native.inner_html).to include "--custom-background-colour: #ffffff;"
       expect(style_element.native.inner_html).to include "--custom-border-colour: #206c49;"
     end
   end

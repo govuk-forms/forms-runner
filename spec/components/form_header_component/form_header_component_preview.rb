@@ -29,7 +29,7 @@ class FormHeaderComponent::FormHeaderComponentPreview < ViewComponent::Preview
                           form_slug: "test",
                           has_custom_branding?: true,
                           branding: {
-                            "background_colour" => "white",
+                            "background_colour" => "#ffffff",
                             "border_colour" => "#206c49",
                             "organisation_name" => "Cheshire East Council",
                             "organisation_url" => "https://www.cheshireeast.gov.uk",
