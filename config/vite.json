@@ -9,7 +9,7 @@
     "additionalEntrypoints": [
       "node_modules/govuk-frontend/dist/govuk/assets/**/*"
     ],
-    "publicOutputDir": "assets",
+    "publicOutputDir": "assets/forms-runner",
     "assetsDir": "",
     "autoBuild": false
   },
