@@ -223,6 +223,74 @@ RSpec.describe Form, type: :model do
     end
   end
 
+  describe "#has_custom_branding?" do
+    let(:form_document) { build :v2_form_document }
+
+    context "when the form document does not contain a brand ID" do
+      it "returns false" do
+        expect(form.has_custom_branding?).to be false
+      end
+    end
+
+    context "when the form document has an empty brand ID" do
+      let(:form_document) { build :v2_form_document, :with_brand_id }
+
+      it "returns false" do
+        expect(form.has_custom_branding?).to be false
+      end
+    end
+
+    context "when the form document has a brand ID which is not configured" do
+      let(:form_document) { build :v2_form_document, :with_brand_id, brand_id: "midsomer" }
+
+      it "returns false" do
+        expect(form.has_custom_branding?).to be false
+      end
+    end
+
+    context "when the form document has a brand ID which is configured" do
+      let(:form_document) { build :v2_form_document, brand_id: "cheshire-east" }
+
+      it "returns true" do
+        expect(form.has_custom_branding?).to be true
+      end
+    end
+  end
+
+  describe "#branding" do
+    let(:form_document) { build :v2_form_document }
+
+    context "when the form document does not contain a brand ID" do
+      it "returns nil" do
+        expect(form.branding).to be_nil
+      end
+    end
+
+    context "when the form document has an empty brand ID" do
+      let(:form_document) { build :v2_form_document, :with_brand_id }
+
+      it "returns nil" do
+        expect(form.branding).to be_nil
+      end
+    end
+
+    context "when the form document has a brand ID which is not configured" do
+      let(:form_document) { build :v2_form_document, :with_brand_id, brand_id: "midsomer" }
+
+      it "returns nil" do
+        expect(form.branding).to be_nil
+      end
+    end
+
+    context "when the form document has a brand ID which is configured" do
+      let(:form_document) { build :v2_form_document, brand_id: "cheshire-east" }
+
+      it "returns the configured brand information" do
+        expect(form.branding).to eq BRANDING_CONFIG["cheshire-east"]
+      end
+    end
+  end
+
   describe "#document_json" do
     let(:form_document) { build :v2_form_document, :live, :s3_submissions_enabled }
 

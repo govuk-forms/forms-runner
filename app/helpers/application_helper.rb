@@ -19,6 +19,14 @@ module ApplicationHelper
     "#{t('page_titles.error_prefix') if error}#{page_name}#{mode_string} - #{form_name}"
   end
 
+  def site_name(form:)
+    (form&.has_custom_branding? ? form.branding["organisation_name"] : "GOV.UK")
+  end
+
+  def theme_colour(form:)
+    (form&.has_custom_branding? ? form.branding["background_colour"] : "#1d70b8")
+  end
+
   def question_text_with_hidden_mode(question_text, mode)
     [CGI.escapeHTML(question_text), hidden_text_mode(mode)].compact_blank.join(" ").html_safe
   end

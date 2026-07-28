@@ -40,6 +40,7 @@ Rails.application.routes.draw do
       post "/#{CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG}" => "forms/check_your_answers#submit_answers", as: :form_submit_answers
       get "/submitted" => "forms/submitted#submitted", as: :form_submitted
       get "/privacy" => "forms/privacy_page#show", as: :form_privacy
+      get "/accessibility-statement" => "forms/branded_accessibility_statement#show", as: :form_branded_accessibility_statement
 
       step_constraints = { step_slug: Regexp.union([UrlPatterns::STEP_ID_REGEX_FOR_ROUTES, Regexp.new(CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG)]) }
       answer_constraints = { answer_index: /\d+/ }

@@ -1,0 +1,37 @@
+:root:has(.app-custom-branding) {
+  --govuk-template-background-colour: #{govuk-colour(
+      "black",
+      $variant: "tint-95"
+    )};
+  --govuk-surface-background-colour: #{govuk-colour(
+      "black",
+      $variant: "tint-95"
+    )};
+}
+
+.app-custom-branding .app-header__logo-link {
+  display: inline-block;
+  height: govuk-px-to-rem(100);
+  width: govuk-px-to-rem(250);
+}
+
+.app-custom-branding .app-header__logo-image {
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-position: left;
+}
+
+.app-custom-branding .govuk-generic-header {
+  background: var(--custom-background-colour);
+  border-bottom-color: var(--custom-border-colour);
+}
+
+.app-custom-branding .govuk-service-navigation {
+  border-bottom-color: var(--custom-border-colour);
+}
+
+.app-custom-branding .govuk-footer {
+  border-top-color: var(--custom-border-colour);
+}

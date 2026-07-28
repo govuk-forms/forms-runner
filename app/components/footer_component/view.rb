@@ -10,7 +10,7 @@ module FooterComponent
 
     def meta_links
       links = {
-        I18n.t("footer.accessibility_statement") => accessibility_statement_path(locale:),
+        I18n.t("footer.accessibility_statement") => accessibility_statement,
         I18n.t("footer.cookies") => cookies_path(locale:),
       }
 
@@ -27,6 +27,14 @@ module FooterComponent
 
     def locale
       I18n.locale if I18n.locale != I18n.default_locale
+    end
+
+    def accessibility_statement
+      if @form&.has_custom_branding?
+        form_branded_accessibility_statement_path(mode: @mode, form_id: @form.id, form_slug: @form.form_slug)
+      else
+        accessibility_statement_path(locale:)
+      end
     end
   end
 end

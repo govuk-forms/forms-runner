@@ -5,6 +5,7 @@ en:
       accessibility_regulations: The Equality and Human Rights Commission (EHRC) is responsible for enforcing the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018 (the ‘accessibility regulations’).
       complaints_html: If you’re not happy with how we respond to your complaint, contact the <a href="https://www.equalityadvisoryservice.com/">Equality Advisory and Support Service</a>, which is run on behalf of EHRC.
       heading: If you’re not happy with our response
+    coverage_branded: This accessibility statement covers only the form, which will have a URL starting with https://submit.forms.service.gov.uk. The organisation publishing the form will have a separate statement covering the accessibility of its own website.
     explains_list:
       list_item_0: how accessible the form is
       list_item_1: what to do if you have difficulty using it
@@ -18,6 +19,7 @@ en:
     inset_text_html: This form is part of the wider GOV.UK website. There’s a separate <a href="https://www.gov.uk/help/accessibility-statement">accessibility statement for the main GOV.UK website</a>.
     limitations:
       departmental_responsibility: The questions in the form are written by people in government departments and agencies. Each department and agency which publishes content on GOV.UK is responsible for making sure it meets the accessibility regulations. However, the text used in the form might not be plain language and the structure may not be fully accessible.
+      departmental_responsibility_branded: The questions in the form are written by people in government departments, agencies and other public sector organisations. Each organisation is responsible for making sure it meets the accessibility regulations. However, the text used in the form might not be plain language and the structure may not be fully accessible.
       forms_issues: Issues relating to the GOV.UK Forms interface are listed in ‘Technical information about this form’s accessibility’ below.
       guidance: To encourage accessible content we provide guidance within the GOV.UK Forms platform. We also use feedback and analytics to identify accessibility issues.
       heading: How accessible this form is
@@ -47,6 +49,7 @@ en:
         preamble: Although the following issues do not fail WCAG 2.2 AA, we plan to investigate and fix them as soon as possible.
       preamble: The content listed below is non-accessible for the following reasons.
     preamble: This accessibility statement applies to online forms with a URL that starts with https://submit.forms.service.gov.uk.
+    preamble_branded: This form was created using a platform called GOV.UK Forms, built by the Government Digital Service (GDS). Public sector organisations create and publish forms using the platform, and may link to those forms from their website.
     reporting:
       email_html: If you find any problems, or think we’re not meeting accessibility requirements, email us at <a href="mailto:govuk-forms@digital.cabinet-office.gov.uk">govuk-forms@digital.cabinet-office.gov.uk</a>.
       heading: Reporting accessibility problems
@@ -73,6 +76,7 @@ en:
       accessibility_recommendations_text: 'You should be able to:'
       content_guidance: The text in the form should be clear and simple to understand.
       disability_advice_html: <a href="https://mcmw.abilitynet.org.uk/">AbilityNet</a> has advice on making your device easier to use if you have a disability.
+      forms_description_branded_html: GOV.UK Forms is designed to create forms that can be used by as many people as possible.
       forms_description_html: This form was created using a platform called <a href="http://www.gov.uk/forms">GOV.UK Forms</a>. GOV.UK Forms is built by the Government Digital Service (GDS). It is designed to create forms that can be used by as many people as possible.
       heading: Using this form
   activemodel:

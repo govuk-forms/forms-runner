@@ -73,5 +73,9 @@ FactoryBot.define do
       s3_bucket_name { "a-bucket-name" }
       s3_bucket_region { "eu-west-2" }
     end
+
+    trait :with_brand_id do
+      brand_id { nil }
+    end
   end
 end

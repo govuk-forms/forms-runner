@@ -11,19 +11,41 @@ module FormHeaderComponent
 
     def call
       if @current_context.present?
-        homepage_url = @mode.preview? ? Settings.forms_admin.base_url : GOVUK_BASE_URL
 
-        safe_join([
-          govuk_header(homepage_url:,
-                       classes:) do |header|
-            header.with_product_name(name: product_name_with_tag)
-          end,
-          govuk_service_navigation(
-            service_name: form_name,
-            service_url: form_start_page_url,
-            navigation_items: navigation_items,
-          ),
-        ], "\n")
+        if @current_context.form.has_custom_branding?
+          branding = @current_context.form.branding
+
+          safe_join([
+            govuk_generic_header do |header|
+              header.with_logo do
+                content_tag("a", href: branding["organisation_url"], class: "app-header__logo-link") do
+                  tag.img(src: branding["logo"],
+                          alt: branding["organisation_name"],
+                          class: "app-header__logo-image")
+                end
+              end
+            end,
+            govuk_service_navigation(
+              service_name: form_name,
+              service_url: form_start_page_url,
+              navigation_items: navigation_items,
+            ),
+          ], "\n")
+        else
+          homepage_url = @mode.preview? ? Settings.forms_admin.base_url : GOVUK_BASE_URL
+
+          safe_join([
+            govuk_header(homepage_url:,
+                         classes:) do |header|
+              header.with_product_name(name: product_name_with_tag)
+            end,
+            govuk_service_navigation(
+              service_name: form_name,
+              service_url: form_start_page_url,
+              navigation_items: navigation_items,
+            ),
+          ], "\n")
+        end
       else
         govuk_header(homepage_url: GOVUK_BASE_URL, classes:) do |header|
           header.with_product_name(name: product_name_with_tag)
