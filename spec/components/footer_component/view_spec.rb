@@ -22,6 +22,10 @@ RSpec.describe FooterComponent::View, type: :component do
     it "includes the licence link" do
       expect(page).to have_link(I18n.t("footer.licence_link_text"), href: I18n.t("footer.licence_link_url"))
     end
+
+    it "includes the Crown copyright link" do
+      expect(page).to have_link(I18n.t("footer.copyright"))
+    end
   end
 
   context "when the locale is cy" do
@@ -54,6 +58,39 @@ RSpec.describe FooterComponent::View, type: :component do
 
       it "includes a link to the branded accessbility statement" do
         expect(page).to have_link("Accessibility statement", href: form_branded_accessibility_statement_path(mode:, form_id: form.id, form_slug: form.form_slug))
+      end
+
+      it "includes the cookies link" do
+        expect(page).to have_link("Cookies", href: cookies_path)
+      end
+
+      it "includes the privacy link" do
+        expect(page).to have_link("Privacy", href: form_privacy_path(mode:, form_id: form.id, form_slug: form.form_slug))
+      end
+
+      it "shows the copyright holder's copyright notice without a link" do
+        expect(page).to have_text("© Cheshire East Council")
+        expect(page).not_to have_link("© Cheshire East Council")
+      end
+
+      it "does not show Crown copyright" do
+        expect(page).not_to have_text(I18n.t("footer.copyright"))
+      end
+
+      it "does not show the licence" do
+        expect(page).not_to have_link(I18n.t("footer.licence_link_text"))
+      end
+
+      context "when the brand has no copyright holder" do
+        let(:form) do
+          build(:form, brand_id: "cheshire-east", id: 1).tap do |form|
+            allow(form).to receive(:branding).and_return({})
+          end
+        end
+
+        it "does not show a copyright notice" do
+          expect(page).not_to have_text("©")
+        end
       end
     end
   end
