@@ -11,19 +11,18 @@ RSpec.describe Forms::ReviewFileController, type: :request do
           steps: steps_data)
   end
 
+  let(:previous_step_in_form) { build :v2_question_step, :with_text_settings, id: 1, next_step_id: 2 }
+
   let(:file_upload_step) do
     build :v2_question_step,
-          id: 1,
-          next_step_id: 2,
+          id: 2,
+          next_step_id: 3,
           answer_type: "file"
   end
 
-  let(:text_question_step) do
-    build :v2_question_step, :with_text_settings,
-          id: 2
-  end
+  let(:text_question_step) { build :v2_question_step, :with_text_settings, id: 3 }
 
-  let(:steps_data) { [file_upload_step, text_question_step] }
+  let(:steps_data) { [previous_step_in_form, file_upload_step, text_question_step] }
 
   let(:req_headers) { { "Accept" => "application/json" } }
 
@@ -37,6 +36,7 @@ RSpec.describe Forms::ReviewFileController, type: :request do
     {
       answers: {
         form_data.form_id.to_s => {
+          previous_step_in_form.id.to_s => { text: "previous answer" },
           file_upload_step.id.to_s => {
             "original_filename" => uploaded_filename,
             "uploaded_file_key" => uploaded_file_key,
@@ -68,6 +68,10 @@ RSpec.describe Forms::ReviewFileController, type: :request do
       context "when a file has been uploaded" do
         it "renders the review file template" do
           expect(response).to render_template("forms/review_file/show")
+        end
+
+        it "assigns the back link" do
+          expect(assigns(:back_link)).to eq(form_step_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug, step_slug: previous_step_in_form.id))
         end
 
         it "displays the uploaded filename" do

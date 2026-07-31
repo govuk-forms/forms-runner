@@ -5,19 +5,21 @@ RSpec.describe Forms::AddAnotherAnswerController, type: :request do
     build(:v2_form_document, :with_support, form_id: 2, start_page: 1, steps:, available_languages:)
   end
 
-  let(:steps) { [first_step_in_form, second_step_in_form] }
+  let(:steps) { [previous_step_in_form, repeatable_step, next_step_in_form] }
 
-  let(:first_step_in_form) do
+  let(:previous_step_in_form) { build :v2_question_step, :with_text_settings, id: 1, next_step_id: 2 }
+
+  let(:repeatable_step) do
     build :v2_question_step,
           :with_text_settings,
-          id: 1,
-          next_step_id: 2,
+          id: 2,
+          next_step_id: 3,
           is_optional: false,
           is_repeatable: true
   end
 
-  let(:second_step_in_form) do
-    build :v2_question_step, :with_text_settings, id: 2
+  let(:next_step_in_form) do
+    build :v2_question_step, :with_text_settings, id: 3
   end
 
   let(:req_headers) { { "Accept" => "application/json" } }
@@ -28,6 +30,17 @@ RSpec.describe Forms::AddAnotherAnswerController, type: :request do
     [{ text: "answer 1" }, { text: "answer 2" }]
   end
 
+  let(:store) do
+    {
+      answers: {
+        form.form_id.to_s => {
+          previous_step_in_form.id.to_s => { text: "previous answer" },
+          repeatable_step.id.to_s => stored_answers,
+        },
+      },
+    }
+  end
+
   let(:available_languages) { %w[en] }
 
   before do
@@ -35,15 +48,15 @@ RSpec.describe Forms::AddAnotherAnswerController, type: :request do
       mock.get "/api/v2/forms/#{form.form_id}#{api_url_suffix}", req_headers, form.to_json, 200
     end
 
-    answer_store = instance_double(Store::SessionAnswerStore)
-    allow(Store::SessionAnswerStore).to receive(:new).and_return(answer_store)
-    allow(answer_store).to receive(:clear_stored_answer)
-    allow(answer_store).to receive(:get_stored_answer).and_return(stored_answers)
+    allow(Flow::Context).to receive(:new).and_wrap_original do |original_method, *args|
+      context_spy = original_method.call(form: args[0][:form], form_document: args[0][:form_document], store:)
+      context_spy
+    end
   end
 
   describe "GET #show" do
     before do
-      get add_another_answer_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: first_step_in_form.id)
+      get add_another_answer_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: repeatable_step.id)
     end
 
     it "renders the show template" do
@@ -54,10 +67,14 @@ RSpec.describe Forms::AddAnotherAnswerController, type: :request do
       expect(assigns(:rows).count).to eq 2
     end
 
+    it "assigns @back_link" do
+      expect(assigns(:back_link)).to eq(form_step_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: previous_step_in_form.id))
+    end
+
     it "adds the change and remove links to each row" do
       expect(assigns(:rows).first[:actions].first[:text]).to eq("Change")
       expect(assigns(:rows).first[:actions].second[:text]).to eq("Remove")
-      expect(response.body).to include(form_remove_answer_path(form.form_id, form.form_slug, first_step_in_form.id, answer_index: 1, changing_existing_answer: nil))
+      expect(response.body).to include(form_remove_answer_path(form.form_id, form.form_slug, repeatable_step.id, answer_index: 1, changing_existing_answer: nil))
     end
 
     it "initializes @add_another_answer_input" do
@@ -75,14 +92,14 @@ RSpec.describe Forms::AddAnotherAnswerController, type: :request do
 
       it "includes the language switcher" do
         expect(response.body).to include(I18n.t("language_switcher.nav_label"))
-        expect(response.body).to include("href=\"#{add_another_answer_path(mode: 'preview-draft', form_id: form.form_id, form_slug: form.form_slug, step_slug: first_step_in_form.id, locale: 'cy')}\"")
+        expect(response.body).to include("href=\"#{add_another_answer_path(mode: 'preview-draft', form_id: form.form_id, form_slug: form.form_slug, step_slug: repeatable_step.id, locale: 'cy')}\"")
       end
     end
   end
 
   describe "GET #change" do
     before do
-      get change_add_another_answer_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: first_step_in_form.id)
+      get change_add_another_answer_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: repeatable_step.id)
     end
 
     it "renders the show template" do
@@ -93,10 +110,14 @@ RSpec.describe Forms::AddAnotherAnswerController, type: :request do
       expect(assigns(:rows).count).to eq 2
     end
 
+    it "assigns @back_link" do
+      expect(assigns(:back_link)).to eq(check_your_answers_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug))
+    end
+
     it "adds the change and remove links to each row" do
       expect(assigns(:rows).first[:actions].first[:text]).to eq("Change")
       expect(assigns(:rows).first[:actions].second[:text]).to eq("Remove")
-      expect(response.body).to include(form_remove_answer_path(form.form_id, form.form_slug, first_step_in_form.id, answer_index: 1, changing_existing_answer: nil))
+      expect(response.body).to include(form_remove_answer_path(form.form_id, form.form_slug, repeatable_step.id, answer_index: 1, changing_existing_answer: nil))
     end
 
     it "initializes @add_another_answer_input" do
@@ -114,14 +135,14 @@ RSpec.describe Forms::AddAnotherAnswerController, type: :request do
 
       it "includes the language switcher" do
         expect(response.body).to include(I18n.t("language_switcher.nav_label"))
-        expect(response.body).to include("href=\"#{change_add_another_answer_path(mode: 'preview-draft', form_id: form.form_id, form_slug: form.form_slug, step_slug: first_step_in_form.id, locale: 'cy')}\"")
+        expect(response.body).to include("href=\"#{change_add_another_answer_path(mode: 'preview-draft', form_id: form.form_id, form_slug: form.form_slug, step_slug: repeatable_step.id, locale: 'cy')}\"")
       end
     end
   end
 
   describe "POST #save" do
     before do
-      post add_another_answer_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: first_step_in_form.id), params:
+      post add_another_answer_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: repeatable_step.id), params:
     end
 
     context "with valid params" do
@@ -129,7 +150,7 @@ RSpec.describe Forms::AddAnotherAnswerController, type: :request do
         let(:params) { { add_another_answer_input: { add_another_answer: "yes" } } }
 
         it "redirects to first page to add another" do
-          expect(response).to redirect_to(form_step_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: first_step_in_form.id, answer_index: 3))
+          expect(response).to redirect_to(form_step_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: repeatable_step.id, answer_index: 3))
         end
       end
 
@@ -137,7 +158,7 @@ RSpec.describe Forms::AddAnotherAnswerController, type: :request do
         let(:params) { { add_another_answer_input: { add_another_answer: "no" } } }
 
         it "redirects to next page" do
-          expect(response).to redirect_to(form_step_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: second_step_in_form.id))
+          expect(response).to redirect_to(form_step_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: next_step_in_form.id))
         end
       end
     end
@@ -152,6 +173,10 @@ RSpec.describe Forms::AddAnotherAnswerController, type: :request do
       it "assigns @rows" do
         expect(assigns(:rows).count).to be_present
       end
+
+      it "assigns @back_link" do
+        expect(assigns(:back_link)).to eq(form_step_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: previous_step_in_form.id))
+      end
     end
 
     context "with the maximum number of answers" do
@@ -159,7 +184,7 @@ RSpec.describe Forms::AddAnotherAnswerController, type: :request do
       let(:params) { { add_another_answer_input: { add_another_answer: "yes" } } }
 
       it "renders the show template with an error" do
-        post add_another_answer_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: first_step_in_form.id), params: { add_another_answer_input: { add_another_answer: "yes" } }
+        post add_another_answer_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: repeatable_step.id), params: { add_another_answer_input: { add_another_answer: "yes" } }
         expect(response).to render_template(:show)
         expect(response.body).to include("You cannot add another answer")
       end
@@ -169,13 +194,13 @@ RSpec.describe Forms::AddAnotherAnswerController, type: :request do
   describe "redirect_if_not_repeating" do
     context "when step is not RepeatableStep" do
       it "redirects to form_step when not changing existing answer" do
-        get add_another_answer_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: second_step_in_form.id)
-        expect(response).to redirect_to(form_step_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: second_step_in_form.id))
+        get add_another_answer_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: next_step_in_form.id)
+        expect(response).to redirect_to(form_step_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: next_step_in_form.id))
       end
 
       it "redirects to form_change_answer_path when changing existing answer" do
-        get change_add_another_answer_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: second_step_in_form.id)
-        expect(response).to redirect_to(form_change_answer_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: second_step_in_form.id))
+        get change_add_another_answer_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: next_step_in_form.id)
+        expect(response).to redirect_to(form_change_answer_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: next_step_in_form.id))
       end
     end
   end
