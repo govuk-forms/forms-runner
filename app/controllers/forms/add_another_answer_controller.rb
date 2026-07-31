@@ -4,13 +4,13 @@ module Forms
 
     def show
       @rows = rows
-      back_link(@step.id)
+      @back_link = back_link(@step.id)
       @add_another_answer_input = AddAnotherAnswerInput.new
     end
 
     def change
       @rows = rows
-      back_link(@step.id)
+      @back_link = back_link(@step.id)
       @add_another_answer_input = AddAnotherAnswerInput.new
       render :show
     end
@@ -20,7 +20,7 @@ module Forms
 
       if @add_another_answer_input.invalid?
         @rows = rows
-        back_link(@step.id)
+        @back_link = back_link(@step.id)
         return render :show
       end
 
