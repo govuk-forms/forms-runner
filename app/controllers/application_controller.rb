@@ -9,6 +9,14 @@ class ApplicationController < ActionController::Base
 
   add_flash_types :success
 
+  rescue_from ActionView::MissingTemplate do |exception|
+    if request.format && request.format != :html
+      head :not_acceptable
+    else
+      raise exception
+    end
+  end
+
   def accessibility_statement; end
 
   def cookies; end

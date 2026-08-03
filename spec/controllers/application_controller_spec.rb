@@ -16,12 +16,17 @@ RSpec.describe ApplicationController do
     rescue RuntimeError
       raise "outer error"
     end
+
+    def missing_template
+      render "missing_template"
+    end
   end
 
   before do
     routes.draw do
       get "raise_error" => "anonymous#raise_error"
       get "raise_error_with_cause" => "anonymous#raise_error_with_cause"
+      get "missing_template" => "anonymous#missing_template"
     end
   end
 
@@ -84,6 +89,17 @@ RSpec.describe ApplicationController do
       get :raise_error
 
       expect(Sentry).to have_received(:capture_exception)
+    end
+  end
+
+  describe "missing template" do
+    it "returns 406 when request format is not HTML" do
+      get :missing_template, format: :json
+      expect(response).to have_http_status(:not_acceptable)
+    end
+
+    it "raises the error when the request format is HTML" do
+      expect { get :missing_template, format: :html }.to raise_error(ActionView::MissingTemplate)
     end
   end
 end
