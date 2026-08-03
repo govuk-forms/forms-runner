@@ -1,7 +1,7 @@
 require "rails_helper"
 
 feature "Fill in and submit a form with an exit page", type: :feature do
-  let(:routing_conditions) { [DataStruct.new(routing_page_id: 1, check_page_id: 1, answer_value: "Option 1", goto_page_id: nil, exit_page_heading: "This is an exit_page", exit_page_markdown: "This is the contents", validation_errors: [])] }
+  let(:routing_conditions) { [build(:v2_condition, :with_exit_page, routing_page_id: 1, answer_value: "Option 1", exit_page_heading: "This is an exit_page", exit_page_markdown: "This is the contents")] }
   let(:steps) { [build(:v2_selection_question_step, id: 1, routing_conditions:, question_text:)] }
   let(:form) { build :v2_form_document, :live, form_id: 1, name: "Fill in this form", steps:, start_page: 1, send_copy_of_answers: "enabled" }
   let(:question_text) { Faker::Lorem.question }

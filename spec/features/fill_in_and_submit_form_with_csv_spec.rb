@@ -3,7 +3,7 @@ require "rails_helper"
 feature "Fill in and submit a form with a CSV submission", type: :feature do
   let(:steps) do
     [
-      build(:v2_selection_question_step, id: 1, question_text: "A routing question", routing_conditions: [DataStruct.new(routing_page_id: 1, check_page_id: 1, answer_value: "Option 1", goto_page_id: nil, skip_to_end: true, validation_errors: [])], next_step_id: 2),
+      build(:v2_selection_question_step, id: 1, question_text: "A routing question", routing_conditions: [build(:v2_condition, :skip_to_end, routing_page_id: 1, check_page_id: 1, answer_value: "Option 1")], next_step_id: 2),
       build(:v2_selection_question_step, only_one_option: false, id: 2, question_text: "Skipped question", next_step_id: 3),
     ]
   end
