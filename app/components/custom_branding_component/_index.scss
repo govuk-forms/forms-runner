@@ -35,3 +35,7 @@
 .app-custom-branding .govuk-footer {
   border-top-color: var(--custom-border-colour);
 }
+
+.app-custom-branding .govuk-footer__crown {
+  display: none;
+}

@@ -29,6 +29,14 @@ module FooterComponent
       I18n.locale if I18n.locale != I18n.default_locale
     end
 
+    def custom_branding?
+      @form.present? && @form.has_custom_branding?
+    end
+
+    def copyright_holder
+      @form.branding["copyright_holder"]
+    end
+
     def accessibility_statement
       if @form&.has_custom_branding?
         form_branded_accessibility_statement_path(mode: @mode, form_id: @form.id, form_slug: @form.form_slug)

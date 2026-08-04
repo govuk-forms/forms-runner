@@ -3,6 +3,7 @@ cheshire-east:
   border_colour: "#206c49"
   organisation_name: "Cheshire East Council"
   organisation_url: "https://www.cheshireeast.gov.uk"
+  copyright_holder: "Cheshire East Council"
   logo: /brand_assets/cheshire-east/logo.png
   favicon: /brand_assets/cheshire-east/favicon.ico
   opengraph: /brand_assets/cheshire-east/opengraph.jpg
@@ -11,5 +12,6 @@ south-gloucestershire:
   border_colour: "#396631"
   organisation_name: "South Gloucestershire Council"
   organisation_url: "https://www.southglos.gov.uk"
+  copyright_holder: "South Gloucestershire Council"
   logo: /brand_assets/south-gloucestershire/logo.png
   favicon: /brand_assets/south-gloucestershire/favicon.png
