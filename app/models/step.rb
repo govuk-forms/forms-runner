@@ -32,7 +32,12 @@ class Step
   end
 
   def routing_conditions
-    form_document_step.respond_to?(:routing_conditions) ? form_document_step.routing_conditions : []
+    @routing_conditions ||=
+      if form_document_step.respond_to?(:routing_conditions)
+        form_document_step.routing_conditions.map { Condition.new(form_document_condition: it) }
+      else
+        []
+      end
   end
 
   def save_to_store(answer_store)
@@ -120,13 +125,13 @@ class Step
   end
 
   def has_exit_page_condition?
-    return false unless routing_conditions&.first.respond_to?(:exit_page_markdown)
+    return false if routing_conditions&.first.blank?
 
-    routing_conditions.first.exit_page_markdown.is_a?(String)
+    routing_conditions.first.exit_page?
   end
 
   def exit_page_condition_matches?
-    first_condition_matches? && has_exit_page_condition?
+    first_condition_matches? && routing_conditions.first.exit_page?
   end
 
   def answered_file_question?
@@ -144,29 +149,23 @@ class Step
 private
 
   def goto_condition_step_slug(condition)
-    if condition.goto_page_id.nil? && condition.skip_to_end
+    if condition.skip_to_end?
       CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG
     else
-      condition.goto_page_id.to_s
+      condition.goto_page_id
     end
   end
 
   def find_matching_condition
     return unless question.respond_to?(:selection)
 
-    routing_conditions.find { condition_matches? it }
-  end
-
-  def condition_matches?(condition)
-    return question.selection == Question::Selection::NONE_OF_THE_ABOVE_VALUE if condition.answer_value == :none_of_the_above.to_s
-
-    condition.answer_value == question.selection
+    routing_conditions.find { it.match? question.selection }
   end
 
   def first_condition_matches?
     return unless question.respond_to?(:selection)
 
-    routing_conditions.any? && condition_matches?(routing_conditions.first)
+    routing_conditions.any? && routing_conditions.first.match?(question.selection)
   end
 
   def first_condition_default?

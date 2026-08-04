@@ -404,7 +404,10 @@ RSpec.describe Step do
       let(:form_document_step) { build(:v2_question_step, position: 1, routing_conditions: routing_conditions) }
 
       it "returns conditions with specified errors" do
-        expect(step.conditions_with_goto_errors).to contain_exactly(condition, second_condition)
+        expect(step.conditions_with_goto_errors).to contain_exactly(
+          Condition.new(form_document_condition: condition),
+          Condition.new(form_document_condition: second_condition),
+        )
       end
     end
 
@@ -426,7 +429,10 @@ RSpec.describe Step do
       let(:form_document_step) { build(:v2_question_step, position: 1, routing_conditions: routing_conditions) }
 
       it "returns only conditions with specified errors" do
-        expect(step.conditions_with_goto_errors).to contain_exactly(condition_mixed, condition_goto)
+        expect(step.conditions_with_goto_errors).to contain_exactly(
+          Condition.new(form_document_condition: condition_mixed),
+          Condition.new(form_document_condition: condition_goto),
+        )
       end
     end
   end
