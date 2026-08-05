@@ -211,6 +211,10 @@ RSpec.describe AwsSesSubmissionConfirmationMailer, type: :mailer do
 
   context "when submission_locale is Welsh" do
     let(:welsh_what_happens_next_markdown) { "Arhoswch am ymateb\nRhestr:\n\n- Eitem un\n- Eitem dau" }
+    let(:welsh_support_phone) { "02920 111 222" }
+    let(:welsh_support_email) { "help-cy@example.gov.uk" }
+    let(:welsh_support_url) { "https://example.gov.uk/help-cy" }
+    let(:welsh_support_url_text) { "Cael cymorth" }
     let(:welsh_form_document) do
       build(:v2_form_document,
             name: "Welsh form",
@@ -222,13 +226,25 @@ RSpec.describe AwsSesSubmissionConfirmationMailer, type: :mailer do
             ],
             start_page: "q1",
             what_happens_next_markdown: welsh_what_happens_next_markdown,
-            support_phone: "02920 111 222",
-            support_email: "help-cy@example.gov.uk",
-            support_url: "https://example.gov.uk/help-cy",
-            support_url_text: "Cael cymorth",
+            support_phone: welsh_support_phone,
+            support_email: welsh_support_email,
+            support_url: welsh_support_url,
+            support_url_text: welsh_support_url_text,
             payment_url: "https://pay.example.gov.uk/cy")
     end
     let(:submission_locale) { "cy" }
+
+    context "when the Welsh form has no support contact details" do
+      let(:welsh_support_phone) { nil }
+      let(:welsh_support_email) { nil }
+      let(:welsh_support_url) { nil }
+      let(:welsh_support_url_text) { nil }
+
+      it "falls back to the English form's support contact details in the Welsh section" do
+        expect(mail.text_part.body.to_s.scan("0203 222 2222").count).to eq 2
+        expect(mail.text_part.body).not_to include(I18n.t("mailer.submission_confirmation.default_support_contact_details", locale: :cy))
+      end
+    end
 
     context "when the Welsh form has no what happens next markdown" do
       let(:welsh_what_happens_next_markdown) { nil }

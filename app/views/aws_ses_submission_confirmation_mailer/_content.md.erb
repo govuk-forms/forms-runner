@@ -48,22 +48,23 @@ date: format_date(@submission.submission_time)) %>
 
 ### <%= I18n.t("mailer.submission_confirmation.contact_details_heading") %>
 
-<% if form.support_details.phone || form.support_details.email || form.support_details.url %>
-<% if form.support_details.phone.present? %>
+<% support_details = [form.support_details, fallback_form.support_details].find { |details| details.phone.present? || details.email.present? || details.url.present? } %>
+<% if support_details %>
+<% if support_details.phone.present? %>
 
-<%= normalize_and_convert_whitespace_to_markdown(form.support_details.phone) %>
+<%= normalize_and_convert_whitespace_to_markdown(support_details.phone) %>
 
-[<%= I18n.t('support_details.call_charges') %>](<%= form.support_details.call_charges_url %>)
+[<%= I18n.t('support_details.call_charges') %>](<%= support_details.call_charges_url %>)
 <% end %>
 
-<% if form.support_details.email.present? %>
+<% if support_details.email.present? %>
 
-[<%= form.support_details.email %>](mailto:<%= form.support_details.email %>)
+[<%= support_details.email %>](mailto:<%= support_details.email %>)
 <% end %>
 
-<% if form.support_details.url.present? && form.support_details.url_text.present? %>
+<% if support_details.url.present? && support_details.url_text.present? %>
 
-[<%= form.support_details.url_text %>](<%= form.support_details.url %>)
+[<%= support_details.url_text %>](<%= support_details.url %>)
 <% end %>
 <% else %>
 
