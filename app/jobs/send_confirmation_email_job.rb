@@ -1,7 +1,9 @@
 class SendConfirmationEmailJob < ApplicationJob
   queue_as :confirmation_emails
 
-  def perform(submission:, confirmation_email_address:, include_copy_of_answers: false)
+  # notify_response_id is obsolete now that confirmation emails are sent with SES, but jobs enqueued
+  # before the switch still carry it. Remove it once all pre-SES jobs have drained from the queue.
+  def perform(submission:, confirmation_email_address:, include_copy_of_answers: false, notify_response_id: nil) # rubocop:disable Lint/UnusedMethodArgument
     set_submission_logging_attributes(submission:)
 
     # The job will use the locale at the time it was created. Force it to be "en" as we send multilingual emails for

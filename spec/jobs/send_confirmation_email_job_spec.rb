@@ -129,6 +129,18 @@ RSpec.describe SendConfirmationEmailJob, type: :job do
     end
   end
 
+  context "when the job was enqueued with the obsolete notify_response_id argument" do
+    it "sends the confirmation email" do
+      expect {
+        described_class.perform_now(
+          submission:,
+          confirmation_email_address:,
+          notify_response_id: "an-old-notify-reference",
+        )
+      }.to change(ActionMailer::Base.deliveries, :count).by(1)
+    end
+  end
+
   context "when there is an error during processing" do
     before do
       allow(AwsSesSubmissionConfirmationMailer).to receive(:submission_confirmation_email).and_raise(StandardError, "Test error")
