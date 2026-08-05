@@ -29,37 +29,20 @@ RSpec.describe Step do
   end
 
   describe "#==" do
-    it "returns true for steps with the same state" do
+    it "returns true for steps with the same form document step and question" do
       other_step = described_class.new(
         question:,
         form_document_step:,
       )
-      expect(step).to eq(other_step)
+      expect(step == other_step).to be true
     end
 
-    it "returns false for steps with different states" do
+    it "returns false for steps with a different form document step" do
       other_step = described_class.new(
         question:,
         form_document_step: build(:v2_question_step),
       )
       expect(step == other_step).to be false
-    end
-  end
-
-  describe "#state" do
-    it "returns an array of instance variable values" do
-      expected_state = [
-        form_document_step,
-        question,
-      ]
-
-      expect(step.state).to match_array(expected_state)
-    end
-
-    it "changes when an instance variable is modified" do
-      original_state = step.state.dup
-      step.question = build(:name)
-      expect(step.state).not_to eq(original_state)
     end
   end
 

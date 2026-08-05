@@ -54,7 +54,7 @@ RSpec.describe Flow::Journey do
         let(:store) { { answers: { form_id.to_s => { first_step_id => { selection: "Option 2" }, second_step_id => { text: "Example text" } } } } }
 
         it "includes only the steps that have been completed" do
-          expect(journey.completed_steps.to_json).to eq [first_step_in_journey, second_step_in_journey].to_json
+          expect(journey.completed_steps).to eq [first_step_in_journey, second_step_in_journey]
         end
 
         it "includes the answer data in the steps" do
@@ -66,7 +66,7 @@ RSpec.describe Flow::Journey do
         let(:store) { { answers: { form_id.to_s => { first_step_id => { selection: "Option 2" }, third_step_id => { text: "More example text" } } } } }
 
         it "includes only the steps that have been completed before the gap" do
-          expect(journey.completed_steps.to_json).to eq [first_step_in_journey].to_json
+          expect(journey.completed_steps).to eq [first_step_in_journey]
         end
       end
 
@@ -74,7 +74,7 @@ RSpec.describe Flow::Journey do
         let(:store) { { answers: { form_id.to_s => { first_step_id => { selection: "Option 2" }, second_step_id => { text: "Example text" }, third_step_id => { text: "More example text" } } } } }
 
         it "includes all steps" do
-          expect(journey.completed_steps.to_json).to eq [first_step_in_journey, second_step_in_journey, third_step_in_journey].to_json
+          expect(journey.completed_steps).to eq [first_step_in_journey, second_step_in_journey, third_step_in_journey]
         end
 
         it "includes the answer data in the question steps" do
@@ -94,7 +94,7 @@ RSpec.describe Flow::Journey do
           let(:store) { { answers: { form_id.to_s => { first_step_id => { selection: "Option 2" }, second_step_id => { text: "Example text" }, third_step_id => { text: "More example text" } } } } }
 
           it "includes all steps" do
-            expect(journey.completed_steps.to_json).to eq [first_step_in_journey, second_step_in_journey, third_step_in_journey].to_json
+            expect(journey.completed_steps).to eq [first_step_in_journey, second_step_in_journey, third_step_in_journey]
           end
         end
 
@@ -102,7 +102,7 @@ RSpec.describe Flow::Journey do
           let(:store) { { answers: { form_id.to_s => { first_step_id => { selection: "Option 2" }, third_step_id => { text: "More example text" } } } } }
 
           it "includes only steps that have been completed before the optional question" do
-            expect(journey.completed_steps.to_json).to eq [first_step_in_journey].to_json
+            expect(journey.completed_steps).to eq [first_step_in_journey]
           end
         end
 
@@ -110,7 +110,7 @@ RSpec.describe Flow::Journey do
           let(:store) { { answers: { form_id.to_s => { first_step_id => { selection: "Option 2" }, second_step_id => { text: "" }, third_step_id => { text: "More example text" } } } } }
 
           it "includes all steps" do
-            expect(journey.completed_steps.to_json).to eq [first_step_in_journey, second_step_in_journey, third_step_in_journey].to_json
+            expect(journey.completed_steps).to eq [first_step_in_journey, second_step_in_journey, third_step_in_journey]
           end
         end
       end
@@ -127,7 +127,7 @@ RSpec.describe Flow::Journey do
           let(:store) { { answers: { form_id.to_s => { first_step_id => { selection: "Option 2" }, second_step_id => [{ text: "Example text" }], third_step_id => { text: "More example text" } } } } }
 
           it "includes all steps" do
-            expect(journey.completed_steps.to_json).to eq [first_step_in_journey, second_step_in_journey, third_step_in_journey].to_json
+            expect(journey.completed_steps).to eq [first_step_in_journey, second_step_in_journey, third_step_in_journey]
           end
 
           it "includes the answer data in the question steps" do
@@ -138,7 +138,7 @@ RSpec.describe Flow::Journey do
             let(:store) { { answers: { form_id.to_s => { first_step_id => { selection: "Option 2" }, second_step_id => [{ text: "Example text" }, { text: "Different example text" }], third_step_id => { text: "More example text" } } } } }
 
             it "includes all steps once each" do
-              expect(journey.completed_steps.to_json).to eq [first_step_in_journey, second_step_in_journey, third_step_in_journey].to_json
+              expect(journey.completed_steps).to eq [first_step_in_journey, second_step_in_journey, third_step_in_journey]
             end
           end
 
@@ -146,7 +146,7 @@ RSpec.describe Flow::Journey do
             let(:store) { { answers: { form_id.to_s => { first_step_id => { selection: "Option 2" }, second_step_id => { text: "Example text" }, third_step_id => { text: "More example text" } } } } }
 
             it "includes only steps before the repeatable question" do
-              expect(journey.completed_steps.to_json).to eq [first_step_in_journey].to_json
+              expect(journey.completed_steps).to eq [first_step_in_journey]
             end
           end
         end
@@ -157,7 +157,7 @@ RSpec.describe Flow::Journey do
           let(:store) { { answers: { form_id.to_s => { first_step_id => { selection: "Option 1" }, third_step_id => { text: "More example text" } } } } }
 
           it "includes only steps in the matched route" do
-            expect(journey.completed_steps.to_json).to eq [first_step_in_journey, third_step_in_journey].to_json
+            expect(journey.completed_steps).to eq [first_step_in_journey, third_step_in_journey]
           end
 
           it "includes the answer data in the question steps" do
@@ -168,7 +168,7 @@ RSpec.describe Flow::Journey do
             let(:store) { { answers: { form_id.to_s => { first_step_id => { selection: "Option 1" }, second_step_id => { text: "Example text" }, third_step_id => { text: "More example text" } } } } }
 
             it "includes only steps in the matched route" do
-              expect(journey.completed_steps.to_json).to eq [first_step_in_journey, third_step_in_journey].to_json
+              expect(journey.completed_steps).to eq [first_step_in_journey, third_step_in_journey]
             end
           end
         end
@@ -178,7 +178,7 @@ RSpec.describe Flow::Journey do
         let(:store) { { answers: { form_id.to_s => { first_step_id => { selection: "Option 2" }, second_step_id => { text: "Example text" }, third_step_id => { selection: "Option 1" } } } } }
 
         it "includes only steps before the answer with the wrong type" do
-          expect(journey.completed_steps.to_json).to eq [first_step_in_journey, second_step_in_journey].to_json
+          expect(journey.completed_steps).to eq [first_step_in_journey, second_step_in_journey]
         end
 
         it "includes the answer data in the question steps" do
@@ -190,7 +190,7 @@ RSpec.describe Flow::Journey do
         let(:store) { { answers: { form_id.to_s => { first_step_id => { selection: "Option 2" }, second_step_id => [{ text: "Example text" }, { text: "Another answer" }], third_step_id => { selection: "Option 1" } } } } }
 
         it "includes only steps before the answer with the wrong type" do
-          expect(journey.completed_steps.to_json).to eq [first_step_in_journey].to_json
+          expect(journey.completed_steps).to eq [first_step_in_journey]
         end
 
         it "includes the answer data in the question steps" do
@@ -218,7 +218,7 @@ RSpec.describe Flow::Journey do
         let(:store) { { answers: { form_id.to_s => { first_step_id => { text: "Example text" }, second_step_id => { selection: second_step.routing_conditions.first.answer_value }, third_step_id => { text: "More example text" } } } } }
 
         it "stops generating the completed_steps when it reaches the question with the error" do
-          expect(journey.completed_steps.to_json).to eq [first_step_in_journey].to_json
+          expect(journey.completed_steps).to eq [first_step_in_journey]
         end
       end
 
@@ -292,7 +292,7 @@ RSpec.describe Flow::Journey do
         let(:answers) { { first_step_id => { selection: "Option 2" }, second_step_id => { text: "Example text" } } }
 
         it "includes only the steps that have been completed" do
-          expect(journey.completed_steps.to_json).to eq [first_step_in_journey, second_step_in_journey].to_json
+          expect(journey.completed_steps).to eq [first_step_in_journey, second_step_in_journey]
         end
 
         it "includes the answer data in the question steps" do
@@ -311,10 +311,10 @@ RSpec.describe Flow::Journey do
 
         it "creates steps for the unanswered questions" do
           expect(journey.all_steps.length).to eq(4)
-          expect(journey.all_steps.to_json).to eq [first_step_in_journey,
-                                                   second_step_in_journey,
-                                                   third_step_in_journey,
-                                                   fourth_step_in_journey].to_json
+          expect(journey.all_steps).to eq [first_step_in_journey,
+                                           second_step_in_journey,
+                                           third_step_in_journey,
+                                           fourth_step_in_journey]
         end
       end
     end
@@ -327,10 +327,10 @@ RSpec.describe Flow::Journey do
 
         it "creates steps for the unanswered questions" do
           expect(journey.all_steps.length).to eq(4)
-          expect(journey.all_steps.to_json).to eq [first_step_in_journey,
-                                                   second_step_in_journey,
-                                                   third_step_in_journey,
-                                                   fourth_step_in_journey].to_json
+          expect(journey.all_steps).to eq [first_step_in_journey,
+                                           second_step_in_journey,
+                                           third_step_in_journey,
+                                           fourth_step_in_journey]
         end
       end
     end
@@ -341,7 +341,7 @@ RSpec.describe Flow::Journey do
 
     it "returns the step with the matching ID" do
       step = journey.step_by_id(second_step_id)
-      expect(step.to_json).to eq second_step_in_journey.to_json
+      expect(step).to eq second_step_in_journey
     end
 
     it "raises an error if no step is found matching the ID" do

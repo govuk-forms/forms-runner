@@ -11,6 +11,12 @@ class Step
     @question = question
   end
 
+  def ==(other)
+    super ||
+      other.instance_of?(self.class) &&
+        other.id == id
+  end
+
   delegate :answer_type, to: :form_document_step
 
   def id
@@ -27,14 +33,6 @@ class Step
 
   def routing_conditions
     form_document_step.respond_to?(:routing_conditions) ? form_document_step.routing_conditions : []
-  end
-
-  def ==(other)
-    other.class == self.class && other.state == state
-  end
-
-  def state
-    instance_variables.map { |variable| instance_variable_get variable }
   end
 
   def save_to_store(answer_store)
