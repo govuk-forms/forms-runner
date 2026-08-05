@@ -210,6 +210,7 @@ RSpec.describe AwsSesSubmissionConfirmationMailer, type: :mailer do
   end
 
   context "when submission_locale is Welsh" do
+    let(:welsh_what_happens_next_markdown) { "Arhoswch am ymateb\nRhestr:\n\n- Eitem un\n- Eitem dau" }
     let(:welsh_form_document) do
       build(:v2_form_document,
             name: "Welsh form",
@@ -220,7 +221,7 @@ RSpec.describe AwsSesSubmissionConfirmationMailer, type: :mailer do
               build(:v2_question_step, :with_file_upload_settings, question_text: "Llwythwch ffeil i fyny", id: "q4"),
             ],
             start_page: "q1",
-            what_happens_next_markdown: "Arhoswch am ymateb\nRhestr:\n\n- Eitem un\n- Eitem dau",
+            what_happens_next_markdown: welsh_what_happens_next_markdown,
             support_phone: "02920 111 222",
             support_email: "help-cy@example.gov.uk",
             support_url: "https://example.gov.uk/help-cy",
@@ -228,6 +229,24 @@ RSpec.describe AwsSesSubmissionConfirmationMailer, type: :mailer do
             payment_url: "https://pay.example.gov.uk/cy")
     end
     let(:submission_locale) { "cy" }
+
+    context "when the Welsh form has no what happens next markdown" do
+      let(:welsh_what_happens_next_markdown) { nil }
+
+      it "falls back to the English form's what happens next text in the Welsh section" do
+        expect(mail.text_part.body.to_s.scan("Please wait for a response").count).to eq 2
+        expect(mail.text_part.body).not_to include(I18n.t("mailer.submission_confirmation.default_what_happens_next", locale: :cy))
+      end
+    end
+
+    context "when neither form has what happens next markdown" do
+      let(:what_happens_next_markdown) { nil }
+      let(:welsh_what_happens_next_markdown) { nil }
+
+      it "renders the default what happens next text in Welsh in the Welsh section" do
+        expect(mail.text_part.body).to include(I18n.t("mailer.submission_confirmation.default_what_happens_next", locale: :cy))
+      end
+    end
 
     it "includes the Welsh in the subject" do
       english = I18n.t("mailer.submission_confirmation.subject", reference: submission_reference)

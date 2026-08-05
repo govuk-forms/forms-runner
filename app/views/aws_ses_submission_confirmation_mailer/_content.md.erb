@@ -28,8 +28,9 @@ date: format_date(@submission.submission_time)) %>
 
 ### <%= I18n.t("mailer.submission_confirmation.what_happens_next_heading") %>
 
-<% if form.what_happens_next_markdown.present? %>
-<%= form.what_happens_next_markdown %>
+<% what_happens_next_markdown = form.what_happens_next_markdown.presence || fallback_form.what_happens_next_markdown %>
+<% if what_happens_next_markdown.present? %>
+<%= what_happens_next_markdown %>
 <% else %>
 
 <%= I18n.t("mailer.submission_confirmation.default_what_happens_next") %>

@@ -1,9 +1,9 @@
-<%= GovukFormsMarkdown.render_plain_text(render(partial: "content", formats: [:md], locals: { form: @form, locale: :en })) %>
+<%= GovukFormsMarkdown.render_plain_text(render(partial: "content", formats: [:md], locals: { form: @form, fallback_form: @form, locale: :en })) %>
 
 <% if @submission_locale == :cy %>
   <% I18n.with_locale(:cy) do %>
 ---
 
-<%= GovukFormsMarkdown.render_plain_text(render(partial: "content", formats: [:md], locals: { form: @welsh_form, locale: :cy })) %>
+<%= GovukFormsMarkdown.render_plain_text(render(partial: "content", formats: [:md], locals: { form: @welsh_form, fallback_form: @form, locale: :cy })) %>
   <% end %>
 <% end %>
