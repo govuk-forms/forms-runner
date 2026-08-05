@@ -6,7 +6,10 @@ class AwsSesSubmissionConfirmationMailer < ApplicationMailer
   )
     @submission_locale = submission.submission_locale.to_sym
     @form = submission.form
-    @welsh_form = submission.welsh_form
+    # A form submitted in Welsh may not have a Welsh form document, for example if the Welsh
+    # version was unpublished mid-journey. Fall back to the English form so the Welsh half of
+    # the email still renders.
+    @welsh_form = submission.welsh_form || submission.form
     @submission = submission
     @include_copy_of_answers = include_copy_of_answers
 

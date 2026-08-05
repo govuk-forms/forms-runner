@@ -351,4 +351,20 @@ RSpec.describe AwsSesSubmissionConfirmationMailer, type: :mailer do
       end
     end
   end
+
+  context "when submission_locale is Welsh but there is no Welsh form document" do
+    let(:submission_locale) { "cy" }
+    let(:welsh_form_document) { nil }
+    let(:include_copy_of_answers) { false }
+
+    it "renders the Welsh half of the text part using the English form" do
+      expect(mail.text_part.body).to include(I18n.t("mailer.submission_confirmation.title", locale: :cy))
+      expect(mail.text_part.body.to_s.scan("My form").count).to eq 2
+    end
+
+    it "renders the Welsh half of the html part using the English form" do
+      expect(mail.html_part.body).to have_css("h2", text: I18n.t("mailer.submission_confirmation.title", locale: :cy))
+      expect(mail.html_part.body).to have_text("My form", count: 2)
+    end
+  end
 end
