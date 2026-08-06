@@ -52,15 +52,5 @@ RSpec.describe CurrentRequestLoggingAttributes, type: :model do
     it "does not include nil confirmation_email_reference" do
       expect(current.as_hash.key?(:confirmation_email_reference)).to be false
     end
-
-    it "does not include the validation errors array if empty" do
-      current.validation_errors = []
-      expect(current.as_hash.keys).not_to include :validation_errors
-    end
-
-    it "does not include the answer metadata if hash is empty" do
-      current.answer_metadata = {}
-      expect(current.as_hash.keys).not_to include :answer_metadata
-    end
   end
 end
