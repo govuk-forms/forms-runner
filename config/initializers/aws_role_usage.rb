@@ -18,7 +18,7 @@ if Rails.env.development? && ENV["ASSUME_DEV_IAM_ROLE"]
 
     assumed_role = sts.assume_role({
       role_arn: "arn:aws:iam::498160065950:role/dev-forms-runner-ecs-task",
-      role_session_name: "#{ENV['USER']}-forms-runner-local",
+      role_session_name: "#{ENV['AWS_USER'].presence || ENV['USER']}-forms-runner-local",
     })
 
     ENV["AWS_ACCESS_KEY_ID"] = assumed_role.credentials.access_key_id
