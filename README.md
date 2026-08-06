@@ -51,7 +51,7 @@ You will also need to run the [forms-admin service](https://github.com/govuk-for
 
 #### Getting AWS credentials
 
-If you have access to the `readonly` role in the development environment can start the Rails server, locally, with the same set of permissions in use in the development AWS account. This allows you to test features like file upload to AWS S3 and sending emails via AWS SES.
+If you have access to the `readonly` role in the development environment can start the Rails server, locally, with the same set of permissions in use in the development AWS account. This allows you to test features like file upload to AWS S3, sending emails via AWS SES, and sending submissions via AWS S3.
 
 1. Assume the `readonly` role in the development AWS account:
     ```
