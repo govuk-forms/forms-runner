@@ -80,6 +80,20 @@ FactoryBot.define do
                   .new(none_of_the_above_question_text, none_of_the_above_question_is_optional)
           end
         end
+
+        trait :with_exit_page do
+          transient do
+            exit_page { build(:v2_exit_page) }
+          end
+
+          exit_pages { [exit_page] }
+
+          routing_conditions do
+            [
+              build(:v2_condition, :with_exit_page, exit_page:),
+            ]
+          end
+        end
       end
 
       trait :with_text_settings do
