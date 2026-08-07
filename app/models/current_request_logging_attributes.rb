@@ -23,7 +23,7 @@ class CurrentRequestLoggingAttributes < ActiveSupport::CurrentAttributes
       request_id:,
       form_id:,
       form_name:,
-      preview: preview.to_s,
+      preview: preview&.to_s,
       step_id:,
       step_slug:,
       answer_type:,
@@ -36,6 +36,6 @@ class CurrentRequestLoggingAttributes < ActiveSupport::CurrentAttributes
       rescued_exception_trace:,
       validation_errors:,
       answer_metadata:,
-    }.compact_blank
+    }.compact
   end
 end

@@ -4,6 +4,6 @@ class CurrentTaskLoggingAttributes < ActiveSupport::CurrentAttributes
   def as_hash
     {
       task_name:,
-    }.compact_blank
+    }.compact
   end
 end
