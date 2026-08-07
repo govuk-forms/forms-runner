@@ -13,6 +13,10 @@ FactoryBot.define do
 
     validation_errors { [] }
 
+    trait :default do
+      answer_value { nil }
+    end
+
     trait :skip_to_end do
       goto_page_id { nil }
       exit_page_heading { nil }

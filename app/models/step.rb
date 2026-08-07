@@ -2,8 +2,6 @@ class Step
   attr_accessor :question
   private attr_reader :form_document_step
 
-  GOTO_PAGE_ERROR_NAMES = %w[cannot_have_goto_page_before_routing_page goto_page_doesnt_exist].freeze
-
   class StoredAnswerMismatch < StandardError; end
 
   def initialize(form_document_step:, question:)
@@ -119,7 +117,7 @@ class Step
   def conditions_with_goto_errors
     routing_conditions.filter do |condition|
       condition.validation_errors.any? do |error|
-        GOTO_PAGE_ERROR_NAMES.include? error.name
+        Condition::GOTO_PAGE_ERROR_NAMES.include? error.name
       end
     end
   end
@@ -169,6 +167,6 @@ private
   end
 
   def first_condition_default?
-    routing_conditions.any? && routing_conditions.first.answer_value.blank?
+    routing_conditions.any? && routing_conditions.first.default?
   end
 end

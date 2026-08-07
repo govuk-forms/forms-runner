@@ -173,7 +173,7 @@ module Forms
       first_condition_with_error = @step.conditions_with_goto_errors.first
 
       first_goto_error_name = first_condition_with_error.validation_errors.find { |error|
-        Step::GOTO_PAGE_ERROR_NAMES.include?(error.name)
+        Condition::GOTO_PAGE_ERROR_NAMES.include?(error.name)
       }.name
 
       event_name = if first_goto_error_name == "cannot_have_goto_page_before_routing_page"

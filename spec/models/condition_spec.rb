@@ -40,6 +40,47 @@ RSpec.describe Condition do
     end
   end
 
+  describe "#default?" do
+    context "when condition.answer_value is nil" do
+      let(:form_document_condition) do
+        build(
+          :v2_condition,
+          answer_value: nil,
+        )
+      end
+
+      it "returns true" do
+        expect(condition.default?).to be true
+      end
+    end
+
+    context "when condition.answer_value is the empty string" do
+      let(:form_document_condition) do
+        build(
+          :v2_condition,
+          answer_value: "",
+        )
+      end
+
+      it "returns true" do
+        expect(condition.default?).to be true
+      end
+    end
+
+    context "when condition.answer_value is any other value" do
+      let(:form_document_condition) do
+        build(
+          :v2_condition,
+          answer_value: "Option 1",
+        )
+      end
+
+      it "returns false" do
+        expect(condition.default?).to be false
+      end
+    end
+  end
+
   describe "#match?" do
     context "when condition.answer_value is a string" do
       let(:form_document_condition) do

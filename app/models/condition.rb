@@ -10,6 +10,8 @@ class Condition
     to: :form_document_condition,
   )
 
+  GOTO_PAGE_ERROR_NAMES = %w[cannot_have_goto_page_before_routing_page goto_page_doesnt_exist].freeze
+
   def initialize(form_document_condition:)
     @form_document_condition = form_document_condition
   end
@@ -26,6 +28,10 @@ class Condition
 
   def goto_page_id
     form_document_condition.goto_page_id.to_s
+  end
+
+  def default?
+    answer_value.blank?
   end
 
   def match?(answer_value)
