@@ -114,14 +114,6 @@ class Step
     question.is_optional? && question.show_answer.blank?
   end
 
-  def conditions_with_goto_errors
-    routing_conditions.filter do |condition|
-      condition.validation_errors.any? do |error|
-        Condition::GOTO_PAGE_ERROR_NAMES.include? error.name
-      end
-    end
-  end
-
   def has_exit_page_condition?
     return false if routing_conditions&.first.blank?
 

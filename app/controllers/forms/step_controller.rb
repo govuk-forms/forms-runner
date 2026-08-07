@@ -168,9 +168,15 @@ module Forms
     end
 
     def check_goto_page_routing_error
-      return if @step.conditions_with_goto_errors.blank?
+      conditions_with_goto_errors = @step.routing_conditions.filter do |condition|
+        condition.validation_errors.any? do |error|
+          Condition::GOTO_PAGE_ERROR_NAMES.include?(error.name)
+        end
+      end
 
-      first_condition_with_error = @step.conditions_with_goto_errors.first
+      return if conditions_with_goto_errors.blank?
+
+      first_condition_with_error = conditions_with_goto_errors.first
 
       first_goto_error_name = first_condition_with_error.validation_errors.find { |error|
         Condition::GOTO_PAGE_ERROR_NAMES.include?(error.name)
