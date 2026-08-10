@@ -17,7 +17,7 @@ RSpec.describe SendSubmissionJob, type: :job do
           start_page: "q1")
   end
   let(:answers) { { "q1" => { selection: Question::Selection::NONE_OF_THE_ABOVE_VALUE } } }
-  let(:aws_ses_submission_service_spy) { instance_double(AwsSesSubmissionService) }
+  let(:aws_ses_submission_service_spy) { instance_double(SubmissionService) }
   let(:delivery_reference) { "1234" }
 
   before do
@@ -27,7 +27,7 @@ RSpec.describe SendSubmissionJob, type: :job do
 
   context "when the job is processed with a Delivery argument" do
     before do
-      allow(AwsSesSubmissionService).to receive(:new).with(submission:, delivery:).and_return(aws_ses_submission_service_spy)
+      allow(SubmissionService).to receive(:new).with(submission:, delivery:).and_return(aws_ses_submission_service_spy)
       allow(aws_ses_submission_service_spy).to receive(:submit).and_return(delivery_reference)
 
       described_class.perform_later(delivery)
@@ -79,7 +79,7 @@ RSpec.describe SendSubmissionJob, type: :job do
   context "when there is an error during processing" do
     context "and the error is an Aws::SESV2::Errors::ServiceError" do
       before do
-        allow(AwsSesSubmissionService).to receive(:new).with(submission:, delivery:).and_return(aws_ses_submission_service_spy)
+        allow(SubmissionService).to receive(:new).with(submission:, delivery:).and_return(aws_ses_submission_service_spy)
         allow(aws_ses_submission_service_spy).to receive(:submit).and_raise(Aws::SESV2::Errors::ServiceError.new(nil, "Test SES error", nil))
         allow(CloudWatchService).to receive(:record_job_failure_metric)
       end

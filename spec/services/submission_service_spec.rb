@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe AwsSesSubmissionService do
+RSpec.describe SubmissionService do
   let(:service) { described_class.new(submission:, delivery:) }
 
   let(:submission) do
@@ -40,13 +40,13 @@ RSpec.describe AwsSesSubmissionService do
     context "when the delivery formats are empty" do
       let(:delivery) { build(:delivery) }
 
-      it "calls AwsSesFormSubmissionMailer" do
+      it "calls FormSubmissionMailer" do
         freeze_time do
-          allow(AwsSesFormSubmissionMailer).to receive(:submission_email).and_call_original
+          allow(FormSubmissionMailer).to receive(:submission_email).and_call_original
 
           service.submit
 
-          expect(AwsSesFormSubmissionMailer).to have_received(:submission_email).with(
+          expect(FormSubmissionMailer).to have_received(:submission_email).with(
             submission:,
             files: {},
             csv_filename: nil,
@@ -73,14 +73,14 @@ RSpec.describe AwsSesSubmissionService do
         allow(question).to receive(:file_from_s3).and_return(file_content)
       end
 
-      it "calls AwsSesFormSubmissionMailer passing in the uploaded files" do
-        allow(AwsSesFormSubmissionMailer).to receive(:submission_email).and_call_original
+      it "calls FormSubmissionMailer passing in the uploaded files" do
+        allow(FormSubmissionMailer).to receive(:submission_email).and_call_original
 
         attachment_name = "file_#{submission_reference}.pdf"
 
         service.submit
 
-        expect(AwsSesFormSubmissionMailer).to have_received(:submission_email).with(
+        expect(FormSubmissionMailer).to have_received(:submission_email).with(
           submission:,
           files: { attachment_name => file_content },
           csv_filename: nil,
@@ -136,13 +136,13 @@ RSpec.describe AwsSesSubmissionService do
     context "when the formats include only CSV" do
       let(:delivery) { build(:delivery, formats: %w[csv]) }
 
-      it "calls AwsSesFormSubmissionMailer passing in a CSV file" do
-        allow(AwsSesFormSubmissionMailer).to receive(:submission_email).and_call_original
+      it "calls FormSubmissionMailer passing in a CSV file" do
+        allow(FormSubmissionMailer).to receive(:submission_email).and_call_original
 
         service.submit
         expected_csv_content = "Reference,Submitted at,What is the meaning of life?\n#{submission_reference},2022-12-14T08:00:00+00:00,42\n"
 
-        expect(AwsSesFormSubmissionMailer).to have_received(:submission_email).with(
+        expect(FormSubmissionMailer).to have_received(:submission_email).with(
           submission: submission,
           files: { "govuk_forms_a_great_form_#{submission_reference}.csv" => expected_csv_content },
           csv_filename: "govuk_forms_a_great_form_#{submission_reference}.csv",
@@ -162,8 +162,8 @@ RSpec.describe AwsSesSubmissionService do
             allow(question).to receive(:file_from_s3).and_return(file_content)
           end
 
-          it "calls AwsSesFormSubmissionMailer passing in the CSV and the uploaded files" do
-            allow(AwsSesFormSubmissionMailer).to receive(:submission_email).and_call_original
+          it "calls FormSubmissionMailer passing in the CSV and the uploaded files" do
+            allow(FormSubmissionMailer).to receive(:submission_email).and_call_original
 
             attachment_name = "file_#{submission_reference}.pdf"
 
@@ -171,7 +171,7 @@ RSpec.describe AwsSesSubmissionService do
 
             expected_csv_content = "Reference,Submitted at,#{question.question_text}\n#{submission_reference},2022-12-14T08:00:00+00:00,#{attachment_name}\n"
 
-            expect(AwsSesFormSubmissionMailer).to have_received(:submission_email).with(
+            expect(FormSubmissionMailer).to have_received(:submission_email).with(
               submission:,
               files: {
                 "govuk_forms_a_great_form_#{submission_reference}.csv" => expected_csv_content,
@@ -188,13 +188,13 @@ RSpec.describe AwsSesSubmissionService do
         let(:submission_locale) { "cy" }
         let(:available_languages) { %i[en cy] }
 
-        it "calls AwsSesFormSubmissionMailer with a CSV file with language set to 'cy'" do
-          allow(AwsSesFormSubmissionMailer).to receive(:submission_email).and_call_original
+        it "calls FormSubmissionMailer with a CSV file with language set to 'cy'" do
+          allow(FormSubmissionMailer).to receive(:submission_email).and_call_original
 
           service.submit
           expected_csv_content = "Reference,Submitted at,What is the meaning of life?,Language\n#{submission_reference},2022-12-14T08:00:00+00:00,42,cy\n"
 
-          expect(AwsSesFormSubmissionMailer).to have_received(:submission_email).with(
+          expect(FormSubmissionMailer).to have_received(:submission_email).with(
             hash_including(files: { "govuk_forms_a_great_form_#{submission_reference}.csv" => expected_csv_content }),
           ).once
         end
@@ -204,8 +204,8 @@ RSpec.describe AwsSesSubmissionService do
     context "when the formats include only json" do
       let(:delivery) { build(:delivery, formats: %w[json]) }
 
-      it "calls AwsSesFormSubmissionMailer passing in a JSON file" do
-        expect(AwsSesFormSubmissionMailer).to receive(:submission_email).with(
+      it "calls FormSubmissionMailer passing in a JSON file" do
+        expect(FormSubmissionMailer).to receive(:submission_email).with(
           hash_including(
             files: {
               "govuk_forms_a_great_form_#{submission_reference}.json" => satisfy do |json|
@@ -223,12 +223,12 @@ RSpec.describe AwsSesSubmissionService do
         let(:submission_locale) { "cy" }
         let(:available_languages) { %i[en cy] }
 
-        it "calls AwsSesFormSubmissionMailer with a JSON file with language set to 'cy'" do
-          allow(AwsSesFormSubmissionMailer).to receive(:submission_email).and_call_original
+        it "calls FormSubmissionMailer with a JSON file with language set to 'cy'" do
+          allow(FormSubmissionMailer).to receive(:submission_email).and_call_original
 
           service.submit
 
-          expect(AwsSesFormSubmissionMailer).to have_received(:submission_email).with(
+          expect(FormSubmissionMailer).to have_received(:submission_email).with(
             hash_including(files: { "govuk_forms_a_great_form_#{submission_reference}.json" => satisfy { |json| JSON.parse(json)["language"] == "cy" } }),
           ).once
         end
@@ -238,11 +238,11 @@ RSpec.describe AwsSesSubmissionService do
     context "when the formats include csv and json" do
       let(:delivery) { build(:delivery, formats: %w[csv json]) }
 
-      it "calls AwsSesFormSubmissionMailer passing in both a CSV and JSON file in the expected order" do
+      it "calls FormSubmissionMailer passing in both a CSV and JSON file in the expected order" do
         json_filename = "govuk_forms_a_great_form_#{submission_reference}.json"
         csv_filename = "govuk_forms_a_great_form_#{submission_reference}.csv"
 
-        expect(AwsSesFormSubmissionMailer).to receive(:submission_email).with(
+        expect(FormSubmissionMailer).to receive(:submission_email).with(
           hash_including(
             files: satisfy { |files| files.keys == [json_filename, csv_filename] },
           ),
@@ -257,12 +257,12 @@ RSpec.describe AwsSesSubmissionService do
       let(:form_document) { build(:v2_form_document, name: "A great form", submission_email:, submission_format: %w[csv]) }
 
       it "falls back to using the submission_format on the form" do
-        allow(AwsSesFormSubmissionMailer).to receive(:submission_email).and_call_original
+        allow(FormSubmissionMailer).to receive(:submission_email).and_call_original
 
         service.submit
         expected_csv_content = "Reference,Submitted at,What is the meaning of life?\n#{submission_reference},2022-12-14T08:00:00+00:00,42\n"
 
-        expect(AwsSesFormSubmissionMailer).to have_received(:submission_email).with(
+        expect(FormSubmissionMailer).to have_received(:submission_email).with(
           submission: submission,
           files: { "govuk_forms_a_great_form_#{submission_reference}.csv" => expected_csv_content },
           csv_filename: "govuk_forms_a_great_form_#{submission_reference}.csv",
@@ -275,12 +275,12 @@ RSpec.describe AwsSesSubmissionService do
       let(:is_preview) { true }
 
       context "when the submission email is set" do
-        it "calls AwsSesFormSubmissionMailer" do
-          allow(AwsSesFormSubmissionMailer).to receive(:submission_email).and_call_original
+        it "calls FormSubmissionMailer" do
+          allow(FormSubmissionMailer).to receive(:submission_email).and_call_original
 
           service.submit
 
-          expect(AwsSesFormSubmissionMailer).to have_received(:submission_email).with(
+          expect(FormSubmissionMailer).to have_received(:submission_email).with(
             submission:,
             files: {},
             csv_filename: nil,
@@ -297,9 +297,9 @@ RSpec.describe AwsSesSubmissionService do
         end
 
         it "does not call FormSubmissionMailer" do
-          allow(AwsSesFormSubmissionMailer).to receive(:submission_email).and_call_original
+          allow(FormSubmissionMailer).to receive(:submission_email).and_call_original
           service.submit
-          expect(AwsSesFormSubmissionMailer).not_to have_received(:submission_email)
+          expect(FormSubmissionMailer).not_to have_received(:submission_email)
         end
       end
 

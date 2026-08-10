@@ -1,6 +1,6 @@
 require "rails_helper"
 
-describe AwsSesFormSubmissionMailer, type: :mailer do
+describe FormSubmissionMailer, type: :mailer do
   subject(:mail) { described_class.submission_email(submission:, files:, csv_filename:, json_filename:) }
 
   let(:submission) do

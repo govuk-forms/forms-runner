@@ -1,6 +1,6 @@
 require "rails_helper"
 
-describe AwsSesSubmissionBatchMailer, type: :mailer do
+describe SubmissionBatchMailer, type: :mailer do
   let(:form) { build(:form, submission_email: submission_email_address) }
   let(:submission_email_address) { "submission@email.gov.uk" }
   let(:mode) { Mode.new("form") }

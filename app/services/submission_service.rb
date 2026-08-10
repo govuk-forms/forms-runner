@@ -1,4 +1,4 @@
-class AwsSesSubmissionService
+class SubmissionService
   include SubmissionFilenameGenerator
 
   def initialize(submission:, delivery:)
@@ -41,10 +41,10 @@ private
       files.merge!({ csv_filename => generate_csv_submission })
     end
 
-    mail = AwsSesFormSubmissionMailer.submission_email(submission: @submission,
-                                                       files:,
-                                                       csv_filename:,
-                                                       json_filename:).deliver_now
+    mail = FormSubmissionMailer.submission_email(submission: @submission,
+                                                 files:,
+                                                 csv_filename:,
+                                                 json_filename:).deliver_now
 
     CurrentJobLoggingAttributes.delivery_reference = mail.message_id
     mail.message_id

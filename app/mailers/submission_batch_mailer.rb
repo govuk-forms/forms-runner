@@ -1,4 +1,4 @@
-class AwsSesSubmissionBatchMailer < ApplicationMailer
+class SubmissionBatchMailer < ApplicationMailer
   def daily_submission_batch_email(form:, date:, mode:, files:)
     @form_name = form.name
     @date = date.strftime("%-d %B %Y")

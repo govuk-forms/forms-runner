@@ -1,4 +1,4 @@
-class AwsSesSubmissionBatchService
+class SubmissionBatchService
   def initialize(submissions_query:, form:, mode:)
     @submissions_query = submissions_query
     @form = form
@@ -15,7 +15,7 @@ class AwsSesSubmissionBatchService
       )
     end
 
-    mail = AwsSesSubmissionBatchMailer.daily_submission_batch_email(form: @form, date:, mode: @mode, files:).deliver_now
+    mail = SubmissionBatchMailer.daily_submission_batch_email(form: @form, date:, mode: @mode, files:).deliver_now
 
     CurrentJobLoggingAttributes.delivery_reference = mail.message_id
     mail.message_id
@@ -32,7 +32,7 @@ class AwsSesSubmissionBatchService
       )
     end
 
-    mail = AwsSesSubmissionBatchMailer.weekly_submission_batch_email(
+    mail = SubmissionBatchMailer.weekly_submission_batch_email(
       form: @form,
       begin_date:,
       end_date:,

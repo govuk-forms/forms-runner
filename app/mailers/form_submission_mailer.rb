@@ -1,4 +1,4 @@
-class AwsSesFormSubmissionMailer < ApplicationMailer
+class FormSubmissionMailer < ApplicationMailer
   def submission_email(submission:, files:, csv_filename: nil, json_filename: nil)
     @submission = submission
     @subject = email_subject

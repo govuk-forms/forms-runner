@@ -195,13 +195,13 @@ RSpec.describe FormSubmissionService, :capture_logging do
       context "when the submission type is email" do
         let(:delivery_configurations) { [build(:v2_delivery_configuration, :immediate_email, formats: %w[json])] }
 
-        let(:aws_ses_submission_service_spy) { instance_double(AwsSesSubmissionService) }
+        let(:aws_ses_submission_service_spy) { instance_double(SubmissionService) }
         let(:mail_message_id) { "1234" }
 
         before do
           allow(Flow::Journey).to receive(:new)
 
-          allow(AwsSesSubmissionService).to receive(:new).and_return(aws_ses_submission_service_spy)
+          allow(SubmissionService).to receive(:new).and_return(aws_ses_submission_service_spy)
           allow(aws_ses_submission_service_spy).to receive(:submit).and_return(mail_message_id)
         end
 
@@ -531,10 +531,10 @@ RSpec.describe FormSubmissionService, :capture_logging do
       context "when user does not want a confirmation email" do
         let(:email_confirmation_input) { build :email_confirmation_input }
 
-        it "does not call AwsSesSubmissionConfirmationMailer" do
-          allow(AwsSesSubmissionConfirmationMailer).to receive(:submission_confirmation_email)
+        it "does not call SubmissionConfirmationMailer" do
+          allow(SubmissionConfirmationMailer).to receive(:submission_confirmation_email)
           service.submit
-          expect(AwsSesSubmissionConfirmationMailer).not_to have_received(:submission_confirmation_email)
+          expect(SubmissionConfirmationMailer).not_to have_received(:submission_confirmation_email)
         end
       end
 
