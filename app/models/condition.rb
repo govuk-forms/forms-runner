@@ -4,6 +4,7 @@ class Condition
   delegate(
     :id,
     :answer_value,
+    :exit_page_id,
     :exit_page_heading,
     :exit_page_markdown,
     :validation_errors,
@@ -43,7 +44,7 @@ class Condition
   def exit_page?
     return false unless form_document_condition.respond_to?(:exit_page_markdown)
 
-    form_document_condition.exit_page_markdown.is_a?(String)
+    form_document_condition.try(:exit_page_id).present? || form_document_condition.exit_page_markdown.is_a?(String)
   end
 
   def skip_to_end?
