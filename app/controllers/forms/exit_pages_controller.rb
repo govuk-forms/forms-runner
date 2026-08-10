@@ -5,6 +5,7 @@ module Forms
 
       @back_link = form_step_path(@form.id, @form.form_slug, @step.id)
       @condition = @step.routing_conditions.first
+      @exit_page = @step.exit_pages.find { it.id == @condition.exit_page_id }
     end
   end
 end

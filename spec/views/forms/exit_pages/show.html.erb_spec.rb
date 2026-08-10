@@ -1,17 +1,24 @@
 require "rails_helper"
 
 describe "forms/exit_pages/show.html.erb" do
+  let(:exit_page) do
+    ExitPage.new(
+      id: 99,
+      heading: "heading",
+      markdown: "  * first line\n  * second line\n",
+    )
+  end
+
   let(:form) { build :form, :with_support, name: "exit page form" }
   let(:mode) { OpenStruct.new(preview_draft?: false, preview_archived?: false, preview_live?: false) }
-  let(:condition) { build(:v2_condition, :with_exit_page, exit_page_heading: "heading", exit_page_markdown: "  * first line\n  * second line\n") }
   let(:support_details) { OpenStruct.new(email: form.support_email) }
 
   before do
     assign(:current_context, OpenStruct.new(form:))
     assign(:mode, mode)
-    assign(:condition, condition)
     assign(:back_link, "/back")
     assign(:support_details, support_details)
+    assign(:exit_page, exit_page)
 
     render
   end
@@ -25,7 +32,7 @@ describe "forms/exit_pages/show.html.erb" do
   end
 
   it "has the correct heading" do
-    expect(rendered).to have_css("h1", text: condition.exit_page_heading)
+    expect(rendered).to have_css("h1", text: exit_page.heading)
   end
 
   it "displays the markdown" do
