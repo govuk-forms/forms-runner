@@ -29,37 +29,20 @@ RSpec.describe Step do
   end
 
   describe "#==" do
-    it "returns true for steps with the same state" do
+    it "returns true for steps with the same form document step and question" do
       other_step = described_class.new(
         question:,
         form_document_step:,
       )
-      expect(step).to eq(other_step)
+      expect(step == other_step).to be true
     end
 
-    it "returns false for steps with different states" do
+    it "returns false for steps with a different form document step" do
       other_step = described_class.new(
         question:,
         form_document_step: build(:v2_question_step),
       )
       expect(step == other_step).to be false
-    end
-  end
-
-  describe "#state" do
-    it "returns an array of instance variable values" do
-      expected_state = [
-        form_document_step,
-        question,
-      ]
-
-      expect(step.state).to match_array(expected_state)
-    end
-
-    it "changes when an instance variable is modified" do
-      original_state = step.state.dup
-      step.question = build(:name)
-      expect(step.state).not_to eq(original_state)
     end
   end
 
@@ -152,7 +135,7 @@ RSpec.describe Step do
     describe "single condition routing" do
       context "with a matching condition" do
         let(:selection) { "Yes" }
-        let(:routing_conditions) { [OpenStruct.new(answer_value: "Yes", goto_page_id: third_step_id)] }
+        let(:routing_conditions) { [build(:v2_condition, answer_value: "Yes", goto_page_id: third_step_id)] }
 
         it "returns the goto_page_id of the condition" do
           expect(step.next_step_slug_after_routing).to eq(third_step_id)
@@ -161,7 +144,7 @@ RSpec.describe Step do
 
       context "with a matching none_of_the_above condition" do
         let(:selection) { Question::Selection::NONE_OF_THE_ABOVE_VALUE }
-        let(:routing_conditions) { [OpenStruct.new(answer_value: "none_of_the_above", goto_page_id: third_step_id)] }
+        let(:routing_conditions) { [build(:v2_condition, answer_value: "none_of_the_above", goto_page_id: third_step_id)] }
 
         it "returns the goto_page_id of the condition" do
           expect(step.next_step_slug_after_routing).to eq(third_step_id)
@@ -170,7 +153,7 @@ RSpec.describe Step do
 
       context "with a non-matching condition" do
         let(:selection) { "No" }
-        let(:routing_conditions) { [OpenStruct.new(answer_value: "Yes", goto_page_id: third_step_id)] }
+        let(:routing_conditions) { [build(:v2_condition, answer_value: "Yes", goto_page_id: third_step_id)] }
 
         it "returns the next_step_slug" do
           expect(step.next_step_slug_after_routing).to eq(default_next_step_id)
@@ -179,7 +162,7 @@ RSpec.describe Step do
 
       context "with a non-selection question and a default condition" do
         let(:question) { instance_double(Question::Text, :with_answer) }
-        let(:routing_conditions) { [OpenStruct.new(answer_value: "", goto_page_id: third_step_id)] }
+        let(:routing_conditions) { [build(:v2_condition, answer_value: "", goto_page_id: third_step_id)] }
 
         it "returns the next_step_slug" do
           expect(step.next_step_slug_after_routing).to eq(third_step_id)
@@ -188,7 +171,7 @@ RSpec.describe Step do
 
       context "with a non-selection question and a match condition" do
         let(:question) { instance_double(Question::Text, :with_answer) }
-        let(:routing_conditions) { [OpenStruct.new(answer_value: "something", goto_page_id: third_step_id)] }
+        let(:routing_conditions) { [build(:v2_condition, answer_value: "something", goto_page_id: third_step_id)] }
 
         it "returns the next_step_slug" do
           expect(step.next_step_slug_after_routing).to eq(default_next_step_id)
@@ -200,7 +183,7 @@ RSpec.describe Step do
       context "with skip_to_end and no goto_page_id" do
         let(:routing_conditions) do
           [
-            OpenStruct.new(answer_value: "Yes", goto_page_id: nil, skip_to_end: true),
+            build(:v2_condition, :skip_to_end, answer_value: "Yes"),
           ]
         end
         let(:selection) { "Yes" }
@@ -213,7 +196,7 @@ RSpec.describe Step do
       context "with skip_to_end and goto_page_id" do
         let(:routing_conditions) do
           [
-            OpenStruct.new(answer_value: "Yes", goto_page_id: fourth_step_id, skip_to_end: true),
+            build(:v2_condition, answer_value: "Yes", goto_page_id: fourth_step_id, skip_to_end: true),
           ]
         end
         let(:selection) { "Yes" }
@@ -227,9 +210,9 @@ RSpec.describe Step do
     context "with multiple conditions" do
       let(:routing_conditions) do
         [
-          OpenStruct.new(answer_value: "No", goto_page_id: first_step_id),
-          OpenStruct.new(answer_value: "Yes", goto_page_id: second_step_id),
-          OpenStruct.new(answer_value: "Maybe", goto_page_id: third_step_id),
+          build(:v2_condition, answer_value: "No", goto_page_id: first_step_id),
+          build(:v2_condition, answer_value: "Yes", goto_page_id: second_step_id),
+          build(:v2_condition, answer_value: "Maybe", goto_page_id: third_step_id),
         ]
       end
 
@@ -270,9 +253,9 @@ RSpec.describe Step do
       context "with multiple conditions and default matches" do
         let(:routing_conditions) do
           [
-            OpenStruct.new(answer_value: "No", goto_page_id: first_step_id),
-            OpenStruct.new(answer_value: "Yes", goto_page_id: second_step_id),
-            OpenStruct.new(answer_value: nil, goto_page_id: third_step_id),
+            build(:v2_condition, answer_value: "No", goto_page_id: first_step_id),
+            build(:v2_condition, answer_value: "Yes", goto_page_id: second_step_id),
+            build(:v2_condition, answer_value: nil, goto_page_id: third_step_id),
           ]
         end
         let(:selection) { "Something else" }
@@ -285,7 +268,7 @@ RSpec.describe Step do
       context "with nil selection" do
         let(:routing_conditions) do
           [
-            OpenStruct.new(answer_value: "Yes", goto_page_id: first_step_id),
+            build(:v2_condition, answer_value: "Yes", goto_page_id: first_step_id),
           ]
         end
         let(:selection) { nil }
@@ -390,81 +373,23 @@ RSpec.describe Step do
     end
   end
 
-  describe "#conditions_with_goto_errors" do
-    let(:cannot_have_goto_page_before_routing_page_error) { OpenStruct.new(name: "cannot_have_goto_page_before_routing_page") }
-    let(:goto_page_doesnt_exist_error) { OpenStruct.new(name: "goto_page_doesnt_exist") }
-    let(:other_error) { OpenStruct.new(name: "some_other_error") }
-
-    context "when there are no routing conditions" do
-      let(:routing_conditions) { [] }
-      let(:form_document_step) { build(:v2_question_step, position: 1, routing_conditions: routing_conditions) }
-
-      it "returns an empty array" do
-        expect(step.conditions_with_goto_errors).to be_empty
-      end
-    end
-
-    context "when routing conditions have no errors" do
-      let(:condition) { OpenStruct.new(validation_errors: []) }
-      let(:routing_conditions) { [condition] }
-      let(:form_document_step) { build(:v2_question_step, position: 1, routing_conditions: routing_conditions) }
-
-      it "returns an empty array" do
-        expect(step.conditions_with_goto_errors).to be_empty
-      end
-    end
-
-    context "when routing conditions have relevant errors" do
-      let(:condition) { OpenStruct.new(validation_errors: [cannot_have_goto_page_before_routing_page_error]) }
-      let(:second_condition) { OpenStruct.new(validation_errors: [goto_page_doesnt_exist_error]) }
-      let(:routing_conditions) { [condition, second_condition] }
-      let(:form_document_step) { build(:v2_question_step, position: 1, routing_conditions: routing_conditions) }
-
-      it "returns conditions with specified errors" do
-        expect(step.conditions_with_goto_errors).to contain_exactly(condition, second_condition)
-      end
-    end
-
-    context "when routing conditions have irrelevant errors" do
-      let(:condition) { OpenStruct.new(validation_errors: [other_error]) }
-      let(:routing_conditions) { [condition] }
-      let(:form_document_step) { build(:v2_question_step, position: 1, routing_conditions: routing_conditions) }
-
-      it "returns an empty array" do
-        expect(step.conditions_with_goto_errors).to be_empty
-      end
-    end
-
-    context "when routing conditions have mixed errors" do
-      let(:condition_mixed) { OpenStruct.new(validation_errors: [cannot_have_goto_page_before_routing_page_error, other_error]) }
-      let(:condition_other) { OpenStruct.new(validation_errors: [other_error]) }
-      let(:condition_goto) { OpenStruct.new(validation_errors: [goto_page_doesnt_exist_error]) }
-      let(:routing_conditions) { [condition_mixed, condition_other, condition_goto] }
-      let(:form_document_step) { build(:v2_question_step, position: 1, routing_conditions: routing_conditions) }
-
-      it "returns only conditions with specified errors" do
-        expect(step.conditions_with_goto_errors).to contain_exactly(condition_mixed, condition_goto)
-      end
-    end
-  end
-
   describe "#has_exit_page_condition?" do
     it "returns false when no routing conditions" do
       expect(step.has_exit_page_condition?).to be false
     end
 
     it "returns false when first routing condition is not exit page" do
-      form_document_step.routing_conditions = [OpenStruct.new(answer_value: "Yes", goto_page_id: third_step_id)]
+      form_document_step.routing_conditions = [build(:v2_condition, answer_value: "Yes", goto_page_id: third_step_id)]
       expect(step.has_exit_page_condition?).to be false
     end
 
     it "returns false when first routing condition contains markdown exit_page_markdown" do
-      form_document_step.routing_conditions = [OpenStruct.new(exit_page_markdown: 12)]
+      form_document_step.routing_conditions = [build(:v2_condition, exit_page_markdown: 12)]
       expect(step.has_exit_page_condition?).to be false
     end
 
     it "returns true when first routing condition contains string markdown exit_page_markdown" do
-      form_document_step.routing_conditions = [OpenStruct.new(exit_page_markdown: "")]
+      form_document_step.routing_conditions = [build(:v2_condition, exit_page_markdown: "")]
       expect(step.has_exit_page_condition?).to be true
     end
   end
@@ -472,7 +397,7 @@ RSpec.describe Step do
   describe "#exit_page_condition_matches?" do
     let(:selection) { "Yes" }
     let(:question) { instance_double(Question::Selection, selection:) }
-    let(:routing_conditions) { [OpenStruct.new(answer_value: "Yes", exit_page_markdown: "string")] }
+    let(:routing_conditions) { [build(:v2_condition, answer_value: "Yes", exit_page_markdown: "string")] }
     let(:form_document_step) { build(:v2_question_step, position: 1, routing_conditions:) }
 
     it "returns true when condition matches and condition is an exit page" do

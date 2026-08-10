@@ -35,7 +35,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
     build :v2_selection_question_step,
           id: first_step_id,
           next_step_id: 2,
-          routing_conditions: [DataStruct.new(id: 1, routing_page_id: 1, check_page_id: 1, goto_page_id: 3, answer_value: "Option 1", validation_errors:)],
+          routing_conditions: [build(:v2_condition, id: 1, routing_page_id: 1, check_page_id: 1, goto_page_id: 3, answer_value: "Option 1", validation_errors:)],
           is_optional: false
   end
 
@@ -333,7 +333,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
                   id: 4,
                   next_step_id: nil,
                   skip_to_end: true,
-                  routing_conditions: [DataStruct.new(id: 2, routing_page_id: 4, check_page_id: 1, goto_page_id: 3, validation_errors:)],
+                  routing_conditions: [build(:v2_condition, id: 2, routing_page_id: 4, check_page_id: 1, goto_page_id: 3, validation_errors:)],
                   is_optional: false
           end
 
@@ -564,7 +564,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
                   id: 4,
                   next_step_id: nil,
                   skip_to_end: true,
-                  routing_conditions: [DataStruct.new(id: 2, routing_page_id: 4, check_page_id: 1, goto_page_id: 3, validation_errors:)],
+                  routing_conditions: [build(:v2_condition, id: 2, routing_page_id: 4, check_page_id: 1, goto_page_id: 3, validation_errors:)],
                   is_optional: false
           end
 
@@ -1053,7 +1053,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
         build :v2_selection_question_step,
               id: 1,
               next_step_id: 2,
-              routing_conditions: [DataStruct.new(id: 1, routing_page_id: 1, check_page_id: 1, goto_page_id: nil, answer_value: "Option 1", validation_errors: [], exit_page_markdown: "Exit page markdown", exit_page_heading: "exit page heading")],
+              routing_conditions: [build(:v2_condition, :with_exit_page, id: 1, routing_page_id: 1, check_page_id: 1, answer_value: "Option 1", exit_page_markdown: "Exit page markdown", exit_page_heading: "exit page heading")],
               is_optional: false
       end
 

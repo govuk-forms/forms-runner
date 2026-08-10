@@ -10,11 +10,8 @@ class CheckYourAnswersStep
   end
 
   def ==(other)
-    other.class == self.class && other.state == state
-  end
-
-  def state
-    instance_variables.map { |variable| instance_variable_get variable }
+    super ||
+      other.class == self.class # there is only one check your answers step
   end
 
   def end_page?
