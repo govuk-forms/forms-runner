@@ -2,7 +2,7 @@ class ExitPage
   attr_reader :id, :heading, :markdown
 
   def initialize(id:, heading:, markdown:)
-    @id = id
+    @id = id.to_s
     @heading = heading
     @markdown = markdown
   end
