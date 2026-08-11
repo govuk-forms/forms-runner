@@ -145,6 +145,19 @@ RSpec.describe Condition do
       end
     end
 
+    context "when condition has exit_page_id" do
+      let(:form_document_condition) do
+        build(
+          :v2_condition,
+          exit_page_id: 10,
+        )
+      end
+
+      it "returns true" do
+        expect(condition.exit_page?).to be true
+      end
+    end
+
     context "when condition has exit page content" do
       let(:form_document_condition) do
         build(

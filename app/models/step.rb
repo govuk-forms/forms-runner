@@ -29,6 +29,15 @@ class Step
     form_document_step.next_step_id.present? ? form_document_step.next_step_id.to_s : CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG
   end
 
+  def exit_pages
+    @exit_pages ||=
+      if form_document_step.respond_to?(:exit_pages)
+        form_document_step.exit_pages.map { ExitPage.from_form_document(it) }
+      else
+        []
+      end
+  end
+
   def routing_conditions
     @routing_conditions ||=
       if form_document_step.respond_to?(:routing_conditions)
