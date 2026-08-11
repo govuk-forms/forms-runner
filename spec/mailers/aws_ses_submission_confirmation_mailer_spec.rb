@@ -37,8 +37,11 @@ RSpec.describe AwsSesSubmissionConfirmationMailer, type: :mailer do
   end
   let(:what_happens_next_markdown) { "Please wait for a response\nA list:\n\n- Item one\n- Item two" }
   let(:payment_url) { "https://pay.example.gov" }
+  let(:brand_id) { nil }
   let(:form_document) do
     build(:v2_form_document,
+          :with_brand_id,
+          brand_id:,
           name: "My form",
           steps: [
             build(:v2_question_step, :with_text_settings, question_text: "What is your favourite colour?", id: "q1", next_step_id: "q2"),
@@ -206,6 +209,58 @@ RSpec.describe AwsSesSubmissionConfirmationMailer, type: :mailer do
 
     it "does not include the answers content for the html part" do
       expect(mail.html_part.body).not_to include("What is your name?")
+    end
+  end
+
+  describe "custom branding" do
+    context "when the form has custom branding" do
+      let(:brand_id) { "cheshire-east" }
+      let(:branding) { BRANDING_CONFIG["cheshire-east"] }
+
+      it "shows the organisation logo linking to the organisation website in the html part" do
+        expect(mail.html_part.body).to have_link(branding["organisation_name"], href: branding["organisation_url"])
+        expect(mail.html_part.body).to have_css("img[src='#{Settings.forms_runner.base_url}#{branding['logo']}'][alt='#{branding['organisation_name']}']")
+      end
+
+      it "uses the branding colours for the banner" do
+        expect(mail.html_part.body.to_s).to include(%(bgcolor="#{branding['background_colour']}"))
+        expect(mail.html_part.body.to_s).to include("border-bottom: 4px solid #{branding['border_colour']}")
+      end
+
+      it "does not show the GOV.UK banner" do
+        expect(mail.html_part.body).not_to have_link(href: "https://www.gov.uk")
+        expect(mail.html_part.body.to_s).not_to include("govuk-logotype-tudor-crown.png")
+      end
+
+      it "does not change the text part" do
+        expect(mail.text_part.body).not_to include(branding["organisation_url"])
+      end
+
+      context "when the submission locale is Welsh" do
+        let(:submission_locale) { "cy" }
+        let(:welsh_form_document) do
+          build(:v2_form_document, :with_brand_id, brand_id: "cheshire-east", name: "Welsh form")
+        end
+        let(:include_copy_of_answers) { false }
+
+        it "renders the branded banner exactly once" do
+          expect(mail.html_part.body.to_s.scan(branding["organisation_url"]).count).to eq(1)
+        end
+      end
+    end
+
+    context "when the form has a brand ID that is not configured" do
+      let(:brand_id) { "midsomer" }
+
+      it "shows the GOV.UK banner in the html part" do
+        expect(mail.html_part.body).to have_link("GOV.UK", href: "https://www.gov.uk")
+      end
+    end
+
+    context "when the form has no brand ID" do
+      it "shows the GOV.UK banner in the html part" do
+        expect(mail.html_part.body).to have_link("GOV.UK", href: "https://www.gov.uk")
+      end
     end
   end
 

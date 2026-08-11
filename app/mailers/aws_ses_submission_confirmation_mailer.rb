@@ -9,6 +9,7 @@ class AwsSesSubmissionConfirmationMailer < ApplicationMailer
     @welsh_form = submission.welsh_form
     @submission = submission
     @include_copy_of_answers = include_copy_of_answers
+    @branding = @form.branding if @form.has_custom_branding?
 
     mail(
       to: confirmation_email_address,

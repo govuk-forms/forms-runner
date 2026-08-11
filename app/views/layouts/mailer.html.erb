@@ -46,9 +46,15 @@
   <body style="font-family: Helvetica, Arial, sans-serif;font-size: 16px;margin: 0;color:#0b0c0c;">
     <table role="presentation" width="100%" style="border-collapse: collapse;min-width: 100%;width: 100% !important;" cellpadding="0" cellspacing="0" border="0">
       <tr>
+<% if @branding.present? %>
+        <td width="100%" bgcolor="<%= @branding['background_colour'] %>" class="brand__banner" style="border-bottom: 4px solid <%= @branding['border_colour'] %>;">
+<%= render "layouts/custom_branding_email_banner" %>
+        </td>
+<% else %>
         <td width="100%" height="60" bgcolor="#1d70b8" class="brand__banner">
 <%= render "layouts/govuk_email_banner" %>
         </td>
+<% end %>
       </tr>
     </table>
     <table
