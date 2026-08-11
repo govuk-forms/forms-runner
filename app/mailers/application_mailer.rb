@@ -1,4 +1,5 @@
 class ApplicationMailer < ActionMailer::Base
+  helper BrandingHelper
   helper EmailFormatHelper
 
   layout "mailer"
