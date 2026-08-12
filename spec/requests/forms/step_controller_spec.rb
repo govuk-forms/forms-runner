@@ -1049,12 +1049,14 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
     end
 
     context "when the page is a an exit question" do
+      let(:exit_page) { build(:v2_exit_page, heading: "Exit page heading", markdown: "Exit page markdown") }
       let(:first_step_in_form) do
-        build :v2_selection_question_step,
+        build(:v2_selection_question_step,
+              :with_exit_page,
               id: 1,
               next_step_id: 2,
-              routing_conditions: [build(:v2_condition, :with_exit_page, id: 1, routing_page_id: 1, check_page_id: 1, answer_value: "Option 1", exit_page_markdown: "Exit page markdown", exit_page_heading: "exit page heading")],
-              is_optional: false
+              is_optional: false,
+              exit_page:)
       end
 
       it "redirects to the exit page when exit page answer given" do
