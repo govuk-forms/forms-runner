@@ -1,4 +1,4 @@
-<% set_page_title(form_title(form_name: @current_context.form.name, page_name: @exit_page.heading, mode: @mode)) %>
+<% set_page_title(form_title(form_name: @current_context.form.name, page_name: @condition.exit_page_heading, mode: @mode)) %>
 
 <% content_for :back_link do %>
   <%= link_to t("forms.back"), @back_link, class: "govuk-back-link" %>
@@ -6,8 +6,8 @@
 
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
-    <h1 class="govuk-heading-l"> <%= @exit_page.heading %></h1>
-    <%= HtmlMarkdownSanitizer.new.render_scrubbed_markdown(@exit_page.markdown) %>
+    <h1 class="govuk-heading-l"> <%= @condition.exit_page_heading %></h1>
+    <%= HtmlMarkdownSanitizer.new.render_scrubbed_markdown(@condition.exit_page_markdown) %>
     <%= render SupportDetailsComponent::View.new(@support_details) %>
   </div>
 </div>
