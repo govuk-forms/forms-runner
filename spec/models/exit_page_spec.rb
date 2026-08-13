@@ -4,13 +4,13 @@ RSpec.describe ExitPage do
   describe "#initialize" do
     it "sets the attributes" do
       exit_page = described_class.new(
-        id: 1,
+        id: "1",
         heading: "You are not elegible for this service",
         markdown: "Here’s what to do next: ...",
       )
 
       expect(exit_page).to have_attributes(
-        id: 1,
+        id: "1",
         heading: "You are not elegible for this service",
         markdown: "Here’s what to do next: ...",
       )
@@ -24,7 +24,7 @@ RSpec.describe ExitPage do
 
       expect(exit_page).to be_an described_class
       expect(exit_page).to have_attributes(
-        id: form_document_exit_page.id,
+        id: form_document_exit_page.id.to_s,
         heading: form_document_exit_page.heading,
         markdown: form_document_exit_page.markdown,
       )
