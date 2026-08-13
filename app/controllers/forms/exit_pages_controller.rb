@@ -14,6 +14,11 @@ module Forms
       @condition = @step.routing_conditions.first
 
       if @condition.new_style_exit_page?
+        # TODO: Revert the following lines once they have been fully deployed to production.
+        # They're a fallback to handle a zero-downtime deploy but should not be needed otherwise.
+        params[:exit_page_id] = @condition.exit_page_id if params[:exit_page_id].nil?
+        CurrentRequestLoggingAttributes.exit_page_id = params[:exit_page_id]
+
         unless @condition.exit_page_id == params[:exit_page_id]
           return redirect_to exit_page_path(@form.id, @form.form_slug, @step.id, @condition.exit_page_id)
         end

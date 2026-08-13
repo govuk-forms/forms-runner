@@ -97,10 +97,12 @@ RSpec.describe Forms::ExitPagesController, type: :request do
       end
     end
 
-    context "when the request path does not include an exit page id" do
-      it "redirects to the correct exit page path" do
+    context "when the request path does not include an exit page id", :capture_logging do
+      it "falls back to the old behaviour and renders the exit page for the matching condition" do
         get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id)
-        expect(response).to redirect_to exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id, exit_page_id: exit_page.id)
+        expect(response).to render_template(:show)
+        expect(assigns(:exit_page)).to eq ExitPage.from_form_document(exit_page)
+        expect(log_lines.last["exit_page_id"]).to eq exit_page.id.to_s
       end
     end
 
