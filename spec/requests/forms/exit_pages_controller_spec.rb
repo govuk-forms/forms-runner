@@ -43,6 +43,11 @@ RSpec.describe Forms::ExitPagesController, type: :request do
       expect(assigns(:exit_page)).to eq ExitPage.from_form_document(exit_page)
     end
 
+    it "logs the exit page id", :capture_logging do
+      get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id, exit_page_id: exit_page.id)
+      expect(log_lines.last["exit_page_id"]).to eq exit_page.id.to_s
+    end
+
     context "when the question with an exit page has been answered and the exit page should not be shown" do
       let(:answer) { "Option 2" }
 

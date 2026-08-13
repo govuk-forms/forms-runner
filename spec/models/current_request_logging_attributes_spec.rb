@@ -27,6 +27,7 @@ RSpec.describe CurrentRequestLoggingAttributes, type: :model do
       current.rescued_exception_trace = "a trace"
       current.validation_errors = ["text: blank"]
       current.answer_metadata = { foo: "bar" }
+      current.exit_page_id = 4
 
       expect(current.as_hash).to eq({
         request_host: "www.example.com",
@@ -46,6 +47,7 @@ RSpec.describe CurrentRequestLoggingAttributes, type: :model do
         rescued_exception_trace: "a trace",
         validation_errors: ["text: blank"],
         answer_metadata: { foo: "bar" },
+        exit_page_id: 4,
       })
     end
 

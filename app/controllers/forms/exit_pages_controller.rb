@@ -1,5 +1,10 @@
 module Forms
   class ExitPagesController < StepController
+    def set_request_logging_attributes
+      super
+      CurrentRequestLoggingAttributes.exit_page_id = params[:exit_page_id]
+    end
+
     def show
       unless current_context.can_visit?(@step.id) && @step.exit_page_condition_matches?
         return redirect_to form_step_path(@form.id, @form.form_slug, current_context.next_step_slug)
