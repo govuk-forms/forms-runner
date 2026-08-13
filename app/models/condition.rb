@@ -4,7 +4,6 @@ class Condition
   delegate(
     :id,
     :answer_value,
-    :exit_page_id,
     :exit_page_heading,
     :exit_page_markdown,
     :validation_errors,
@@ -29,6 +28,10 @@ class Condition
 
   def goto_page_id
     form_document_condition.goto_page_id.to_s
+  end
+
+  def exit_page_id
+    form_document_condition.exit_page_id.to_s
   end
 
   def default?
