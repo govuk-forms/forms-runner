@@ -5,7 +5,6 @@ FactoryBot.define do
     sequence(:position) { |n| n }
     next_step_id { nil }
 
-    exit_pages { [] }
     routing_conditions { [] }
 
     type { nil }
