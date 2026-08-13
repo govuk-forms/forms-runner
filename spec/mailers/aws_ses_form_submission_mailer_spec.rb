@@ -27,6 +27,15 @@ describe AwsSesFormSubmissionMailer, type: :mailer do
     allow(Flow::Journey).to receive(:new).and_return(journey)
   end
 
+  context "when the form has custom branding" do
+    let(:form_document) { build(:v2_form_document, :with_brand_id, brand_id: "cheshire-east", name: form_name, submission_email: submission_email_address, payment_url:) }
+
+    it "still shows the GOV.UK banner" do
+      expect(mail.html_part.body).to have_link("GOV.UK", href: "https://www.gov.uk")
+      expect(mail.html_part.body).not_to have_link(href: BRANDING_CONFIG["cheshire-east"]["organisation_url"])
+    end
+  end
+
   context "when form filler submits a completed form" do
     context "when form is not in preview" do
       it "sends an email to the form's submission email address" do

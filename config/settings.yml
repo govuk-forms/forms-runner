@@ -6,6 +6,10 @@ forms_admin:
   # URL to form-admin
   base_url: http://localhost:3000
 
+forms_runner:
+  # Public URL of this app, used to build absolute links in emails
+  base_url: http://localhost:3000
+
 forms_api:
   # URL to form-admin API endpoints
   base_url: http://localhost:3000

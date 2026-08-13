@@ -67,7 +67,38 @@ class AwsSesSubmissionConfirmationMailerPreview < ActionMailer::Preview
     )
   end
 
+  def with_custom_branding
+    submission = build(:submission, form_document: branded_form_document, answers: answers, is_preview: false)
+
+    AwsSesSubmissionConfirmationMailer.submission_confirmation_email(
+      submission:,
+      confirmation_email_address: "foo@example.com",
+      include_copy_of_answers: true,
+    )
+  end
+
+  def with_custom_branding_welsh
+    submission = build(:submission,
+                       form_document: branded_form_document,
+                       welsh_form_document: welsh_form_document,
+                       answers: answers,
+                       is_preview: false,
+                       submission_locale: "cy")
+
+    AwsSesSubmissionConfirmationMailer.submission_confirmation_email(
+      submission:,
+      confirmation_email_address: "foo@example.com",
+      include_copy_of_answers: true,
+    )
+  end
+
 private
+
+  def branded_form_document
+    document = form_document
+    document.brand_id = "cheshire-east"
+    document
+  end
 
   def form_document
     steps = [
