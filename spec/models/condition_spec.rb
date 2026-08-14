@@ -163,6 +163,19 @@ RSpec.describe Condition do
       it "returns false" do
         expect(condition.exit_page?).to be false
       end
+
+      context "and does not have exit page content attributes" do
+        let(:form_document_condition) do
+          condition = build(:v2_condition, goto_page_id: Faker::Alphanumeric.alphanumeric(number: 8))
+          condition.attributes.delete(:exit_page_heading)
+          condition.attributes.delete(:exit_page_markdown)
+          condition
+        end
+
+        it "returns false" do
+          expect(condition.exit_page?).to be false
+        end
+      end
     end
 
     context "when condition has exit_page_id" do
@@ -175,6 +188,19 @@ RSpec.describe Condition do
 
       it "returns true" do
         expect(condition.exit_page?).to be true
+      end
+
+      context "and does not have exit page content attributes" do
+        let(:form_document_condition) do
+          condition = build(:v2_condition, exit_page_id: 10)
+          condition.attributes.delete(:exit_page_heading)
+          condition.attributes.delete(:exit_page_markdown)
+          condition
+        end
+
+        it "returns true" do
+          expect(condition.exit_page?).to be true
+        end
       end
     end
 
