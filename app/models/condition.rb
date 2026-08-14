@@ -44,6 +44,10 @@ class Condition
     self.answer_value == answer_value
   end
 
+  def new_style_exit_page?
+    form_document_condition.respond_to?(:exit_page_id)
+  end
+
   def exit_page?
     form_document_condition.try(:exit_page_id).present? || form_document_condition.try(:exit_page_markdown).is_a?(String)
   end
