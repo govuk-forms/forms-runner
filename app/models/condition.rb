@@ -27,11 +27,11 @@ class Condition
   end
 
   def goto_page_id
-    form_document_condition.goto_page_id.to_s
+    form_document_condition.goto_page_id&.to_s
   end
 
   def exit_page_id
-    form_document_condition.exit_page_id.to_s
+    form_document_condition.exit_page_id&.to_s
   end
 
   def default?

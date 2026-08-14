@@ -40,6 +40,26 @@ RSpec.describe Condition do
     end
   end
 
+  describe "#goto_page_id" do
+    context "when goto_page_id is nil" do
+      let(:form_document_condition) { build(:v2_condition, goto_page_id: nil) }
+
+      it "returns nil" do
+        expect(condition.goto_page_id).to be_nil
+      end
+    end
+  end
+
+  describe "#exit_page_id" do
+    context "when exit_page_id is nil" do
+      let(:form_document_condition) { build(:v2_condition, exit_page_id: nil) }
+
+      it "returns nil" do
+        expect(condition.exit_page_id).to be_nil
+      end
+    end
+  end
+
   describe "#default?" do
     context "when condition.answer_value is nil" do
       let(:form_document_condition) do
