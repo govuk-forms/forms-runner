@@ -31,7 +31,7 @@ class Condition
   end
 
   def exit_page_id
-    form_document_condition.exit_page_id&.to_s
+    form_document_condition.try(:exit_page_id)&.to_s
   end
 
   def default?

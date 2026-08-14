@@ -51,6 +51,18 @@ RSpec.describe Condition do
   end
 
   describe "#exit_page_id" do
+    context "when form document does not have exit_page_id" do
+      let(:form_document_condition) do
+        condition = build(:v2_condition, exit_page_id: nil)
+        condition.attributes.delete(:exit_page_id)
+        condition
+      end
+
+      it "returns nil" do
+        expect(condition.exit_page_id).to be_nil
+      end
+    end
+
     context "when exit_page_id is nil" do
       let(:form_document_condition) { build(:v2_condition, exit_page_id: nil) }
 
@@ -164,6 +176,18 @@ RSpec.describe Condition do
         expect(condition.exit_page?).to be false
       end
 
+      context "and does not have exit_page_id attribute" do
+        let(:form_document_condition) do
+          condition = build(:v2_condition, goto_page_id: Faker::Alphanumeric.alphanumeric(number: 8))
+          condition.attributes.delete(:exit_page_id)
+          condition
+        end
+
+        it "returns false" do
+          expect(condition.exit_page?).to be false
+        end
+      end
+
       context "and does not have exit page content attributes" do
         let(:form_document_condition) do
           condition = build(:v2_condition, goto_page_id: Faker::Alphanumeric.alphanumeric(number: 8))
@@ -215,6 +239,18 @@ RSpec.describe Condition do
 
       it "returns true" do
         expect(condition.exit_page?).to be true
+      end
+
+      context "and does not have exit_page_id attribute" do
+        let(:form_document_condition) do
+          condition = build(:v2_condition, exit_page_heading: Faker::Lorem.sentence, exit_page_markdown: Faker::Lorem.paragraph)
+          condition.attributes.delete(:exit_page_id)
+          condition
+        end
+
+        it "returns true" do
+          expect(condition.exit_page?).to be true
+        end
       end
     end
   end
