@@ -1061,7 +1061,30 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
 
       it "redirects to the exit page when exit page answer given" do
         post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id, params: { question: { selection: "Option 1" }, changing_existing_answer: false })
-        expect(response).to redirect_to exit_page_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id)
+        expect(response).to redirect_to exit_page_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id, exit_page_id: exit_page.id)
+      end
+
+      context "when form document uses old-style exit pages" do
+        let(:routing_condition) do
+          build(
+            :v2_condition,
+            routing_page_id: 1,
+            exit_page_heading: "Exit page heading",
+            exit_page_markdown: "Exit page markdown",
+          )
+        end
+        let(:first_step_in_form) do
+          build(:v2_selection_question_step,
+                id: 1,
+                next_step_id: 2,
+                is_optional: false,
+                routing_conditions: [routing_condition])
+        end
+
+        it "redirects to the exit page when exit page answer given" do
+          post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id, params: { question: { selection: "Option 1" }, changing_existing_answer: false })
+          expect(response).to redirect_to exit_page_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id)
+        end
       end
 
       it "redirects to the next step in the form when any other answer given" do
