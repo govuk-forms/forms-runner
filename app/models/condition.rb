@@ -45,7 +45,7 @@ class Condition
   end
 
   def new_style_exit_page?
-    form_document_condition.respond_to?(:exit_page_id)
+    !!form_document_condition.try(:exit_page_id)
   end
 
   def exit_page?

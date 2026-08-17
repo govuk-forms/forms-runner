@@ -164,13 +164,23 @@ RSpec.describe Condition do
   end
 
   describe "#new_style_exit_page?" do
-    context "when condition has exit_page_id attribute" do
+    context "when condition has exit_page_id attribute and it is set" do
       let(:form_document_condition) do
-        build(:v2_condition, exit_page_id: nil)
+        build(:v2_condition, exit_page_id: 10)
       end
 
       it "returns true" do
         expect(condition.new_style_exit_page?).to be true
+      end
+    end
+
+    context "when condition has exit_page_id attribute and it is nil" do
+      let(:form_document_condition) do
+        build(:v2_condition, exit_page_id: nil)
+      end
+
+      it "returns false" do
+        expect(condition.new_style_exit_page?).to be false
       end
     end
 
