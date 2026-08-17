@@ -12,8 +12,8 @@ GIT
 
 GIT
   remote: https://github.com/OfficeForProductSafetyAndStandards/omniauth-govuk-one-login.git
-  revision: 6c6b68e186bd7ae08d6c16b8983ddad1eeb6cfc7
-  ref: 6c6b68e186bd7ae08d6c16b8983ddad1eeb6cfc7
+  revision: e9ab43642508bef8c74cb0a3d4f6f0d2331c2f27
+  ref: e9ab43642508bef8c74cb0a3d4f6f0d2331c2f27
   specs:
     omniauth_govuk_one_login (1.7.0)
       faraday (~> 2.13)
