@@ -70,71 +70,71 @@ RSpec.describe Forms::ExitPagesController, type: :request do
         expect(response).to redirect_to form_step_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: next_step_in_form.id)
       end
     end
-  end
 
-  context "when the exit page is missing from the form document" do
-    let(:condition_with_exit_page) { build(:v2_condition, :with_exit_page, routing_page_id: 2, exit_page:) }
-    let(:step_without_exit_page) { build(:v2_selection_question_step, routing_conditions: [condition_with_exit_page], id: 2, next_step_id: 3) }
-    let(:step_with_exit_page) { step_without_exit_page }
+    context "when the exit page is missing from the form document" do
+      let(:condition_with_exit_page) { build(:v2_condition, :with_exit_page, routing_page_id: 2, exit_page:) }
+      let(:step_without_exit_page) { build(:v2_selection_question_step, routing_conditions: [condition_with_exit_page], id: 2, next_step_id: 3) }
+      let(:step_with_exit_page) { step_without_exit_page }
 
-    it "raises an error" do
-      expect {
+      it "raises an error" do
+        expect {
+          get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id)
+        }.to raise_error(/Couldn't find ExitPage/)
+      end
+    end
+
+    context "when the form document is using old-style exit pages but has new-style exit page attributes" do
+      let(:exit_page_heading) { Faker::Lorem.sentence }
+      let(:exit_page_markdown) { Faker::Lorem.paragraph }
+
+      let(:condition_with_exit_page) do
+        condition = build(:v2_condition, routing_page_id: 2, goto_page_id: nil, skip_to_end: nil, exit_page_id: nil, exit_page_heading:, exit_page_markdown:)
+        condition
+      end
+
+      let(:step_without_exit_page) do
+        step = build(:v2_selection_question_step, routing_conditions: [condition_with_exit_page], id: 2, next_step_id: 3)
+        step
+      end
+
+      let(:step_with_exit_page) { step_without_exit_page }
+
+      it "falls back to the exit page content in the condition" do
         get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id)
-      }.to raise_error(/Couldn't find ExitPage/)
-    end
-  end
-
-  context "when the form document is using old-style exit pages but has new-style exit page attributes" do
-    let(:exit_page_heading) { Faker::Lorem.sentence }
-    let(:exit_page_markdown) { Faker::Lorem.paragraph }
-
-    let(:condition_with_exit_page) do
-      condition = build(:v2_condition, routing_page_id: 2, goto_page_id: nil, skip_to_end: nil, exit_page_id: nil, exit_page_heading:, exit_page_markdown:)
-      condition
+        expect(response).to render_template(:show)
+        expect(assigns(:exit_page)).to have_attributes(
+          heading: exit_page_heading,
+          markdown: exit_page_markdown,
+        )
+      end
     end
 
-    let(:step_without_exit_page) do
-      step = build(:v2_selection_question_step, routing_conditions: [condition_with_exit_page], id: 2, next_step_id: 3)
-      step
-    end
+    context "when the form document is using old-style exit pages" do
+      let(:exit_page_heading) { Faker::Lorem.sentence }
+      let(:exit_page_markdown) { Faker::Lorem.paragraph }
 
-    let(:step_with_exit_page) { step_without_exit_page }
+      let(:condition_with_exit_page) do
+        condition = build(:v2_condition, routing_page_id: 2, goto_page_id: nil, skip_to_end: nil, exit_page_id: nil, exit_page_heading:, exit_page_markdown:)
+        condition.attributes.delete(:exit_page_id)
+        condition
+      end
 
-    it "falls back to the exit page content in the condition" do
-      get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id)
-      expect(response).to render_template(:show)
-      expect(assigns(:exit_page)).to have_attributes(
-        heading: exit_page_heading,
-        markdown: exit_page_markdown,
-      )
-    end
-  end
+      let(:step_without_exit_page) do
+        step = build(:v2_selection_question_step, routing_conditions: [condition_with_exit_page], id: 2, next_step_id: 3)
+        step.attributes.delete(:exit_pages)
+        step
+      end
 
-  context "when the form document is using old-style exit pages" do
-    let(:exit_page_heading) { Faker::Lorem.sentence }
-    let(:exit_page_markdown) { Faker::Lorem.paragraph }
+      let(:step_with_exit_page) { step_without_exit_page }
 
-    let(:condition_with_exit_page) do
-      condition = build(:v2_condition, routing_page_id: 2, goto_page_id: nil, skip_to_end: nil, exit_page_id: nil, exit_page_heading:, exit_page_markdown:)
-      condition.attributes.delete(:exit_page_id)
-      condition
-    end
-
-    let(:step_without_exit_page) do
-      step = build(:v2_selection_question_step, routing_conditions: [condition_with_exit_page], id: 2, next_step_id: 3)
-      step.attributes.delete(:exit_pages)
-      step
-    end
-
-    let(:step_with_exit_page) { step_without_exit_page }
-
-    it "falls back to the exit page content in the condition" do
-      get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id)
-      expect(response).to render_template(:show)
-      expect(assigns(:exit_page)).to have_attributes(
-        heading: exit_page_heading,
-        markdown: exit_page_markdown,
-      )
+      it "falls back to the exit page content in the condition" do
+        get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id)
+        expect(response).to render_template(:show)
+        expect(assigns(:exit_page)).to have_attributes(
+          heading: exit_page_heading,
+          markdown: exit_page_markdown,
+        )
+      end
     end
   end
 end
