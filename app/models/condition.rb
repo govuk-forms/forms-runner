@@ -4,7 +4,6 @@ class Condition
   delegate(
     :id,
     :answer_value,
-    :exit_page_id,
     :exit_page_heading,
     :exit_page_markdown,
     :validation_errors,
@@ -28,7 +27,11 @@ class Condition
   end
 
   def goto_page_id
-    form_document_condition.goto_page_id.to_s
+    form_document_condition.goto_page_id&.to_s
+  end
+
+  def exit_page_id
+    form_document_condition.try(:exit_page_id)&.to_s
   end
 
   def default?
@@ -41,10 +44,12 @@ class Condition
     self.answer_value == answer_value
   end
 
-  def exit_page?
-    return false unless form_document_condition.respond_to?(:exit_page_markdown)
+  def new_style_exit_page?
+    form_document_condition.respond_to?(:exit_page_id)
+  end
 
-    form_document_condition.try(:exit_page_id).present? || form_document_condition.exit_page_markdown.is_a?(String)
+  def exit_page?
+    form_document_condition.try(:exit_page_id).present? || form_document_condition.try(:exit_page_markdown).is_a?(String)
   end
 
   def skip_to_end?

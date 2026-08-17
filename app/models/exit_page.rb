@@ -2,7 +2,7 @@ class ExitPage
   attr_reader :id, :heading, :markdown
 
   def initialize(id:, heading:, markdown:)
-    @id = id
+    @id = id.nil? ? id : id.to_s
     @heading = heading
     @markdown = markdown
   end
@@ -18,6 +18,7 @@ class ExitPage
   def ==(other)
     super ||
       other.class == self.class &&
+        !!id &&
         other.id == id
   end
 end

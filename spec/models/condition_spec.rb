@@ -40,6 +40,38 @@ RSpec.describe Condition do
     end
   end
 
+  describe "#goto_page_id" do
+    context "when goto_page_id is nil" do
+      let(:form_document_condition) { build(:v2_condition, goto_page_id: nil) }
+
+      it "returns nil" do
+        expect(condition.goto_page_id).to be_nil
+      end
+    end
+  end
+
+  describe "#exit_page_id" do
+    context "when form document does not have exit_page_id" do
+      let(:form_document_condition) do
+        condition = build(:v2_condition, exit_page_id: nil)
+        condition.attributes.delete(:exit_page_id)
+        condition
+      end
+
+      it "returns nil" do
+        expect(condition.exit_page_id).to be_nil
+      end
+    end
+
+    context "when exit_page_id is nil" do
+      let(:form_document_condition) { build(:v2_condition, exit_page_id: nil) }
+
+      it "returns nil" do
+        expect(condition.exit_page_id).to be_nil
+      end
+    end
+  end
+
   describe "#default?" do
     context "when condition.answer_value is nil" do
       let(:form_document_condition) do
@@ -131,6 +163,30 @@ RSpec.describe Condition do
     end
   end
 
+  describe "#new_style_exit_page?" do
+    context "when condition has exit_page_id attribute" do
+      let(:form_document_condition) do
+        build(:v2_condition, exit_page_id: nil)
+      end
+
+      it "returns true" do
+        expect(condition.new_style_exit_page?).to be true
+      end
+    end
+
+    context "when condition does not have exit_page_id attribute" do
+      let(:form_document_condition) do
+        condition = build(:v2_condition, exit_page_id: nil)
+        condition.attributes.delete(:exit_page_id)
+        condition
+      end
+
+      it "returns false" do
+        expect(condition.new_style_exit_page?).to be false
+      end
+    end
+  end
+
   describe "#exit_page?" do
     context "when condition has goto page id" do
       let(:form_document_condition) do
@@ -142,6 +198,31 @@ RSpec.describe Condition do
 
       it "returns false" do
         expect(condition.exit_page?).to be false
+      end
+
+      context "and does not have exit_page_id attribute" do
+        let(:form_document_condition) do
+          condition = build(:v2_condition, goto_page_id: Faker::Alphanumeric.alphanumeric(number: 8))
+          condition.attributes.delete(:exit_page_id)
+          condition
+        end
+
+        it "returns false" do
+          expect(condition.exit_page?).to be false
+        end
+      end
+
+      context "and does not have exit page content attributes" do
+        let(:form_document_condition) do
+          condition = build(:v2_condition, goto_page_id: Faker::Alphanumeric.alphanumeric(number: 8))
+          condition.attributes.delete(:exit_page_heading)
+          condition.attributes.delete(:exit_page_markdown)
+          condition
+        end
+
+        it "returns false" do
+          expect(condition.exit_page?).to be false
+        end
       end
     end
 
@@ -156,6 +237,19 @@ RSpec.describe Condition do
       it "returns true" do
         expect(condition.exit_page?).to be true
       end
+
+      context "and does not have exit page content attributes" do
+        let(:form_document_condition) do
+          condition = build(:v2_condition, exit_page_id: 10)
+          condition.attributes.delete(:exit_page_heading)
+          condition.attributes.delete(:exit_page_markdown)
+          condition
+        end
+
+        it "returns true" do
+          expect(condition.exit_page?).to be true
+        end
+      end
     end
 
     context "when condition has exit page content" do
@@ -169,6 +263,18 @@ RSpec.describe Condition do
 
       it "returns true" do
         expect(condition.exit_page?).to be true
+      end
+
+      context "and does not have exit_page_id attribute" do
+        let(:form_document_condition) do
+          condition = build(:v2_condition, exit_page_heading: Faker::Lorem.sentence, exit_page_markdown: Faker::Lorem.paragraph)
+          condition.attributes.delete(:exit_page_id)
+          condition
+        end
+
+        it "returns true" do
+          expect(condition.exit_page?).to be true
+        end
       end
     end
   end
