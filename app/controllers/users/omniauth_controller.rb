@@ -4,7 +4,8 @@ module Users
 
     rescue_from AuthService::DataMissingError, FailureError do |exception|
       CurrentRequestLoggingAttributes.rescued_exception = [exception.class.name, exception.message]
-      Sentry.capture_exception(exception)
+
+      Sentry.capture_exception(exception) unless suppress_error?(exception)
 
       link_url = copy_of_answers_path(**auth_service.form_path_params)
       locale = auth_service.form_path_params[:locale] || I18n.default_locale
@@ -27,7 +28,11 @@ module Users
 
     def failure
       error = request.env["omniauth.error"]
-      raise FailureError, error
+      if error.is_a? Exception
+        raise FailureError, error.message, cause: error
+      else
+        raise FailureError, error
+      end
     end
 
     def logged_out
@@ -38,6 +43,13 @@ module Users
     rescue Store::ReturnFromOneLoginStore::MissingReturnParamsError => e
       CurrentRequestLoggingAttributes.rescued_exception = [e.class.name, e.message]
       redirect_to :unknown_form_submitted
+    end
+
+  private
+
+    def suppress_error?(exception)
+      # CallbackStateMismatchError is raised when a request is made to the callback URL without the expected parameters.
+      exception.cause&.instance_of?(OmniAuth::GovukOneLogin::CallbackStateMismatchError)
     end
   end
 end

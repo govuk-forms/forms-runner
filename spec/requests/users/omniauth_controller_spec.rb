@@ -125,11 +125,11 @@ RSpec.describe Users::OmniauthController, type: :request do
   end
 
   describe "GET #failure", :capture_logging do
-    let(:error_message) { "an error message" }
+    let(:error) { StandardError.new("An error") }
 
     before do
       allow(Sentry).to receive(:capture_exception)
-      get omniauth_failure_path, env: { "omniauth.error" => error_message }
+      get omniauth_failure_path, env: { "omniauth.error" => error }
     end
 
     context "when the return from one login params are present on the session" do
@@ -146,13 +146,33 @@ RSpec.describe Users::OmniauthController, type: :request do
       end
 
       it "logs the error" do
-        expect(log_lines.last["rescued_exception"]).to eq(["Users::OmniauthController::FailureError", error_message])
+        expect(log_lines.last["rescued_exception"]).to eq(["Users::OmniauthController::FailureError", error.message])
       end
 
       it "sends the error to Sentry" do
         expect(Sentry).to have_received(:capture_exception).with(
           an_instance_of(Users::OmniauthController::FailureError),
         )
+      end
+
+      context "and the error is a CallbackStateMismatchError" do
+        let(:error) { OmniAuth::GovukOneLogin::CallbackStateMismatchError.new "Callback state mismatch" }
+
+        it "logs the error" do
+          expect(log_lines.last["rescued_exception"]).to eq(["Users::OmniauthController::FailureError", error.message])
+        end
+
+        it "does not send the error to Sentry" do
+          expect(Sentry).not_to have_received(:capture_exception)
+        end
+      end
+
+      context "and the error is not an Exception" do
+        let(:error) { "A message" }
+
+        it "logs the error" do
+          expect(log_lines.last["rescued_exception"]).to eq(["Users::OmniauthController::FailureError", error])
+        end
       end
     end
 
@@ -163,7 +183,7 @@ RSpec.describe Users::OmniauthController, type: :request do
       end
 
       it "logs the error" do
-        expect(log_lines.last["rescued_exception"]).to eq(["Users::OmniauthController::FailureError", error_message])
+        expect(log_lines.last["rescued_exception"]).to eq(["Users::OmniauthController::FailureError", error.message])
       end
 
       it "sends the error to Sentry" do
