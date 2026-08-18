@@ -56,7 +56,7 @@ RSpec.describe SendSubmissionBatchJob, type: :job do
 
         it "does not call the submission batch service" do
           perform_enqueued_jobs
-          expect(AwsSesSubmissionBatchService).not_to receive(:new)
+          expect(SubmissionBatchService).not_to receive(:new)
         end
       end
     end

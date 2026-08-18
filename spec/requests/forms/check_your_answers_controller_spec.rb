@@ -281,7 +281,7 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
   describe "#submit_answers" do
     before do
       allow_mailer_to_return_mail_with_govuk_notify_response_with(
-        AwsSesSubmissionConfirmationMailer,
+        SubmissionConfirmationMailer,
         :submission_confirmation_email,
         id: confirmation_email_id,
       )

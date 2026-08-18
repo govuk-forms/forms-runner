@@ -1,4 +1,4 @@
-class AwsSesSubmissionConfirmationMailer < ApplicationMailer
+class SubmissionConfirmationMailer < ApplicationMailer
   def submission_confirmation_email(
     submission:,
     confirmation_email_address:,

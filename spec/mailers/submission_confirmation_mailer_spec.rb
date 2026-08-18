@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe AwsSesSubmissionConfirmationMailer, type: :mailer do
+RSpec.describe SubmissionConfirmationMailer, type: :mailer do
   subject(:mail) do
     described_class.submission_confirmation_email(
       submission: submission,

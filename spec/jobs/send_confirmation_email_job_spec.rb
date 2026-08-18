@@ -51,14 +51,14 @@ RSpec.describe SendConfirmationEmailJob, type: :job do
     end
 
     it "builds mailer arguments from the submission" do
-      allow(AwsSesSubmissionConfirmationMailer).to receive(:submission_confirmation_email).and_call_original
+      allow(SubmissionConfirmationMailer).to receive(:submission_confirmation_email).and_call_original
 
       described_class.perform_now(
         submission:,
         confirmation_email_address:,
       )
 
-      expect(AwsSesSubmissionConfirmationMailer).to have_received(:submission_confirmation_email).with(
+      expect(SubmissionConfirmationMailer).to have_received(:submission_confirmation_email).with(
         submission:,
         confirmation_email_address: "testing@gov.uk",
         include_copy_of_answers: false,
@@ -102,11 +102,11 @@ RSpec.describe SendConfirmationEmailJob, type: :job do
       let(:confirmation_email_configuration_set_name) { "test-confirmation-config-set" }
 
       around do |example|
-        original_delivery_method = AwsSesSubmissionConfirmationMailer.delivery_method
-        AwsSesSubmissionConfirmationMailer.delivery_method = :aws_ses
+        original_delivery_method = SubmissionConfirmationMailer.delivery_method
+        SubmissionConfirmationMailer.delivery_method = :aws_ses
         example.run
       ensure
-        AwsSesSubmissionConfirmationMailer.delivery_method = original_delivery_method
+        SubmissionConfirmationMailer.delivery_method = original_delivery_method
       end
 
       before do
@@ -131,7 +131,7 @@ RSpec.describe SendConfirmationEmailJob, type: :job do
 
   context "when there is an error during processing" do
     before do
-      allow(AwsSesSubmissionConfirmationMailer).to receive(:submission_confirmation_email).and_raise(StandardError, "Test error")
+      allow(SubmissionConfirmationMailer).to receive(:submission_confirmation_email).and_raise(StandardError, "Test error")
       allow(CloudWatchService).to receive(:record_job_failure_metric)
     end
 

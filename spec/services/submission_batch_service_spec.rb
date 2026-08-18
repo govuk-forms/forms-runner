@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe AwsSesSubmissionBatchService do
+RSpec.describe SubmissionBatchService do
   let(:service) { described_class.new(submissions_query:, form:, mode:) }
   let(:form) { build(:form, submission_email:) }
   let(:form_document) { build(:v2_form_document, :with_steps, form_id: form.id) }
@@ -30,8 +30,8 @@ RSpec.describe AwsSesSubmissionBatchService do
     end
 
     context "when the csv generator returns a single csv version" do
-      it "calls the AwsSesSubmissionBatchMailer to send the email with the generated file" do
-        expect(AwsSesSubmissionBatchMailer).to receive(:daily_submission_batch_email)
+      it "calls the SubmissionBatchMailer to send the email with the generated file" do
+        expect(SubmissionBatchMailer).to receive(:daily_submission_batch_email)
                                                  .with(
                                                    form:,
                                                    date:,
@@ -55,8 +55,8 @@ RSpec.describe AwsSesSubmissionBatchService do
         service.send_daily_batch(date:)
       end
 
-      it "calls the AwsSesSubmissionBatchMailer to send the email with the generated files" do
-        expect(AwsSesSubmissionBatchMailer).to receive(:daily_submission_batch_email)
+      it "calls the SubmissionBatchMailer to send the email with the generated files" do
+        expect(SubmissionBatchMailer).to receive(:daily_submission_batch_email)
                                                  .with(
                                                    form:,
                                                    date:,
@@ -92,8 +92,8 @@ RSpec.describe AwsSesSubmissionBatchService do
     end
 
     context "when the csv generator returns a single csv version" do
-      it "calls the AwsSesSubmissionBatchMailer to send the email with the generated file" do
-        expect(AwsSesSubmissionBatchMailer).to receive(:weekly_submission_batch_email)
+      it "calls the SubmissionBatchMailer to send the email with the generated file" do
+        expect(SubmissionBatchMailer).to receive(:weekly_submission_batch_email)
                                                  .with(
                                                    form:,
                                                    begin_date:,
@@ -118,8 +118,8 @@ RSpec.describe AwsSesSubmissionBatchService do
         service.send_weekly_batch(begin_date:, end_date:)
       end
 
-      it "calls the AwsSesSubmissionBatchMailer to send the email with the generated files" do
-        expect(AwsSesSubmissionBatchMailer).to receive(:weekly_submission_batch_email)
+      it "calls the SubmissionBatchMailer to send the email with the generated files" do
+        expect(SubmissionBatchMailer).to receive(:weekly_submission_batch_email)
                                                  .with(
                                                    form:,
                                                    begin_date:,

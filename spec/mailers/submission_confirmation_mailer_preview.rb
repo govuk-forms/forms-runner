@@ -1,10 +1,10 @@
-class AwsSesSubmissionConfirmationMailerPreview < ActionMailer::Preview
+class SubmissionConfirmationMailerPreview < ActionMailer::Preview
   include FactoryBot::Syntax::Methods
 
   def english_only
     submission = build(:submission, form_document: form_document, answers: answers, is_preview: false)
 
-    AwsSesSubmissionConfirmationMailer.submission_confirmation_email(
+    SubmissionConfirmationMailer.submission_confirmation_email(
       submission:,
       confirmation_email_address: "foo@example.com",
       include_copy_of_answers: true,
@@ -19,7 +19,7 @@ class AwsSesSubmissionConfirmationMailerPreview < ActionMailer::Preview
                        is_preview: false,
                        submission_locale: "cy")
 
-    AwsSesSubmissionConfirmationMailer.submission_confirmation_email(
+    SubmissionConfirmationMailer.submission_confirmation_email(
       submission:,
       confirmation_email_address: "foo@example.com",
       include_copy_of_answers: true,
@@ -29,7 +29,7 @@ class AwsSesSubmissionConfirmationMailerPreview < ActionMailer::Preview
   def without_copy_of_answers
     submission = build(:submission, form_document: form_document, is_preview: false)
 
-    AwsSesSubmissionConfirmationMailer.submission_confirmation_email(
+    SubmissionConfirmationMailer.submission_confirmation_email(
       submission:,
       confirmation_email_address: "foo@example.com",
       include_copy_of_answers: false,
@@ -43,7 +43,7 @@ class AwsSesSubmissionConfirmationMailerPreview < ActionMailer::Preview
                        is_preview: true,
                        submission_locale: "cy")
 
-    AwsSesSubmissionConfirmationMailer.submission_confirmation_email(
+    SubmissionConfirmationMailer.submission_confirmation_email(
       submission:,
       confirmation_email_address: "foo@example.com",
       include_copy_of_answers: false,
@@ -60,7 +60,7 @@ class AwsSesSubmissionConfirmationMailerPreview < ActionMailer::Preview
                           support_url_text: nil)
     submission = build(:submission, form_document:, is_preview: false)
 
-    AwsSesSubmissionConfirmationMailer.submission_confirmation_email(
+    SubmissionConfirmationMailer.submission_confirmation_email(
       submission:,
       confirmation_email_address: "foo@example.com",
       include_copy_of_answers: false,
@@ -70,7 +70,7 @@ class AwsSesSubmissionConfirmationMailerPreview < ActionMailer::Preview
   def with_custom_branding
     submission = build(:submission, form_document: branded_form_document, answers: answers, is_preview: false)
 
-    AwsSesSubmissionConfirmationMailer.submission_confirmation_email(
+    SubmissionConfirmationMailer.submission_confirmation_email(
       submission:,
       confirmation_email_address: "foo@example.com",
       include_copy_of_answers: true,
@@ -85,7 +85,7 @@ class AwsSesSubmissionConfirmationMailerPreview < ActionMailer::Preview
                        is_preview: false,
                        submission_locale: "cy")
 
-    AwsSesSubmissionConfirmationMailer.submission_confirmation_email(
+    SubmissionConfirmationMailer.submission_confirmation_email(
       submission:,
       confirmation_email_address: "foo@example.com",
       include_copy_of_answers: true,

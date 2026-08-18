@@ -10,7 +10,7 @@ class SendConfirmationEmailJob < ApplicationJob
     # The job will use the locale at the time it was created. Force it to be "en" as we send multilingual emails for
     # forms submitted in Welsh.
     I18n.with_locale("en") do
-      mail = AwsSesSubmissionConfirmationMailer.submission_confirmation_email(
+      mail = SubmissionConfirmationMailer.submission_confirmation_email(
         submission:, confirmation_email_address:, include_copy_of_answers:,
       )
 
