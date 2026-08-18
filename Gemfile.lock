@@ -521,12 +521,12 @@ GEM
       opentelemetry-helpers-sql-processor
       opentelemetry-instrumentation-base (~> 0.25)
       opentelemetry-semantic_conventions (>= 1.8.0)
-    opentelemetry-metrics-api (0.6.1)
+    opentelemetry-metrics-api (0.7.0)
       opentelemetry-api (~> 1.0)
-    opentelemetry-metrics-sdk (0.15.0)
+    opentelemetry-metrics-sdk (0.16.0)
       opentelemetry-api (~> 1.1)
       opentelemetry-metrics-api (~> 0.2)
-      opentelemetry-sdk (~> 1.2)
+      opentelemetry-sdk (~> 1.13.0)
     opentelemetry-propagator-xray (0.27.0)
       opentelemetry-api (~> 1.7)
     opentelemetry-registry (0.6.3)
@@ -537,7 +537,7 @@ GEM
       opentelemetry-common (~> 0.20)
       opentelemetry-registry (~> 0.2)
       opentelemetry-semantic_conventions
-    opentelemetry-semantic_conventions (1.43.0)
+    opentelemetry-semantic_conventions (1.44.0)
       opentelemetry-api (~> 1.0)
     ostruct (0.6.3)
     pagy (9.4.0)
@@ -793,7 +793,7 @@ DEPENDENCIES
   opentelemetry-exporter-otlp (~> 0.34.1)
   opentelemetry-exporter-otlp-metrics (~> 0.10.0)
   opentelemetry-instrumentation-all (~> 0.94.0)
-  opentelemetry-metrics-sdk (~> 0.15.0)
+  opentelemetry-metrics-sdk (~> 0.16.0)
   opentelemetry-propagator-xray (~> 0.27.0)
   opentelemetry-sdk (~> 1.13)
   pg (~> 1.6)
@@ -985,12 +985,12 @@ CHECKSUMS
   opentelemetry-instrumentation-sidekiq (0.29.0) sha256=b1d2a0cb9041a5e14239fe7c94d99e3dd07f870e2759460ab63592d7cdd8aadc
   opentelemetry-instrumentation-sinatra (0.30.0) sha256=b67301153420f43264a0c68cdb3ca5bd77467cf5054e57b83a2bf891aaaa0361
   opentelemetry-instrumentation-trilogy (0.69.0) sha256=0676dd720eeab284abfa52f273967442156fcac7084a1e1411373cf14ec026ad
-  opentelemetry-metrics-api (0.6.1) sha256=e1785d317c0b4fe5bb128ab9dd4644486107fe28fba844f5329bf3db90aaa5ec
-  opentelemetry-metrics-sdk (0.15.0) sha256=611a9cd9f473c461095c7401b8c25f9774160d286a1acbfcbf044da2972aeada
+  opentelemetry-metrics-api (0.7.0) sha256=ac00aed7f4e817c855a48561ad620705b420fa3fe4c3ae6bd899b79c606191bb
+  opentelemetry-metrics-sdk (0.16.0) sha256=0ecf6f7a5a45d762a41e783d5ae4c987840056368e978cfa0e96fd92ef0426e7
   opentelemetry-propagator-xray (0.27.0) sha256=753f756c7ad3146f182d428b06041084eecc77769edfd280f365e0bc09b9c4d1
   opentelemetry-registry (0.6.3) sha256=568fa8eaea94394f29f4fce3f0339ab10c3bf6d6c8beed6b3cfee6fd37fcc608
   opentelemetry-sdk (1.13.0) sha256=eea4ab625eb901ecfe1083049862d4853fd16d94029f3cdd16526c81332f0fff
-  opentelemetry-semantic_conventions (1.43.0) sha256=d96eb7da3bc89335786ea676b448701f566cf241a7ca56ae1e814b83816922af
+  opentelemetry-semantic_conventions (1.44.0) sha256=b09b8793422f13b01c08f7a6f29b5f511f47f37bcdb57c0513465a0464168513
   ostruct (0.6.3) sha256=95a2ed4a4bd1d190784e666b47b2d3f078e4a9efda2fccf18f84ddc6538ed912
   pagy (9.4.0) sha256=db3f2e043f684155f18f78be62a81e8d033e39b9f97b1e1a8d12ad38d7bce738
   parallel (1.28.0) sha256=33e6de1484baf2524792d178b0913fc8eb94c628d6cfe45599ad4458c638c970
