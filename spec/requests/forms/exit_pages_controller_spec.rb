@@ -1,8 +1,8 @@
 require "rails_helper"
 
 RSpec.describe Forms::ExitPagesController, type: :request do
-  let(:exit_page) { build(:v2_exit_page) }
-  let(:exit_pages) { [exit_page] }
+  let(:exit_page) { exit_pages.first }
+  let(:exit_pages) { build_list(:v2_exit_page, 2) }
 
   let(:step_with_exit_pages) do
     build(
@@ -12,6 +12,7 @@ RSpec.describe Forms::ExitPagesController, type: :request do
       selection_options: [
         { name: "Option 1" },
         { name: "Option 2" },
+        { name: "Go to exit page 2" },
         { name: "Skip to end" },
       ],
       routing_conditions: [
@@ -20,6 +21,12 @@ RSpec.describe Forms::ExitPagesController, type: :request do
           :with_exit_page,
           answer_value: "Option 1",
           exit_page: exit_pages.first,
+        ),
+        build(
+          :v2_condition,
+          :with_exit_page,
+          answer_value: "Go to exit page 2",
+          exit_page: exit_pages.second,
         ),
         build(
           :v2_condition,
@@ -78,6 +85,25 @@ RSpec.describe Forms::ExitPagesController, type: :request do
     end
 
     context "when the question with an exit page has been answered" do
+      context "and the answer matches a condition with an exit page which is not the first routing condition" do
+        let(:exit_page) { exit_pages.second }
+        let(:answer) { "Go to exit page 2" }
+
+        it "renders the exit page" do
+          get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_pages.id, exit_page_id: exit_page.id)
+          expect(response).to have_http_status(:success)
+          expect(response).to render_template(:show)
+          expect(assigns(:exit_page)).to eq ExitPage.from_form_document(exit_page)
+        end
+
+        context "when the request path does not include an exit page id" do
+          it "redirects to the correct exit page path" do
+            get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_pages.id)
+            expect(response).to redirect_to exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_pages.id, exit_page_id: exit_page.id)
+          end
+        end
+      end
+
       context "and the answer does not match a condition" do
         let(:answer) { "Option 2" }
 

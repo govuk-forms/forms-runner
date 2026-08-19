@@ -6,12 +6,13 @@ module Forms
     end
 
     def show
-      unless current_context.can_visit?(@step.id) && @step.exit_page_condition_matches?
-        return redirect_to form_step_path(@form.id, @form.form_slug, current_context.next_step_slug)
-      end
+      return redirect_to form_step_path(@form.id, @form.form_slug, current_context.next_step_slug) unless current_context.can_visit?(@step.id)
+
+      @condition = @step.matching_condition
+
+      return redirect_to form_step_path(@form.id, @form.form_slug, current_context.next_step_slug) unless @condition&.exit_page?
 
       @back_link = form_step_path(@form.id, @form.form_slug, @step.id)
-      @condition = @step.routing_conditions.first
 
       if @condition.new_style_exit_page?
         unless @condition.exit_page_id == params[:exit_page_id]
