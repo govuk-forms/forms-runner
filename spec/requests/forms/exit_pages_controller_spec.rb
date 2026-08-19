@@ -2,20 +2,49 @@ require "rails_helper"
 
 RSpec.describe Forms::ExitPagesController, type: :request do
   let(:exit_page) { build(:v2_exit_page) }
-  let(:steps) { [first_step_in_form, step_with_exit_page, next_step_in_form] }
-  let(:first_step_in_form) { build(:v2_question_step, :with_text_settings, id: 1, next_step_id: 2) }
-  let(:step_with_exit_page) { build(:v2_selection_question_step, :with_exit_page, id: 2, next_step_id: 3, exit_page:) }
-  let(:next_step_in_form) { build(:v2_question_step, id: 3, next_step_id: nil) }
-  let(:form) { build(:v2_form_document, steps:, start_page: 1) }
+  let(:exit_pages) { [exit_page] }
+
+  let(:step_with_exit_pages) do
+    build(
+      :v2_selection_question_step,
+      id: 2,
+      next_step_id: 3,
+      selection_options: [
+        { name: "Option 1" },
+        { name: "Option 2" },
+        { name: "Skip to end" },
+      ],
+      routing_conditions: [
+        build(
+          :v2_condition,
+          :with_exit_page,
+          answer_value: "Option 1",
+          exit_page: exit_pages.first,
+        ),
+        build(
+          :v2_condition,
+          :skip_to_end,
+          answer_value: "Skip to end",
+        ),
+      ],
+      exit_pages:,
+    )
+  end
 
   let(:answer) { "Option 1" }
+
+  let(:steps) { [first_step_in_form, step, next_step_in_form] }
+  let(:first_step_in_form) { build(:v2_question_step, :with_text_settings, id: 1, next_step_id: 2) }
+  let(:step) { step_with_exit_pages }
+  let(:next_step_in_form) { build(:v2_question_step, id: 3, next_step_id: nil) }
+  let(:form) { build(:v2_form_document, steps:, start_page: 1) }
 
   let(:store) do
     {
       answers: {
         form.form_id.to_s => {
           first_step_in_form.id.to_s => { text: "first answer" },
-          step_with_exit_page.id.to_s => { selection: answer },
+          step.id.to_s => { selection: answer },
         },
       },
     }
@@ -33,33 +62,51 @@ RSpec.describe Forms::ExitPagesController, type: :request do
 
   describe "GET #show" do
     it "returns http success" do
-      get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id, exit_page_id: exit_page.id)
+      get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_pages.id, exit_page_id: exit_page.id)
       expect(response).to have_http_status(:success)
     end
 
     it "renders an exit page" do
-      get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id, exit_page_id: exit_page.id)
+      get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_pages.id, exit_page_id: exit_page.id)
       expect(response).to render_template(:show)
       expect(assigns(:exit_page)).to eq ExitPage.from_form_document(exit_page)
     end
 
     it "logs the exit page id", :capture_logging do
-      get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id, exit_page_id: exit_page.id)
+      get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_pages.id, exit_page_id: exit_page.id)
       expect(log_lines.last["exit_page_id"]).to eq exit_page.id.to_s
     end
 
-    context "when the question with an exit page has been answered and the exit page should not be shown" do
-      let(:answer) { "Option 2" }
+    context "when the question with an exit page has been answered" do
+      context "and the answer does not match a condition" do
+        let(:answer) { "Option 2" }
 
-      it "redirects to the next unanswered question" do
-        get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id, exit_page_id: exit_page.id)
-        expect(response).to redirect_to form_step_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: next_step_in_form.id)
+        it "redirects to the next unanswered question" do
+          get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_pages.id, exit_page_id: exit_page.id)
+          expect(response).to redirect_to form_step_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: next_step_in_form.id)
+        end
+
+        context "when the request path does not include an exit page id" do
+          it "redirects to the next unanswered question" do
+            get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_pages.id)
+            expect(response).to redirect_to form_step_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: next_step_in_form.id)
+          end
+        end
       end
 
-      context "when the request path does not include an exit page id" do
-        it "redirects to the next unanswered question" do
-          get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id)
-          expect(response).to redirect_to form_step_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: next_step_in_form.id)
+      context "and the answer matches a condition without an exit page" do
+        let(:answer) { "Skip to end" }
+
+        it "redirects to the next visitable page" do
+          get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_pages.id, exit_page_id: exit_page.id)
+          expect(response).to redirect_to form_step_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG)
+        end
+
+        context "when the request path does not include an exit page id" do
+          it "redirects to the next visitable question" do
+            get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_pages.id)
+            expect(response).to redirect_to form_step_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG)
+          end
         end
       end
     end
@@ -68,13 +115,13 @@ RSpec.describe Forms::ExitPagesController, type: :request do
       let(:store) { { answers: {} } }
 
       it "redirects to the start of the form" do
-        get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id, exit_page_id: exit_page.id)
+        get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_pages.id, exit_page_id: exit_page.id)
         expect(response).to redirect_to form_step_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: first_step_in_form.id)
       end
 
       context "when the request path does not include an exit page id" do
         it "redirects to the start of the form" do
-          get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id)
+          get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_pages.id)
           expect(response).to redirect_to form_step_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: first_step_in_form.id)
         end
       end
@@ -82,7 +129,7 @@ RSpec.describe Forms::ExitPagesController, type: :request do
 
     context "when the step does not have an exit page" do
       let(:step_without_exit_page) { build(:v2_selection_question_step, id: 2, next_step_id: 3) }
-      let(:step_with_exit_page) { step_without_exit_page }
+      let(:step) { step_without_exit_page }
 
       it "redirects to the next unanswered question" do
         get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_without_exit_page.id, exit_page_id: exit_page.id)
@@ -99,22 +146,22 @@ RSpec.describe Forms::ExitPagesController, type: :request do
 
     context "when the request path does not include an exit page id" do
       it "redirects to the correct exit page path" do
-        get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id)
-        expect(response).to redirect_to exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id, exit_page_id: exit_page.id)
+        get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_pages.id)
+        expect(response).to redirect_to exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_pages.id, exit_page_id: exit_page.id)
       end
     end
 
     context "when the step does not have an exit page with the given id" do
       it "redirects to the correct exit page path" do
-        get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id, exit_page_id: 99_999)
-        expect(response).to redirect_to exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id, exit_page_id: exit_page.id)
+        get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_pages.id, exit_page_id: 99_999)
+        expect(response).to redirect_to exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_pages.id, exit_page_id: exit_page.id)
       end
 
       context "when the question with an exit page has been answered and the exit page should not be shown" do
         let(:answer) { "Option 2" }
 
         it "redirects to the next unanswered question" do
-          get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id, exit_page_id: 99_999)
+          get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_pages.id, exit_page_id: 99_999)
           expect(response).to redirect_to form_step_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: next_step_in_form.id)
         end
       end
@@ -123,7 +170,7 @@ RSpec.describe Forms::ExitPagesController, type: :request do
     context "when the exit page is missing from the form document" do
       let(:condition_with_exit_page) { build(:v2_condition, :with_exit_page, routing_page_id: 2, exit_page:) }
       let(:step_without_exit_page) { build(:v2_selection_question_step, routing_conditions: [condition_with_exit_page], id: 2, next_step_id: 3) }
-      let(:step_with_exit_page) { step_without_exit_page }
+      let(:step) { step_without_exit_page }
 
       it "raises an error" do
         expect {
@@ -146,7 +193,7 @@ RSpec.describe Forms::ExitPagesController, type: :request do
         step
       end
 
-      let(:step_with_exit_page) { step_without_exit_page }
+      let(:step) { step_without_exit_page }
 
       it "falls back to the exit page content in the condition" do
         get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_without_exit_page.id)
@@ -181,7 +228,7 @@ RSpec.describe Forms::ExitPagesController, type: :request do
         step
       end
 
-      let(:step_with_exit_page) { step_without_exit_page }
+      let(:step) { step_without_exit_page }
 
       it "falls back to the exit page content in the condition" do
         get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_without_exit_page.id)
