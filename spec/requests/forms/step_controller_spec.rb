@@ -1064,6 +1064,46 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
         expect(response).to redirect_to exit_page_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id, exit_page_id: exit_page.id)
       end
 
+      context "when step has more than one exit page" do
+        let(:exit_pages) { build_list(:v2_exit_page, 2) }
+        let(:first_step_in_form) do
+          build(
+            :v2_selection_question_step,
+            :with_exit_page,
+            id: 1,
+            next_step_id: 2,
+            is_optional: false,
+            selection_options: [
+              { value: "Answer" },
+              { value: "Go to exit page 1" },
+              { value: "Go to exit page 2" },
+            ],
+            routing_conditions: [
+              build(
+                :v2_condition,
+                :with_exit_page,
+                routing_page_id: 1,
+                answer_value: "Go to exit page 1",
+                exit_page: exit_pages.first,
+              ),
+              build(
+                :v2_condition,
+                :with_exit_page,
+                routing_page_id: 1,
+                answer_value: "Go to exit page 2",
+                exit_page: exit_pages.second,
+              ),
+            ],
+            exit_pages:,
+          )
+        end
+
+        it "redirects to the correct exit page" do
+          post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id, params: { question: { selection: "Go to exit page 2" }, changing_existing_answer: false })
+          expect(response).to redirect_to exit_page_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id, exit_page_id: exit_pages.second.id)
+        end
+      end
+
       context "when form document uses old-style exit pages" do
         let(:routing_condition) do
           build(
