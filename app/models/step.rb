@@ -99,20 +99,26 @@ class Step
     next_step_slug.nil?
   end
 
-  def next_step_slug_after_routing
-    if exit_page_condition_matches?
-      return nil
-    end
-
+  def matching_condition
     if first_condition_default?
-      return goto_condition_step_slug(routing_conditions.first)
+      return routing_conditions.first
     end
 
-    if (matching_condition = find_matching_condition)
-      return goto_condition_step_slug(matching_condition)
-    end
+    find_matching_condition
+  end
 
-    next_step_slug
+  def next_step_slug_after_routing
+    condition = matching_condition
+
+    if condition.nil?
+      next_step_slug
+    elsif condition.exit_page?
+      nil
+    elsif condition.skip_to_end?
+      CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG
+    else
+      condition.goto_page_id
+    end
   end
 
   def repeatable?
@@ -124,13 +130,15 @@ class Step
   end
 
   def has_exit_page_condition?
-    return false if routing_conditions&.first.blank?
-
-    routing_conditions.first.exit_page?
+    routing_conditions.any?(&:exit_page?)
   end
 
   def exit_page_condition_matches?
-    first_condition_matches? && routing_conditions.first.exit_page?
+    condition = find_matching_condition
+
+    return false if condition.nil?
+
+    condition.exit_page?
   end
 
   def answered_file_question?
@@ -147,24 +155,10 @@ class Step
 
 private
 
-  def goto_condition_step_slug(condition)
-    if condition.skip_to_end?
-      CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG
-    else
-      condition.goto_page_id
-    end
-  end
-
   def find_matching_condition
     return unless question.respond_to?(:selection)
 
     routing_conditions.find { it.match? question.selection }
-  end
-
-  def first_condition_matches?
-    return unless question.respond_to?(:selection)
-
-    routing_conditions.any? && routing_conditions.first.match?(question.selection)
   end
 
   def first_condition_default?
