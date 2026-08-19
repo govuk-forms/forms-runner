@@ -127,7 +127,7 @@ RSpec.describe Forms::ExitPagesController, type: :request do
 
       it "raises an error" do
         expect {
-          get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id, exit_page_id: exit_page.id)
+          get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_without_exit_page.id, exit_page_id: exit_page.id)
         }.to raise_error(/Couldn't find ExitPage/)
       end
     end
@@ -149,7 +149,7 @@ RSpec.describe Forms::ExitPagesController, type: :request do
       let(:step_with_exit_page) { step_without_exit_page }
 
       it "falls back to the exit page content in the condition" do
-        get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id)
+        get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_without_exit_page.id)
         expect(response).to render_template(:show)
         expect(assigns(:exit_page)).to have_attributes(
           heading: exit_page_heading,
@@ -159,7 +159,7 @@ RSpec.describe Forms::ExitPagesController, type: :request do
 
       context "when the request path includes an exit page id" do
         it "returns http not found" do
-          get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id, exit_page_id: 1)
+          get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_without_exit_page.id, exit_page_id: 1)
           expect(response).to have_http_status(:not_found)
         end
       end
@@ -184,7 +184,7 @@ RSpec.describe Forms::ExitPagesController, type: :request do
       let(:step_with_exit_page) { step_without_exit_page }
 
       it "falls back to the exit page content in the condition" do
-        get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id)
+        get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_without_exit_page.id)
         expect(response).to render_template(:show)
         expect(assigns(:exit_page)).to have_attributes(
           heading: exit_page_heading,
@@ -194,7 +194,7 @@ RSpec.describe Forms::ExitPagesController, type: :request do
 
       context "when the request path includes an exit page id" do
         it "returns http not found" do
-          get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id, exit_page_id: 1)
+          get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_without_exit_page.id, exit_page_id: 1)
           expect(response).to have_http_status(:not_found)
         end
       end
