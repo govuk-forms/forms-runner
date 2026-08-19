@@ -207,12 +207,41 @@ RSpec.describe Step do
       end
     end
 
+    describe "exit page routing" do
+      context "with exit_page_id" do
+        let(:routing_conditions) do
+          [
+            build(:v2_condition, :with_exit_page, answer_value: "Yes"),
+          ]
+        end
+        let(:selection) { "Yes" }
+
+        it "returns nil" do
+          expect(step.next_step_slug_after_routing).to be_nil
+        end
+      end
+
+      context "with exit_page_id and goto_page_id" do
+        let(:routing_conditions) do
+          [
+            build(:v2_condition, :with_exit_page, answer_value: "Yes", goto_page_id: fourth_step_id),
+          ]
+        end
+        let(:selection) { "Yes" }
+
+        it "prioritizes exit_page_id over goto_page_id" do
+          expect(step.next_step_slug_after_routing).to be_nil
+        end
+      end
+    end
+
     context "with multiple conditions" do
       let(:routing_conditions) do
         [
           build(:v2_condition, answer_value: "No", goto_page_id: first_step_id),
           build(:v2_condition, answer_value: "Yes", goto_page_id: second_step_id),
           build(:v2_condition, answer_value: "Maybe", goto_page_id: third_step_id),
+          build(:v2_condition, :with_exit_page, answer_value: "Can't decide"),
         ]
       end
 
@@ -237,6 +266,14 @@ RSpec.describe Step do
 
         it "returns the next_step_slug" do
           expect(step.next_step_slug_after_routing).to eq(third_step_id)
+        end
+      end
+
+      context "and condition with exit page matches" do
+        let(:selection) { "Can't decide" }
+
+        it "returns nil" do
+          expect(step.next_step_slug_after_routing).to be_nil
         end
       end
 
