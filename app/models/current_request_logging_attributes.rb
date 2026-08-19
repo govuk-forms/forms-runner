@@ -15,7 +15,8 @@ class CurrentRequestLoggingAttributes < ActiveSupport::CurrentAttributes
             :rescued_exception,
             :rescued_exception_trace,
             :validation_errors,
-            :answer_metadata
+            :answer_metadata,
+            :exit_page_id
 
   def as_hash
     {
@@ -36,6 +37,7 @@ class CurrentRequestLoggingAttributes < ActiveSupport::CurrentAttributes
       rescued_exception_trace:,
       validation_errors:,
       answer_metadata:,
+      exit_page_id:,
     }.compact
   end
 end

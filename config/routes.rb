@@ -46,7 +46,7 @@ Rails.application.routes.draw do
       answer_constraints = { answer_index: /\d+/ }
       step_answer_defaults = { answer_index: 1 }
 
-      get "/:step_slug/exit" => "forms/exit_pages#show",
+      get "/:step_slug/exit/(:exit_page_id)" => "forms/exit_pages#show",
           as: :exit_page,
           constraints: step_constraints
 

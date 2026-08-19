@@ -33,22 +33,34 @@ RSpec.describe Forms::ExitPagesController, type: :request do
 
   describe "GET #show" do
     it "returns http success" do
-      get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id)
+      get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id, exit_page_id: exit_page.id)
       expect(response).to have_http_status(:success)
     end
 
     it "renders an exit page" do
-      get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id)
+      get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id, exit_page_id: exit_page.id)
       expect(response).to render_template(:show)
       expect(assigns(:exit_page)).to eq ExitPage.from_form_document(exit_page)
+    end
+
+    it "logs the exit page id", :capture_logging do
+      get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id, exit_page_id: exit_page.id)
+      expect(log_lines.last["exit_page_id"]).to eq exit_page.id.to_s
     end
 
     context "when the question with an exit page has been answered and the exit page should not be shown" do
       let(:answer) { "Option 2" }
 
       it "redirects to the next unanswered question" do
-        get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id)
+        get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id, exit_page_id: exit_page.id)
         expect(response).to redirect_to form_step_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: next_step_in_form.id)
+      end
+
+      context "when the request path does not include an exit page id" do
+        it "redirects to the next unanswered question" do
+          get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id)
+          expect(response).to redirect_to form_step_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: next_step_in_form.id)
+        end
       end
     end
 
@@ -56,8 +68,15 @@ RSpec.describe Forms::ExitPagesController, type: :request do
       let(:store) { { answers: {} } }
 
       it "redirects to the start of the form" do
-        get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id)
+        get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id, exit_page_id: exit_page.id)
         expect(response).to redirect_to form_step_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: first_step_in_form.id)
+      end
+
+      context "when the request path does not include an exit page id" do
+        it "redirects to the start of the form" do
+          get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id)
+          expect(response).to redirect_to form_step_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: first_step_in_form.id)
+        end
       end
     end
 
@@ -66,75 +85,121 @@ RSpec.describe Forms::ExitPagesController, type: :request do
       let(:step_with_exit_page) { step_without_exit_page }
 
       it "redirects to the next unanswered question" do
-        get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_without_exit_page.id)
+        get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_without_exit_page.id, exit_page_id: exit_page.id)
         expect(response).to redirect_to form_step_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: next_step_in_form.id)
       end
+
+      context "when the request path does not include an exit page id" do
+        it "redirects to the next unanswered question" do
+          get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_without_exit_page.id)
+          expect(response).to redirect_to form_step_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: next_step_in_form.id)
+        end
+      end
     end
-  end
 
-  context "when the exit page is missing from the form document" do
-    let(:condition_with_exit_page) { build(:v2_condition, :with_exit_page, routing_page_id: 2, exit_page:) }
-    let(:step_without_exit_page) { build(:v2_selection_question_step, routing_conditions: [condition_with_exit_page], id: 2, next_step_id: 3) }
-    let(:step_with_exit_page) { step_without_exit_page }
-
-    it "raises an error" do
-      expect {
+    context "when the request path does not include an exit page id", :capture_logging do
+      it "falls back to the old behaviour and renders the exit page for the matching condition" do
         get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id)
-      }.to raise_error(/Couldn't find ExitPage/)
-    end
-  end
-
-  context "when the form document is using old-style exit pages but has new-style exit page attributes" do
-    let(:exit_page_heading) { Faker::Lorem.sentence }
-    let(:exit_page_markdown) { Faker::Lorem.paragraph }
-
-    let(:condition_with_exit_page) do
-      condition = build(:v2_condition, routing_page_id: 2, goto_page_id: nil, skip_to_end: nil, exit_page_id: nil, exit_page_heading:, exit_page_markdown:)
-      condition
+        expect(response).to render_template(:show)
+        expect(assigns(:exit_page)).to eq ExitPage.from_form_document(exit_page)
+        expect(log_lines.last["exit_page_id"]).to eq exit_page.id.to_s
+      end
     end
 
-    let(:step_without_exit_page) do
-      step = build(:v2_selection_question_step, routing_conditions: [condition_with_exit_page], id: 2, next_step_id: 3)
-      step
+    context "when the step does not have an exit page with the given id" do
+      it "redirects to the correct exit page path" do
+        get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id, exit_page_id: 99_999)
+        expect(response).to redirect_to exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id, exit_page_id: exit_page.id)
+      end
+
+      context "when the question with an exit page has been answered and the exit page should not be shown" do
+        let(:answer) { "Option 2" }
+
+        it "redirects to the next unanswered question" do
+          get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id, exit_page_id: 99_999)
+          expect(response).to redirect_to form_step_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: next_step_in_form.id)
+        end
+      end
     end
 
-    let(:step_with_exit_page) { step_without_exit_page }
+    context "when the exit page is missing from the form document" do
+      let(:condition_with_exit_page) { build(:v2_condition, :with_exit_page, routing_page_id: 2, exit_page:) }
+      let(:step_without_exit_page) { build(:v2_selection_question_step, routing_conditions: [condition_with_exit_page], id: 2, next_step_id: 3) }
+      let(:step_with_exit_page) { step_without_exit_page }
 
-    it "falls back to the exit page content in the condition" do
-      get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id)
-      expect(response).to render_template(:show)
-      expect(assigns(:exit_page)).to have_attributes(
-        heading: exit_page_heading,
-        markdown: exit_page_markdown,
-      )
-    end
-  end
-
-  context "when the form document is using old-style exit pages" do
-    let(:exit_page_heading) { Faker::Lorem.sentence }
-    let(:exit_page_markdown) { Faker::Lorem.paragraph }
-
-    let(:condition_with_exit_page) do
-      condition = build(:v2_condition, routing_page_id: 2, goto_page_id: nil, skip_to_end: nil, exit_page_id: nil, exit_page_heading:, exit_page_markdown:)
-      condition.attributes.delete(:exit_page_id)
-      condition
+      it "raises an error" do
+        expect {
+          get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id, exit_page_id: exit_page.id)
+        }.to raise_error(/Couldn't find ExitPage/)
+      end
     end
 
-    let(:step_without_exit_page) do
-      step = build(:v2_selection_question_step, routing_conditions: [condition_with_exit_page], id: 2, next_step_id: 3)
-      step.attributes.delete(:exit_pages)
-      step
+    context "when the form document is using old-style exit pages but has new-style exit page attributes" do
+      let(:exit_page_heading) { Faker::Lorem.sentence }
+      let(:exit_page_markdown) { Faker::Lorem.paragraph }
+
+      let(:condition_with_exit_page) do
+        condition = build(:v2_condition, routing_page_id: 2, goto_page_id: nil, skip_to_end: nil, exit_page_id: nil, exit_page_heading:, exit_page_markdown:)
+        condition
+      end
+
+      let(:step_without_exit_page) do
+        step = build(:v2_selection_question_step, routing_conditions: [condition_with_exit_page], id: 2, next_step_id: 3)
+        step
+      end
+
+      let(:step_with_exit_page) { step_without_exit_page }
+
+      it "falls back to the exit page content in the condition" do
+        get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id)
+        expect(response).to render_template(:show)
+        expect(assigns(:exit_page)).to have_attributes(
+          heading: exit_page_heading,
+          markdown: exit_page_markdown,
+        )
+      end
+
+      context "when the request path includes an exit page id" do
+        it "returns http not found" do
+          get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id, exit_page_id: 1)
+          expect(response).to have_http_status(:not_found)
+        end
+      end
     end
 
-    let(:step_with_exit_page) { step_without_exit_page }
+    context "when the form document is using old-style exit pages" do
+      let(:exit_page_heading) { Faker::Lorem.sentence }
+      let(:exit_page_markdown) { Faker::Lorem.paragraph }
 
-    it "falls back to the exit page content in the condition" do
-      get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id)
-      expect(response).to render_template(:show)
-      expect(assigns(:exit_page)).to have_attributes(
-        heading: exit_page_heading,
-        markdown: exit_page_markdown,
-      )
+      let(:condition_with_exit_page) do
+        condition = build(:v2_condition, routing_page_id: 2, goto_page_id: nil, skip_to_end: nil, exit_page_id: nil, exit_page_heading:, exit_page_markdown:)
+        condition.attributes.delete(:exit_page_id)
+        condition
+      end
+
+      let(:step_without_exit_page) do
+        step = build(:v2_selection_question_step, routing_conditions: [condition_with_exit_page], id: 2, next_step_id: 3)
+        step.attributes.delete(:exit_pages)
+        step
+      end
+
+      let(:step_with_exit_page) { step_without_exit_page }
+
+      it "falls back to the exit page content in the condition" do
+        get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id)
+        expect(response).to render_template(:show)
+        expect(assigns(:exit_page)).to have_attributes(
+          heading: exit_page_heading,
+          markdown: exit_page_markdown,
+        )
+      end
+
+      context "when the request path includes an exit page id" do
+        it "returns http not found" do
+          get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_page.id, exit_page_id: 1)
+          expect(response).to have_http_status(:not_found)
+        end
+      end
     end
   end
 end
