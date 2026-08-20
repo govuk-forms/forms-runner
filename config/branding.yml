@@ -15,3 +15,12 @@ south-gloucestershire:
   copyright_holder: "South Gloucestershire Council"
   logo: /brand_assets/south-gloucestershire/logo.png
   favicon: /brand_assets/south-gloucestershire/favicon.png
+uttlesford:
+  background_colour: "#ffffff"
+  border_colour: "#16654c"
+  organisation_name: "Uttlesford District Council"
+  organisation_url: "https://www.uttlesford.gov.uk"
+  copyright_holder: "Uttlesford District Council"
+  logo: /brand_assets/uttlesford/logo.png
+  favicon: /brand_assets/uttlesford/favicon.png
+  opengraph: /brand_assets/uttlesford/logo.png
