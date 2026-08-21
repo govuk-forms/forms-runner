@@ -4,6 +4,7 @@ active_record_encryption:
   key_derivation_salt: k7cODzIzpjWkKKGqVnabRzXtTgLnT813
 
 aws:
+  s3_submission_iam_role_arn: arn:aws:iam::498160065950:role/govuk-forms-submissions-to-s3-dev
   file_upload_s3_bucket_name: govuk-forms-dev-file-upload
   ses_submission_email_configuration_set_name: bounces_and_complaints_handling_rule
   ses_confirmation_email_configuration_set_name: bounces_and_complaints_handling_rule
