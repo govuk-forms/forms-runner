@@ -1,5 +1,6 @@
 locals {
   logs_stream_prefix = "${data.terraform_remote_state.review.outputs.review_apps_log_group_name}/forms-runner/pr-${var.pull_request_number}"
+  assets_bucket_name = try(data.terraform_remote_state.review.outputs.assets_bucket_name, "govuk-forms-review-assets")
 
   runner_review_app_hostname = "pr-${var.pull_request_number}.submit.review.forms.service.gov.uk"
 
@@ -46,6 +47,7 @@ locals {
     { name = "SETTINGS__AUTH_PROVIDER", value = "developer" },
     { name = "SETTINGS__FORMS_ENV", value = "review" },
     { name = "SETTINGS__FORMS_RUNNER__URL", value = "https://${local.runner_review_app_hostname}" },
+    { name = "SETTINGS__AWS__ASSETS_S3_BUCKET_NAME", value = local.assets_bucket_name },
     { name = "ALLOWED_HOST_PATTERNS", value = "localhost:3000" },
     { name = "SETTINGS__FEATURES__DESCRIBE_NONE_OF_THE_ABOVE_ENABLED", value = "true" }
   ]
