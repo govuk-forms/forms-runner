@@ -6,6 +6,8 @@ RSpec.describe FooterComponent::View, type: :component do
   let(:form) { build :v2_form_document, id: 1 }
   let(:mode) { Mode.new }
 
+  include_context "with branding from branding.yml"
+
   before do
     render_inline(described_class.new(mode: mode, form: form))
   end
@@ -84,7 +86,7 @@ RSpec.describe FooterComponent::View, type: :component do
       context "when the brand has no copyright holder" do
         let(:form) do
           build(:form, brand_id: "cheshire-east", id: 1).tap do |form|
-            allow(form).to receive(:branding).and_return({})
+            allow(form).to receive(:branding).and_return(BRANDING_CONFIG["cheshire-east"].except("copyright_holder"))
           end
         end
 

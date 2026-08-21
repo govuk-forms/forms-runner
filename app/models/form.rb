@@ -86,14 +86,12 @@ class Form
   end
 
   def has_custom_branding?
-    return false if form_document.try(:brand_id).blank?
-
-    BRANDING_CONFIG.key?(form_document.brand_id)
+    branding.present?
   end
 
   def branding
-    return nil unless has_custom_branding?
+    return nil if form_document.try(:brand_id).blank?
 
-    BRANDING_CONFIG[form_document.brand_id]
+    @branding ||= Api::V2::BrandRepository.find(form_document.brand_id)
   end
 end
