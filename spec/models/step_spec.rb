@@ -109,6 +109,91 @@ RSpec.describe Step do
     end
   end
 
+  describe "#matching_condition" do
+    let(:form_document_step) { build(:v2_selection_question_step, routing_conditions:) }
+    let(:question) { instance_double(Question::Selection, selection:) }
+
+    context "without any routing conditions" do
+      let(:routing_conditions) { [] }
+      let(:selection) { "Option 1" }
+
+      it "returns nil" do
+        expect(step.matching_condition).to be_nil
+      end
+    end
+
+    context "with a default condition" do
+      let(:default_condition) { build(:v2_condition, :default) }
+      let(:routing_conditions) do
+        [
+          default_condition,
+        ]
+      end
+
+      let(:selection) { "Option 99" }
+
+      it "returns the default condition" do
+        expect(step.matching_condition).to eq Condition.new(form_document_condition: default_condition)
+      end
+    end
+
+    context "with routing conditions" do
+      let(:condition) { build(:v2_condition, answer_value: "Option 2") }
+      let(:skip_to_end_condition) { build(:v2_condition, :skip_to_end, answer_value: "Option 3") }
+      let(:condition_with_exit_page) { build(:v2_condition, :with_exit_page, answer_value: "Option 4") }
+      let(:none_of_the_above_condition) { build(:v2_condition, answer_value: Question::Selection::NONE_OF_THE_ABOVE_VALUE) }
+
+      let(:routing_conditions) do
+        [
+          condition,
+          skip_to_end_condition,
+          condition_with_exit_page,
+          none_of_the_above_condition,
+        ]
+      end
+
+      context "when no condition matches" do
+        let(:selection) { "Option 1" }
+
+        it "returns nil" do
+          expect(step.matching_condition).to be_nil
+        end
+      end
+
+      context "when a condition matches" do
+        let(:selection) { "Option 2" }
+
+        it "returns the matching condition" do
+          expect(step.matching_condition).to eq Condition.new(form_document_condition: condition)
+        end
+      end
+
+      context "when a skip to end condition matches" do
+        let(:selection) { "Option 3" }
+
+        it "returns the matching condition" do
+          expect(step.matching_condition).to eq Condition.new(form_document_condition: skip_to_end_condition)
+        end
+      end
+
+      context "when a condition with an exit page matches" do
+        let(:selection) { "Option 4" }
+
+        it "returns the matching condition" do
+          expect(step.matching_condition).to eq Condition.new(form_document_condition: condition_with_exit_page)
+        end
+      end
+
+      context "when a none of the above condition matches" do
+        let(:selection) { Question::Selection::NONE_OF_THE_ABOVE_VALUE }
+
+        it "returns the matching condition" do
+          expect(step.matching_condition).to eq Condition.new(form_document_condition: none_of_the_above_condition)
+        end
+      end
+    end
+  end
+
   describe "#next_step_slug_after_routing" do
     let(:default_next_step_id) { "11111111" } # dummy value to make the default next step ID obvious when it appears
     let(:selection) { "Yes" }
@@ -207,12 +292,41 @@ RSpec.describe Step do
       end
     end
 
+    describe "exit page routing" do
+      context "with exit_page_id" do
+        let(:routing_conditions) do
+          [
+            build(:v2_condition, :with_exit_page, answer_value: "Yes"),
+          ]
+        end
+        let(:selection) { "Yes" }
+
+        it "returns nil" do
+          expect(step.next_step_slug_after_routing).to be_nil
+        end
+      end
+
+      context "with exit_page_id and goto_page_id" do
+        let(:routing_conditions) do
+          [
+            build(:v2_condition, :with_exit_page, answer_value: "Yes", goto_page_id: fourth_step_id),
+          ]
+        end
+        let(:selection) { "Yes" }
+
+        it "prioritizes exit_page_id over goto_page_id" do
+          expect(step.next_step_slug_after_routing).to be_nil
+        end
+      end
+    end
+
     context "with multiple conditions" do
       let(:routing_conditions) do
         [
           build(:v2_condition, answer_value: "No", goto_page_id: first_step_id),
           build(:v2_condition, answer_value: "Yes", goto_page_id: second_step_id),
           build(:v2_condition, answer_value: "Maybe", goto_page_id: third_step_id),
+          build(:v2_condition, :with_exit_page, answer_value: "Can't decide"),
         ]
       end
 
@@ -237,6 +351,14 @@ RSpec.describe Step do
 
         it "returns the next_step_slug" do
           expect(step.next_step_slug_after_routing).to eq(third_step_id)
+        end
+      end
+
+      context "and condition with exit page matches" do
+        let(:selection) { "Can't decide" }
+
+        it "returns nil" do
+          expect(step.next_step_slug_after_routing).to be_nil
         end
       end
 
@@ -374,43 +496,86 @@ RSpec.describe Step do
   end
 
   describe "#has_exit_page_condition?" do
-    it "returns false when no routing conditions" do
-      expect(step.has_exit_page_condition?).to be false
+    context "when a routing condition has an exit page" do
+      let(:exit_page) { build(:v2_exit_page) }
+      let(:routing_conditions) { [build(:v2_condition), build(:v2_condition, :with_exit_page, exit_page:)] }
+      let(:form_document_step) { build(:v2_selection_question_step, :with_exit_page, routing_conditions:, exit_page:) }
+
+      it "returns true" do
+        expect(step.has_exit_page_condition?).to be true
+      end
     end
 
-    it "returns false when first routing condition is not exit page" do
-      form_document_step.routing_conditions = [build(:v2_condition, answer_value: "Yes", goto_page_id: third_step_id)]
-      expect(step.has_exit_page_condition?).to be false
+    context "when no routing condition has an exit page" do
+      let(:routing_conditions) { [build(:v2_condition), build(:v2_condition)] }
+      let(:form_document_step) { build(:v2_selection_question_step, routing_conditions:) }
+
+      it "returns false" do
+        expect(step.has_exit_page_condition?).to be false
+      end
     end
 
-    it "returns false when first routing condition contains markdown exit_page_markdown" do
-      form_document_step.routing_conditions = [build(:v2_condition, exit_page_markdown: 12)]
-      expect(step.has_exit_page_condition?).to be false
-    end
+    context "when there are no routing conditions" do
+      let(:form_document_step) { build(:v2_selection_question_step, routing_conditions: []) }
 
-    it "returns true when first routing condition contains string markdown exit_page_markdown" do
-      form_document_step.routing_conditions = [build(:v2_condition, exit_page_markdown: "")]
-      expect(step.has_exit_page_condition?).to be true
+      it "returns false" do
+        expect(step.has_exit_page_condition?).to be false
+      end
     end
   end
 
   describe "#exit_page_condition_matches?" do
-    let(:selection) { "Yes" }
-    let(:question) { instance_double(Question::Selection, selection:) }
-    let(:routing_conditions) { [build(:v2_condition, answer_value: "Yes", exit_page_markdown: "string")] }
-    let(:form_document_step) { build(:v2_question_step, position: 1, routing_conditions:) }
+    context "when a routing condition has an exit page" do
+      let(:exit_page) { build(:v2_exit_page) }
+      let(:routing_conditions) { [build(:v2_condition, answer_value: "No"), build(:v2_condition, :with_exit_page, answer_value: "Yes", exit_page:)] }
+      let(:form_document_step) { build(:v2_selection_question_step, :with_exit_page, routing_conditions:, exit_page:) }
 
-    it "returns true when condition matches and condition is an exit page" do
-      expect(step.exit_page_condition_matches?).to be true
+      context "when condition matches" do
+        let(:selection) { "Yes" }
+        let(:question) { instance_double(Question::Selection, selection:) }
+
+        it "returns true" do
+          expect(step.exit_page_condition_matches?).to be true
+        end
+      end
+
+      context "when condition doesn't match" do
+        let(:selection) { "No" }
+        let(:question) { instance_double(Question::Selection, selection:) }
+
+        it "returns false" do
+          expect(step.exit_page_condition_matches?).to be false
+        end
+      end
     end
 
-    it "when condition matches but not an exit page it returns false" do
-      routing_conditions.first.exit_page_markdown = nil
-      expect(step.exit_page_condition_matches?).to be false
+    context "when no condition has an exit page" do
+      let(:routing_conditions) { [build(:v2_condition, answer_value: "No"), build(:v2_condition, answer_value: "Yes")] }
+      let(:form_document_step) { build(:v2_selection_question_step, routing_conditions:) }
+
+      context "when condition matches" do
+        let(:selection) { "Yes" }
+        let(:question) { instance_double(Question::Selection, selection:) }
+
+        it "returns false" do
+          expect(step.exit_page_condition_matches?).to be false
+        end
+      end
+
+      context "when condition doesn't match" do
+        let(:selection) { "No" }
+        let(:question) { instance_double(Question::Selection, selection:) }
+
+        it "returns false" do
+          expect(step.exit_page_condition_matches?).to be false
+        end
+      end
     end
 
-    context "when condition doesn't match" do
-      let(:selection) { "No" }
+    context "when there are no routing conditions" do
+      let(:form_document_step) { build(:v2_selection_question_step, routing_conditions: []) }
+      let(:question) { instance_double(Question::Selection, selection:) }
+      let(:selection) { "Yes" }
 
       it "returns false" do
         expect(step.exit_page_condition_matches?).to be false
