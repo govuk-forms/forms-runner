@@ -3,6 +3,8 @@ require "rails_helper"
 describe FormSubmissionMailer, type: :mailer do
   subject(:mail) { described_class.submission_email(submission:, files:, csv_filename:, json_filename:) }
 
+  include_context "with branding from branding.yml"
+
   let(:submission) do
     build(:submission, form_document: form_document, created_at: submission_timestamp,
                        reference: submission_reference, is_preview:, submission_locale:)

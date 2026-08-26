@@ -9,8 +9,8 @@
 
     <meta name="theme-color" content="<%= theme_colour(form: @current_context&.form) %>">
     <% if @current_context&.form&.has_custom_branding? %>
-      <link rel="icon" sizes="48x48" href="<%= @current_context.form.branding["favicon"] %>">
-      <meta property="og:image" content="<%= @current_context.form.branding["opengraph"] %>">
+      <link rel="icon" sizes="48x48" href="<%= @current_context.form.branding.favicon %>">
+      <meta property="og:image" content="<%= @current_context.form.branding.opengraph %>">
     <% else %>
       <link rel="icon" sizes="48x48" href="<%= vite_asset_path "#{govuk_assets_path}/images/favicon.ico" %>">
       <link rel="icon" sizes="any" href="<%= vite_asset_path "#{govuk_assets_path}/images/favicon.svg" %>" type="image/svg+xml">

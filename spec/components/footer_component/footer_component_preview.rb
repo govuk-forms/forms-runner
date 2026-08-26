@@ -15,9 +15,7 @@ class FooterComponent::FooterComponentPreview < ViewComponent::Preview
                           name: "test",
                           form_slug: "test",
                           has_custom_branding?: true,
-                          branding: {
-                            "copyright_holder" => "Cheshire East Council",
-                          })
+                          branding: Brand.new(copyright_holder: "Cheshire East Council"))
     render(FooterComponent::View.new(mode:, form:))
   end
 end

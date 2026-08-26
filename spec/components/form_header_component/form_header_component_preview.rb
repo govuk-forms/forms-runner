@@ -28,13 +28,13 @@ class FormHeaderComponent::FormHeaderComponentPreview < ViewComponent::Preview
                           name: "test_form_name",
                           form_slug: "test",
                           has_custom_branding?: true,
-                          branding: {
-                            "background_colour" => "#ffffff",
-                            "border_colour" => "#206c49",
-                            "organisation_name" => "Cheshire East Council",
-                            "organisation_url" => "https://www.cheshireeast.gov.uk",
-                            "logo" => "/brand_assets/cheshire-east/logo.png",
-                          })
+                          branding: Brand.new(
+                            background_colour: "#ffffff",
+                            border_colour: "#206c49",
+                            organisation_name: "Cheshire East Council",
+                            organisation_url: "https://www.cheshireeast.gov.uk",
+                            logo: "/brand_assets/cheshire-east/logo.png",
+                          ))
 
     mode = Mode.new
     current_context = OpenStruct.new(form:)

@@ -2,6 +2,10 @@ locals {
   logs_stream_prefix = "${data.terraform_remote_state.review.outputs.review_apps_log_group_name}/forms-runner/pr-${var.pull_request_number}"
   assets_bucket_name = try(data.terraform_remote_state.review.outputs.assets_bucket_name, "govuk-forms-review-assets")
 
+  # try() so that deploys succeed before the review environment state has
+  # published the assets outputs
+  forms_admin_task_role_arn = try(data.terraform_remote_state.review.outputs.forms_admin_task_role_arn, null)
+
   runner_review_app_hostname = "pr-${var.pull_request_number}.submit.review.forms.service.gov.uk"
 
   # Admin has it's own hostname because it needs to be user facing too,
@@ -68,6 +72,10 @@ resource "aws_ecs_task_definition" "task" {
   }
 
   execution_role_arn = data.terraform_remote_state.review.outputs.ecs_task_execution_role_arn
+
+  # Gives the forms-admin container permission to upload brand assets to the
+  # assets bucket
+  task_role_arn = local.forms_admin_task_role_arn
 
   container_definitions = jsonencode([
 
