@@ -34,12 +34,7 @@ RSpec.describe CustomBrandingComponent::View, type: :component do
                             name: "test_form_name",
                             form_slug: "test",
                             has_custom_branding?: true,
-                            branding: build(:brand,
-                                            background_colour: "#ffffff",
-                                            border_colour: "#206c49",
-                                            organisation_name: "Cheshire East Council",
-                                            organisation_url: "https://www.cheshireeast.gov.uk",
-                                            logo: "/brand_assets/cheshire-east/logo.png"))
+                            branding: build(:brand))
 
       render_inline(described_class.new(form: form))
     end
@@ -48,7 +43,7 @@ RSpec.describe CustomBrandingComponent::View, type: :component do
       style_element = page.find("style", visible: :all)
 
       expect(style_element.native.inner_html).to include "--custom-background-colour: #ffffff;"
-      expect(style_element.native.inner_html).to include "--custom-border-colour: #206c49;"
+      expect(style_element.native.inner_html).to include "--custom-border-colour: #00703c;"
     end
   end
 end

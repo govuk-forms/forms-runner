@@ -258,10 +258,10 @@ RSpec.describe Form, type: :model do
     end
 
     context "when the form document has a brand ID which is known" do
-      let(:form_document) { build :v2_form_document, brand_id: "cheshire-east" }
+      let(:form_document) { build :v2_form_document, brand_id: "weatherfield" }
 
       before do
-        allow(Brand).to receive(:find).with("cheshire-east").and_return(build(:brand))
+        allow(Brand).to receive(:find).with("weatherfield").and_return(build(:brand))
       end
 
       it "returns true" do
