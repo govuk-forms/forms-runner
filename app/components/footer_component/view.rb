@@ -34,7 +34,7 @@ module FooterComponent
     end
 
     def copyright_holder
-      @form.branding["copyright_holder"]
+      @form.branding.copyright_holder
     end
 
     def accessibility_statement

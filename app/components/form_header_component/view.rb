@@ -18,9 +18,9 @@ module FormHeaderComponent
           safe_join([
             govuk_generic_header do |header|
               header.with_logo do
-                content_tag("a", href: branding["organisation_url"], class: "app-header__logo-link") do
-                  tag.img(src: branding["logo"],
-                          alt: branding["organisation_name"],
+                content_tag("a", href: branding.organisation_url, class: "app-header__logo-link") do
+                  tag.img(src: branding.logo,
+                          alt: branding.organisation_name,
                           class: "app-header__logo-image")
                 end
               end

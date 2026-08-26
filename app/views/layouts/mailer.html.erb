@@ -47,7 +47,7 @@
     <table role="presentation" width="100%" style="border-collapse: collapse;min-width: 100%;width: 100% !important;" cellpadding="0" cellspacing="0" border="0">
       <tr>
 <% if @branding.present? %>
-        <td width="100%" bgcolor="<%= @branding['background_colour'] %>" class="brand__banner" style="border-bottom: 4px solid <%= @branding['border_colour'] %>;">
+        <td width="100%" bgcolor="<%= @branding.background_colour %>" class="brand__banner" style="border-bottom: 4px solid <%= @branding.border_colour %>;">
 <%= render "layouts/custom_branding_email_banner" %>
         </td>
 <% else %>

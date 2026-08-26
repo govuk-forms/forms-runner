@@ -134,13 +134,12 @@ RSpec.describe FormHeaderComponent::View, type: :component do
                      name: "test_form_name",
                      form_slug: "test",
                      has_custom_branding?: true,
-                     branding: {
-                       "background_colour" => "#ffffff",
-                       "border_colour" => "#206c49",
-                       "organisation_name" => "Cheshire East Council",
-                       "organisation_url" => "https://www.cheshireeast.gov.uk",
-                       "logo" => "/brand_assets/cheshire-east/logo.png",
-                     })
+                     branding: build(:brand,
+                                     background_colour: "#ffffff",
+                                     border_colour: "#206c49",
+                                     organisation_name: "Cheshire East Council",
+                                     organisation_url: "https://www.cheshireeast.gov.uk",
+                                     logo: "/brand_assets/cheshire-east/logo.png"))
     end
 
     it "renders the brand logo with the organisation name as alt text" do

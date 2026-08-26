@@ -230,6 +230,11 @@ RSpec.describe Form, type: :model do
       it "returns false" do
         expect(form.has_custom_branding?).to be false
       end
+
+      it "does not look up the brand" do
+        expect(Brand).not_to receive(:find)
+        form.has_custom_branding?
+      end
     end
 
     context "when the form document has an empty brand ID" do
@@ -240,16 +245,24 @@ RSpec.describe Form, type: :model do
       end
     end
 
-    context "when the form document has a brand ID which is not configured" do
+    context "when the form document has a brand ID which is not known" do
       let(:form_document) { build :v2_form_document, :with_brand_id, brand_id: "midsomer" }
+
+      before do
+        allow(Brand).to receive(:find).with("midsomer").and_return(nil)
+      end
 
       it "returns false" do
         expect(form.has_custom_branding?).to be false
       end
     end
 
-    context "when the form document has a brand ID which is configured" do
+    context "when the form document has a brand ID which is known" do
       let(:form_document) { build :v2_form_document, brand_id: "cheshire-east" }
+
+      before do
+        allow(Brand).to receive(:find).with("cheshire-east").and_return(build(:brand))
+      end
 
       it "returns true" do
         expect(form.has_custom_branding?).to be true
@@ -274,19 +287,34 @@ RSpec.describe Form, type: :model do
       end
     end
 
-    context "when the form document has a brand ID which is not configured" do
+    context "when the form document has a brand ID which is not known" do
       let(:form_document) { build :v2_form_document, :with_brand_id, brand_id: "midsomer" }
+
+      before do
+        allow(Brand).to receive(:find).with("midsomer").and_return(nil)
+      end
 
       it "returns nil" do
         expect(form.branding).to be_nil
       end
     end
 
-    context "when the form document has a brand ID which is configured" do
-      let(:form_document) { build :v2_form_document, brand_id: "cheshire-east" }
+    context "when the form document has a brand ID which is known" do
+      let(:brand) { build :brand }
+      let(:form_document) { build :v2_form_document, brand_id: "weatherfield" }
 
-      it "returns the configured brand information" do
-        expect(form.branding).to eq BRANDING_CONFIG["cheshire-east"]
+      before do
+        allow(Brand).to receive(:find).with("weatherfield").and_return(brand)
+      end
+
+      it "returns the brand" do
+        expect(form.branding).to eq brand
+      end
+
+      it "memoises the brand lookup" do
+        2.times { form.branding }
+
+        expect(Brand).to have_received(:find).once
       end
     end
   end

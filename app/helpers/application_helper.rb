@@ -20,11 +20,11 @@ module ApplicationHelper
   end
 
   def site_name(form:)
-    (form&.has_custom_branding? ? form.branding["organisation_name"] : "GOV.UK")
+    (form&.has_custom_branding? ? form.branding.organisation_name : "GOV.UK")
   end
 
   def theme_colour(form:)
-    (form&.has_custom_branding? ? form.branding["background_colour"] : "#1d70b8")
+    (form&.has_custom_branding? ? form.branding.background_colour : "#1d70b8")
   end
 
   def question_text_with_hidden_mode(question_text, mode)

@@ -84,7 +84,7 @@ RSpec.describe FooterComponent::View, type: :component do
       context "when the brand has no copyright holder" do
         let(:form) do
           build(:form, brand_id: "cheshire-east", id: 1).tap do |form|
-            allow(form).to receive(:branding).and_return({})
+            allow(form).to receive(:branding).and_return(build(:brand, copyright_holder: nil))
           end
         end
 
