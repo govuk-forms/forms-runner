@@ -82,6 +82,7 @@ private
   def set_request_id
     if Rails.env.production?
       Api::V2::FormDocumentResource.headers["X-Request-ID"] = request.request_id
+      Api::V2::BrandResource.headers["X-Request-ID"] = request.request_id
     end
   end
 
