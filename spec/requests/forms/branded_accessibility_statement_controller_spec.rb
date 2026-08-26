@@ -1,6 +1,8 @@
 require "rails_helper"
 
 RSpec.describe Forms::BrandedAccessibilityStatementController, type: :request do
+  include_context "with branding from branding.yml"
+
   let(:form_data) do
     build(:v2_form_document, :with_support,
           id: 2,

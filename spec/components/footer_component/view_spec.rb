@@ -6,6 +6,8 @@ RSpec.describe FooterComponent::View, type: :component do
   let(:form) { build :v2_form_document, id: 1 }
   let(:mode) { Mode.new }
 
+  include_context "with branding from branding.yml"
+
   before do
     render_inline(described_class.new(mode: mode, form: form))
   end

@@ -9,6 +9,8 @@ RSpec.describe SubmissionConfirmationMailer, type: :mailer do
     )
   end
 
+  include_context "with branding from branding.yml"
+
   let(:confirmation_email_address) { "testing@example.gov.uk" }
   let(:include_copy_of_answers) { true }
   let(:welsh_form) { Form.new(welsh_form_document) if welsh_form_document }
