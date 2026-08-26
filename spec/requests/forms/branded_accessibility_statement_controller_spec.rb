@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe Forms::BrandedAccessibilityStatementController, type: :request do
-  include_context "with branding from branding.yml"
+  include_context "with branding"
 
   let(:form_data) do
     build(:v2_form_document, :with_support,
@@ -10,7 +10,7 @@ RSpec.describe Forms::BrandedAccessibilityStatementController, type: :request do
           what_happens_next_markdown: "Good things come to those that wait",
           declaration_text: "agree to the declaration",
           steps: steps_data,
-          brand_id: "cheshire-east")
+          brand_id: "weatherfield")
   end
 
   let(:steps_data) do
@@ -53,7 +53,7 @@ RSpec.describe Forms::BrandedAccessibilityStatementController, type: :request do
     end
 
     it "includes the custom branding favicon" do
-      expect(response.body).to include("/brand_assets/cheshire-east/favicon.ico")
+      expect(response.body).to include(brand.favicon)
     end
   end
 end

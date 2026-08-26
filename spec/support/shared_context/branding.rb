@@ -1,5 +1,8 @@
-RSpec.shared_context "with branding from branding.yml" do
+RSpec.shared_context "with branding" do
+  let(:brand) { build :brand }
+
   before do
-    allow(Brand).to receive(:find) { |brand_id| Brand.from_attributes(BRANDING_CONFIG[brand_id]) if BRANDING_CONFIG[brand_id] }
+    allow(Brand).to receive(:find).and_return(nil)
+    allow(Brand).to receive(:find).with("weatherfield").and_return(brand)
   end
 end

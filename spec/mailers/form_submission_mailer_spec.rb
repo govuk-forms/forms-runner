@@ -3,7 +3,7 @@ require "rails_helper"
 describe FormSubmissionMailer, type: :mailer do
   subject(:mail) { described_class.submission_email(submission:, files:, csv_filename:, json_filename:) }
 
-  include_context "with branding from branding.yml"
+  include_context "with branding"
 
   let(:submission) do
     build(:submission, form_document: form_document, created_at: submission_timestamp,
@@ -30,11 +30,11 @@ describe FormSubmissionMailer, type: :mailer do
   end
 
   context "when the form has custom branding" do
-    let(:form_document) { build(:v2_form_document, :with_brand_id, brand_id: "cheshire-east", name: form_name, submission_email: submission_email_address, payment_url:) }
+    let(:form_document) { build(:v2_form_document, :with_brand_id, brand_id: "weatherfield", name: form_name, submission_email: submission_email_address, payment_url:) }
 
     it "still shows the GOV.UK banner" do
       expect(mail.html_part.body).to have_link("GOV.UK", href: "https://www.gov.uk")
-      expect(mail.html_part.body).not_to have_link(href: BRANDING_CONFIG["cheshire-east"]["organisation_url"])
+      expect(mail.html_part.body).not_to have_link(href: brand.organisation_url)
     end
   end
 
