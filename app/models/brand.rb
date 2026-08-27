@@ -31,11 +31,11 @@ class Brand
     def find(brand_id)
       return nil if brand_id.blank?
 
-      attributes = BRANDING_CONFIG[brand_id] || attributes_from_api(brand_id)
+      attributes = attributes_from_api(brand_id)
       from_attributes(attributes) if attributes
     end
 
-    # attributes is a string-keyed hash in the shape of an entry in config/branding.yml
+    # attributes is a string-keyed hash, as cached by attributes_from_api
     def from_attributes(attributes)
       new(**attributes.symbolize_keys.slice(*ATTRIBUTES))
     end
@@ -64,7 +64,7 @@ class Brand
       "api/v2/brand/#{brand_id}"
     end
 
-    # match the shape of the entries in config/branding.yml
+    # map API attribute names to Brand attribute names
     def api_attributes(attributes)
       {
         "background_colour" => attributes["header_background_colour"],

@@ -1,9 +1,9 @@
 require "rails_helper"
 
 describe "forms/branded_accessibility_statement/show.html.erb" do
-  include_context "with branding from branding.yml"
+  include_context "with branding"
 
-  let(:form) { build :form, brand_id: "cheshire-east" }
+  let(:form) { build :form, brand_id: "weatherfield" }
   let(:mode) { OpenStruct.new(preview_draft?: false, preview_archived?: false, preview_live?: false) }
 
   before do

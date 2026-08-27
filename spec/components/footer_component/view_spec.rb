@@ -6,7 +6,7 @@ RSpec.describe FooterComponent::View, type: :component do
   let(:form) { build :v2_form_document, id: 1 }
   let(:mode) { Mode.new }
 
-  include_context "with branding from branding.yml"
+  include_context "with branding"
 
   before do
     render_inline(described_class.new(mode: mode, form: form))
@@ -56,7 +56,7 @@ RSpec.describe FooterComponent::View, type: :component do
     end
 
     context "when the form has custom branding" do
-      let(:form) { build :form, brand_id: "cheshire-east", id: 1 }
+      let(:form) { build :form, brand_id: "weatherfield", id: 1 }
 
       it "includes a link to the branded accessbility statement" do
         expect(page).to have_link("Accessibility statement", href: form_branded_accessibility_statement_path(mode:, form_id: form.id, form_slug: form.form_slug))
@@ -71,8 +71,8 @@ RSpec.describe FooterComponent::View, type: :component do
       end
 
       it "shows the copyright holder's copyright notice without a link" do
-        expect(page).to have_text("© Cheshire East Council")
-        expect(page).not_to have_link("© Cheshire East Council")
+        expect(page).to have_text("© Weatherfield Borough Council")
+        expect(page).not_to have_link("© Weatherfield Borough Council")
       end
 
       it "does not show Crown copyright" do
@@ -85,7 +85,7 @@ RSpec.describe FooterComponent::View, type: :component do
 
       context "when the brand has no copyright holder" do
         let(:form) do
-          build(:form, brand_id: "cheshire-east", id: 1).tap do |form|
+          build(:form, brand_id: "weatherfield", id: 1).tap do |form|
             allow(form).to receive(:branding).and_return(build(:brand, copyright_holder: nil))
           end
         end

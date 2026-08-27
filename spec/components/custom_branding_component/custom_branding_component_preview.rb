@@ -19,10 +19,10 @@ class CustomBrandingComponent::CustomBrandingComponentPreview < ViewComponent::P
                           has_custom_branding?: true,
                           branding: Brand.new(
                             background_colour: "#ffffff",
-                            border_colour: "#206c49",
-                            organisation_name: "Cheshire East Council",
-                            organisation_url: "https://www.cheshireeast.gov.uk",
-                            logo: "/brand_assets/cheshire-east/logo.png",
+                            border_colour: "#00703c",
+                            organisation_name: "Weatherfield Borough Council",
+                            organisation_url: "https://www.weatherfield.example.com",
+                            logo: "/images/govuk-icon-180.png",
                           ))
 
     render(CustomBrandingComponent::View.new(form:))

@@ -9,7 +9,7 @@ RSpec.describe SubmissionConfirmationMailer, type: :mailer do
     )
   end
 
-  include_context "with branding from branding.yml"
+  include_context "with branding"
 
   let(:confirmation_email_address) { "testing@example.gov.uk" }
   let(:include_copy_of_answers) { true }
@@ -216,17 +216,16 @@ RSpec.describe SubmissionConfirmationMailer, type: :mailer do
 
   describe "custom branding" do
     context "when the form has custom branding" do
-      let(:brand_id) { "cheshire-east" }
-      let(:branding) { BRANDING_CONFIG["cheshire-east"] }
+      let(:brand_id) { "weatherfield" }
 
       it "shows the organisation logo linking to the organisation website in the html part" do
-        expect(mail.html_part.body).to have_link(branding["organisation_name"], href: branding["organisation_url"])
-        expect(mail.html_part.body).to have_css("img[src='#{Settings.forms_runner.base_url}#{branding['logo']}'][alt='#{branding['organisation_name']}']")
+        expect(mail.html_part.body).to have_link(brand.organisation_name, href: brand.organisation_url)
+        expect(mail.html_part.body).to have_css("img[src='#{Settings.forms_runner.base_url}#{brand.logo}'][alt='#{brand.organisation_name}']")
       end
 
       it "uses the branding colours for the banner" do
-        expect(mail.html_part.body.to_s).to include(%(bgcolor="#{branding['background_colour']}"))
-        expect(mail.html_part.body.to_s).to include("border-bottom: 4px solid #{branding['border_colour']}")
+        expect(mail.html_part.body.to_s).to include(%(bgcolor="#{brand.background_colour}"))
+        expect(mail.html_part.body.to_s).to include("border-bottom: 4px solid #{brand.border_colour}")
       end
 
       it "does not show the GOV.UK banner" do
@@ -235,18 +234,18 @@ RSpec.describe SubmissionConfirmationMailer, type: :mailer do
       end
 
       it "does not change the text part" do
-        expect(mail.text_part.body).not_to include(branding["organisation_url"])
+        expect(mail.text_part.body).not_to include(brand.organisation_url)
       end
 
       context "when the submission locale is Welsh" do
         let(:submission_locale) { "cy" }
         let(:welsh_form_document) do
-          build(:v2_form_document, :with_brand_id, brand_id: "cheshire-east", name: "Welsh form")
+          build(:v2_form_document, :with_brand_id, brand_id: "weatherfield", name: "Welsh form")
         end
         let(:include_copy_of_answers) { false }
 
         it "renders the branded banner exactly once" do
-          expect(mail.html_part.body.to_s.scan(branding["organisation_url"]).count).to eq(1)
+          expect(mail.html_part.body.to_s.scan(brand.organisation_url).count).to eq(1)
         end
       end
     end
