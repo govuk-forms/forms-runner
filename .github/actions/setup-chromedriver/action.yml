@@ -1,0 +1,21 @@
+name: 'Setup Chrome Driver'
+description: 'Install Chrome Driver'
+runs:
+  using: "composite"
+  steps:
+    - name: Setup ChromeDriver
+      uses: nanasess/setup-chromedriver@e93e57b843c0c92788f22483f1a31af8ee48db25 # v2.3.0
+      with:
+        chromedriver-version: '128.0.6613.8600'
+        chromeapp: chrome
+
+    - name: Purge Google Chrome
+      run: |
+        sudo apt-get purge google-chrome-stable
+      shell: bash
+
+    - name: Setup Chrome
+      uses: browser-actions/setup-chrome@b94431e051d1c52dcbe9a7092a4f10f827795416 # v2.1.0
+      with:
+        chrome-version: 128
+        install-chromedriver: 'false'
