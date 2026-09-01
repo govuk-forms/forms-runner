@@ -23,7 +23,7 @@ gem "redis"
 gem "redis-session-store"
 
 # Use SolidQueue for ActiveJob
-gem "solid_queue", "~> 1.6"
+gem "solid_queue", "~> 1.7"
 
 # Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]
 # gem "kredis"
