@@ -119,8 +119,8 @@ GEM
       public_suffix (>= 2.0.2, < 8.0)
     ast (2.4.3)
     aws-eventstream (1.4.0)
-    aws-partitions (1.1281.0)
-    aws-sdk-cloudwatch (1.145.0)
+    aws-partitions (1.1282.0)
+    aws-sdk-cloudwatch (1.146.0)
       aws-sdk-core (~> 3, >= 3.254.0)
       aws-sigv4 (~> 1.5)
     aws-sdk-codepipeline (1.118.0)
@@ -141,7 +141,7 @@ GEM
       aws-sdk-core (~> 3, >= 3.254.1)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
-    aws-sdk-sesv2 (1.105.0)
+    aws-sdk-sesv2 (1.106.0)
       aws-sdk-core (~> 3, >= 3.254.0)
       aws-sigv4 (~> 1.5)
     aws-sdk-sqs (1.117.0)
@@ -838,13 +838,13 @@ CHECKSUMS
   addressable (2.9.0) sha256=7fdf6ac3660f7f4e867a0838be3f6cf722ace541dd97767fa42bc6cfa980c7af
   ast (2.4.3) sha256=954615157c1d6a382bc27d690d973195e79db7f55e9765ac7c481c60bdb4d383
   aws-eventstream (1.4.0) sha256=116bf85c436200d1060811e6f5d2d40c88f65448f2125bc77ffce5121e6e183b
-  aws-partitions (1.1281.0) sha256=97fcc7d6a068ab790a1efcd8c6587c08fb108b4bed7ff1409cb47e0d642782ec
-  aws-sdk-cloudwatch (1.145.0) sha256=9610208fa95145deec8ffb03f94ac048d3cc6c90d64c012c73443f0afd5117fa
+  aws-partitions (1.1282.0) sha256=d6c7c4ad2e4f8cd4ca56445bfbb3958fec0deecd959c1e2bcd3a83c9aa308c18
+  aws-sdk-cloudwatch (1.146.0) sha256=eff9acdd71fefbf8da495373cf2378e9daf3f4411438aed6d9abe67df4b04738
   aws-sdk-codepipeline (1.118.0) sha256=197a97d1b532484f38d87b7c3ceccf50afed2db27ed1807a2e9cad7b8962f14e
   aws-sdk-core (3.254.1) sha256=518089e32134c3478cd4ec63d07fb966546a45e9e4cbf5f80d2cf16d5699d29b
   aws-sdk-kms (1.130.0) sha256=a2e83662ca31b77a2a19c9aa2f40a98165a67270c18c718fe1c70d0cbd7cd749
   aws-sdk-s3 (1.229.0) sha256=7dd11a111875b3505d2ec0a0a383a6aab6c1badb3d4e94e7fbb958a24451f596
-  aws-sdk-sesv2 (1.105.0) sha256=d6c52b1ffb44686718f7fa62d87635932995a4774691f039931c75798098ab4f
+  aws-sdk-sesv2 (1.106.0) sha256=f0a3d18d1e6bf2a621defcaa215831176fb40c42810be44d7448d95b693ee766
   aws-sdk-sqs (1.117.0) sha256=cdfebf190a26f1ccb7396ad3edfa23253909d1b8961676b4b58a953d78424472
   aws-sdk-sts (1.12.0) sha256=9bbd64223dd2423540291d9faaac4a169ace8cfe123b1075c9a127fcd65e061f
   aws-sigv4 (1.12.1) sha256=6973ff95cb0fd0dc58ba26e90e9510a2219525d07620c8babeb70ef831826c00
