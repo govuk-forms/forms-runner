@@ -23,8 +23,6 @@ FactoryBot.define do
     s3_bucket_region { nil }
     updated_at { Time.current.iso8601(3) }
     send_copy_of_answers { "disabled" }
-    send_daily_submission_batch { false }
-    send_weekly_submission_batch { false }
     delivery_configurations { [build(:v2_delivery_configuration, :immediate_email)] }
 
     trait :with_steps do

@@ -26,10 +26,7 @@ private
   def deliver_submission_email
     files = uploaded_files_in_answers
 
-    # This handles deliveries that were created before we started storing the formats on the delivery. This fallback and
-    # the deprecated `Form.submission_format` attribute can be removed from September 2026 when any failed deliveries
-    # will have been removed.
-    formats = @delivery.formats || @form.submission_format
+    formats = @delivery.formats
 
     csv_filename = nil
     if formats.include? "json"
