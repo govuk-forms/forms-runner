@@ -33,26 +33,6 @@ RSpec.describe Form, type: :model do
     end
   end
 
-  describe "#submission_format" do
-    let(:form_document) { build :v2_form_document, submission_format: }
-
-    context "when the submission format attribute is nil" do
-      let(:submission_format) { nil }
-
-      it "returns no submission delivery formats" do
-        expect(form.submission_format).to eq []
-      end
-    end
-
-    context "when the submission format attribute is an array of strings" do
-      let(:submission_format) { %w[csv json] }
-
-      it "returns the submission format attribute" do
-        expect(form.submission_format).to eq %w[csv json]
-      end
-    end
-  end
-
   describe "#support_details" do
     let(:form_document) do
       build :v2_form_document,

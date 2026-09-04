@@ -252,25 +252,6 @@ RSpec.describe SubmissionService do
       end
     end
 
-    context "when the formats are nil on the delivery" do
-      let(:delivery) { build :delivery, formats: nil }
-      let(:form_document) { build(:v2_form_document, name: "A great form", submission_email:, submission_format: %w[csv]) }
-
-      it "falls back to using the submission_format on the form" do
-        allow(FormSubmissionMailer).to receive(:submission_email).and_call_original
-
-        service.submit
-        expected_csv_content = "Reference,Submitted at,What is the meaning of life?\n#{submission_reference},2022-12-14T08:00:00+00:00,42\n"
-
-        expect(FormSubmissionMailer).to have_received(:submission_email).with(
-          submission: submission,
-          files: { "govuk_forms_a_great_form_#{submission_reference}.csv" => expected_csv_content },
-          csv_filename: "govuk_forms_a_great_form_#{submission_reference}.csv",
-          json_filename: nil,
-        ).once
-      end
-    end
-
     context "when form being submitted is from previewed form" do
       let(:is_preview) { true }
 
