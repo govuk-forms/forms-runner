@@ -126,20 +126,6 @@ RSpec.describe S3SubmissionService do
         end
       end
 
-      context "when the formats are nil on the delivery" do
-        let(:delivery) { build :delivery, formats: nil }
-        let(:form_document) do
-          build(:v2_form_document, :s3_submissions_enabled, submission_format: %w[json])
-        end
-
-        it "falls back to using the submission_format on the form" do
-          expected_key_name = "form_submissions/#{form_document.form_id}/#{expected_timestamp}_#{submission_reference}/form_submission.json"
-          expect(mock_s3_client).to receive(:put_object).with(hash_including(key: expected_key_name))
-
-          service.submit
-        end
-      end
-
       context "when the form has answered file upload questions" do
         let(:first_file_upload_question) { build(:file, :with_uploaded_file, original_filename: "file.txt") }
         let(:second_file_upload_question) { build(:file, :with_uploaded_file, original_filename: "file.txt", filename_suffix: "_1") }

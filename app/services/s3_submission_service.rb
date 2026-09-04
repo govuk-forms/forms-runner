@@ -16,13 +16,8 @@ class S3SubmissionService
     # file arrives and the referenced files will already be present
     copy_uploaded_files_to_bucket
 
-    # This handles deliveries that were created before we started storing the formats on the delivery. This fallback and
-    # the deprecated `Form.submission_format` attribute can be removed from September 2026 when any failed deliveries
-    # will have been removed.
-    formats = @delivery.formats || @form.submission_format
-
     submission_content, key =
-      case formats
+      case @delivery.formats
       when %w[csv]
         [generate_csv_submission, generate_key("form_submission.csv")]
       when %w[json]

@@ -1,15 +1,11 @@
 class BatchSubmissionsSelector
   Batch = Data.define(:form_id, :mode, :submissions)
 
-  # TODO: we can remove checking the send_daily_submission_batch and send_weekly_submission_batch in September 2026
-  # when all Submissions without delivery_configurations on the form document have been deleted.
   DAILY_BATCH_FORM_DOCUMENT_CONDITION = <<~SQL.squish
-    (form_document->>'send_daily_submission_batch')::boolean = true
-    OR form_document->'delivery_configurations' @> '[{"delivery_schedule":"daily"}]'::jsonb
+    form_document->'delivery_configurations' @> '[{"delivery_schedule":"daily"}]'::jsonb
   SQL
   WEEKLY_BATCH_FORM_DOCUMENT_CONDITION = <<~SQL.squish
-    (form_document->>'send_weekly_submission_batch')::boolean = true
-    OR form_document->'delivery_configurations' @> '[{"delivery_schedule":"weekly"}]'::jsonb
+    form_document->'delivery_configurations' @> '[{"delivery_schedule":"weekly"}]'::jsonb
   SQL
 
   class << self
@@ -20,7 +16,7 @@ class BatchSubmissionsSelector
 
           # If the most recent submission is configured for daily batching, include all submissions on that day in the
           # batch. If it is not, do not return a batch for any of the submissions on that day.
-          next unless submissions.any? && batch_enabled_for_daily_submission?(submissions.first.form_document)
+          next unless submissions.any? && daily_delivery_configuration?(submissions.first.form_document)
 
           yielder << Batch.new(form_id, mode, submissions)
         end
@@ -34,7 +30,7 @@ class BatchSubmissionsSelector
 
           # If the most recent submission is configured for weekly batching, include all submissions in that week in
           # the batch. If it is not, do not return a batch for any of the submissions in that week.
-          next unless submissions.any? && batch_enabled_for_weekly_submission?(submissions.first.form_document)
+          next unless submissions.any? && weekly_delivery_configuration?(submissions.first.form_document)
 
           yielder << Batch.new(form_id, mode, submissions)
         end
@@ -57,16 +53,6 @@ class BatchSubmissionsSelector
                 .where(WEEKLY_BATCH_FORM_DOCUMENT_CONDITION)
                 .distinct
                 .pluck(:form_id, :mode)
-    end
-
-    def batch_enabled_for_daily_submission?(form_document)
-      form_document["send_daily_submission_batch"] == true ||
-        daily_delivery_configuration?(form_document)
-    end
-
-    def batch_enabled_for_weekly_submission?(form_document)
-      form_document["send_weekly_submission_batch"] == true ||
-        weekly_delivery_configuration?(form_document)
     end
 
     def daily_delivery_configuration?(form_document)
