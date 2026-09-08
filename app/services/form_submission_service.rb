@@ -115,6 +115,7 @@ private
     Submission.create!(
       reference: submission_reference,
       form_id: form.id,
+      form_version: form.version,
       answers: current_context.answers,
       mode: mode,
       form_document: form.document_json,

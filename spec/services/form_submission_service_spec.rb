@@ -26,6 +26,7 @@ RSpec.describe FormSubmissionService, :capture_logging do
       steps:,
       language: "en",
       delivery_configurations:,
+      version: 1111,
     )
   end
   let(:document_json) { form_document.as_json }
@@ -228,6 +229,7 @@ RSpec.describe FormSubmissionService, :capture_logging do
                                                      answers: answers.deep_stringify_keys,
                                                      mode: "form",
                                                      form_document: document_json,
+                                                     form_version: 1111,
                                                      welsh_form_document: nil,
                                                      submission_locale: "en")
         end

@@ -306,4 +306,12 @@ RSpec.describe Form, type: :model do
       expect(form.document_json).to eq(form_document.as_json)
     end
   end
+
+  describe "#version" do
+    let(:form_document) { build :v2_form_document, :live, :with_version }
+
+    it "returns the form version" do
+      expect(form.version).to eq(form_document.version)
+    end
+  end
 end

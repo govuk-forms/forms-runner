@@ -83,4 +83,8 @@ class Form
 
     @branding ||= Brand.find(form_document.brand_id)
   end
+
+  def version
+    form_document.try(:version)
+  end
 end

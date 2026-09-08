@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_16_114700) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_07_122013) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -44,6 +44,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_16_114700) do
     t.datetime "created_at", null: false
     t.jsonb "form_document"
     t.integer "form_id"
+    t.integer "form_version"
     t.string "mode"
     t.string "reference"
     t.string "submission_locale", default: "en", null: false, comment: "The language the form was submitted in ISO 2 letter format. Normally either 'en' or 'cy'"
