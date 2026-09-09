@@ -11,5 +11,9 @@ class Api::V3::FormDocumentResource < ActiveResource::Base
     def find_by_tag(form_id, tag, **options)
       get("#{form_id}/versions/#{tag}", **options)
     end
+
+    def find_by_version(form_id, version, **options)
+      get("#{form_id}/versions/#{version}", **options)
+    end
   end
 end

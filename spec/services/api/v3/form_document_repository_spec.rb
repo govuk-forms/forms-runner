@@ -97,6 +97,93 @@ RSpec.describe Api::V3::FormDocumentRepository do
     end
   end
 
+  describe ".find_by_version" do
+    let(:form_id) { "1" }
+    let(:version) { 3 }
+    let(:response_data) { api_v3_response_data.to_json }
+    let(:welsh_response_data) { api_v3_welsh_response_data.to_json }
+    let(:status) { 200 }
+    let(:language) { nil }
+
+    before do
+      ActiveResource::HttpMock.respond_to do |mock|
+        mock.get "/api/v3/forms/#{form_id}/versions/#{version}", req_headers, response_data, status
+        mock.get "/api/v3/forms/#{form_id}/versions/#{version}?language=cy", req_headers, welsh_response_data, status
+      end
+    end
+
+    it "returns form document" do
+      form = described_class.find_by_version(version:, form_id:)
+
+      expect(form).to have_attributes(form_id:, name: "All question types form")
+    end
+
+    context "when the form id contains non-alpha-numeric chars" do
+      let(:form_id) { "<id>" }
+
+      it "returns nil when the id contains non-alpha-numeric chars" do
+        expect(described_class.find_by_version(version:, form_id:)).to be_nil
+      end
+    end
+
+    context "when the version id contains non-numeric chars" do
+      let(:version) { "a" }
+
+      it "returns nil when the id contains non-alpha-numeric chars" do
+        expect(described_class.find_by_version(version:, form_id:)).to be_nil
+      end
+    end
+
+    context "when the form id is blank" do
+      let(:form_id) { "" }
+
+      it "returns nil when the id is blank" do
+        expect(described_class.find_by_version(version:, form_id:)).to be_nil
+      end
+    end
+
+    context "when the form does not exist" do
+      let(:form_id) { "99" }
+      let(:response_data) { nil }
+      let(:status) { 404 }
+
+      it "returns nil" do
+        expect(described_class.find_by_version(version:, form_id:)).to be_nil
+      end
+    end
+
+    context "when the version does not exist" do
+      let(:version) { 5 }
+      let(:response_data) { nil }
+      let(:status) { 404 }
+
+      it "returns nil" do
+        expect(described_class.find_by_version(version:, form_id:)).to be_nil
+      end
+    end
+
+    context "when given language makes correct request" do
+      let(:request_with_no_language_param) { ActiveResource::Request.new(:get, "/api/v3/forms/#{form_id}/versions/#{version}", req_headers) }
+      let(:request_with_language_param_cy) { ActiveResource::Request.new(:get, "/api/v3/forms/#{form_id}/versions/#{version}?language=cy", req_headers) }
+
+      before do
+        mock_response = ActiveResource::Response.new(response_data)
+        ActiveResource::HttpMock.respond_to(request_with_no_language_param => mock_response,
+                                            request_with_language_param_cy => mock_response)
+      end
+
+      it "given :en makes request without the language param" do
+        described_class.find_by_version(version:, form_id:, language: :en)
+        expect(ActiveResource::HttpMock.requests).to include request_with_no_language_param
+      end
+
+      it "given :cy makes request with the language param" do
+        described_class.find_by_version(version:, form_id:, language: :cy)
+        expect(ActiveResource::HttpMock.requests).to include request_with_language_param_cy
+      end
+    end
+  end
+
   describe ".find_with_mode" do
     before do
       ActiveResource::HttpMock.respond_to do |mock|

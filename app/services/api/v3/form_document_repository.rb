@@ -11,6 +11,18 @@ class Api::V3::FormDocumentRepository
       end
     end
 
+    def find_by_version(form_id:, version:, language: :en)
+      return nil unless form_id.to_s =~ /^[[:alnum:]]+$/
+      return nil unless version.to_s =~ /^[0-9]+$/
+
+      begin
+        form_document_json = Api::V3::FormDocumentResource.find_by_version(form_id, version, **options_for_language(language))
+        Api::V3::FormDocumentResource.new(form_document_json)
+      rescue ActiveResource::ResourceNotFound
+        nil
+      end
+    end
+
     def find_with_mode(form_id:, mode:, language: :en)
       find_by_tag(form_id:, tag: mode.tag, language:)
     end

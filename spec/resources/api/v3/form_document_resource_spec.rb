@@ -5,13 +5,13 @@ RSpec.describe Api::V3::FormDocumentResource do
 
   let(:req_headers) { { "Accept" => "application/json" } }
 
-  before do
-    ActiveResource::HttpMock.respond_to do |mock|
-      mock.get "/api/v3/forms/1/versions/live", req_headers, response_data, 200
-    end
-  end
-
   describe ".find_by_tag" do
+    before do
+      ActiveResource::HttpMock.respond_to do |mock|
+        mock.get "/api/v3/forms/1/versions/live", req_headers, response_data, 200
+      end
+    end
+
     it "gets a form document given a form id and document tag" do
       expect(described_class.find_by_tag(1, :live)).to be_truthy
     end
@@ -104,7 +104,65 @@ RSpec.describe Api::V3::FormDocumentResource do
     end
   end
 
+  describe ".find_by_version" do
+    before do
+      ActiveResource::HttpMock.respond_to do |mock|
+        mock.get "/api/v3/forms/1/versions/3", req_headers, response_data, 200
+      end
+    end
+
+    it "gets a form document given a form id and version number" do
+      expect(described_class.find_by_version(1, 3)).to be_truthy
+    end
+
+    it "returns a hash" do
+      form_document = described_class.find_by_version(1, 3)
+      expect(form_document).to be_a Hash
+      expect(form_document["steps"]).to all be_a Hash
+    end
+
+    it "raises an exception if the form does not exist" do
+      ActiveResource::HttpMock.respond_to do |mock|
+        mock.get "/api/v3/forms/99/versions/3", req_headers, nil, 404
+      end
+
+      expect {
+        described_class.find_by_version(99, 3)
+      }.to raise_error(ActiveResource::ResourceNotFound)
+    end
+
+    it "raises an exception if the version does not exist" do
+      ActiveResource::HttpMock.respond_to do |mock|
+        mock.get "/api/v3/forms/1/versions/5", req_headers, nil, 404
+      end
+
+      expect {
+        described_class.find_by_version(1, 5)
+      }.to raise_error(ActiveResource::ResourceNotFound)
+    end
+
+    context "when given options" do
+      let(:request_with_param) { ActiveResource::Request.new(:get, "/api/v3/forms/1/versions/3?another=1&param=value") }
+
+      before do
+        mock_response = ActiveResource::Response.new("{}")
+        ActiveResource::HttpMock.respond_to(request_with_param => mock_response)
+      end
+
+      it "adds params to the request" do
+        described_class.find_by_version(1, 3, param: :value, another: 1)
+        expect(ActiveResource::HttpMock.requests).to include request_with_param
+      end
+    end
+  end
+
   describe "#as_json" do
+    before do
+      ActiveResource::HttpMock.respond_to do |mock|
+        mock.get "/api/v3/forms/1/versions/live", req_headers, response_data, 200
+      end
+    end
+
     it "returns a hash of the form document's attributes as read from the API" do
       form_document = described_class.find_by_tag(1, :live)
       expect(form_document.as_json).to eq JSON.parse(response_data)
