@@ -1,0 +1,27 @@
+class Api::V3::FormDocumentRepository
+  class << self
+    def find_by_tag(form_id:, tag:, language: :en)
+      return nil unless form_id.to_s =~ /^[[:alnum:]]+$/
+
+      begin
+        form_document_json = Api::V3::FormDocumentResource.find_by_tag(form_id, tag, **options_for_language(language))
+        Api::V3::FormDocumentResource.new(form_document_json)
+      rescue ActiveResource::ResourceNotFound
+        nil
+      end
+    end
+
+    def find_with_mode(form_id:, mode:, language: :en)
+      find_by_tag(form_id:, tag: mode.tag, language:)
+    end
+
+  private
+
+    # Don't include English in the options hash as it's the default
+    def options_for_language(language)
+      return {} if language.blank? || language.to_sym == :en
+
+      { language: language.to_sym }
+    end
+  end
+end
