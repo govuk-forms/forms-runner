@@ -8,7 +8,8 @@ RSpec.describe Api::V3::FormDocumentResource do
   describe ".find_by_tag" do
     before do
       ActiveResource::HttpMock.respond_to do |mock|
-        mock.get "/api/v3/forms/1/versions/live", req_headers, response_data, 200
+        mock.get "/api/v3/forms/1/versions/live", req_headers, { version: 2 }.to_json, 200
+        mock.get "/api/v3/forms/1/versions/2", req_headers, response_data, 200
       end
     end
 
@@ -37,7 +38,8 @@ RSpec.describe Api::V3::FormDocumentResource do
 
       before do
         ActiveResource::HttpMock.respond_to do |mock|
-          mock.get "/api/v3/forms/1/versions/live", req_headers, response_data.to_json, 200
+          mock.get "/api/v3/forms/1/versions/live", req_headers, { version: 2 }.to_json, 200
+          mock.get "/api/v3/forms/1/versions/2", req_headers, response_data.to_json, 200
         end
       end
 
@@ -75,7 +77,8 @@ RSpec.describe Api::V3::FormDocumentResource do
 
       before do
         ActiveResource::HttpMock.respond_to do |mock|
-          mock.get "/api/v3/forms/1/versions/archived", req_headers, response_data.to_json, 200
+          mock.get "/api/v3/forms/1/versions/archived", req_headers, { version: 2 }.to_json, 200
+          mock.get "/api/v3/forms/1/versions/2", req_headers, response_data.to_json, 200
         end
       end
 
@@ -90,16 +93,19 @@ RSpec.describe Api::V3::FormDocumentResource do
     end
 
     context "when given options" do
-      let(:request_with_param) { ActiveResource::Request.new(:get, "/api/v3/forms/1/versions/live?another=1&param=value") }
+      let(:request_tag_with_param) { ActiveResource::Request.new(:get, "/api/v3/forms/1/versions/live?another=1&param=value") }
+      let(:request_version_with_param) { ActiveResource::Request.new(:get, "/api/v3/forms/1/versions/2?another=1&param=value") }
 
       before do
         mock_response = ActiveResource::Response.new("{}")
-        ActiveResource::HttpMock.respond_to(request_with_param => mock_response)
+        ActiveResource::HttpMock.respond_to(request_tag_with_param => ActiveResource::Response.new({ version: 2 }.to_json),
+                                            request_version_with_param => mock_response)
       end
 
       it "adds params to the request" do
         described_class.find_by_tag(1, :live, param: :value, another: 1)
-        expect(ActiveResource::HttpMock.requests).to include request_with_param
+        expect(ActiveResource::HttpMock.requests).to include request_tag_with_param
+        expect(ActiveResource::HttpMock.requests).to include request_version_with_param
       end
     end
   end
@@ -159,7 +165,8 @@ RSpec.describe Api::V3::FormDocumentResource do
   describe "#as_json" do
     before do
       ActiveResource::HttpMock.respond_to do |mock|
-        mock.get "/api/v3/forms/1/versions/live", req_headers, response_data, 200
+        mock.get "/api/v3/forms/1/versions/live", req_headers, { version: 2 }.to_json, 200
+        mock.get "/api/v3/forms/1/versions/2", req_headers, response_data, 200
       end
     end
 

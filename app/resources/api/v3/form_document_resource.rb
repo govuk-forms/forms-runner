@@ -9,11 +9,20 @@ class Api::V3::FormDocumentResource < ActiveResource::Base
 
   class << self
     def find_by_tag(form_id, tag, **options)
-      get("#{form_id}/versions/#{tag}", **options)
+      return draft_form_document(form_id, **options) if tag == :draft
+
+      latest_version = get("#{form_id}/versions/#{tag}", **options)["version"]
+      find_by_version(form_id, latest_version, **options)
     end
 
     def find_by_version(form_id, version, **options)
       get("#{form_id}/versions/#{version}", **options)
+    end
+
+  private
+
+    def draft_form_document(form_id, **options)
+      get("#{form_id}/versions/draft", **options)
     end
   end
 end
