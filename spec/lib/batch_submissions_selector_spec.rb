@@ -10,12 +10,12 @@ RSpec.describe BatchSubmissionsSelector do
 
     let(:form_document_with_batch_enabled) do
       build(:v2_form_document, delivery_configurations: [
-        build(:v2_delivery_configuration, :daily_email),
+        build(:delivery_configuration, :daily_email),
       ])
     end
     let(:form_document_with_batch_disabled) do
       build(:v2_form_document, delivery_configurations: [
-        build(:v2_delivery_configuration, :immediate_email),
+        build(:delivery_configuration, :immediate_email),
       ])
     end
 
@@ -136,12 +136,12 @@ RSpec.describe BatchSubmissionsSelector do
 
     let(:form_document_with_batch_enabled) do
       build(:v2_form_document, delivery_configurations: [
-        build(:v2_delivery_configuration, :weekly_email),
+        build(:delivery_configuration, :weekly_email),
       ])
     end
     let(:form_document_with_batch_disabled) do
       build(:v2_form_document, delivery_configurations: [
-        build(:v2_delivery_configuration, :immediate_email),
+        build(:delivery_configuration, :immediate_email),
       ])
     end
 

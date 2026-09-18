@@ -15,7 +15,7 @@ feature "Fill in and submit a form with a CSV submission", type: :feature do
           steps:,
           start_page: steps.first.id,
           send_copy_of_answers: "enabled",
-          delivery_configurations: [build(:v2_delivery_configuration, :immediate_email, formats: %w[csv])])
+          delivery_configurations: [build(:delivery_configuration, :immediate_email, formats: %w[csv])])
   end
   let(:reference) { Faker::Alphanumeric.alphanumeric(number: 8).upcase }
   let(:req_headers) { { "Accept" => "application/json" } }

@@ -24,7 +24,7 @@ FactoryBot.define do
     s3_bucket_region { nil }
     updated_at { Time.current.iso8601(3) }
     send_copy_of_answers { "disabled" }
-    delivery_configurations { [build(:v2_delivery_configuration, :immediate_email)] }
+    delivery_configurations { [build(:delivery_configuration, :immediate_email)] }
 
     trait :with_steps do
       transient do

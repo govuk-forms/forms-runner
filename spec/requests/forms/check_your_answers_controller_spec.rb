@@ -393,7 +393,7 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
               steps: steps_data,
               start_page: 1,
               delivery_configurations: [
-                build(:v2_delivery_configuration, :immediate_s3),
+                build(:delivery_configuration, :immediate_s3),
               ])
       end
       let(:mock_credentials) { { foo: "bar" } }
