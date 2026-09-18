@@ -1049,7 +1049,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
     end
 
     context "when the page is a an exit question" do
-      let(:exit_page) { build(:v2_exit_page, heading: "Exit page heading", markdown: "Exit page markdown") }
+      let(:exit_page) { build(:exit_page, heading: "Exit page heading", markdown: "Exit page markdown") }
       let(:first_step_in_form) do
         build(:selection_question_step,
               :with_exit_page,
@@ -1065,7 +1065,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
       end
 
       context "when step has more than one exit page" do
-        let(:exit_pages) { build_list(:v2_exit_page, 2) }
+        let(:exit_pages) { build_list(:exit_page, 2) }
         let(:first_step_in_form) do
           build(
             :selection_question_step,

@@ -497,7 +497,7 @@ RSpec.describe Step do
 
   describe "#has_exit_page_condition?" do
     context "when a routing condition has an exit page" do
-      let(:exit_page) { build(:v2_exit_page) }
+      let(:exit_page) { build(:exit_page) }
       let(:routing_conditions) { [build(:condition_resource), build(:condition_resource, :with_exit_page, exit_page:)] }
       let(:form_document_step) { build(:selection_question_step, :with_exit_page, routing_conditions:, exit_page:) }
 
@@ -526,7 +526,7 @@ RSpec.describe Step do
 
   describe "#exit_page_condition_matches?" do
     context "when a routing condition has an exit page" do
-      let(:exit_page) { build(:v2_exit_page) }
+      let(:exit_page) { build(:exit_page) }
       let(:routing_conditions) { [build(:condition_resource, answer_value: "No"), build(:condition_resource, :with_exit_page, answer_value: "Yes", exit_page:)] }
       let(:form_document_step) { build(:selection_question_step, :with_exit_page, routing_conditions:, exit_page:) }
 

@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe Forms::ExitPagesController, type: :request do
   let(:exit_page) { exit_pages.first }
-  let(:exit_pages) { build_list(:v2_exit_page, 2) }
+  let(:exit_pages) { build_list(:exit_page, 2) }
 
   let(:step_with_exit_pages) do
     build(

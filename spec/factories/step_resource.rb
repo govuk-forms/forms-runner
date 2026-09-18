@@ -84,7 +84,7 @@ FactoryBot.define do
 
         trait :with_exit_page do
           transient do
-            exit_page { build(:v2_exit_page) }
+            exit_page { build(:exit_page) }
           end
 
           exit_pages { [exit_page] }
