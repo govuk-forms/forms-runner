@@ -1,4 +1,4 @@
-class Api::V2::DeliveryConfigurationResource < ActiveResource::Base
+class Api::DeliveryConfigurationResource < ActiveResource::Base
   self.element_name = "delivery_configuration"
   self.site = Api::V2::FormDocumentResource.site
   self.prefix = Api::V2::FormDocumentResource.prefix_source
