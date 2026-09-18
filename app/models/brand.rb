@@ -54,7 +54,7 @@ class Brand
     end
 
     def fetch_brand(brand_id)
-      brand = Api::V2::BrandResource.find(brand_id)
+      brand = Api::BrandResource.find(brand_id)
       api_attributes(brand.attributes)
     rescue ActiveResource::ResourceNotFound
       NOT_FOUND

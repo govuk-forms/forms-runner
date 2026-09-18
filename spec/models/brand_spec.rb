@@ -116,7 +116,7 @@ RSpec.describe Brand, type: :model do
 
     context "when the API cannot be reached" do
       before do
-        allow(Api::V2::BrandResource).to receive(:find).and_raise(ActiveResource::TimeoutError.new("execution expired"))
+        allow(Api::BrandResource).to receive(:find).and_raise(ActiveResource::TimeoutError.new("execution expired"))
       end
 
       it "logs a warning and returns nil" do

@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe Api::V2::BrandResource do
+RSpec.describe Api::BrandResource do
   let(:req_headers) { { "Accept" => "application/json" } }
   let(:brand) { build :brand_resource }
   let(:brand_id) { "weatherfield" }
