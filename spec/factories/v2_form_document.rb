@@ -22,6 +22,7 @@ FactoryBot.define do
     s3_bucket_aws_account_id { nil }
     s3_bucket_name { nil }
     s3_bucket_region { nil }
+    version { nil }
     updated_at { Time.current.iso8601(3) }
     send_copy_of_answers { "disabled" }
     delivery_configurations { [build(:v2_delivery_configuration, :immediate_email)] }
@@ -75,6 +76,10 @@ FactoryBot.define do
 
     trait :with_brand_id do
       brand_id { nil }
+    end
+
+    trait :with_version do
+      version { 1234 }
     end
   end
 end
