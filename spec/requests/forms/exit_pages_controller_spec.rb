@@ -17,19 +17,19 @@ RSpec.describe Forms::ExitPagesController, type: :request do
       ],
       routing_conditions: [
         build(
-          :v2_condition,
+          :condition_resource,
           :with_exit_page,
           answer_value: "Option 1",
           exit_page: exit_pages.first,
         ),
         build(
-          :v2_condition,
+          :condition_resource,
           :with_exit_page,
           answer_value: "Go to exit page 2",
           exit_page: exit_pages.second,
         ),
         build(
-          :v2_condition,
+          :condition_resource,
           :skip_to_end,
           answer_value: "Skip to end",
         ),
@@ -194,7 +194,7 @@ RSpec.describe Forms::ExitPagesController, type: :request do
     end
 
     context "when the exit page is missing from the form document" do
-      let(:condition_with_exit_page) { build(:v2_condition, :with_exit_page, routing_page_id: 2, exit_page:) }
+      let(:condition_with_exit_page) { build(:condition_resource, :with_exit_page, routing_page_id: 2, exit_page:) }
       let(:step_without_exit_page) { build(:selection_question_step, routing_conditions: [condition_with_exit_page], id: 2, next_step_id: 3) }
       let(:step) { step_without_exit_page }
 
@@ -210,7 +210,7 @@ RSpec.describe Forms::ExitPagesController, type: :request do
       let(:exit_page_markdown) { Faker::Lorem.paragraph }
 
       let(:condition_with_exit_page) do
-        condition = build(:v2_condition, routing_page_id: 2, goto_page_id: nil, skip_to_end: nil, exit_page_id: nil, exit_page_heading:, exit_page_markdown:)
+        condition = build(:condition_resource, routing_page_id: 2, goto_page_id: nil, skip_to_end: nil, exit_page_id: nil, exit_page_heading:, exit_page_markdown:)
         condition
       end
 
@@ -243,7 +243,7 @@ RSpec.describe Forms::ExitPagesController, type: :request do
       let(:exit_page_markdown) { Faker::Lorem.paragraph }
 
       let(:condition_with_exit_page) do
-        condition = build(:v2_condition, routing_page_id: 2, goto_page_id: nil, skip_to_end: nil, exit_page_id: nil, exit_page_heading:, exit_page_markdown:)
+        condition = build(:condition_resource, routing_page_id: 2, goto_page_id: nil, skip_to_end: nil, exit_page_id: nil, exit_page_heading:, exit_page_markdown:)
         condition.attributes.delete(:exit_page_id)
         condition
       end

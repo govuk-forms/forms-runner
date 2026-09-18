@@ -91,7 +91,7 @@ FactoryBot.define do
 
           routing_conditions do
             [
-              build(:v2_condition, :with_exit_page, exit_page:),
+              build(:condition_resource, :with_exit_page, exit_page:),
             ]
           end
         end

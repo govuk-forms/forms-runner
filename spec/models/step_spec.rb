@@ -123,7 +123,7 @@ RSpec.describe Step do
     end
 
     context "with a default condition" do
-      let(:default_condition) { build(:v2_condition, :default) }
+      let(:default_condition) { build(:condition_resource, :default) }
       let(:routing_conditions) do
         [
           default_condition,
@@ -138,10 +138,10 @@ RSpec.describe Step do
     end
 
     context "with routing conditions" do
-      let(:condition) { build(:v2_condition, answer_value: "Option 2") }
-      let(:skip_to_end_condition) { build(:v2_condition, :skip_to_end, answer_value: "Option 3") }
-      let(:condition_with_exit_page) { build(:v2_condition, :with_exit_page, answer_value: "Option 4") }
-      let(:none_of_the_above_condition) { build(:v2_condition, answer_value: Question::Selection::NONE_OF_THE_ABOVE_VALUE) }
+      let(:condition) { build(:condition_resource, answer_value: "Option 2") }
+      let(:skip_to_end_condition) { build(:condition_resource, :skip_to_end, answer_value: "Option 3") }
+      let(:condition_with_exit_page) { build(:condition_resource, :with_exit_page, answer_value: "Option 4") }
+      let(:none_of_the_above_condition) { build(:condition_resource, answer_value: Question::Selection::NONE_OF_THE_ABOVE_VALUE) }
 
       let(:routing_conditions) do
         [
@@ -220,7 +220,7 @@ RSpec.describe Step do
     describe "single condition routing" do
       context "with a matching condition" do
         let(:selection) { "Yes" }
-        let(:routing_conditions) { [build(:v2_condition, answer_value: "Yes", goto_page_id: third_step_id)] }
+        let(:routing_conditions) { [build(:condition_resource, answer_value: "Yes", goto_page_id: third_step_id)] }
 
         it "returns the goto_page_id of the condition" do
           expect(step.next_step_slug_after_routing).to eq(third_step_id)
@@ -229,7 +229,7 @@ RSpec.describe Step do
 
       context "with a matching none_of_the_above condition" do
         let(:selection) { Question::Selection::NONE_OF_THE_ABOVE_VALUE }
-        let(:routing_conditions) { [build(:v2_condition, answer_value: "none_of_the_above", goto_page_id: third_step_id)] }
+        let(:routing_conditions) { [build(:condition_resource, answer_value: "none_of_the_above", goto_page_id: third_step_id)] }
 
         it "returns the goto_page_id of the condition" do
           expect(step.next_step_slug_after_routing).to eq(third_step_id)
@@ -238,7 +238,7 @@ RSpec.describe Step do
 
       context "with a non-matching condition" do
         let(:selection) { "No" }
-        let(:routing_conditions) { [build(:v2_condition, answer_value: "Yes", goto_page_id: third_step_id)] }
+        let(:routing_conditions) { [build(:condition_resource, answer_value: "Yes", goto_page_id: third_step_id)] }
 
         it "returns the next_step_slug" do
           expect(step.next_step_slug_after_routing).to eq(default_next_step_id)
@@ -247,7 +247,7 @@ RSpec.describe Step do
 
       context "with a non-selection question and a default condition" do
         let(:question) { instance_double(Question::Text, :with_answer) }
-        let(:routing_conditions) { [build(:v2_condition, answer_value: "", goto_page_id: third_step_id)] }
+        let(:routing_conditions) { [build(:condition_resource, answer_value: "", goto_page_id: third_step_id)] }
 
         it "returns the next_step_slug" do
           expect(step.next_step_slug_after_routing).to eq(third_step_id)
@@ -256,7 +256,7 @@ RSpec.describe Step do
 
       context "with a non-selection question and a match condition" do
         let(:question) { instance_double(Question::Text, :with_answer) }
-        let(:routing_conditions) { [build(:v2_condition, answer_value: "something", goto_page_id: third_step_id)] }
+        let(:routing_conditions) { [build(:condition_resource, answer_value: "something", goto_page_id: third_step_id)] }
 
         it "returns the next_step_slug" do
           expect(step.next_step_slug_after_routing).to eq(default_next_step_id)
@@ -268,7 +268,7 @@ RSpec.describe Step do
       context "with skip_to_end and no goto_page_id" do
         let(:routing_conditions) do
           [
-            build(:v2_condition, :skip_to_end, answer_value: "Yes"),
+            build(:condition_resource, :skip_to_end, answer_value: "Yes"),
           ]
         end
         let(:selection) { "Yes" }
@@ -281,7 +281,7 @@ RSpec.describe Step do
       context "with skip_to_end and goto_page_id" do
         let(:routing_conditions) do
           [
-            build(:v2_condition, answer_value: "Yes", goto_page_id: fourth_step_id, skip_to_end: true),
+            build(:condition_resource, answer_value: "Yes", goto_page_id: fourth_step_id, skip_to_end: true),
           ]
         end
         let(:selection) { "Yes" }
@@ -296,7 +296,7 @@ RSpec.describe Step do
       context "with exit_page_id" do
         let(:routing_conditions) do
           [
-            build(:v2_condition, :with_exit_page, answer_value: "Yes"),
+            build(:condition_resource, :with_exit_page, answer_value: "Yes"),
           ]
         end
         let(:selection) { "Yes" }
@@ -309,7 +309,7 @@ RSpec.describe Step do
       context "with exit_page_id and goto_page_id" do
         let(:routing_conditions) do
           [
-            build(:v2_condition, :with_exit_page, answer_value: "Yes", goto_page_id: fourth_step_id),
+            build(:condition_resource, :with_exit_page, answer_value: "Yes", goto_page_id: fourth_step_id),
           ]
         end
         let(:selection) { "Yes" }
@@ -323,10 +323,10 @@ RSpec.describe Step do
     context "with multiple conditions" do
       let(:routing_conditions) do
         [
-          build(:v2_condition, answer_value: "No", goto_page_id: first_step_id),
-          build(:v2_condition, answer_value: "Yes", goto_page_id: second_step_id),
-          build(:v2_condition, answer_value: "Maybe", goto_page_id: third_step_id),
-          build(:v2_condition, :with_exit_page, answer_value: "Can't decide"),
+          build(:condition_resource, answer_value: "No", goto_page_id: first_step_id),
+          build(:condition_resource, answer_value: "Yes", goto_page_id: second_step_id),
+          build(:condition_resource, answer_value: "Maybe", goto_page_id: third_step_id),
+          build(:condition_resource, :with_exit_page, answer_value: "Can't decide"),
         ]
       end
 
@@ -375,9 +375,9 @@ RSpec.describe Step do
       context "with multiple conditions and default matches" do
         let(:routing_conditions) do
           [
-            build(:v2_condition, answer_value: "No", goto_page_id: first_step_id),
-            build(:v2_condition, answer_value: "Yes", goto_page_id: second_step_id),
-            build(:v2_condition, answer_value: nil, goto_page_id: third_step_id),
+            build(:condition_resource, answer_value: "No", goto_page_id: first_step_id),
+            build(:condition_resource, answer_value: "Yes", goto_page_id: second_step_id),
+            build(:condition_resource, answer_value: nil, goto_page_id: third_step_id),
           ]
         end
         let(:selection) { "Something else" }
@@ -390,7 +390,7 @@ RSpec.describe Step do
       context "with nil selection" do
         let(:routing_conditions) do
           [
-            build(:v2_condition, answer_value: "Yes", goto_page_id: first_step_id),
+            build(:condition_resource, answer_value: "Yes", goto_page_id: first_step_id),
           ]
         end
         let(:selection) { nil }
@@ -498,7 +498,7 @@ RSpec.describe Step do
   describe "#has_exit_page_condition?" do
     context "when a routing condition has an exit page" do
       let(:exit_page) { build(:v2_exit_page) }
-      let(:routing_conditions) { [build(:v2_condition), build(:v2_condition, :with_exit_page, exit_page:)] }
+      let(:routing_conditions) { [build(:condition_resource), build(:condition_resource, :with_exit_page, exit_page:)] }
       let(:form_document_step) { build(:selection_question_step, :with_exit_page, routing_conditions:, exit_page:) }
 
       it "returns true" do
@@ -507,7 +507,7 @@ RSpec.describe Step do
     end
 
     context "when no routing condition has an exit page" do
-      let(:routing_conditions) { [build(:v2_condition), build(:v2_condition)] }
+      let(:routing_conditions) { [build(:condition_resource), build(:condition_resource)] }
       let(:form_document_step) { build(:selection_question_step, routing_conditions:) }
 
       it "returns false" do
@@ -527,7 +527,7 @@ RSpec.describe Step do
   describe "#exit_page_condition_matches?" do
     context "when a routing condition has an exit page" do
       let(:exit_page) { build(:v2_exit_page) }
-      let(:routing_conditions) { [build(:v2_condition, answer_value: "No"), build(:v2_condition, :with_exit_page, answer_value: "Yes", exit_page:)] }
+      let(:routing_conditions) { [build(:condition_resource, answer_value: "No"), build(:condition_resource, :with_exit_page, answer_value: "Yes", exit_page:)] }
       let(:form_document_step) { build(:selection_question_step, :with_exit_page, routing_conditions:, exit_page:) }
 
       context "when condition matches" do
@@ -550,7 +550,7 @@ RSpec.describe Step do
     end
 
     context "when no condition has an exit page" do
-      let(:routing_conditions) { [build(:v2_condition, answer_value: "No"), build(:v2_condition, answer_value: "Yes")] }
+      let(:routing_conditions) { [build(:condition_resource, answer_value: "No"), build(:condition_resource, answer_value: "Yes")] }
       let(:form_document_step) { build(:selection_question_step, routing_conditions:) }
 
       context "when condition matches" do

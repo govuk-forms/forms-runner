@@ -1,5 +1,5 @@
 FactoryBot.define do
-  factory :v2_condition, class: ActiveResource::Base do
+  factory :condition_resource, class: ActiveResource::Base do
     sequence(:id) { |n| n }
 
     routing_page_id { Faker::Alphanumeric.alphanumeric(number: 8) }
