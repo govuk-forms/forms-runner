@@ -6,7 +6,12 @@ require "opentelemetry-exporter-otlp-metrics"
 return unless ENV["ENABLE_OTEL"] == "true"
 
 OpenTelemetry::SDK.configure do |c|
-  instrumentation_config = { "OpenTelemetry::Instrumentation::Rack" => { untraced_endpoints: ["/up"] } }
+  instrumentation_config = {
+    "OpenTelemetry::Instrumentation::Rack" => { untraced_endpoints: ["/up"] },
+    # Name job spans by class name (e.g. "SendSubmissionJob process") rather than queue
+    # name (e.g. "submissions process") so traces are identifiable in X-Ray.
+    "OpenTelemetry::Instrumentation::ActiveJob" => { span_naming: :job_class },
+  }
   c.use_all(instrumentation_config)
 
   if ENV["OTEL_PROPAGATORS"] == "xray"
