@@ -37,7 +37,7 @@ RSpec.describe ErrorsController, type: :request do
   describe "Submission error" do
     let(:form_data) do
       build(
-        :v2_form_document,
+        :form_document,
         :with_support,
         id: 2,
         name: "Form name",
@@ -45,7 +45,7 @@ RSpec.describe ErrorsController, type: :request do
         submission_email: "submission@email.com",
         start_page: 1,
         steps: [
-          build(:v2_question_step, id: 1, answer_type: "text", answer_settings: { input_type: "single_line" }),
+          build(:question_step, id: 1, answer_type: "text", answer_settings: { input_type: "single_line" }),
         ],
       )
     end

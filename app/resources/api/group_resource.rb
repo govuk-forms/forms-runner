@@ -1,4 +1,4 @@
-class Api::V2::GroupResource < ActiveResource::Base
+class Api::GroupResource < ActiveResource::Base
   self.element_name = "group"
   self.site = Settings.forms_api.base_url
   self.prefix = "/api/v2/forms/:form_id/"

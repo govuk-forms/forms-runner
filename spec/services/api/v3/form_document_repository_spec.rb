@@ -181,7 +181,7 @@ RSpec.describe Api::V3::FormDocumentRepository do
     it "returns a FormDocumentResource model" do
       form_snapshot = described_class.find_with_mode(form_id: 1, mode: Mode.new("preview-draft"))
       expect(form_snapshot).to be_a Api::V3::FormDocumentResource
-      expect(form_snapshot.steps).to all be_a Api::V2::StepResource
+      expect(form_snapshot.steps).to all be_a Api::StepResource
     end
 
     context "when the form document is not found" do

@@ -1,5 +1,5 @@
 FactoryBot.define do
-  factory :v2_condition, class: ActiveResource::Base do
+  factory :condition_resource, class: ActiveResource::Base do
     sequence(:id) { |n| n }
 
     routing_page_id { Faker::Alphanumeric.alphanumeric(number: 8) }
@@ -27,7 +27,7 @@ FactoryBot.define do
 
     trait :with_exit_page do
       transient do
-        exit_page { build(:v2_exit_page) }
+        exit_page { build(:exit_page) }
       end
 
       goto_page_id { nil }

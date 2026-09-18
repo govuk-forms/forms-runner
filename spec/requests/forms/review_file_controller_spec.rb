@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe Forms::ReviewFileController, type: :request do
   let(:form_data) do
-    build(:v2_form_document, :with_support, :live,
+    build(:form_document, :with_support, :live,
           form_id: 1,
           start_page: 1,
           privacy_policy_url: "http://www.example.gov.uk/privacy_policy",
@@ -11,16 +11,16 @@ RSpec.describe Forms::ReviewFileController, type: :request do
           steps: steps_data)
   end
 
-  let(:previous_step_in_form) { build :v2_question_step, :with_text_settings, id: 1, next_step_id: 2 }
+  let(:previous_step_in_form) { build :question_step, :with_text_settings, id: 1, next_step_id: 2 }
 
   let(:file_upload_step) do
-    build :v2_question_step,
+    build :question_step,
           id: 2,
           next_step_id: 3,
           answer_type: "file"
   end
 
-  let(:text_question_step) { build :v2_question_step, :with_text_settings, id: 3 }
+  let(:text_question_step) { build :question_step, :with_text_settings, id: 3 }
 
   let(:steps_data) { [previous_step_in_form, file_upload_step, text_question_step] }
 

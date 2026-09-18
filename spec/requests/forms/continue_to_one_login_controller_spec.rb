@@ -1,12 +1,12 @@
 require "rails_helper"
 
 RSpec.describe Forms::ContinueToOneLoginController do
-  let(:form) { build :v2_form_document, steps:, start_page: 1, available_languages: }
+  let(:form) { build :form_document, steps:, start_page: 1, available_languages: }
 
   let(:steps) do
     [
-      build(:v2_question_step, :with_text_settings, id: 1, next_step_id: 2),
-      build(:v2_question_step, :with_text_settings, id: 2),
+      build(:question_step, :with_text_settings, id: 1, next_step_id: 2),
+      build(:question_step, :with_text_settings, id: 2),
     ]
   end
 
@@ -54,7 +54,7 @@ RSpec.describe Forms::ContinueToOneLoginController do
     end
 
     context "when the form has copy of answers enabled" do
-      let(:form) { build :v2_form_document, steps:, start_page: 1, available_languages:, send_copy_of_answers: "enabled" }
+      let(:form) { build :form_document, steps:, start_page: 1, available_languages:, send_copy_of_answers: "enabled" }
 
       it "returns http success" do
         expect(response).to have_http_status(:ok)

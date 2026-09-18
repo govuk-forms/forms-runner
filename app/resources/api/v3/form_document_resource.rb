@@ -4,8 +4,8 @@ class Api::V3::FormDocumentResource < ActiveResource::Base
   self.prefix = "/api/v3/"
   self.include_format_in_path = false
 
-  has_many :steps, class_name: "Api::V2::StepResource"
-  has_many :delivery_configurations, class_name: "Api::V2::DeliveryConfigurationResource"
+  has_many :steps, class_name: "Api::StepResource"
+  has_many :delivery_configurations, class_name: "Api::DeliveryConfigurationResource"
 
   class << self
     def find_by_tag(form_id, tag, **options)

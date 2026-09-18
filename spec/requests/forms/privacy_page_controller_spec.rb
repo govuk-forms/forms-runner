@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe Forms::PrivacyPageController, type: :request do
   let(:form_data) do
-    build(:v2_form_document, :with_support,
+    build(:form_document, :with_support,
           id: 2,
           start_page: 1,
           privacy_policy_url: "http://www.example.gov.uk/privacy_policy",
@@ -13,7 +13,7 @@ RSpec.describe Forms::PrivacyPageController, type: :request do
 
   let(:steps_data) do
     [
-      build(:v2_question_step,
+      build(:question_step,
             id: 1,
             position: 1,
             next_step_id: 2,
@@ -21,7 +21,7 @@ RSpec.describe Forms::PrivacyPageController, type: :request do
             answer_type: "date",
             is_optional: nil,
             question_text: "Question one"),
-      build(:v2_question_step,
+      build(:question_step,
             id: 2,
             position: 2,
             type: "question",

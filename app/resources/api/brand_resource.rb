@@ -1,4 +1,4 @@
-class Api::V2::BrandResource < ActiveResource::Base
+class Api::BrandResource < ActiveResource::Base
   self.element_name = "brand"
   self.site = Settings.forms_api.base_url
   self.prefix = "/api/v2/"

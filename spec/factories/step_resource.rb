@@ -1,5 +1,5 @@
 FactoryBot.define do
-  factory :v2_step, class: Api::V2::StepResource do
+  factory :step_resource, class: Api::StepResource do
     id { Faker::Alphanumeric.alphanumeric(number: 8) }
 
     sequence(:position) { |n| n }
@@ -11,7 +11,7 @@ FactoryBot.define do
     type { nil }
     data { nil }
 
-    factory :v2_question_step do
+    factory :question_step do
       type { "question" }
 
       transient do
@@ -51,7 +51,7 @@ FactoryBot.define do
         guidance_markdown { "## List of items \n\n\n #{Faker::Markdown.ordered_list}" }
       end
 
-      factory :v2_selection_question_step do
+      factory :selection_question_step do
         answer_type { "selection" }
         answer_settings do
           if none_of_the_above_question
@@ -84,14 +84,14 @@ FactoryBot.define do
 
         trait :with_exit_page do
           transient do
-            exit_page { build(:v2_exit_page) }
+            exit_page { build(:exit_page) }
           end
 
           exit_pages { [exit_page] }
 
           routing_conditions do
             [
-              build(:v2_condition, :with_exit_page, exit_page:),
+              build(:condition_resource, :with_exit_page, exit_page:),
             ]
           end
         end

@@ -3,7 +3,7 @@ require "rails_helper"
 RSpec.describe Form, type: :model do
   subject(:form) { described_class.new(form_document) }
 
-  let(:form_document) { build :v2_form_document }
+  let(:form_document) { build :form_document }
   let(:payment_url) { nil }
   let(:language) { "en" }
   let(:available_languages) { [] }
@@ -13,7 +13,7 @@ RSpec.describe Form, type: :model do
   end
 
   describe "#payment_url_with_reference" do
-    let(:form_document) { build :v2_form_document, payment_url: }
+    let(:form_document) { build :form_document, payment_url: }
     let(:reference) { SecureRandom.base58(8).upcase }
 
     context "when there is a payment_url" do
@@ -35,7 +35,7 @@ RSpec.describe Form, type: :model do
 
   describe "#support_details" do
     let(:form_document) do
-      build :v2_form_document,
+      build :form_document,
             support_email: "help@example.gov.uk",
             support_phone: "0203 222 2222",
             support_url: "https://example.gov.uk/help",
@@ -54,7 +54,7 @@ RSpec.describe Form, type: :model do
   end
 
   describe "#language" do
-    let(:form_document) { build :v2_form_document, language: }
+    let(:form_document) { build :form_document, language: }
 
     context "when the form is initialised with \"en\" attribute language" do
       let(:language) { "en" }
@@ -131,7 +131,7 @@ RSpec.describe Form, type: :model do
     end
 
     context "when the form has an available_languages field" do
-      let(:form_document) { build :v2_form_document, available_languages: }
+      let(:form_document) { build :form_document, available_languages: }
 
       context "when the available_languages field is empty" do
         let(:available_languages) { [] }
@@ -161,7 +161,7 @@ RSpec.describe Form, type: :model do
 
   describe "#copy_of_answers_enabled?" do
     context "when send_copy_of_answers is \"enabled\"" do
-      let(:form_document) { build :v2_form_document, send_copy_of_answers: "enabled" }
+      let(:form_document) { build :form_document, send_copy_of_answers: "enabled" }
 
       it "returns true" do
         expect(form.copy_of_answers_enabled?).to be true
@@ -179,7 +179,7 @@ RSpec.describe Form, type: :model do
     end
 
     context "when send_copy_of_answers is \"disabled\"" do
-      let(:form_document) { build :v2_form_document, send_copy_of_answers: "disabled" }
+      let(:form_document) { build :form_document, send_copy_of_answers: "disabled" }
 
       it "returns false" do
         expect(form.copy_of_answers_enabled?).to be false
@@ -187,7 +187,7 @@ RSpec.describe Form, type: :model do
     end
 
     context "when send_copy_of_answers is not present on the form document" do
-      let(:form_document) { build :v2_form_document, send_copy_of_answers: nil }
+      let(:form_document) { build :form_document, send_copy_of_answers: nil }
 
       it "returns false" do
         expect(form.copy_of_answers_enabled?).to be false
@@ -204,7 +204,7 @@ RSpec.describe Form, type: :model do
   end
 
   describe "#has_custom_branding?" do
-    let(:form_document) { build :v2_form_document }
+    let(:form_document) { build :form_document }
 
     context "when the form document does not contain a brand ID" do
       it "returns false" do
@@ -218,7 +218,7 @@ RSpec.describe Form, type: :model do
     end
 
     context "when the form document has an empty brand ID" do
-      let(:form_document) { build :v2_form_document, :with_brand_id }
+      let(:form_document) { build :form_document, :with_brand_id }
 
       it "returns false" do
         expect(form.has_custom_branding?).to be false
@@ -226,7 +226,7 @@ RSpec.describe Form, type: :model do
     end
 
     context "when the form document has a brand ID which is not known" do
-      let(:form_document) { build :v2_form_document, :with_brand_id, brand_id: "midsomer" }
+      let(:form_document) { build :form_document, :with_brand_id, brand_id: "midsomer" }
 
       before do
         allow(Brand).to receive(:find).with("midsomer").and_return(nil)
@@ -238,7 +238,7 @@ RSpec.describe Form, type: :model do
     end
 
     context "when the form document has a brand ID which is known" do
-      let(:form_document) { build :v2_form_document, brand_id: "weatherfield" }
+      let(:form_document) { build :form_document, brand_id: "weatherfield" }
 
       before do
         allow(Brand).to receive(:find).with("weatherfield").and_return(build(:brand))
@@ -251,7 +251,7 @@ RSpec.describe Form, type: :model do
   end
 
   describe "#branding" do
-    let(:form_document) { build :v2_form_document }
+    let(:form_document) { build :form_document }
 
     context "when the form document does not contain a brand ID" do
       it "returns nil" do
@@ -260,7 +260,7 @@ RSpec.describe Form, type: :model do
     end
 
     context "when the form document has an empty brand ID" do
-      let(:form_document) { build :v2_form_document, :with_brand_id }
+      let(:form_document) { build :form_document, :with_brand_id }
 
       it "returns nil" do
         expect(form.branding).to be_nil
@@ -268,7 +268,7 @@ RSpec.describe Form, type: :model do
     end
 
     context "when the form document has a brand ID which is not known" do
-      let(:form_document) { build :v2_form_document, :with_brand_id, brand_id: "midsomer" }
+      let(:form_document) { build :form_document, :with_brand_id, brand_id: "midsomer" }
 
       before do
         allow(Brand).to receive(:find).with("midsomer").and_return(nil)
@@ -281,7 +281,7 @@ RSpec.describe Form, type: :model do
 
     context "when the form document has a brand ID which is known" do
       let(:brand) { build :brand }
-      let(:form_document) { build :v2_form_document, brand_id: "weatherfield" }
+      let(:form_document) { build :form_document, brand_id: "weatherfield" }
 
       before do
         allow(Brand).to receive(:find).with("weatherfield").and_return(brand)
@@ -300,7 +300,7 @@ RSpec.describe Form, type: :model do
   end
 
   describe "#document_json" do
-    let(:form_document) { build :v2_form_document, :live, :s3_submissions_enabled }
+    let(:form_document) { build :form_document, :live, :s3_submissions_enabled }
 
     it "returns the form document as JSON" do
       expect(form.document_json).to eq(form_document.as_json)

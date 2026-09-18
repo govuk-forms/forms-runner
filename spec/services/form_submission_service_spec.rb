@@ -13,7 +13,7 @@ RSpec.describe FormSubmissionService, :capture_logging do
 
   let(:form_document) do
     build(
-      :v2_form_document,
+      :form_document,
       form_id: 1,
       name: "Form 1",
       what_happens_next_markdown:,
@@ -32,7 +32,7 @@ RSpec.describe FormSubmissionService, :capture_logging do
 
   let(:welsh_form_document) do
     build(
-      :v2_form_document,
+      :form_document,
       form_id: 1,
       name: "Welsh Form 1",
       what_happens_next_markdown:,
@@ -48,7 +48,7 @@ RSpec.describe FormSubmissionService, :capture_logging do
   end
   let(:welsh_document_json) { welsh_form_document.as_json }
 
-  let(:steps) { [build(:v2_question_step, id: 2, answer_type: "text")] }
+  let(:steps) { [build(:question_step, id: 2, answer_type: "text")] }
   let(:what_happens_next_markdown) { "We usually respond to applications within 10 working days." }
   let(:support_email) { Faker::Internet.email(domain: "example.gov.uk") }
   let(:support_phone) { Faker::Lorem.paragraph(sentence_count: 2, supplemental: true, random_sentences_to_add: 4) }
@@ -56,7 +56,7 @@ RSpec.describe FormSubmissionService, :capture_logging do
   let(:support_url_text) { Faker::Lorem.sentence(word_count: 1, random_words_to_add: 4) }
   let(:payment_url) { nil }
   let(:submission_email) { "testing@gov.uk" }
-  let(:delivery_configurations) { [build(:v2_delivery_configuration, :immediate_email)] }
+  let(:delivery_configurations) { [build(:delivery_configuration, :immediate_email)] }
 
   let(:reference) { Faker::Alphanumeric.alphanumeric(number: 8).upcase }
 
@@ -124,7 +124,7 @@ RSpec.describe FormSubmissionService, :capture_logging do
 
     describe "submitting the form to the processing team" do
       context "when the submission type is s3" do
-        let(:delivery_configurations) { [build(:v2_delivery_configuration, :immediate_s3, formats: %w[csv])] }
+        let(:delivery_configurations) { [build(:delivery_configuration, :immediate_s3, formats: %w[csv])] }
 
         it "enqueues a job to send the submission to S3" do
           assert_enqueued_with(job: SendS3SubmissionJob) do
@@ -193,7 +193,7 @@ RSpec.describe FormSubmissionService, :capture_logging do
       end
 
       context "when the submission type is email" do
-        let(:delivery_configurations) { [build(:v2_delivery_configuration, :immediate_email, formats: %w[json])] }
+        let(:delivery_configurations) { [build(:delivery_configuration, :immediate_email, formats: %w[json])] }
 
         let(:aws_ses_submission_service_spy) { instance_double(SubmissionService) }
         let(:mail_message_id) { "1234" }
@@ -288,9 +288,9 @@ RSpec.describe FormSubmissionService, :capture_logging do
         let(:email_confirmation_input) { build :email_confirmation_input }
         let(:delivery_configurations) do
           [
-            build(:v2_delivery_configuration, :immediate_email),
-            build(:v2_delivery_configuration, :immediate_s3),
-            build(:v2_delivery_configuration, :daily_email), # will be ignored
+            build(:delivery_configuration, :immediate_email),
+            build(:delivery_configuration, :immediate_s3),
+            build(:delivery_configuration, :daily_email), # will be ignored
           ]
         end
 
@@ -359,7 +359,7 @@ RSpec.describe FormSubmissionService, :capture_logging do
       end
 
       context "when the form has no immediate delivery configurations" do
-        let(:delivery_configurations) { [build(:v2_delivery_configuration, :daily_email)] }
+        let(:delivery_configurations) { [build(:delivery_configuration, :daily_email)] }
 
         context "when the mode is live" do
           it "raises an error" do

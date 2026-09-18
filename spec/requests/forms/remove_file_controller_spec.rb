@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe Forms::RemoveFileController, type: :request do
   let(:form_document) do
-    build(:v2_form_document, :with_support, :live,
+    build(:form_document, :with_support, :live,
           form_id: 1,
           start_page: 1,
           privacy_policy_url: "http://www.example.gov.uk/privacy_policy",
@@ -12,14 +12,14 @@ RSpec.describe Forms::RemoveFileController, type: :request do
   end
 
   let(:file_upload_step) do
-    build :v2_question_step,
+    build :question_step,
           id: 1,
           next_step_id: 2,
           answer_type: "file"
   end
 
   let(:text_question_step) do
-    build :v2_question_step, :with_text_settings,
+    build :question_step, :with_text_settings,
           id: 2
   end
 

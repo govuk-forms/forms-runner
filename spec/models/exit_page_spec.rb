@@ -19,7 +19,7 @@ RSpec.describe ExitPage do
 
   describe ".from_form_document" do
     it "creates an exit page from a form document object" do
-      form_document_exit_page = build(:v2_exit_page)
+      form_document_exit_page = build(:exit_page)
       exit_page = described_class.from_form_document(form_document_exit_page)
 
       expect(exit_page).to be_an described_class
@@ -34,7 +34,7 @@ RSpec.describe ExitPage do
   describe "#==" do
     context "when other exit page was created from the same form document exit page" do
       it "returns true" do
-        form_document_exit_page = build(:v2_exit_page)
+        form_document_exit_page = build(:exit_page)
         exit_page = described_class.from_form_document(form_document_exit_page)
         other_exit_page = described_class.from_form_document(form_document_exit_page)
 
@@ -44,9 +44,9 @@ RSpec.describe ExitPage do
 
     context "when other exit page was created from a different form document exit page" do
       it "returns false" do
-        form_document_exit_page = build(:v2_exit_page)
+        form_document_exit_page = build(:exit_page)
         exit_page = described_class.from_form_document(form_document_exit_page)
-        other_form_document_exit_page = build(:v2_exit_page)
+        other_form_document_exit_page = build(:exit_page)
         other_exit_page = described_class.from_form_document(other_form_document_exit_page)
 
         expect(exit_page == other_exit_page).to be false

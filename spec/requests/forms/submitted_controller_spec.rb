@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe Forms::SubmittedController, type: :request do
   let(:form_data) do
-    build(:v2_form_document, :with_support,
+    build(:form_document, :with_support,
           form_id: 2,
           start_page: 1,
           privacy_policy_url: "http://www.example.gov.uk/privacy_policy",
@@ -13,14 +13,14 @@ RSpec.describe Forms::SubmittedController, type: :request do
 
   let(:steps_data) do
     [
-      build(:v2_question_step,
+      build(:question_step,
             id: 1,
             position: 1,
             question_text: "Question one",
             answer_type: "date",
             next_step_id: 2,
             is_optional: nil),
-      build(:v2_question_step,
+      build(:question_step,
             id: 2,
             position: 2,
             question_text: "Question two",

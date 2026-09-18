@@ -1,4 +1,4 @@
-class Api::V2::StepResource < ActiveResource::Base
+class Api::StepResource < ActiveResource::Base
   self.element_name = "step"
   self.site = Api::V2::FormDocumentResource.site
   self.prefix = Api::V2::FormDocumentResource.prefix_source
