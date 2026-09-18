@@ -13,7 +13,7 @@ RSpec.describe Forms::SelectionNoneOfTheAboveController, type: :request do
   let(:selection_options) { Array.new(31).map { |i| { name: "Option #{i}", value: "Option #{i}" } } }
   let(:none_of_the_above_question_text) { "Give another answer" }
   let(:selection_question_step) do
-    build(:v2_selection_question_step,
+    build(:selection_question_step,
           :with_none_of_the_above_question,
           id: 2,
           next_step_id: final_step.id,
@@ -83,7 +83,7 @@ RSpec.describe Forms::SelectionNoneOfTheAboveController, type: :request do
     context "when the step is a selection question" do
       context "when the selection question does not have a none of the above question" do
         let(:selection_question_step) do
-          build(:v2_selection_question_step,
+          build(:selection_question_step,
                 selection_options:,
                 id: 2,
                 next_step_id: final_step.id)

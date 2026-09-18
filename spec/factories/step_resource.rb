@@ -51,7 +51,7 @@ FactoryBot.define do
         guidance_markdown { "## List of items \n\n\n #{Faker::Markdown.ordered_list}" }
       end
 
-      factory :v2_selection_question_step do
+      factory :selection_question_step do
         answer_type { "selection" }
         answer_settings do
           if none_of_the_above_question

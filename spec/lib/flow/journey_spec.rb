@@ -21,7 +21,7 @@ RSpec.describe Flow::Journey do
   end
 
   let(:first_step) do
-    build :v2_selection_question_step,
+    build :selection_question_step,
           id: first_step_id,
           next_step_id: second_step_id,
           routing_conditions: [DataStruct.new(id: 1, routing_page_id: first_step_id, check_page_id: first_step_id, goto_page_id: third_step_id, answer_value: "Option 1", validation_errors:)]
@@ -208,7 +208,7 @@ RSpec.describe Flow::Journey do
         end
 
         let(:second_step) do
-          build :v2_selection_question_step,
+          build :selection_question_step,
                 id: second_step_id,
                 next_step_id: third_step_id,
                 routing_conditions: [DataStruct.new(id: 1, routing_page_id: second_step_id, check_page_id: second_step_id, goto_page_id: first_step_id, answer_value: "Option 1", validation_errors:)],

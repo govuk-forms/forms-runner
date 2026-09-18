@@ -32,7 +32,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
   end
 
   let(:step_with_routing) do
-    build :v2_selection_question_step,
+    build :selection_question_step,
           id: first_step_id,
           next_step_id: 2,
           routing_conditions: [build(:v2_condition, id: 1, routing_page_id: 1, check_page_id: 1, goto_page_id: 3, answer_value: "Option 1", validation_errors:)],
@@ -329,7 +329,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
 
         context "when the route is a secondary skip" do
           let(:page_with_secondary_skip) do
-            build :v2_selection_question_step,
+            build :selection_question_step,
                   id: 4,
                   next_step_id: nil,
                   skip_to_end: true,
@@ -560,7 +560,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
 
         context "when the route is a secondary skip" do
           let(:page_with_secondary_skip) do
-            build :v2_selection_question_step,
+            build :selection_question_step,
                   id: 4,
                   next_step_id: nil,
                   skip_to_end: true,
@@ -989,7 +989,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
 
     context "when the page is a selection question with a none of the above question" do
       let(:first_step_in_form) do
-        build(:v2_selection_question_step,
+        build(:selection_question_step,
               :with_none_of_the_above_question,
               id: 1,
               next_step_id: 2,
@@ -1051,7 +1051,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
     context "when the page is a an exit question" do
       let(:exit_page) { build(:v2_exit_page, heading: "Exit page heading", markdown: "Exit page markdown") }
       let(:first_step_in_form) do
-        build(:v2_selection_question_step,
+        build(:selection_question_step,
               :with_exit_page,
               id: 1,
               next_step_id: 2,
@@ -1068,7 +1068,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
         let(:exit_pages) { build_list(:v2_exit_page, 2) }
         let(:first_step_in_form) do
           build(
-            :v2_selection_question_step,
+            :selection_question_step,
             :with_exit_page,
             id: 1,
             next_step_id: 2,
@@ -1114,7 +1114,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
           )
         end
         let(:first_step_in_form) do
-          build(:v2_selection_question_step,
+          build(:selection_question_step,
                 id: 1,
                 next_step_id: 2,
                 is_optional: false,

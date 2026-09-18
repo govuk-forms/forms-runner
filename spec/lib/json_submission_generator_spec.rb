@@ -11,7 +11,7 @@ RSpec.describe JsonSubmissionGenerator do
   let(:name_step) { build :step, form_document_step: build(:question_step, answer_type: "name"), question: name_question }
   let(:file_step) { build :step, form_document_step: build(:question_step, answer_type: "file"), question: file_question }
   let(:address_step) { build :step, form_document_step: build(:question_step, :with_address_settings), question: address_question }
-  let(:selection_step) { build :step, form_document_step: build(:v2_selection_question_step), question: selection_question }
+  let(:selection_step) { build :step, form_document_step: build(:selection_question_step), question: selection_question }
   let(:all_steps) { [text_step, name_step, file_step, address_step, selection_step] }
   let(:submission_reference) { Faker::Alphanumeric.alphanumeric(number: 8).upcase }
   let(:language) { nil }
