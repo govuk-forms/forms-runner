@@ -1,5 +1,5 @@
 FactoryBot.define do
-  factory :v2_brand, class: Api::V2::BrandResource do
+  factory :brand_resource, class: Api::V2::BrandResource do
     name { "Weatherfield Borough Council" }
     slug { "weatherfield" }
     header_background_colour { "#ffffff" }
