@@ -48,7 +48,7 @@ RSpec.describe FormSubmissionService, :capture_logging do
   end
   let(:welsh_document_json) { welsh_form_document.as_json }
 
-  let(:steps) { [build(:v2_question_step, id: 2, answer_type: "text")] }
+  let(:steps) { [build(:question_step, id: 2, answer_type: "text")] }
   let(:what_happens_next_markdown) { "We usually respond to applications within 10 working days." }
   let(:support_email) { Faker::Internet.email(domain: "example.gov.uk") }
   let(:support_phone) { Faker::Lorem.paragraph(sentence_count: 2, supplemental: true, random_sentences_to_add: 4) }

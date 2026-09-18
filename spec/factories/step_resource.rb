@@ -11,7 +11,7 @@ FactoryBot.define do
     type { nil }
     data { nil }
 
-    factory :v2_question_step do
+    factory :question_step do
       type { "question" }
 
       transient do

@@ -168,16 +168,16 @@ RSpec.describe Submission, type: :model do
     let(:form_document) do
       build(:v2_form_document,
             steps: [
-              build(:v2_question_step, :with_text_settings, question_text: "What is your favourite colour?", id: "q1", next_step_id: "q2"),
-              build(:v2_question_step, :with_name_settings, question_text: "What is your name?", id: "q2"),
+              build(:question_step, :with_text_settings, question_text: "What is your favourite colour?", id: "q1", next_step_id: "q2"),
+              build(:question_step, :with_name_settings, question_text: "What is your name?", id: "q2"),
             ],
             start_page: "q1")
     end
     let(:welsh_form_document) do
       build(:v2_form_document,
             steps: [
-              build(:v2_question_step, :with_text_settings, question_text: "Beth yw eich hoff liw?", id: "q1", next_step_id: "q2"),
-              build(:v2_question_step, :with_name_settings, question_text: "Beth yw dy enw?", id: "q2"),
+              build(:question_step, :with_text_settings, question_text: "Beth yw eich hoff liw?", id: "q1", next_step_id: "q2"),
+              build(:question_step, :with_name_settings, question_text: "Beth yw dy enw?", id: "q2"),
             ],
             start_page: "q1")
     end

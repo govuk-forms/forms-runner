@@ -41,9 +41,9 @@ RSpec.describe Forms::ExitPagesController, type: :request do
   let(:answer) { "Option 1" }
 
   let(:steps) { [first_step_in_form, step, next_step_in_form] }
-  let(:first_step_in_form) { build(:v2_question_step, :with_text_settings, id: 1, next_step_id: 2) }
+  let(:first_step_in_form) { build(:question_step, :with_text_settings, id: 1, next_step_id: 2) }
   let(:step) { step_with_exit_pages }
-  let(:next_step_in_form) { build(:v2_question_step, id: 3, next_step_id: nil) }
+  let(:next_step_in_form) { build(:question_step, id: 3, next_step_id: nil) }
   let(:form) { build(:v2_form_document, steps:, start_page: 1) }
 
   let(:store) do

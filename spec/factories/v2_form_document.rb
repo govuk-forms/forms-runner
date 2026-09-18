@@ -32,7 +32,7 @@ FactoryBot.define do
       end
 
       steps do
-        Array.new(steps_count) { build(:v2_question_step) }
+        Array.new(steps_count) { build(:question_step) }
       end
 
       start_page { steps.first.id }

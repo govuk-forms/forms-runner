@@ -7,10 +7,10 @@ RSpec.describe Forms::AddAnotherAnswerController, type: :request do
 
   let(:steps) { [previous_step_in_form, repeatable_step, next_step_in_form] }
 
-  let(:previous_step_in_form) { build :v2_question_step, :with_text_settings, id: 1, next_step_id: 2 }
+  let(:previous_step_in_form) { build :question_step, :with_text_settings, id: 1, next_step_id: 2 }
 
   let(:repeatable_step) do
-    build :v2_question_step,
+    build :question_step,
           :with_text_settings,
           id: 2,
           next_step_id: 3,
@@ -19,7 +19,7 @@ RSpec.describe Forms::AddAnotherAnswerController, type: :request do
   end
 
   let(:next_step_in_form) do
-    build :v2_question_step, :with_text_settings, id: 3
+    build :question_step, :with_text_settings, id: 3
   end
 
   let(:req_headers) { { "Accept" => "application/json" } }

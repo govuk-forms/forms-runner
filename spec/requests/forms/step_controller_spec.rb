@@ -19,14 +19,14 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
 
   let(:first_step_id) { 1 }
   let(:first_step_in_form) do
-    build :v2_question_step, :with_text_settings,
+    build :question_step, :with_text_settings,
           id: first_step_id,
           next_step_id: 2,
           is_optional: false
   end
 
   let(:second_step_in_form) do
-    build :v2_question_step, :with_text_settings,
+    build :question_step, :with_text_settings,
           id: 2,
           is_optional:
   end
@@ -66,7 +66,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
             start_page: step_id,
             declaration_markdown: "agree to the declaration",
             steps: [
-              build(:v2_question_step, :with_text_settings,
+              build(:question_step, :with_text_settings,
                     id: step_id,
                     position: 1,
                     is_optional: false),
@@ -270,7 +270,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
       let(:mode) { "preview-live" }
 
       let(:first_step_in_form) do
-        step_without_routing_conditions = attributes_for(:v2_question_step, :with_text_settings,
+        step_without_routing_conditions = attributes_for(:question_step, :with_text_settings,
                                                          id: 1,
                                                          next_step_id: 2,
                                                          is_optional: false).except(:routing_conditions)
@@ -292,14 +292,14 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
       let(:validation_errors) { [] }
 
       let(:second_step_in_form) do
-        build :v2_question_step, :with_text_settings,
+        build :question_step, :with_text_settings,
               id: 2,
               next_step_id: 3,
               is_optional:
       end
 
       let(:third_step_in_form) do
-        build :v2_question_step, :with_text_settings,
+        build :question_step, :with_text_settings,
               id: 3,
               is_optional:
       end
@@ -378,7 +378,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
     context "when page is repeatable" do
       let(:mode) { "form" }
 
-      let(:first_step_in_form) { build :v2_question_step, :with_repeatable, id: 1, next_step_id: second_step_in_form.id }
+      let(:first_step_in_form) { build :question_step, :with_repeatable, id: 1, next_step_id: second_step_in_form.id }
 
       it "shows the page as normal when there are no stored answers" do
         get form_step_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug, step_slug: first_step_in_form.id, answer_index: 1)
@@ -393,7 +393,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
 
     context "when the page is a file upload question" do
       let(:first_step_in_form) do
-        build :v2_question_step,
+        build :question_step,
               id: 1,
               next_step_id: 2,
               answer_type: "file",
@@ -501,7 +501,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
       let(:mode) { "preview-live" }
 
       let(:first_step_in_form) do
-        step_without_routing_conditions = attributes_for(:v2_question_step, :with_text_settings,
+        step_without_routing_conditions = attributes_for(:question_step, :with_text_settings,
                                                          id: 1,
                                                          next_step_id: 2,
                                                          is_optional: false).except(:routing_conditions)
@@ -523,14 +523,14 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
       let(:validation_errors) { [] }
 
       let(:second_step_in_form) do
-        build :v2_question_step, :with_text_settings,
+        build :question_step, :with_text_settings,
               id: 2,
               next_step_id: 3,
               is_optional:
       end
 
       let(:third_step_in_form) do
-        build :v2_question_step, :with_text_settings,
+        build :question_step, :with_text_settings,
               id: 3,
               is_optional:
       end
@@ -609,7 +609,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
     context "when page is repeatable" do
       let(:mode) { "form" }
 
-      let(:first_step_in_form) { build :v2_question_step, :with_repeatable, id: 1, next_step_id: second_step_in_form.id }
+      let(:first_step_in_form) { build :question_step, :with_repeatable, id: 1, next_step_id: second_step_in_form.id }
 
       it "shows the page as normal when there are no stored answers" do
         get form_step_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug, step_slug: first_step_in_form.id, answer_index: 1)
@@ -624,7 +624,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
 
     context "when the page is a file upload question" do
       let(:first_step_in_form) do
-        build :v2_question_step,
+        build :question_step,
               id: 1,
               next_step_id: 2,
               answer_type: "file",
@@ -830,14 +830,14 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
       let(:validation_errors) { [] }
 
       let(:second_step_in_form) do
-        build :v2_question_step, :with_text_settings,
+        build :question_step, :with_text_settings,
               id: 2,
               next_step_id: 3,
               is_optional:
       end
 
       let(:third_step_in_form) do
-        build :v2_question_step, :with_text_settings,
+        build :question_step, :with_text_settings,
               id: 3,
               is_optional:
       end
@@ -878,7 +878,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
     end
 
     context "when page is repeatable" do
-      let(:first_step_in_form) { build :v2_question_step, :with_repeatable, id: 1, next_step_id: second_step_in_form.id }
+      let(:first_step_in_form) { build :question_step, :with_repeatable, id: 1, next_step_id: second_step_in_form.id }
 
       it "redirects to the add another answer page when given valid answer" do
         post save_form_step_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug, step_slug: first_step_in_form.id, params: { question: { number: 12 } })
@@ -891,7 +891,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
       end
 
       context "and is optional" do
-        let(:first_step_in_form) { build :v2_question_step, :with_repeatable, is_optional: true, id: 1, next_step_id: second_step_in_form.id }
+        let(:first_step_in_form) { build :question_step, :with_repeatable, is_optional: true, id: 1, next_step_id: second_step_in_form.id }
 
         it "redirects to the next page when not given an answer" do
           post save_form_step_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug, step_slug: first_step_in_form.id, params: { question: { number: nil } })
@@ -902,7 +902,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
 
     context "when the page is a file upload question" do
       let(:first_step_in_form) do
-        build :v2_question_step,
+        build :question_step,
               id: 1,
               next_step_id: 2,
               answer_type: "file",

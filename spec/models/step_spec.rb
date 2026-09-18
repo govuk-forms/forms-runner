@@ -15,7 +15,7 @@ RSpec.describe Step do
   let(:fourth_step_id) { step_ids[3] }
 
   let(:question) { instance_double(Question::Text, serializable_hash: {}, attribute_names: %w[name], valid?: true, errors: []) }
-  let(:form_document_step) { build(:v2_question_step, id: first_step_id, position: 1, next_step_id: second_step_id, routing_conditions: []) }
+  let(:form_document_step) { build(:question_step, id: first_step_id, position: 1, next_step_id: second_step_id, routing_conditions: []) }
   let(:answer_store) { instance_double(Store::SessionAnswerStore) }
 
   describe "#initialize" do
@@ -40,7 +40,7 @@ RSpec.describe Step do
     it "returns false for steps with a different form document step" do
       other_step = described_class.new(
         question:,
-        form_document_step: build(:v2_question_step),
+        form_document_step: build(:question_step),
       )
       expect(step == other_step).to be false
     end
@@ -199,7 +199,7 @@ RSpec.describe Step do
     let(:selection) { "Yes" }
     let(:question) { instance_double(Question::Selection, selection:) }
     let(:routing_conditions) { [] }
-    let(:form_document_step) { build(:v2_question_step, id: "00000000", position: 1, next_step_id: default_next_step_id, routing_conditions:) }
+    let(:form_document_step) { build(:question_step, id: "00000000", position: 1, next_step_id: default_next_step_id, routing_conditions:) }
 
     describe "basic routing" do
       context "without any routing conditions" do
@@ -471,7 +471,7 @@ RSpec.describe Step do
 
   describe "#show_answer_in_json" do
     let(:question) { build :first_and_last_name_question }
-    let(:form_document_step) { build(:v2_question_step, :with_name_settings, id: first_step_id) }
+    let(:form_document_step) { build(:question_step, :with_name_settings, id: first_step_id) }
     let(:is_s3_submission) { false }
     let(:submission_reference) { "abc123" }
 

@@ -58,8 +58,8 @@ private
 
   def steps
     [
-      build(:v2_question_step, :with_text_settings, id: "a1", next_step_id: "a2"),
-      build(:v2_question_step, :with_name_settings, id: "a2"),
+      build(:question_step, :with_text_settings, id: "a1", next_step_id: "a2"),
+      build(:question_step, :with_name_settings, id: "a2"),
     ]
   end
 

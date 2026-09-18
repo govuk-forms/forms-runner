@@ -15,7 +15,7 @@ RSpec.describe Forms::BrandedAccessibilityStatementController, type: :request do
 
   let(:steps_data) do
     [
-      build(:v2_question_step,
+      build(:question_step,
             id: 1,
             position: 1,
             next_step_id: 2,
@@ -23,7 +23,7 @@ RSpec.describe Forms::BrandedAccessibilityStatementController, type: :request do
             answer_type: "date",
             is_optional: nil,
             question_text: "Question one"),
-      build(:v2_question_step,
+      build(:question_step,
             id: 2,
             position: 2,
             type: "question",

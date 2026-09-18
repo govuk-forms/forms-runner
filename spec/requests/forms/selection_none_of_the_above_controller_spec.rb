@@ -7,7 +7,7 @@ RSpec.describe Forms::SelectionNoneOfTheAboveController, type: :request do
   let(:step_slug) { selection_question_step.id }
 
   let(:text_question_step) do
-    build :v2_question_step, :with_text_settings, id: 1, next_step_id: selection_question_step.id
+    build :question_step, :with_text_settings, id: 1, next_step_id: selection_question_step.id
   end
 
   let(:selection_options) { Array.new(31).map { |i| { name: "Option #{i}", value: "Option #{i}" } } }
@@ -20,7 +20,7 @@ RSpec.describe Forms::SelectionNoneOfTheAboveController, type: :request do
           selection_options:,
           none_of_the_above_question_text:)
   end
-  let(:final_step) { build(:v2_question_step, id: 3) }
+  let(:final_step) { build(:question_step, id: 3) }
 
   let(:steps_data) { [text_question_step, selection_question_step, final_step] }
 

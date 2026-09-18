@@ -102,10 +102,10 @@ private
 
   def form_document
     steps = [
-      build(:v2_question_step, :with_text_settings, id: "a1", next_step_id: "a2"),
-      build(:v2_question_step, :with_name_settings, id: "a2", next_step_id: "a3"),
+      build(:question_step, :with_text_settings, id: "a1", next_step_id: "a2"),
+      build(:question_step, :with_name_settings, id: "a2", next_step_id: "a3"),
       build(:v2_selection_question_step, :with_none_of_the_above_question, id: "a3", next_step_id: "a4"),
-      build(:v2_question_step, :with_file_upload_settings, id: "a4"),
+      build(:question_step, :with_file_upload_settings, id: "a4"),
     ]
     build(:v2_form_document,
           steps: steps,
@@ -121,10 +121,10 @@ private
 
   def welsh_form_document
     welsh_steps = [
-      build(:v2_question_step, :with_text_settings, question_text: "Welsh text", id: "a1", next_step_id: "a2"),
-      build(:v2_question_step, :with_name_settings, question_text: "Welsh name", id: "a2", next_step_id: "a3"),
+      build(:question_step, :with_text_settings, question_text: "Welsh text", id: "a1", next_step_id: "a2"),
+      build(:question_step, :with_name_settings, question_text: "Welsh name", id: "a2", next_step_id: "a3"),
       build(:v2_selection_question_step, :with_none_of_the_above_question, question_text: "Welsh selection question", id: "a3", next_step_id: "a4"),
-      build(:v2_question_step, :with_file_upload_settings, question_text: "Welsh file upload", id: "a4"),
+      build(:question_step, :with_file_upload_settings, question_text: "Welsh file upload", id: "a4"),
     ]
     build(:v2_form_document,
           steps: welsh_steps,
