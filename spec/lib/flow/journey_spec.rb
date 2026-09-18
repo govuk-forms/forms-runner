@@ -14,7 +14,7 @@ RSpec.describe Flow::Journey do
 
   let(:form_id) { Faker::Alphanumeric.alphanumeric(number: 8) }
   let(:form_document) do
-    build(:v2_form_document, :with_support,
+    build(:form_document, :with_support,
           form_id:,
           start_page: first_step_id,
           steps: form_document_steps)

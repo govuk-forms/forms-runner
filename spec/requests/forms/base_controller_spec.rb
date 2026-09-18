@@ -5,7 +5,7 @@ RSpec.describe Forms::BaseController, type: :request do
 
   let(:form_response_data) do
     build(
-      :v2_form_document,
+      :form_document,
       :with_support,
       form_id: 2,
       start_page:,

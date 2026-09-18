@@ -4,7 +4,7 @@ feature "Fill in and submit a form with an exit page", type: :feature do
   let(:exit_page) { build(:exit_page, heading: "This is an exit_page", markdown: "This is the contents") }
   let(:routing_conditions) { [build(:condition_resource, :with_exit_page, routing_page_id: 1, answer_value: "Option 1", exit_page:)] }
   let(:steps) { [build(:selection_question_step, :with_exit_page, id: 1, routing_conditions:, question_text:, exit_page:)] }
-  let(:form) { build :v2_form_document, :live, form_id: 1, name: "Fill in this form", steps:, start_page: 1, send_copy_of_answers: "enabled" }
+  let(:form) { build :form_document, :live, form_id: 1, name: "Fill in this form", steps:, start_page: 1, send_copy_of_answers: "enabled" }
   let(:question_text) { Faker::Lorem.question }
   let(:reference) { Faker::Alphanumeric.alphanumeric(number: 8).upcase }
 

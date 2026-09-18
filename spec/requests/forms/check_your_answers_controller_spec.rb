@@ -8,7 +8,7 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
   let(:form_id) { 2 }
   let(:send_copy_of_answers) { "disabled" }
   let(:form_data) do
-    build(:v2_form_document, :with_support, :with_submission_email,
+    build(:form_document, :with_support, :with_submission_email,
           form_id: form_id,
           start_page: 1,
           privacy_policy_url: "http://www.example.gov.uk/privacy_policy",
@@ -387,7 +387,7 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
 
     context "when the submission type is s3" do
       let(:form_data) do
-        build(:v2_form_document,
+        build(:form_document,
               :s3_submissions_enabled,
               form_id:,
               steps: steps_data,

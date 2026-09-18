@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe Forms::AddAnotherAnswerController, type: :request do
   let(:form) do
-    build(:v2_form_document, :with_support, form_id: 2, start_page: 1, steps:, available_languages:)
+    build(:form_document, :with_support, form_id: 2, start_page: 1, steps:, available_languages:)
   end
 
   let(:steps) { [previous_step_in_form, repeatable_step, next_step_in_form] }

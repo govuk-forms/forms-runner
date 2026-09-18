@@ -4,7 +4,7 @@ require "rails_helper"
 RSpec.describe DeleteSubmissionsJob, type: :job do
   include ActiveJob::TestHelper
 
-  let(:form_with_file_upload) { build :v2_form_document, form_id: 1, steps: file_upload_steps, start_page: 1 }
+  let(:form_with_file_upload) { build :form_document, form_id: 1, steps: file_upload_steps, start_page: 1 }
   let!(:sent_submission_created_31_days_ago) do
     create :submission,
            :sent,
@@ -30,7 +30,7 @@ RSpec.describe DeleteSubmissionsJob, type: :job do
            form_document: form_without_file_upload,
            created_at: 29.days.ago
   end
-  let(:form_without_file_upload) { build :v2_form_document, form_id: 2, steps: [text_step], start_page: text_step.id }
+  let(:form_without_file_upload) { build :form_document, form_id: 2, steps: [text_step], start_page: text_step.id }
   let(:file_upload_steps) do
     [
       build(:question_step, answer_type: "file", id: 1, next_step_id: 2),

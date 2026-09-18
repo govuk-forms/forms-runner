@@ -41,7 +41,7 @@ RSpec.describe SubmissionConfirmationMailer, type: :mailer do
   let(:payment_url) { "https://pay.example.gov" }
   let(:brand_id) { nil }
   let(:form_document) do
-    build(:v2_form_document,
+    build(:form_document,
           :with_brand_id,
           brand_id:,
           name: "My form",
@@ -169,7 +169,7 @@ RSpec.describe SubmissionConfirmationMailer, type: :mailer do
     let(:part) { mail.text_part }
 
     let(:form_document) do
-      build(:v2_form_document,
+      build(:form_document,
             name: "My form",
             support_phone: nil,
             support_email: nil,
@@ -240,7 +240,7 @@ RSpec.describe SubmissionConfirmationMailer, type: :mailer do
       context "when the submission locale is Welsh" do
         let(:submission_locale) { "cy" }
         let(:welsh_form_document) do
-          build(:v2_form_document, :with_brand_id, brand_id: "weatherfield", name: "Welsh form")
+          build(:form_document, :with_brand_id, brand_id: "weatherfield", name: "Welsh form")
         end
         let(:include_copy_of_answers) { false }
 
@@ -267,7 +267,7 @@ RSpec.describe SubmissionConfirmationMailer, type: :mailer do
 
   context "when submission_locale is Welsh" do
     let(:welsh_form_document) do
-      build(:v2_form_document,
+      build(:form_document,
             name: "Welsh form",
             steps: [
               build(:question_step, :with_text_settings, question_text: "Beth yw eich hoff liw?", id: "q1", next_step_id: "q2"),

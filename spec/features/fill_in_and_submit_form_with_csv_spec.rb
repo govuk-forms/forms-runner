@@ -8,7 +8,7 @@ feature "Fill in and submit a form with a CSV submission", type: :feature do
     ]
   end
   let(:form) do
-    build(:v2_form_document,
+    build(:form_document,
           :live,
           form_id: 1,
           name: "Fill in this form",

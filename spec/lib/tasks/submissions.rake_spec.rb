@@ -8,7 +8,7 @@ RSpec.describe "submissions.rake", type: :task do
       Rake::Task["submissions:inspect_submission_data"]
     end
 
-    let(:form_document) { build :v2_form_document, :with_steps }
+    let(:form_document) { build :form_document, :with_steps }
     let(:answers) { { form_document.steps.first.id => { selection: "Option 1" } } }
 
     before do
@@ -731,7 +731,7 @@ RSpec.describe "submissions.rake", type: :task do
 
     let(:form_document) do
       build(
-        :v2_form_document,
+        :form_document,
         start_page: "aB123z",
         steps: [
           build(
@@ -795,7 +795,7 @@ RSpec.describe "submissions.rake", type: :task do
     context "when there is an optional file question" do
       let(:form_document) do
         build(
-          :v2_form_document,
+          :form_document,
           steps: [
             build(
               :question_step,
@@ -834,7 +834,7 @@ RSpec.describe "submissions.rake", type: :task do
     context "when there is more than one file upload question" do
       let(:form_document) do
         build(
-          :v2_form_document,
+          :form_document,
           start_page: "i",
           steps: [
             build(

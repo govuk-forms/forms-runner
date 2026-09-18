@@ -37,7 +37,7 @@ RSpec.describe ErrorsController, type: :request do
   describe "Submission error" do
     let(:form_data) do
       build(
-        :v2_form_document,
+        :form_document,
         :with_support,
         id: 2,
         name: "Form name",

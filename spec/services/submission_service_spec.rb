@@ -8,7 +8,7 @@ RSpec.describe SubmissionService do
                        created_at: Time.utc(2022, 12, 14, 8, 0o0, 0o0), submission_locale:)
   end
   let(:delivery) { build(:delivery) }
-  let(:form_document) { build(:v2_form_document, name: "A great form", submission_email:, payment_url:, available_languages:) }
+  let(:form_document) { build(:form_document, name: "A great form", submission_email:, payment_url:, available_languages:) }
   let(:all_steps) { [step] }
   let(:journey) { instance_double(Flow::Journey, completed_steps: all_steps, all_steps:, completed_file_upload_questions: []) }
   let(:question) { build :text, question_text: "What is the meaning of life?", text: "42" }

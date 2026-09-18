@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe Forms::PrivacyPageController, type: :request do
   let(:form_data) do
-    build(:v2_form_document, :with_support,
+    build(:form_document, :with_support,
           id: 2,
           start_page: 1,
           privacy_policy_url: "http://www.example.gov.uk/privacy_policy",

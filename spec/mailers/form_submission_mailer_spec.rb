@@ -9,7 +9,7 @@ describe FormSubmissionMailer, type: :mailer do
     build(:submission, form_document: form_document, created_at: submission_timestamp,
                        reference: submission_reference, is_preview:, submission_locale:)
   end
-  let(:form_document) { build(:v2_form_document, name: form_name, submission_email: submission_email_address, payment_url:) }
+  let(:form_document) { build(:form_document, name: form_name, submission_email: submission_email_address, payment_url:) }
   let(:form_name) { "Form 1" }
   let(:is_preview) { false }
   let(:submission_email_address) { "testing@gov.uk" }
@@ -30,7 +30,7 @@ describe FormSubmissionMailer, type: :mailer do
   end
 
   context "when the form has custom branding" do
-    let(:form_document) { build(:v2_form_document, :with_brand_id, brand_id: "weatherfield", name: form_name, submission_email: submission_email_address, payment_url:) }
+    let(:form_document) { build(:form_document, :with_brand_id, brand_id: "weatherfield", name: form_name, submission_email: submission_email_address, payment_url:) }
 
     it "still shows the GOV.UK banner" do
       expect(mail.html_part.body).to have_link("GOV.UK", href: "https://www.gov.uk")

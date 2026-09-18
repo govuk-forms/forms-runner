@@ -1,5 +1,5 @@
 FactoryBot.define do
-  factory :v2_form_document, class: Api::V2::FormDocumentResource do
+  factory :form_document, class: Api::V2::FormDocumentResource do
     form_id { Faker::Number.number(digits: 5) }
 
     sequence(:name) { |n| "Form #{n}" }

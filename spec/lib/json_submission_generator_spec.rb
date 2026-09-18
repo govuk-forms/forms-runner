@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe JsonSubmissionGenerator do
-  let(:form_document) { build :v2_form_document, available_languages: }
+  let(:form_document) { build :form_document, available_languages: }
   let(:text_question) { build :text, :with_answer, question_text: "What is the meaning of life?" }
   let(:name_question) { build :first_and_last_name_question, question_text: "What is your name?" }
   let(:file_question) { build :file, :with_uploaded_file, question_text: "Upload a file", original_filename: "test.txt" }

@@ -25,7 +25,7 @@ RSpec.describe Forms::SelectionNoneOfTheAboveController, type: :request do
   let(:steps_data) { [text_question_step, selection_question_step, final_step] }
 
   let(:form_data) do
-    build(:v2_form_document, :with_support,
+    build(:form_document, :with_support,
           form_id: 2,
           start_page: text_question_step.id,
           privacy_policy_url: "http://www.example.gov.uk/privacy_policy",

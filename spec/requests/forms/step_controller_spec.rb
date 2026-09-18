@@ -6,7 +6,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
 
   let(:send_copy_of_answers) { "enabled" }
   let(:form_data) do
-    build(:v2_form_document, :with_support,
+    build(:form_document, :with_support,
           form_id: 2,
           start_page: first_step_id,
           privacy_policy_url: "http://www.example.gov.uk/privacy_policy",
@@ -61,7 +61,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
   context "when setting logging context" do
     let(:step_id) { 101 }
     let(:form_data) do
-      build(:v2_form_document, :with_support,
+      build(:form_document, :with_support,
             id: 200,
             start_page: step_id,
             declaration_markdown: "agree to the declaration",

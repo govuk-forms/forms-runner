@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe Forms::RemoveAnswerController, type: :request do
   let(:form) do
-    build(:v2_form_document, :with_support, form_id: 2, start_page: 1, steps:)
+    build(:form_document, :with_support, form_id: 2, start_page: 1, steps:)
   end
 
   let(:steps) { [first_step_in_form, second_step_in_form] }

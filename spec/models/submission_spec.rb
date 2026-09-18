@@ -146,8 +146,8 @@ RSpec.describe Submission, type: :model do
     end
 
     describe ".ordered_by_form_version_and_date" do
-      let(:first_form_version) { build :v2_form_document, updated_at: Time.utc(2022, 6, 1, 12, 0, 0) }
-      let(:second_form_version) { build :v2_form_document, updated_at: Time.utc(2022, 12, 1, 12, 0, 0) }
+      let(:first_form_version) { build :form_document, updated_at: Time.utc(2022, 6, 1, 12, 0, 0) }
+      let(:second_form_version) { build :form_document, updated_at: Time.utc(2022, 12, 1, 12, 0, 0) }
 
       before do
         create :submission, form_document: second_form_version, created_at: Time.utc(2022, 12, 1, 21, 0, 0), reference: "fourth_submission"
@@ -166,7 +166,7 @@ RSpec.describe Submission, type: :model do
     subject(:submission) { create(:submission, form_document:, welsh_form_document:, answers:) }
 
     let(:form_document) do
-      build(:v2_form_document,
+      build(:form_document,
             steps: [
               build(:question_step, :with_text_settings, question_text: "What is your favourite colour?", id: "q1", next_step_id: "q2"),
               build(:question_step, :with_name_settings, question_text: "What is your name?", id: "q2"),
@@ -174,7 +174,7 @@ RSpec.describe Submission, type: :model do
             start_page: "q1")
     end
     let(:welsh_form_document) do
-      build(:v2_form_document,
+      build(:form_document,
             steps: [
               build(:question_step, :with_text_settings, question_text: "Beth yw eich hoff liw?", id: "q1", next_step_id: "q2"),
               build(:question_step, :with_name_settings, question_text: "Beth yw dy enw?", id: "q2"),

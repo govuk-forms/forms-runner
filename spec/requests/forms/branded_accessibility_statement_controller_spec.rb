@@ -4,7 +4,7 @@ RSpec.describe Forms::BrandedAccessibilityStatementController, type: :request do
   include_context "with branding"
 
   let(:form_data) do
-    build(:v2_form_document, :with_support,
+    build(:form_document, :with_support,
           id: 2,
           start_page: 1,
           what_happens_next_markdown: "Good things come to those that wait",

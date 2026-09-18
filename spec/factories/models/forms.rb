@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :form, class: "Form" do
-    initialize_with { new(build(:v2_form_document, **attributes)) }
+    initialize_with { new(build(:form_document, **attributes)) }
 
     form_id { Faker::Number.number(digits: 5) }
     sequence(:name) { |n| "Form #{n}" }

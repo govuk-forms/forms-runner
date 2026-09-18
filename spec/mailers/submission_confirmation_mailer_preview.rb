@@ -51,7 +51,7 @@ class SubmissionConfirmationMailerPreview < ActionMailer::Preview
   end
 
   def without_what_happens_next_and_support_contact_details_and_payment_link
-    form_document = build(:v2_form_document,
+    form_document = build(:form_document,
                           payment_url: nil,
                           what_happens_next_markdown: nil,
                           support_phone: nil,
@@ -107,7 +107,7 @@ private
       build(:selection_question_step, :with_none_of_the_above_question, id: "a3", next_step_id: "a4"),
       build(:question_step, :with_file_upload_settings, id: "a4"),
     ]
-    build(:v2_form_document,
+    build(:form_document,
           steps: steps,
           start_page: "a1",
           name: "English form",
@@ -126,7 +126,7 @@ private
       build(:selection_question_step, :with_none_of_the_above_question, question_text: "Welsh selection question", id: "a3", next_step_id: "a4"),
       build(:question_step, :with_file_upload_settings, question_text: "Welsh file upload", id: "a4"),
     ]
-    build(:v2_form_document,
+    build(:form_document,
           steps: welsh_steps,
           start_page: "a1",
           name: "Welsh Form",

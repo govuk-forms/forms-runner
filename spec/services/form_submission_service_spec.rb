@@ -13,7 +13,7 @@ RSpec.describe FormSubmissionService, :capture_logging do
 
   let(:form_document) do
     build(
-      :v2_form_document,
+      :form_document,
       form_id: 1,
       name: "Form 1",
       what_happens_next_markdown:,
@@ -32,7 +32,7 @@ RSpec.describe FormSubmissionService, :capture_logging do
 
   let(:welsh_form_document) do
     build(
-      :v2_form_document,
+      :form_document,
       form_id: 1,
       name: "Welsh Form 1",
       what_happens_next_markdown:,
