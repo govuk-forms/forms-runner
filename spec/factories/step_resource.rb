@@ -1,5 +1,5 @@
 FactoryBot.define do
-  factory :v2_step, class: Api::V2::StepResource do
+  factory :step_resource, class: Api::V2::StepResource do
     id { Faker::Alphanumeric.alphanumeric(number: 8) }
 
     sequence(:position) { |n| n }

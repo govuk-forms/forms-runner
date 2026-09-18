@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe Api::V2::StepResource do
   it "has a valid factory" do
-    step = build :v2_step
+    step = build :step_resource
     expect(step).to be_valid
   end
 
