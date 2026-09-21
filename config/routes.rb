@@ -63,6 +63,9 @@ Rails.application.routes.draw do
 
       # We don't currently support adding another answer for file upload questions, so these routes don't include an
       # `answer_index` param
+      post "/:step_slug/upload-file" => "forms/step#save_file_upload",
+           as: :upload_file,
+           constraints: step_constraints
       get "/:step_slug/review-file" => "forms/review_file#show",
           as: :review_file,
           constraints: step_constraints
