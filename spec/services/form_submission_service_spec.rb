@@ -90,6 +90,15 @@ RSpec.describe FormSubmissionService, :capture_logging do
                                    will_send_copy_of_answers?: will_send_copy_of_answers)
   end
 
+  before do
+    allow(ReferenceNumberService).to receive(:generate).and_return(reference)
+
+    ActiveResource::HttpMock.respond_to do |mock|
+      mock.get "/api/v3/forms/1/delivery-configurations/draft", {}, form.delivery_configurations.to_json, 200
+      mock.get "/api/v3/forms/1/delivery-configurations/current", {}, form.delivery_configurations.to_json, 200
+    end
+  end
+
   describe "#submit" do
     context "when a submission reference was generated at the start of the form" do
       let(:stored_submission_reference) { "ABC23456" }
@@ -423,6 +432,7 @@ RSpec.describe FormSubmissionService, :capture_logging do
         before do
           ActiveResource::HttpMock.respond_to do |mock|
             mock.get "/api/v2/forms/1/live?language=cy", {}, welsh_form_document.to_json, 200
+            mock.get "/api/v3/forms/1/delivery-configurations/current", {}, delivery_configurations.to_json, 200
           end
         end
 
@@ -449,6 +459,7 @@ RSpec.describe FormSubmissionService, :capture_logging do
         before do
           ActiveResource::HttpMock.respond_to do |mock|
             mock.get "/api/v2/forms/1/live", {}, document_json.to_json, 200
+            mock.get "/api/v3/forms/1/delivery-configurations/current", {}, delivery_configurations.to_json, 200
           end
         end
 

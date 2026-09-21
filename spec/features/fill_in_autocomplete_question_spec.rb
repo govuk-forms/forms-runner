@@ -14,6 +14,7 @@ feature "Fill in and submit a form with an autocomplete question", type: :featur
   before do
     ActiveResource::HttpMock.respond_to do |mock|
       mock.get "/api/v2/forms/1/live", req_headers, form.to_json, 200
+      mock.get "/api/v3/forms/1/delivery-configurations/current", {}, form.delivery_configurations.to_json, 200
     end
 
     allow(ReferenceNumberService).to receive(:generate).and_return(reference)
