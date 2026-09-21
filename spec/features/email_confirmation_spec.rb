@@ -12,6 +12,7 @@ feature "Email confirmation", type: :feature do
   before do
     ActiveResource::HttpMock.respond_to do |mock|
       mock.get "/api/v2/forms/1/live", req_headers, form.to_json, 200
+      mock.get "/api/v3/forms/1/delivery-configurations/current", {}, form.delivery_configurations.to_json, 200
     end
   end
 
