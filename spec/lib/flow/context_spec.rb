@@ -7,13 +7,13 @@ RSpec.describe Flow::Context do
 
   let(:steps) do
     [
-      build(:v2_question_step, :with_text_settings, id: 1, next_step_id: 2),
-      build(:v2_question_step, :with_text_settings, id: 2),
+      build(:question_step, :with_text_settings, id: 1, next_step_id: 2),
+      build(:question_step, :with_text_settings, id: 2),
     ]
   end
 
   let(:form_document) do
-    build(:v2_form_document, :with_support,
+    build(:form_document, :with_support,
           start_page: 1,
           privacy_policy_url: "http://www.example.gov.uk/privacy_policy",
           what_happens_next_markdown: "Good things come to those that wait",

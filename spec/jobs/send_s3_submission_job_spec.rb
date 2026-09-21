@@ -4,7 +4,7 @@ RSpec.describe SendS3SubmissionJob, type: :job do
   include ActiveJob::TestHelper
 
   let(:submission_created_at) { Time.utc(2022, 12, 14, 13, 0o0, 0o0) }
-  let(:form_document) { build(:v2_form_document, name: "Form 1") }
+  let(:form_document) { build(:form_document, name: "Form 1") }
   let(:submission) do
     create(:submission, form_document:, created_at: submission_created_at).tap do |submission|
       submission.deliveries.create!

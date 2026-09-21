@@ -13,7 +13,7 @@ class SendBounceNotificationsJob < ApplicationJob
       form = deliveries.first.form
       CurrentJobLoggingAttributes.form_name = form.name
 
-      group = Api::V2::GroupResource.find(form_id)
+      group = Api::GroupResource.find(form_id)
 
       if !is_escalation && group.group_admin_users.any?
         users = group.group_admin_users

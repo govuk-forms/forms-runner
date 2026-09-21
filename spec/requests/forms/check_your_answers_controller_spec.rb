@@ -8,7 +8,7 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
   let(:form_id) { 2 }
   let(:send_copy_of_answers) { "disabled" }
   let(:form_data) do
-    build(:v2_form_document, :with_support, :with_submission_email,
+    build(:form_document, :with_support, :with_submission_email,
           form_id: form_id,
           start_page: 1,
           privacy_policy_url: "http://www.example.gov.uk/privacy_policy",
@@ -51,7 +51,7 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
 
   let(:steps_data) do
     [
-      build(:v2_question_step,
+      build(:question_step,
             id: 1,
             position: 1,
             next_step_id: 2,
@@ -59,7 +59,7 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
             answer_type: "date",
             is_optional: nil,
             question_text: "Question one"),
-      build(:v2_question_step,
+      build(:question_step,
             id: 2,
             position: 2,
             type: "question",
@@ -387,13 +387,13 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
 
     context "when the submission type is s3" do
       let(:form_data) do
-        build(:v2_form_document,
+        build(:form_document,
               :s3_submissions_enabled,
               form_id:,
               steps: steps_data,
               start_page: 1,
               delivery_configurations: [
-                build(:v2_delivery_configuration, :immediate_s3),
+                build(:delivery_configuration, :immediate_s3),
               ])
       end
       let(:mock_credentials) { { foo: "bar" } }

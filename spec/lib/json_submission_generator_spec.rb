@@ -1,17 +1,17 @@
 require "rails_helper"
 
 RSpec.describe JsonSubmissionGenerator do
-  let(:form_document) { build :v2_form_document, available_languages: }
+  let(:form_document) { build :form_document, available_languages: }
   let(:text_question) { build :text, :with_answer, question_text: "What is the meaning of life?" }
   let(:name_question) { build :first_and_last_name_question, question_text: "What is your name?" }
   let(:file_question) { build :file, :with_uploaded_file, question_text: "Upload a file", original_filename: "test.txt" }
   let(:address_question) { build :uk_address_question, question_text: "What is your address?" }
   let(:selection_question) { build :multiple_selection_question, question_text: "Select your options" }
-  let(:text_step) { build :step, form_document_step: build(:v2_question_step, :with_text_settings), question: text_question }
-  let(:name_step) { build :step, form_document_step: build(:v2_question_step, answer_type: "name"), question: name_question }
-  let(:file_step) { build :step, form_document_step: build(:v2_question_step, answer_type: "file"), question: file_question }
-  let(:address_step) { build :step, form_document_step: build(:v2_question_step, :with_address_settings), question: address_question }
-  let(:selection_step) { build :step, form_document_step: build(:v2_selection_question_step), question: selection_question }
+  let(:text_step) { build :step, form_document_step: build(:question_step, :with_text_settings), question: text_question }
+  let(:name_step) { build :step, form_document_step: build(:question_step, answer_type: "name"), question: name_question }
+  let(:file_step) { build :step, form_document_step: build(:question_step, answer_type: "file"), question: file_question }
+  let(:address_step) { build :step, form_document_step: build(:question_step, :with_address_settings), question: address_question }
+  let(:selection_step) { build :step, form_document_step: build(:selection_question_step), question: selection_question }
   let(:all_steps) { [text_step, name_step, file_step, address_step, selection_step] }
   let(:submission_reference) { Faker::Alphanumeric.alphanumeric(number: 8).upcase }
   let(:language) { nil }
@@ -101,7 +101,7 @@ RSpec.describe JsonSubmissionGenerator do
 
       context "when there is a repeatable question" do
         let(:question_text) { "What is the meaning of life?" }
-        let(:form_document_step) { build(:v2_question_step, :with_text_settings, :with_repeatable, question_text:) }
+        let(:form_document_step) { build(:question_step, :with_text_settings, :with_repeatable, question_text:) }
         let(:first_answer) { build :text, question_text:, text: "dunno" }
         let(:second_answer) { build :text, question_text:, text: "42" }
         let(:repeatable_step) { build :repeatable_step, form_document_step:, questions: [first_answer, second_answer] }

@@ -1,5 +1,5 @@
 FactoryBot.define do
-  factory :v2_form_document, class: Api::V2::FormDocumentResource do
+  factory :form_document, class: Api::V2::FormDocumentResource do
     form_id { Faker::Number.number(digits: 5) }
 
     sequence(:name) { |n| "Form #{n}" }
@@ -24,7 +24,7 @@ FactoryBot.define do
     s3_bucket_region { nil }
     updated_at { Time.current.iso8601(3) }
     send_copy_of_answers { "disabled" }
-    delivery_configurations { [build(:v2_delivery_configuration, :immediate_email)] }
+    delivery_configurations { [build(:delivery_configuration, :immediate_email)] }
 
     trait :with_steps do
       transient do
@@ -32,7 +32,7 @@ FactoryBot.define do
       end
 
       steps do
-        Array.new(steps_count) { build(:v2_question_step) }
+        Array.new(steps_count) { build(:question_step) }
       end
 
       start_page { steps.first.id }

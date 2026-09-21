@@ -2,13 +2,13 @@ require "rails_helper"
 
 RSpec.describe Forms::CopyOfAnswersController, type: :request do
   let(:form) do
-    build(:v2_form_document, :with_support, form_id: 2, start_page: 1, steps:, available_languages:, send_copy_of_answers: "enabled")
+    build(:form_document, :with_support, form_id: 2, start_page: 1, steps:, available_languages:, send_copy_of_answers: "enabled")
   end
 
   let(:steps) do
     [
-      build(:v2_question_step, :with_text_settings, id: 1, next_step_id: 2),
-      build(:v2_question_step, :with_text_settings, id: 2),
+      build(:question_step, :with_text_settings, id: 1, next_step_id: 2),
+      build(:question_step, :with_text_settings, id: 2),
     ]
   end
 
@@ -43,7 +43,7 @@ RSpec.describe Forms::CopyOfAnswersController, type: :request do
   describe "GET #show" do
     context "when send_copy_of_answers is disabled on the form" do
       let(:form) do
-        build(:v2_form_document, :with_support, form_id: 2, start_page: 1, steps:, available_languages:, send_copy_of_answers: "disabled")
+        build(:form_document, :with_support, form_id: 2, start_page: 1, steps:, available_languages:, send_copy_of_answers: "disabled")
       end
 
       before do

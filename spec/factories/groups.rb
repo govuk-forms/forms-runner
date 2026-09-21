@@ -1,5 +1,5 @@
 FactoryBot.define do
-  factory :group, class: Api::V2::GroupResource do
+  factory :group, class: Api::GroupResource do
     sequence(:name) { |n| "Group #{n}" }
 
     transient do

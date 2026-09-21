@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe Forms::RemoveAnswerController, type: :request do
   let(:form) do
-    build(:v2_form_document, :with_support, form_id: 2, start_page: 1, steps:)
+    build(:form_document, :with_support, form_id: 2, start_page: 1, steps:)
   end
 
   let(:steps) { [first_step_in_form, second_step_in_form] }
@@ -10,7 +10,7 @@ RSpec.describe Forms::RemoveAnswerController, type: :request do
   let(:remove) { "yes" }
 
   let(:first_step_in_form) do
-    build :v2_question_step,
+    build :question_step,
           :with_text_settings,
           :with_repeatable,
           id: 1,
@@ -19,7 +19,7 @@ RSpec.describe Forms::RemoveAnswerController, type: :request do
   end
 
   let(:second_step_in_form) do
-    build :v2_question_step, :with_text_settings, id: 2
+    build :question_step, :with_text_settings, id: 2
   end
 
   let(:req_headers) { { "Accept" => "application/json" } }

@@ -4,11 +4,11 @@ RSpec.describe SendConfirmationEmailJob, type: :job do
   let(:submission_created_at) { Time.utc(2022, 12, 14, 13, 0o0, 0o0) }
   let(:form_document) do
     build(
-      :v2_form_document,
+      :form_document,
       name: "Form 1",
       steps: [
-        build(:v2_question_step, :with_text_settings, question_text: "What is your favourite colour?", id: "q1", next_step_id: "q2"),
-        build(:v2_question_step, :with_name_settings, question_text: "What is your name?", id: "q2"),
+        build(:question_step, :with_text_settings, question_text: "What is your favourite colour?", id: "q1", next_step_id: "q2"),
+        build(:question_step, :with_name_settings, question_text: "What is your name?", id: "q2"),
       ],
       start_page: "q1",
       what_happens_next_markdown: "Please wait for a response",

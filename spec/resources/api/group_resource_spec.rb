@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe Api::V2::GroupResource do
+RSpec.describe Api::GroupResource do
   let(:req_headers) { { "Accept" => "application/json" } }
   let(:group) { build :group }
   let(:form_id) { 123 }

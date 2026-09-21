@@ -3,7 +3,7 @@ require "rails_helper"
 RSpec.describe FooterComponent::View, type: :component do
   include Rails.application.routes.url_helpers
 
-  let(:form) { build :v2_form_document, id: 1 }
+  let(:form) { build :form_document, id: 1 }
   let(:mode) { Mode.new }
 
   include_context "with branding"

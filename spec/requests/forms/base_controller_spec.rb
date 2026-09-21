@@ -5,7 +5,7 @@ RSpec.describe Forms::BaseController, type: :request do
 
   let(:form_response_data) do
     build(
-      :v2_form_document,
+      :form_document,
       :with_support,
       form_id: 2,
       start_page:,
@@ -27,13 +27,13 @@ RSpec.describe Forms::BaseController, type: :request do
 
   let(:steps_data) do
     [
-      (attributes_for :v2_question_step,
+      (attributes_for :question_step,
                       id: 1,
                       next_page: 2,
                       answer_type: "text",
                       answer_settings: { input_type: "single_line" }
       ),
-      (attributes_for :v2_question_step,
+      (attributes_for :question_step,
                       id: 2,
                       answer_type: "text",
                       answer_settings: { input_type: "single_line" }

@@ -22,7 +22,7 @@ RSpec.describe Brand, type: :model do
     end
 
     context "when the API has the brand" do
-      let(:brand_resource) { build :v2_brand }
+      let(:brand_resource) { build :brand_resource }
 
       before do
         ActiveResource::HttpMock.respond_to do |mock|
@@ -62,7 +62,7 @@ RSpec.describe Brand, type: :model do
       end
 
       context "when the brand has no assets uploaded" do
-        let(:brand_resource) { build :v2_brand, :without_assets }
+        let(:brand_resource) { build :brand_resource, :without_assets }
 
         it "returns nil asset paths" do
           expect(described_class.find("weatherfield")).to have_attributes(
@@ -116,7 +116,7 @@ RSpec.describe Brand, type: :model do
 
     context "when the API cannot be reached" do
       before do
-        allow(Api::V2::BrandResource).to receive(:find).and_raise(ActiveResource::TimeoutError.new("execution expired"))
+        allow(Api::BrandResource).to receive(:find).and_raise(ActiveResource::TimeoutError.new("execution expired"))
       end
 
       it "logs a warning and returns nil" do

@@ -10,10 +10,10 @@ RSpec.describe SendSubmissionJob, type: :job do
   end
   let(:delivery) { submission.deliveries.first }
   let(:form_document) do
-    build(:v2_form_document,
+    build(:form_document,
           :ready_for_live,
           name: "Form 1",
-          steps: [build(:v2_selection_question_step, is_optional: true, only_one_option: "true", id: "q1")],
+          steps: [build(:selection_question_step, is_optional: true, only_one_option: "true", id: "q1")],
           start_page: "q1")
   end
   let(:answers) { { "q1" => { selection: Question::Selection::NONE_OF_THE_ABOVE_VALUE } } }

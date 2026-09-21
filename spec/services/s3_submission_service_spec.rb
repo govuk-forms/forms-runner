@@ -7,7 +7,7 @@ RSpec.describe S3SubmissionService do
   let(:delivery) { build :delivery, formats: %w[csv] }
 
   let(:form_document) do
-    build(:v2_form_document,
+    build(:form_document,
           form_id: 42,
           s3_bucket_name:,
           s3_bucket_aws_account_id:,

@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :form, class: "Form" do
-    initialize_with { new(build(:v2_form_document, **attributes)) }
+    initialize_with { new(build(:form_document, **attributes)) }
 
     form_id { Faker::Number.number(digits: 5) }
     sequence(:name) { |n| "Form #{n}" }
@@ -21,7 +21,7 @@ FactoryBot.define do
     s3_bucket_name { nil }
     s3_bucket_aws_account_id { nil }
 
-    delivery_configurations { [build(:v2_delivery_configuration, :immediate_email)] }
+    delivery_configurations { [build(:delivery_configuration, :immediate_email)] }
 
     trait :live do
       with_steps

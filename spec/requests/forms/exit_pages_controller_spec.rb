@@ -2,11 +2,11 @@ require "rails_helper"
 
 RSpec.describe Forms::ExitPagesController, type: :request do
   let(:exit_page) { exit_pages.first }
-  let(:exit_pages) { build_list(:v2_exit_page, 2) }
+  let(:exit_pages) { build_list(:exit_page, 2) }
 
   let(:step_with_exit_pages) do
     build(
-      :v2_selection_question_step,
+      :selection_question_step,
       id: 2,
       next_step_id: 3,
       selection_options: [
@@ -17,19 +17,19 @@ RSpec.describe Forms::ExitPagesController, type: :request do
       ],
       routing_conditions: [
         build(
-          :v2_condition,
+          :condition_resource,
           :with_exit_page,
           answer_value: "Option 1",
           exit_page: exit_pages.first,
         ),
         build(
-          :v2_condition,
+          :condition_resource,
           :with_exit_page,
           answer_value: "Go to exit page 2",
           exit_page: exit_pages.second,
         ),
         build(
-          :v2_condition,
+          :condition_resource,
           :skip_to_end,
           answer_value: "Skip to end",
         ),
@@ -41,10 +41,10 @@ RSpec.describe Forms::ExitPagesController, type: :request do
   let(:answer) { "Option 1" }
 
   let(:steps) { [first_step_in_form, step, next_step_in_form] }
-  let(:first_step_in_form) { build(:v2_question_step, :with_text_settings, id: 1, next_step_id: 2) }
+  let(:first_step_in_form) { build(:question_step, :with_text_settings, id: 1, next_step_id: 2) }
   let(:step) { step_with_exit_pages }
-  let(:next_step_in_form) { build(:v2_question_step, id: 3, next_step_id: nil) }
-  let(:form) { build(:v2_form_document, steps:, start_page: 1) }
+  let(:next_step_in_form) { build(:question_step, id: 3, next_step_id: nil) }
+  let(:form) { build(:form_document, steps:, start_page: 1) }
 
   let(:store) do
     {
@@ -154,7 +154,7 @@ RSpec.describe Forms::ExitPagesController, type: :request do
     end
 
     context "when the step does not have an exit page" do
-      let(:step_without_exit_page) { build(:v2_selection_question_step, id: 2, next_step_id: 3) }
+      let(:step_without_exit_page) { build(:selection_question_step, id: 2, next_step_id: 3) }
       let(:step) { step_without_exit_page }
 
       it "redirects to the next unanswered question" do
@@ -194,8 +194,8 @@ RSpec.describe Forms::ExitPagesController, type: :request do
     end
 
     context "when the exit page is missing from the form document" do
-      let(:condition_with_exit_page) { build(:v2_condition, :with_exit_page, routing_page_id: 2, exit_page:) }
-      let(:step_without_exit_page) { build(:v2_selection_question_step, routing_conditions: [condition_with_exit_page], id: 2, next_step_id: 3) }
+      let(:condition_with_exit_page) { build(:condition_resource, :with_exit_page, routing_page_id: 2, exit_page:) }
+      let(:step_without_exit_page) { build(:selection_question_step, routing_conditions: [condition_with_exit_page], id: 2, next_step_id: 3) }
       let(:step) { step_without_exit_page }
 
       it "raises an error" do
@@ -210,12 +210,12 @@ RSpec.describe Forms::ExitPagesController, type: :request do
       let(:exit_page_markdown) { Faker::Lorem.paragraph }
 
       let(:condition_with_exit_page) do
-        condition = build(:v2_condition, routing_page_id: 2, goto_page_id: nil, skip_to_end: nil, exit_page_id: nil, exit_page_heading:, exit_page_markdown:)
+        condition = build(:condition_resource, routing_page_id: 2, goto_page_id: nil, skip_to_end: nil, exit_page_id: nil, exit_page_heading:, exit_page_markdown:)
         condition
       end
 
       let(:step_without_exit_page) do
-        step = build(:v2_selection_question_step, routing_conditions: [condition_with_exit_page], id: 2, next_step_id: 3)
+        step = build(:selection_question_step, routing_conditions: [condition_with_exit_page], id: 2, next_step_id: 3)
         step
       end
 
@@ -243,13 +243,13 @@ RSpec.describe Forms::ExitPagesController, type: :request do
       let(:exit_page_markdown) { Faker::Lorem.paragraph }
 
       let(:condition_with_exit_page) do
-        condition = build(:v2_condition, routing_page_id: 2, goto_page_id: nil, skip_to_end: nil, exit_page_id: nil, exit_page_heading:, exit_page_markdown:)
+        condition = build(:condition_resource, routing_page_id: 2, goto_page_id: nil, skip_to_end: nil, exit_page_id: nil, exit_page_heading:, exit_page_markdown:)
         condition.attributes.delete(:exit_page_id)
         condition
       end
 
       let(:step_without_exit_page) do
-        step = build(:v2_selection_question_step, routing_conditions: [condition_with_exit_page], id: 2, next_step_id: 3)
+        step = build(:selection_question_step, routing_conditions: [condition_with_exit_page], id: 2, next_step_id: 3)
         step.attributes.delete(:exit_pages)
         step
       end

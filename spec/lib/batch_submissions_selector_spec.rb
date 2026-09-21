@@ -9,13 +9,13 @@ RSpec.describe BatchSubmissionsSelector do
     let(:date) { Time.zone.local(2022, 12, 1) }
 
     let(:form_document_with_batch_enabled) do
-      build(:v2_form_document, delivery_configurations: [
-        build(:v2_delivery_configuration, :daily_email),
+      build(:form_document, delivery_configurations: [
+        build(:delivery_configuration, :daily_email),
       ])
     end
     let(:form_document_with_batch_disabled) do
-      build(:v2_form_document, delivery_configurations: [
-        build(:v2_delivery_configuration, :immediate_email),
+      build(:form_document, delivery_configurations: [
+        build(:delivery_configuration, :immediate_email),
       ])
     end
 
@@ -135,13 +135,13 @@ RSpec.describe BatchSubmissionsSelector do
     let(:date) { Time.zone.local(2025, 5, 19) }
 
     let(:form_document_with_batch_enabled) do
-      build(:v2_form_document, delivery_configurations: [
-        build(:v2_delivery_configuration, :weekly_email),
+      build(:form_document, delivery_configurations: [
+        build(:delivery_configuration, :weekly_email),
       ])
     end
     let(:form_document_with_batch_disabled) do
-      build(:v2_form_document, delivery_configurations: [
-        build(:v2_delivery_configuration, :immediate_email),
+      build(:form_document, delivery_configurations: [
+        build(:delivery_configuration, :immediate_email),
       ])
     end
 

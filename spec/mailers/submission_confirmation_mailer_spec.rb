@@ -41,15 +41,15 @@ RSpec.describe SubmissionConfirmationMailer, type: :mailer do
   let(:payment_url) { "https://pay.example.gov" }
   let(:brand_id) { nil }
   let(:form_document) do
-    build(:v2_form_document,
+    build(:form_document,
           :with_brand_id,
           brand_id:,
           name: "My form",
           steps: [
-            build(:v2_question_step, :with_text_settings, question_text: "What is your favourite colour?", id: "q1", next_step_id: "q2"),
-            build(:v2_question_step, :with_name_settings, question_text: "What is your name?", id: "q2", next_step_id: "q3"),
-            build(:v2_question_step, :with_file_upload_settings, question_text: "Skipped question", id: "q3", next_step_id: "q4"),
-            build(:v2_question_step, :with_file_upload_settings, question_text: "Upload a file", id: "q4"),
+            build(:question_step, :with_text_settings, question_text: "What is your favourite colour?", id: "q1", next_step_id: "q2"),
+            build(:question_step, :with_name_settings, question_text: "What is your name?", id: "q2", next_step_id: "q3"),
+            build(:question_step, :with_file_upload_settings, question_text: "Skipped question", id: "q3", next_step_id: "q4"),
+            build(:question_step, :with_file_upload_settings, question_text: "Upload a file", id: "q4"),
           ],
           start_page: "q1",
           payment_url:,
@@ -169,7 +169,7 @@ RSpec.describe SubmissionConfirmationMailer, type: :mailer do
     let(:part) { mail.text_part }
 
     let(:form_document) do
-      build(:v2_form_document,
+      build(:form_document,
             name: "My form",
             support_phone: nil,
             support_email: nil,
@@ -240,7 +240,7 @@ RSpec.describe SubmissionConfirmationMailer, type: :mailer do
       context "when the submission locale is Welsh" do
         let(:submission_locale) { "cy" }
         let(:welsh_form_document) do
-          build(:v2_form_document, :with_brand_id, brand_id: "weatherfield", name: "Welsh form")
+          build(:form_document, :with_brand_id, brand_id: "weatherfield", name: "Welsh form")
         end
         let(:include_copy_of_answers) { false }
 
@@ -267,13 +267,13 @@ RSpec.describe SubmissionConfirmationMailer, type: :mailer do
 
   context "when submission_locale is Welsh" do
     let(:welsh_form_document) do
-      build(:v2_form_document,
+      build(:form_document,
             name: "Welsh form",
             steps: [
-              build(:v2_question_step, :with_text_settings, question_text: "Beth yw eich hoff liw?", id: "q1", next_step_id: "q2"),
-              build(:v2_question_step, :with_name_settings, question_text: "Beth yw dy enw?", id: "q2", next_step_id: "q3"),
-              build(:v2_question_step, :with_file_upload_settings, question_text: "Wedi hepgor cwestiwn", id: "q3", next_step_id: "q4"),
-              build(:v2_question_step, :with_file_upload_settings, question_text: "Llwythwch ffeil i fyny", id: "q4"),
+              build(:question_step, :with_text_settings, question_text: "Beth yw eich hoff liw?", id: "q1", next_step_id: "q2"),
+              build(:question_step, :with_name_settings, question_text: "Beth yw dy enw?", id: "q2", next_step_id: "q3"),
+              build(:question_step, :with_file_upload_settings, question_text: "Wedi hepgor cwestiwn", id: "q3", next_step_id: "q4"),
+              build(:question_step, :with_file_upload_settings, question_text: "Llwythwch ffeil i fyny", id: "q4"),
             ],
             start_page: "q1",
             what_happens_next_markdown: "Arhoswch am ymateb\nRhestr:\n\n- Eitem un\n- Eitem dau",
