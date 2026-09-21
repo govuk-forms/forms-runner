@@ -79,7 +79,7 @@ private
   end
 
   def enqueue_deliveries(submission)
-    delivery_configurations = form.delivery_configurations.filter { |c| c.delivery_schedule == "immediate" }
+    delivery_configurations = Api::DeliveryConfigurationResource.from_form(form.id, draft: mode.preview_draft?).filter { |c| c.delivery_schedule == "immediate" }
 
     if delivery_configurations.blank? && mode.live?
       submission.destroy!
