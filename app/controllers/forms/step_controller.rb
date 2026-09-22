@@ -24,26 +24,14 @@ module Forms
     end
 
     def save
-      page_params = params.fetch(:question, {}).permit(*@step.params)
-      @step.assign_question_attributes(page_params)
+      perform_save
+    end
 
-      current_context.clear_submission_details if is_first_page?
+    # we have a separate route for file upload so we can apply different WAF rules
+    def save_file_upload
+      return redirect_to form_step_path(@form.id, @form.form_slug, @step.id) unless @step.file_upload_question?
 
-      validation_context = @step.autocomplete_selection_question? ? :skip_none_of_the_above_question_validation : nil
-      if current_context.save_step(@step, context: validation_context, locale:)
-        # Redirect before logging when the question has multiple pages so that we don't send multiple form started
-        # metrics to CloudWatch if this is the first question.
-        return redirect_to selection_none_of_the_above_page if redirect_to_none_of_the_above_page?
-
-        unless mode.preview?
-          LogEventService.new(current_context, @step, request, changing_existing_answer, page_params).log_page_save
-        end
-
-        redirect_post_save
-      else
-        setup_instance_vars_for_view
-        render :show, status: :unprocessable_content
-      end
+      perform_save
     end
 
   private
@@ -78,7 +66,11 @@ module Forms
     end
 
     def save_url
-      save_form_step_path(@form.id, @form.form_slug, @step.id, changing_existing_answer: @changing_existing_answer, answer_index:)
+      if @step.file_upload_question?
+        upload_file_path(@form.id, @form.form_slug, @step.id, changing_existing_answer: @changing_existing_answer)
+      else
+        save_form_step_path(@form.id, @form.form_slug, @step.id, changing_existing_answer: @changing_existing_answer, answer_index:)
+      end
     end
 
     def changing_existing_answer
@@ -95,6 +87,29 @@ module Forms
         add_another_answer_path(form_id: current_context.form.id, form_slug: current_context.form.form_slug, step_slug: previous_step.id)
       else
         form_step_path(@form.id, @form.form_slug, step_slug: previous_step.id)
+      end
+    end
+
+    def perform_save
+      page_params = params.fetch(:question, {}).permit(*@step.params)
+      @step.assign_question_attributes(page_params)
+
+      current_context.clear_submission_details if is_first_page?
+
+      validation_context = @step.autocomplete_selection_question? ? :skip_none_of_the_above_question_validation : nil
+      if current_context.save_step(@step, context: validation_context, locale:)
+        # Redirect before logging when the question has multiple pages so that we don't send multiple form started
+        # metrics to CloudWatch if this is the first question.
+        return redirect_to selection_none_of_the_above_page if redirect_to_none_of_the_above_page?
+
+        unless mode.preview?
+          LogEventService.new(current_context, @step, request, changing_existing_answer, page_params).log_page_save
+        end
+
+        redirect_post_save
+      else
+        setup_instance_vars_for_view
+        render :show, status: :unprocessable_content
       end
     end
 

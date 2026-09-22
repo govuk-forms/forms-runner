@@ -141,8 +141,12 @@ class Step
     condition.exit_page?
   end
 
+  def file_upload_question?
+    question.is_a?(Question::File)
+  end
+
   def answered_file_question?
-    question.is_a?(Question::File) && question.file_uploaded?
+    file_upload_question? && question.file_uploaded?
   end
 
   def autocomplete_selection_question?
