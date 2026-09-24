@@ -48,10 +48,10 @@ RSpec.describe SupportDetailsComponent::View, type: :component do
       }
     end
 
-    it "includes a link to information about call charges" do
+    it "includes a link to information about call charges that warns it opens in a new tab" do
       render_inline(described_class.new(OpenStruct.new(contact_details)))
 
-      expect(page).to have_link "Find out about call charges", href: "#call-charges", visible: :hidden
+      expect(page).to have_link "Find out about call charges (opens in new tab)", href: "#call-charges", exact_text: true, visible: :hidden
     end
   end
 end
