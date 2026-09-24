@@ -74,6 +74,10 @@ describe "forms/check_your_answers/show.html.erb" do
     end
   end
 
+  it "sets the page title" do
+    expect(view.content_for(:title)).to eq "#{I18n.t('form.check_your_answers.title')} - #{form.name}"
+  end
+
   it "displays the summary list two-thirds width" do
     expect(rendered).not_to have_css(".govuk-grid-column-full .govuk-summary-list")
     expect(rendered).to have_css(".govuk-grid-column-two-thirds-from-desktop .govuk-summary-list")
@@ -166,6 +170,10 @@ describe "forms/check_your_answers/show.html.erb" do
         email_confirmation_input = build(:email_confirmation_input)
         email_confirmation_input.validate
         email_confirmation_input
+      end
+
+      it "prefixes the page title with 'Error:'" do
+        expect(view.content_for(:title)).to eq "Error: #{I18n.t('form.check_your_answers.title')} - #{form.name}"
       end
 
       it "renders an error message" do
