@@ -22,10 +22,24 @@ module Question
 
     def show_answer
       if date.is_a?(::Date)
-        date.strftime("%d/%m/%Y")
+        I18n.l(date, format: "%-d %B %Y")
       else
         ""
       end
+    end
+
+    def show_answer_in_email(*)
+      submission_answer
+    end
+
+    def show_answer_in_json(*)
+      {
+        answer_text: submission_answer,
+      }
+    end
+
+    def show_answer_in_csv(*)
+      Hash[question_text, submission_answer]
     end
 
     def date_of_birth?
@@ -33,6 +47,14 @@ module Question
     end
 
   private
+
+    def submission_answer
+      if date.is_a?(::Date)
+        date.strftime("%d/%m/%Y")
+      else
+        ""
+      end
+    end
 
     def date_valid
       return if blank? && is_optional?

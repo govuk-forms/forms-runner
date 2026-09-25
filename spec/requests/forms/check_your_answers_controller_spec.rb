@@ -148,9 +148,9 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
 
       it "contains rows for each question" do
         expect(response.body).to have_css(".govuk-summary-list__key", text: "Question one")
-        expect(response.body).to have_css(".govuk-summary-list__value", text: "01/01/2000")
+        expect(response.body).to have_css(".govuk-summary-list__value", text: "1 January 2000")
         expect(response.body).to have_css(".govuk-summary-list__key", text: "Question two")
-        expect(response.body).to have_css(".govuk-summary-list__value", text: "09/06/2023")
+        expect(response.body).to have_css(".govuk-summary-list__value", text: "9 June 2023")
       end
     end
 
