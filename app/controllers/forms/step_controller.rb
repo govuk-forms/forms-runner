@@ -24,6 +24,8 @@ module Forms
     end
 
     def save
+      raise StandardError, "This action does not support file upload questions" if @step.file_upload_question?
+
       perform_save
     end
 
