@@ -53,7 +53,18 @@ RSpec.describe Question::Date, type: :model do
     end
 
     it "displays date in the correct format" do
-      expect(question.show_answer).to eq "31/12/2021"
+      expect(question.show_answer).to eq "31 December 2021"
+    end
+
+    it "displays the month name in Welsh when the locale is Welsh" do
+      I18n.with_locale(:cy) do
+        expect(question.show_answer).to eq "31 Rhagfyr 2021"
+      end
+    end
+
+    it "does not zero-pad the day" do
+      set_date("1", "2", "2021")
+      expect(question.show_answer).to eq "1 February 2021"
     end
 
     it "is valid" do
@@ -62,6 +73,14 @@ RSpec.describe Question::Date, type: :model do
 
     it "returns the whole date as one item in show_answer_in_csv" do
       expect(question.show_answer_in_csv).to eq(Hash[question_text, "31/12/2021"])
+    end
+
+    it "returns the date in dd/mm/yyyy format for show_answer_in_email" do
+      expect(question.show_answer_in_email).to eq "31/12/2021"
+    end
+
+    it "returns the date in dd/mm/yyyy format for show_answer_in_json" do
+      expect(question.show_answer_in_json).to eq({ answer_text: "31/12/2021" })
     end
   end
 
@@ -201,7 +220,7 @@ RSpec.describe Question::Date, type: :model do
       end
 
       it "displays date in the correct format" do
-        expect(question.show_answer).to eq "31/12/2021"
+        expect(question.show_answer).to eq "31 December 2021"
       end
 
       it "is valid" do
