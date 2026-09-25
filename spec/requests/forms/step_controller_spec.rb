@@ -912,82 +912,12 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
               answer_type: "file",
               is_optional: true
       end
+      let(:question) { { file: "foo.txt" } }
 
-      context "when a file was uploaded" do
-        let(:mock_s3_client) { Aws::S3::Client.new(stub_responses: true) }
-        let(:tempfile) { Tempfile.new(%w[temp-file .jpeg]) }
-        let(:content_type) { "image/jpeg" }
-        let(:question) { { file: Rack::Test::UploadedFile.new(tempfile.path, content_type) } }
-
-        before do
-          File.write(tempfile, "some content")
-          allow(Aws::S3::Client).to receive(:new).and_return(mock_s3_client)
-          allow(mock_s3_client).to receive(:get_object_tagging).and_return({ tag_set: [{ key: "GuardDutyMalwareScanStatus", value: "NO_THREATS_FOUND" }] })
-        end
-
-        after do
-          tempfile.unlink
-        end
-
-        it "redirects to the review file route" do
+      it "raises an error" do
+        expect {
           post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: }
-          expect(response).to redirect_to review_file_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id)
-        end
-
-        it "displays a success banner" do
-          post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: }
-
-          expect(flash[:success]).to eq(I18n.t("banner.success.file_uploaded"))
-        end
-
-        it "adds answer_metadata logging attribute" do
-          post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: }
-          expect(log_lines.last["answer_metadata"]).to eq({
-            "file_size_in_bytes" => tempfile.size,
-            "file_type" => content_type,
-          })
-        end
-
-        context "when changing an existing answer" do
-          it "includes the changing_existing_answer query parameter in the redirect" do
-            post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id, changing_existing_answer: true), params: { question: }
-            expect(response).to redirect_to review_file_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id, changing_existing_answer: true)
-          end
-        end
-      end
-
-      context "when the question was skipped" do
-        let(:question) { { file: nil } }
-
-        it "redirects to the next step in the form" do
-          post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: }
-          expect(response).to redirect_to form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: 2)
-        end
-      end
-
-      context "when there were validation errors" do
-        let(:tempfile) { Tempfile.new(%w[temp-file .gif]) }
-        let(:content_type) { "image/gif" }
-        let(:question) { { file: Rack::Test::UploadedFile.new(tempfile.path, content_type) } }
-
-        before do
-          post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: }
-        end
-
-        after do
-          tempfile.unlink
-        end
-
-        it "adds validation_errors logging attribute" do
-          expect(log_lines.last["validation_errors"]).to eq(["file: disallowed_type", "file: empty"])
-        end
-
-        it "adds answer_metadata logging attribute" do
-          expect(log_lines.last["answer_metadata"]).to eq({
-            "file_size_in_bytes" => tempfile.size,
-            "file_type" => "image/gif",
-          })
-        end
+        }.to raise_error StandardError, "This action does not support file upload questions"
       end
     end
 
