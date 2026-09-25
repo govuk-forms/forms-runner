@@ -364,7 +364,7 @@ GEM
       google-protobuf (>= 3.18)
       googleapis-common-protos-types (~> 1.3)
       opentelemetry-api (~> 1.1)
-    opentelemetry-exporter-otlp-metrics (0.10.0)
+    opentelemetry-exporter-otlp-metrics (0.12.0)
       google-protobuf (>= 3.18, < 5.0)
       googleapis-common-protos-types (~> 1.3)
       opentelemetry-api (~> 1.1)
@@ -800,7 +800,7 @@ DEPENDENCIES
   omniauth-rails_csrf_protection
   omniauth_govuk_one_login!
   opentelemetry-exporter-otlp (~> 0.36.0)
-  opentelemetry-exporter-otlp-metrics (~> 0.10.0)
+  opentelemetry-exporter-otlp-metrics (~> 0.12.0)
   opentelemetry-instrumentation-all (~> 0.96.0)
   opentelemetry-metrics-sdk (~> 0.18.0)
   opentelemetry-propagator-xray (~> 0.27.0)
@@ -945,7 +945,7 @@ CHECKSUMS
   opentelemetry-common (0.25.1) sha256=38fe87c751e4e13fcd47a8290b4ad67bbedf76c4ed89aeced5ea5c620e66bfb1
   opentelemetry-exporter-otlp (0.36.0) sha256=6d3d61244a5f14d29cd13f9229f2394f509f3ceaa30a9f3d60f9c556291f6448
   opentelemetry-exporter-otlp-common (0.2.0) sha256=969cd9429865f565dc791a0606f97433c1ed14d691c8e3de78722e64903c2b38
-  opentelemetry-exporter-otlp-metrics (0.10.0) sha256=d8cbff9b8a3391eb61486b8be9b6ad74e3b9306a3c60fb4c906b28bc857167c8
+  opentelemetry-exporter-otlp-metrics (0.12.0) sha256=d687dfedd46d50b88cd1c587a40f134dc3f353844b4636b10a50fe8ae69ad5a0
   opentelemetry-helpers-mysql (0.6.0) sha256=7eeb5e6950c434775a8cf28b5fde4defc12e8b865c86479ce3119fcf593d9337
   opentelemetry-helpers-sql (0.4.0) sha256=b10e8c3a2cca28a98af951bbb3e4efdc59e68b25ba0825e055574af543420afb
   opentelemetry-helpers-sql-processor (0.5.0) sha256=b199241bc9451fcbd9f00b2f454830af19d4ca27c2219ea379c9b0d53cd0e0f1
