@@ -1,4 +1,4 @@
-<% set_page_title(form_title(form_name: @current_context.form.name, page_name: t('form.check_your_answers.title'), mode: @mode)) %>
+<% set_page_title(form_title(form_name: @current_context.form.name, page_name: t('form.check_your_answers.title'), mode: @mode, error: email_confirmation_input&.errors&.any?)) %>
 
 <% content_for :back_link do %>
   <% if @back_link %>
