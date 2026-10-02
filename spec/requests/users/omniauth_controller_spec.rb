@@ -29,7 +29,8 @@ RSpec.describe Users::OmniauthController, type: :request do
     end
 
     let(:email) { "test@example.com" }
-    let(:id_token) { Faker::Alphanumeric.alphanumeric }
+    let(:authenticated_at) { Time.current.to_i }
+    let(:id_token) { JWT.encode({ iat: authenticated_at }, nil, "none") }
     let(:auth_hash) do
       {
         provider: :govuk_one_login,
@@ -62,6 +63,14 @@ RSpec.describe Users::OmniauthController, type: :request do
 
       it "stores the token on the session" do
         expect(store["auth"]["token"]).to eq id_token
+      end
+
+      it "stores the sub on the session" do
+        expect(store["auth"]["sub"]).to eq "123"
+      end
+
+      it "stores the authenticated_at on the session" do
+        expect(store["auth"]["authenticated_at"]).to eq authenticated_at
       end
     end
 

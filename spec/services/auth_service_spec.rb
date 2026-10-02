@@ -14,9 +14,12 @@ RSpec.describe AuthService do
 
   describe "#store_auth_details" do
     let(:email) { "test@example.com" }
-    let(:id_token) { Faker::Alphanumeric.alphanumeric }
+    let(:sub) { Faker::Alphanumeric.alphanumeric }
+    let(:authenticated_at) { Time.current.to_i }
+    let(:id_token) { JWT.encode({ iat: authenticated_at }, nil, "none") }
     let(:auth_hash) do
       {
+        uid: sub,
         info: { email: },
         credentials: { id_token: },
       }.with_indifferent_access
@@ -66,6 +69,33 @@ RSpec.describe AuthService do
         end
       end
 
+      context "when the sub is missing from the auth hash" do
+        let(:auth_hash) { { info: { email: }, credentials: { id_token: } }.with_indifferent_access }
+
+        it "raises a DataMissingError" do
+          expect { auth_service.store_auth_details(auth_hash) }
+            .to raise_error(AuthService::DataMissingError, "Sub is missing in OmniAuth auth hash")
+        end
+      end
+
+      context "when the id_token has no iat claim" do
+        let(:id_token) { JWT.encode({}, nil, "none") }
+
+        it "raises a DataMissingError" do
+          expect { auth_service.store_auth_details(auth_hash) }
+            .to raise_error(AuthService::DataMissingError, "Token issued-at is missing in OmniAuth auth hash")
+        end
+      end
+
+      context "when the id_token cannot be decoded" do
+        let(:id_token) { "not-a-jwt" }
+
+        it "raises a DataMissingError" do
+          expect { auth_service.store_auth_details(auth_hash) }
+            .to raise_error(AuthService::DataMissingError, "Token issued-at is invalid in OmniAuth auth hash")
+        end
+      end
+
       context "when the auth hash is valid" do
         it "stores the email on the session" do
           auth_service.store_auth_details(auth_hash)
@@ -75,6 +105,16 @@ RSpec.describe AuthService do
         it "stores the token on the session" do
           auth_service.store_auth_details(auth_hash)
           expect(store["auth"]["token"]).to eq id_token
+        end
+
+        it "stores the sub on the session" do
+          auth_service.store_auth_details(auth_hash)
+          expect(store["auth"]["sub"]).to eq sub
+        end
+
+        it "stores the authenticated_at on the session" do
+          auth_service.store_auth_details(auth_hash)
+          expect(store["auth"]["authenticated_at"]).to eq authenticated_at
         end
       end
     end
@@ -112,6 +152,53 @@ RSpec.describe AuthService do
     it "clears the session" do
       auth_service.clear_auth_session
       expect(store["auth"]).to be_nil
+    end
+  end
+
+  describe "#current_one_login_session" do
+    context "when not logged in" do
+      it "returns nil" do
+        expect(auth_service.current_one_login_session).to be_nil
+      end
+    end
+
+    context "when logged in" do
+      let(:sub) { Faker::Alphanumeric.alphanumeric }
+      let(:email) { "test@example.com" }
+      let(:store) do
+        {
+          auth: {
+            sub:,
+            email:,
+            token:,
+            authenticated_at: Time.current.to_i,
+          },
+        }.with_indifferent_access
+      end
+
+      it "returns the sub and email of the current session" do
+        session = auth_service.current_one_login_session
+        expect(session.sub).to eq(sub)
+        expect(session.email).to eq(email)
+      end
+    end
+  end
+
+  describe "delegated readers" do
+    let(:sub) { Faker::Alphanumeric.alphanumeric }
+    let(:email) { "test@example.com" }
+    let(:store) do
+      {
+        auth: { sub:, email:, authenticated_at: Time.current.to_i },
+      }.with_indifferent_access
+    end
+
+    it "delegates #sub to the auth store" do
+      expect(auth_service.sub).to eq(sub)
+    end
+
+    it "delegates #email to the auth store" do
+      expect(auth_service.email).to eq(email)
     end
   end
 end
