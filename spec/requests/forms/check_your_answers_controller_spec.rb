@@ -437,7 +437,7 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
       let(:store) do
         {
           answers:,
-          auth: { token: },
+          auth: { token:, authenticated_at: Time.current.to_i },
         }.with_indifferent_access
       end
       let(:end_session_endpoint) { "http://example.com/one-login-mock/logout" }

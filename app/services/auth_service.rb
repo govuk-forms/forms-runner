@@ -11,6 +11,8 @@ class AuthService
 
   delegate :logged_in?, to: :auth_store
   delegate :store_return_params, :form_path_params, to: :return_from_one_login_store
+  delegate :sub, to: :auth_store
+  delegate :email, to: :auth_store
 
   def store_auth_details(auth_hash)
     form_id = @return_from_one_login_store.form_id
@@ -23,8 +25,24 @@ class AuthService
     token = auth_hash.dig("credentials", "id_token")
     raise DataMissingError, "Token is missing in OmniAuth auth hash" if token.blank?
 
-    @auth_store.store_token(token)
+    sub = auth_hash["uid"]
+    raise DataMissingError, "Sub is missing in OmniAuth auth hash" if sub.blank?
+
+    begin
+      authenticated_at = JWT.decode(token, nil, false).first["iat"]
+    rescue JWT::DecodeError
+      raise DataMissingError, "Token issued-at is invalid in OmniAuth auth hash"
+    end
+    raise DataMissingError, "Token issued-at is missing in OmniAuth auth hash" if authenticated_at.blank?
+
+    @auth_store.store_session(sub:, email:, token:, authenticated_at:)
     Store::ConfirmationDetailsStore.new(@store, form_id).save_copy_of_answers_email_address(email)
+  end
+
+  def current_one_login_session
+    return nil unless logged_in?
+
+    Data.define(:sub, :email).new(sub:, email:)
   end
 
   def logout_redirect_uri(post_logout_redirect_uri)
