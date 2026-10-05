@@ -78,8 +78,10 @@ module Question
 
     def before_save
       if file.blank?
-        # set to a blank string so that we serialize the answer correctly when an optional question isn't answered
-        self.original_filename = ""
+        # The uploaded_file_key should always be nil as the user should need to remove the file to submit the answer
+        # again. Guard against clearing the filename if there somehow still is an uploaded file that hasn't been
+        # cleared.
+        self.original_filename = "" if uploaded_file_key.blank?
         return
       end
 
