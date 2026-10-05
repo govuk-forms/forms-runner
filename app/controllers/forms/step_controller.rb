@@ -32,6 +32,7 @@ module Forms
     # we have a separate route for file upload so we can apply different WAF rules
     def save_file_upload
       return redirect_to form_step_path(@form.id, @form.form_slug, @step.id) unless @step.file_upload_question?
+      return redirect_to review_file_page if @step.answered_file_question?
 
       perform_save
     end

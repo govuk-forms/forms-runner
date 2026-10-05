@@ -136,6 +136,25 @@ RSpec.describe Question::File, type: :model do
         question.before_save
         expect(question.original_filename).to eq ""
       end
+
+      it "leaves the uploaded_file_key blank" do
+        question.before_save
+        expect(question.uploaded_file_key).to be_nil
+      end
+    end
+
+    context "when no file was selected but a file has already been uploaded" do
+      let(:attributes) { { original_filename: "existing-file.png", uploaded_file_key: "existing-key.png" } }
+
+      it "preserves the original_filename" do
+        question.before_save
+        expect(question.original_filename).to eq "existing-file.png"
+      end
+
+      it "preserves the uploaded_file_key" do
+        question.before_save
+        expect(question.uploaded_file_key).to eq "existing-key.png"
+      end
     end
   end
 
