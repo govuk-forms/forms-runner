@@ -1140,6 +1140,41 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
         end
       end
 
+      context "when the question has already been answered" do
+        let(:question) { { file: nil } }
+        let(:store) do
+          {
+            answers: {
+              form_data.form_id.to_s => {
+                first_step_in_form.id.to_s => {
+                  "original_filename" => "foo.png",
+                  "uploaded_file_key" => "bar",
+                },
+              },
+            },
+          }
+        end
+
+        before do
+          allow(Flow::Context).to receive(:new).and_wrap_original do |original_method, *args|
+            original_method.call(form: args[0][:form], form_document: args[0][:form_document], store:)
+          end
+        end
+
+        it "redirects to the review file route" do
+          post upload_file_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: }
+          expect(response).to redirect_to review_file_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id)
+        end
+
+        it "does not change the stored answer" do
+          post upload_file_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: }
+          expect(store[:answers][form_data.form_id.to_s][first_step_in_form.id.to_s]).to eq(
+            "original_filename" => "foo.png",
+            "uploaded_file_key" => "bar",
+          )
+        end
+      end
+
       context "when there were validation errors" do
         let(:tempfile) { Tempfile.new(%w[temp-file .gif]) }
         let(:content_type) { "image/gif" }
