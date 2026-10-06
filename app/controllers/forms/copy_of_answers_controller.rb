@@ -21,10 +21,15 @@ module Forms
 
       current_context.save_copy_of_answers_preference(@copy_of_answers_input.wants_copy?)
 
-      if @copy_of_answers_input.wants_copy?
-        redirect_to continue_to_one_login_path(form_id: current_context.form.id, form_slug: current_context.form.form_slug)
+      check_your_answers = check_your_answers_path(form_id: current_context.form.id, form_slug: current_context.form.form_slug)
+
+      return redirect_to check_your_answers unless @copy_of_answers_input.wants_copy?
+
+      if auth_service.logged_in?
+        current_context.save_copy_of_answers_email_address(auth_service.email)
+        redirect_to check_your_answers
       else
-        redirect_to check_your_answers_path(form_id: current_context.form.id, form_slug: current_context.form.form_slug)
+        redirect_to continue_to_one_login_path(form_id: current_context.form.id, form_slug: current_context.form.form_slug) unless auth_service.logged_in?
       end
     end
 
