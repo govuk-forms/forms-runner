@@ -65,6 +65,12 @@ class Form
     form_document.send_copy_of_answers == "enabled"
   end
 
+  def save_and_return_enabled?
+    return false unless form_document.respond_to?(:save_and_return)
+
+    form_document.save_and_return == "enabled"
+  end
+
   def multilingual?
     available_languages.count > 1
   end
