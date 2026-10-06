@@ -6,6 +6,7 @@ module Forms
       return redirect_to form_step_path(current_context.form.id, current_context.form.form_slug, current_context.next_step_slug) unless can_visit_copy_of_answers?
 
       @back_link = back_link
+      @logged_in_email = auth_service.email
       @copy_of_answers_input = CopyOfAnswersInput.new
     end
 
@@ -14,6 +15,7 @@ module Forms
 
       unless @copy_of_answers_input.valid?
         @back_link = back_link
+        @logged_in_email = auth_service.email
         return render :show, status: :unprocessable_content
       end
 

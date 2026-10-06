@@ -408,6 +408,7 @@ en:
       show:
         heading: Do you want to get an email with a copy of your answers?
         hint: You’ll need a GOV.UK One Login for this - you’ll be able to sign in or create a new one.
+        hint_logged_in: 'We’ll send the email to your GOV.UK One Login email address: %{email}'
         title: Do you want a copy of your answers?
     remove_answer:
       show:

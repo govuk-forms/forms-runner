@@ -16,7 +16,7 @@
       <%= f.govuk_collection_radio_buttons :copy_of_answers,
         @copy_of_answers_input.values, ->(option) { option }, ->(option) { t("helpers.label.copy_of_answers_input.options.#{option}") },
         legend: { text: t('.heading'), tag: 'h1', size: 'l' },
-        hint: { text: t('.hint') } %>
+        hint: { text: @logged_in_email.present? ? t('.hint_logged_in', email: @logged_in_email) : t('.hint') } %>
 
       <%= f.govuk_submit(t("continue")) %>
     </div>

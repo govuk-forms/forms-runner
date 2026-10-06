@@ -408,6 +408,7 @@ cy:
       show:
         heading: Ydych chi eisiau cael e-bost gyda chopi o’ch atebion?
         hint: Byddwch angen GOV.UK One Login ar gyfer hyn - byddwch yn gallu mewngofnodi neu greu un newydd.
+        hint_logged_in: 'Byddwn yn anfon yr e-bost i’ch cyfeiriad e-bost GOV.UK One Login: %{email}'
         title: Ydych chi eisiau cael e-bost gyda chopi o’ch atebion?
     remove_answer:
       show:
