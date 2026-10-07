@@ -1,0 +1,133 @@
+# This workflow uses actions that are not certified by GitHub.  They are
+# provided by a third-party and are governed by separate terms of service,
+# privacy policy, and support documentation.
+#
+# This workflow will install a prebuilt Ruby version, install dependencies, and
+# run tests and linters.
+
+name: "CI"
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  merge_group:
+    types: [checks_requested]
+
+jobs:
+  lint-ruby:
+    name: Lint Ruby
+    uses: alphagov/govuk-infrastructure/.github/workflows/rubocop.yml@59fd794d40eef8c53f0973c3b6080f94f056ba6d
+
+  lint-scss:
+    name: Lint SCSS
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+
+      - name: Setup Node
+        uses: ./.github/actions/setup-node
+
+      - name: Run linter
+        run: npm run lint:scss
+
+  lint-javascript:
+    name: Lint JavaScript
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+
+      - name: Setup Node
+        uses: ./.github/actions/setup-node
+
+      - name: Run linter
+        run: npm run lint:javascript
+
+  test-ruby:
+    name: Run RSpec
+    runs-on: ubuntu-latest
+    env:
+      RAILS_ENV: "test"
+      DATABASE_URL: "postgres://postgres:postgres@localhost:5432/forms_runner_test"
+      QUEUE_DATABASE_URL: "postgres://postgres:postgres@localhost:5432/forms_runner_test_queue"
+    steps:
+      - name: Setup Postgres
+        id: setup-postgres
+        uses: alphagov/govuk-infrastructure/.github/actions/setup-postgres@59fd794d40eef8c53f0973c3b6080f94f056ba6d
+        with:
+          POSTGRES_DB: forms_runner_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+      
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+
+      - name: Setup ChromeDriver
+        uses: ./.github/actions/setup-chromedriver
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@f8d7259c7a66155a7c4a157a1a10ca601f186594
+        with:
+          bundler-cache: true
+
+      - name: Setup Node
+        uses: ./.github/actions/setup-node
+
+      - name: Run Vite build
+        run: bin/vite build
+
+      - name: Initialize database
+        run: bundle exec rails db:setup
+
+      - name: Run RSpec
+        run: bundle exec rake spec
+
+  test-javascript:
+    name: Test JavaScript
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@f8d7259c7a66155a7c4a157a1a10ca601f186594
+        with:
+          bundler-cache: true
+
+      - name: Setup Node
+        uses: ./.github/actions/setup-node
+
+      - name: Run Vitest
+        run: npm run test
+  
+  security-analysis:
+    name: Security Analysis
+    uses: alphagov/govuk-infrastructure/.github/workflows/brakeman.yml@59fd794d40eef8c53f0973c3b6080f94f056ba6d
+    secrets: inherit
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+
+  build-image:
+    name: Build image
+    uses: alphagov/forms-deploy/.github/workflows/reusable-build-image.yml@main
+
+  audit-dependencies:
+    name: Audit dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@f8d7259c7a66155a7c4a157a1a10ca601f186594
+        with:
+          bundler-cache: true
+
+      - name: Run bundle audit
+        run: bundle exec bundle-audit check --update
+
