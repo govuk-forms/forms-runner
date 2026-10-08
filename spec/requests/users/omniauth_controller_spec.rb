@@ -74,6 +74,38 @@ RSpec.describe Users::OmniauthController, type: :request do
       end
     end
 
+    context "when the session says to return to save progress" do
+      let(:return_from_one_login_session) do
+        {
+          "last_form_id" => form_id,
+          "last_form_slug" => form_slug,
+          "last_mode" => mode,
+          "last_locale" => locale,
+          "return_to" => "save_progress",
+        }
+      end
+
+      it "redirects to the save progress page" do
+        expect(response).to redirect_to(form_save_progress_path(form_id:, form_slug:, mode:, locale:))
+      end
+    end
+
+    context "when the session says to return to copy of answers" do
+      let(:return_from_one_login_session) do
+        {
+          "last_form_id" => form_id,
+          "last_form_slug" => form_slug,
+          "last_mode" => mode,
+          "last_locale" => locale,
+          "return_to" => "copy_of_answers",
+        }
+      end
+
+      it "redirects to the check your answers page" do
+        expect(response).to redirect_to(check_your_answers_path(form_id:, form_slug:, mode:, locale:))
+      end
+    end
+
     context "when data is missing on the auth details on the request" do
       let(:auth_hash) { {} }
 

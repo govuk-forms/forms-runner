@@ -10,7 +10,7 @@ class AuthService
   end
 
   delegate :logged_in?, to: :auth_store
-  delegate :store_return_params, :form_path_params, to: :return_from_one_login_store
+  delegate :store_return_params, :form_path_params, :return_to, to: :return_from_one_login_store
   delegate :sub, to: :auth_store
   delegate :email, to: :auth_store
 

@@ -20,7 +20,7 @@ module Users
       auth_hash = request.env["omniauth.auth"]
       auth_service.store_auth_details(auth_hash)
 
-      redirect_to check_your_answers_path(**auth_service.form_path_params)
+      redirect_to post_sign_in_path
     rescue Store::ReturnFromOneLoginStore::MissingReturnParamsError => e
       CurrentRequestLoggingAttributes.rescued_exception = [e.class.name, e.message]
       render "errors/return_from_one_login_session_missing", status: :bad_request
@@ -46,6 +46,14 @@ module Users
     end
 
   private
+
+    def post_sign_in_path
+      if auth_service.return_to == "save_progress"
+        form_save_progress_path(**auth_service.form_path_params)
+      else # "copy_of_answers" as the default to help avoid regression issues when deploying for current users
+        check_your_answers_path(**auth_service.form_path_params)
+      end
+    end
 
     def suppress_error?(exception)
       # CallbackStateMismatchError is raised when a request is made to the callback URL without the expected parameters.
