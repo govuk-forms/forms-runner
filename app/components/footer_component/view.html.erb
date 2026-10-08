@@ -19,6 +19,8 @@
             </li>
           <% end %>
         </ul>
+
+        <%= licence if open_government_licence? %>
       </div>
 
       <% if copyright_holder.present? %>
