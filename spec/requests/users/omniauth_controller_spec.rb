@@ -97,6 +97,11 @@ RSpec.describe Users::OmniauthController, type: :request do
         expect(response).to redirect_to(check_your_answers_path(form_id:, form_slug:, mode:, locale:))
       end
 
+      it "logs the logged_in_with_one_login event with the form_id" do
+        log_line = log_lines.find { |line| line["event"] == "logged_in_with_one_login" }
+        expect(log_line).to include("form_id" => form_id)
+      end
+
       it "stores the user's email address on the session" do
         expect(store.dig("confirmation_details", form_id.to_s, "copy_of_answers_email_address")).to eq email
       end

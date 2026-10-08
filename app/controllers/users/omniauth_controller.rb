@@ -20,7 +20,11 @@ module Users
       auth_hash = request.env["omniauth.auth"]
       auth_service.store_auth_details(auth_hash)
 
-      redirect_to check_your_answers_path(**auth_service.form_path_params)
+      form_path_params = auth_service.form_path_params
+      CurrentRequestLoggingAttributes.form_id = form_path_params[:form_id]
+      EventLogger.log({ event: "logged_in_with_one_login" })
+
+      redirect_to check_your_answers_path(**form_path_params)
     rescue Store::ReturnFromOneLoginStore::MissingReturnParamsError => e
       CurrentRequestLoggingAttributes.rescued_exception = [e.class.name, e.message]
       render "errors/return_from_one_login_session_missing", status: :bad_request
