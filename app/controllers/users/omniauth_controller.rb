@@ -49,7 +49,7 @@ module Users
 
     def post_sign_in_path
       if auth_service.return_to == "save_progress"
-        form_save_progress_path(**auth_service.form_path_params)
+        save_progress_path(**auth_service.form_path_params)
       else # "copy_of_answers" as the default to help avoid regression issues when deploying for current users
         check_your_answers_path(**auth_service.form_path_params)
       end

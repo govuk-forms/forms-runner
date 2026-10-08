@@ -86,7 +86,7 @@ RSpec.describe Users::OmniauthController, type: :request do
       end
 
       it "redirects to the save progress page" do
-        expect(response).to redirect_to(form_save_progress_path(form_id:, form_slug:, mode:, locale:))
+        expect(response).to redirect_to(save_progress_path(form_id:, form_slug:, mode:, locale:))
       end
     end
 

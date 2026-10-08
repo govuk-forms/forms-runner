@@ -10,7 +10,7 @@ RSpec.describe SaveFormProgressService do
 
   describe "#save" do
     it "creates a saved answer from the current context" do
-      expect { service.save }.to change(SavedAnswer, :count).by(1)
+      expect { service.save! }.to change(SavedAnswer, :count).by(1)
 
       saved = SavedAnswer.last
       expect(saved).to have_attributes(
@@ -27,7 +27,7 @@ RSpec.describe SaveFormProgressService do
       end
 
       it "updates the existing row in place rather than creating a duplicate" do
-        expect { service.save }.not_to change(SavedAnswer, :count)
+        expect { service.save! }.not_to change(SavedAnswer, :count)
 
         expect(existing.reload).to have_attributes(form_version: form.version, answers:)
       end
