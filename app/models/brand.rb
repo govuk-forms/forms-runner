@@ -4,6 +4,7 @@ class Brand
                   organisation_name
                   organisation_url
                   copyright_holder
+                  open_government_licence
                   logo
                   favicon
                   opengraph].freeze
@@ -16,12 +17,13 @@ class Brand
   attr_reader(*ATTRIBUTES)
 
   def initialize(background_colour: nil, border_colour: nil, organisation_name: nil, organisation_url: nil,
-                 copyright_holder: nil, logo: nil, favicon: nil, opengraph: nil)
+                 copyright_holder: nil, open_government_licence: nil, logo: nil, favicon: nil, opengraph: nil)
     @background_colour = background_colour
     @border_colour = border_colour
     @organisation_name = organisation_name
     @organisation_url = organisation_url
     @copyright_holder = copyright_holder
+    @open_government_licence = open_government_licence
     @logo = logo
     @favicon = favicon
     @opengraph = opengraph
@@ -72,6 +74,7 @@ class Brand
         "organisation_name" => attributes["name"],
         "organisation_url" => attributes["logo_link"],
         "copyright_holder" => attributes["copyright_holder"],
+        "open_government_licence" => attributes["open_government_licence"],
         "logo" => attributes["logo_path"],
         "favicon" => attributes["favicon_path"],
         "opengraph" => attributes["opengraph_image_path"],
