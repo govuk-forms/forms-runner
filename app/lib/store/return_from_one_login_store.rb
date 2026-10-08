@@ -7,6 +7,7 @@ module Store
     end
 
     RETURN_FROM_ONE_LOGIN_KEY = "return_from_one_login".freeze
+    RETURN_TO_KEY = "return_to".freeze
     LAST_FORM_ID_KEY = "last_form_id".freeze
     LAST_FORM_SLUG_KEY = "last_form_slug".freeze
     LAST_MODE_KEY = "last_mode".freeze
@@ -16,12 +17,17 @@ module Store
       @store = store
     end
 
-    def store_return_params(form:, mode:, locale:)
+    def store_return_params(form:, mode:, locale:, return_to: "copy_of_answers")
       @store[RETURN_FROM_ONE_LOGIN_KEY] ||= {}
+      @store[RETURN_FROM_ONE_LOGIN_KEY][RETURN_TO_KEY] = return_to
       @store[RETURN_FROM_ONE_LOGIN_KEY][LAST_FORM_ID_KEY] = form.id
       @store[RETURN_FROM_ONE_LOGIN_KEY][LAST_FORM_SLUG_KEY] = form.form_slug
       @store[RETURN_FROM_ONE_LOGIN_KEY][LAST_MODE_KEY] = mode.to_s
       @store[RETURN_FROM_ONE_LOGIN_KEY][LAST_LOCALE_KEY] = locale
+    end
+
+    def return_to
+      @store.dig(RETURN_FROM_ONE_LOGIN_KEY, RETURN_TO_KEY)
     end
 
     def form_path_params
