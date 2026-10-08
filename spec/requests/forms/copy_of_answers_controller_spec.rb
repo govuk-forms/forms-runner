@@ -110,32 +110,72 @@ RSpec.describe Forms::CopyOfAnswersController, type: :request do
 
   describe "POST #save" do
     context "with valid params" do
-      context "when user wants a copy of answers" do
-        let(:params) { { copy_of_answers_input: { copy_of_answers: "yes" } } }
-
+      context "when the user is not logged in with One Login" do
         before do
           post save_copy_of_answers_path(mode:, form_id: form.form_id, form_slug: form.form_slug), params:
         end
 
-        it "redirects to the continue to one login page" do
-          expect(response).to redirect_to(continue_to_one_login_path(form_id: form.form_id, form_slug: form.form_slug, mode:))
+        context "when user wants a copy of answers" do
+          let(:params) { { copy_of_answers_input: { copy_of_answers: "yes" } } }
+
+          it "redirects to the continue to one login page" do
+            expect(response).to redirect_to(continue_to_one_login_path(form_id: form.form_id, form_slug: form.form_slug, mode:))
+          end
+
+          it "saves the preference" do
+            expect(Store::ConfirmationDetailsStore.new(store, form.form_id).wants_copy_of_answers?).to be true
+          end
         end
 
-        it "saves the preference" do
-          # Access the session to verify the preference was saved
-          expect(response).to have_http_status(:redirect)
+        context "when user does not want a copy of answers" do
+          let(:params) { { copy_of_answers_input: { copy_of_answers: "no" } } }
+
+          it "redirects to check your answers" do
+            expect(response).to redirect_to(check_your_answers_path(form_id: form.form_id, form_slug: form.form_slug, mode:))
+          end
+
+          it "saves the preference" do
+            expect(Store::ConfirmationDetailsStore.new(store, form.form_id).wants_copy_of_answers?).to be false
+          end
         end
       end
 
-      context "when user does not want a copy of answers" do
-        let(:params) { { copy_of_answers_input: { copy_of_answers: "no" } } }
+      context "when the user is already logged in with One Login" do
+        let(:email) { Faker::Internet.email }
 
         before do
+          auth_store = Store::AuthStore.new(store)
+          auth_store.store_session(sub: "abc", email: email, token: "def", authenticated_at: Time.current.to_i)
+
+          allow(Store::AuthStore).to receive(:new).and_return auth_store
+
           post save_copy_of_answers_path(mode:, form_id: form.form_id, form_slug: form.form_slug), params:
         end
 
-        it "redirects to check your answers" do
-          expect(response).to redirect_to(check_your_answers_path(form_id: form.form_id, form_slug: form.form_slug, mode:))
+        context "when user wants a copy of answers" do
+          let(:params) { { copy_of_answers_input: { copy_of_answers: "yes" } } }
+
+          it "redirects to check your answers" do
+            expect(response).to redirect_to(check_your_answers_path(form_id: form.form_id, form_slug: form.form_slug, mode:))
+          end
+
+          it "saves the preference and the user's email" do
+            expect(Store::ConfirmationDetailsStore.new(store, form.form_id).wants_copy_of_answers?).to be true
+            expect(Store::ConfirmationDetailsStore.new(store, form.form_id).get_copy_of_answers_email_address).to eq email
+          end
+        end
+
+        context "when user does not want a copy of answers" do
+          let(:params) { { copy_of_answers_input: { copy_of_answers: "no" } } }
+
+          it "redirects to check your answers" do
+            expect(response).to redirect_to(check_your_answers_path(form_id: form.form_id, form_slug: form.form_slug, mode:))
+          end
+
+          it "saves the preference and does not save the user's email" do
+            expect(Store::ConfirmationDetailsStore.new(store, form.form_id).wants_copy_of_answers?).to be false
+            expect(Store::ConfirmationDetailsStore.new(store, form.form_id).get_copy_of_answers_email_address).to be_nil
+          end
         end
       end
     end

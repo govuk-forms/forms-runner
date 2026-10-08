@@ -97,7 +97,7 @@ module Forms
       page_params = params.fetch(:question, {}).permit(*@step.params)
       @step.assign_question_attributes(page_params)
 
-      current_context.clear_submission_details if is_first_page?
+      current_context.clear_submission_details if is_first_page? && !changing_existing_answer
 
       validation_context = @step.autocomplete_selection_question? ? :skip_none_of_the_above_question_validation : nil
       if current_context.save_step(@step, context: validation_context, locale:)

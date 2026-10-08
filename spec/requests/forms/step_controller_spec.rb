@@ -764,6 +764,13 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
           expect_any_instance_of(Flow::Context).to receive(:clear_submission_details).once
           post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { text: "answer text" } }
         end
+
+        context "when changing an existing answer" do
+          it "does not clear the submission details from the session" do
+            expect_any_instance_of(Flow::Context).not_to receive(:clear_submission_details)
+            post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id, changing_existing_answer: true), params: { question: { text: "answer text" } }
+          end
+        end
       end
 
       context "with a subsequent page" do

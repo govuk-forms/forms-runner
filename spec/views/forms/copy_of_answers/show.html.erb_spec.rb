@@ -5,6 +5,7 @@ describe "forms/copy_of_answers/show.html.erb" do
   let(:mode) { OpenStruct.new(preview_draft?: false, preview_archived?: false, preview_live?: false) }
   let(:copy_of_answers_input) { CopyOfAnswersInput.new }
   let(:back_link) { "/back" }
+  let(:logged_in_email) { nil }
 
   before do
     assign(:current_context, OpenStruct.new(form:))
@@ -12,6 +13,7 @@ describe "forms/copy_of_answers/show.html.erb" do
     assign(:mode, mode)
     assign(:back_link, back_link)
     assign(:copy_of_answers_input, copy_of_answers_input)
+    assign(:logged_in_email, logged_in_email)
 
     without_partial_double_verification do
       allow(view).to receive(:save_copy_of_answers_path).and_return("/save_copy_of_answers")
@@ -43,6 +45,14 @@ describe "forms/copy_of_answers/show.html.erb" do
 
   it "has a continue button" do
     expect(rendered).to have_button(I18n.t("continue"))
+  end
+
+  context "when the logged in email is set" do
+    let(:logged_in_email) { "foo@example.com" }
+
+    it "includes the email in the hint text" do
+      expect(rendered).to have_content(I18n.t("forms.copy_of_answers.show.hint_logged_in", email: logged_in_email))
+    end
   end
 
   context "when back link not present" do

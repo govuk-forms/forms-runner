@@ -6,6 +6,7 @@ module Forms
       return redirect_to form_step_path(current_context.form.id, current_context.form.form_slug, current_context.next_step_slug) unless can_visit_copy_of_answers?
 
       @back_link = back_link
+      @logged_in_email = auth_service.email
       @copy_of_answers_input = CopyOfAnswersInput.new
     end
 
@@ -14,15 +15,21 @@ module Forms
 
       unless @copy_of_answers_input.valid?
         @back_link = back_link
+        @logged_in_email = auth_service.email
         return render :show, status: :unprocessable_content
       end
 
       current_context.save_copy_of_answers_preference(@copy_of_answers_input.wants_copy?)
 
-      if @copy_of_answers_input.wants_copy?
-        redirect_to continue_to_one_login_path(form_id: current_context.form.id, form_slug: current_context.form.form_slug)
+      check_your_answers = check_your_answers_path(form_id: current_context.form.id, form_slug: current_context.form.form_slug)
+
+      return redirect_to check_your_answers unless @copy_of_answers_input.wants_copy?
+
+      if auth_service.logged_in?
+        current_context.save_copy_of_answers_email_address(auth_service.email)
+        redirect_to check_your_answers
       else
-        redirect_to check_your_answers_path(form_id: current_context.form.id, form_slug: current_context.form.form_slug)
+        redirect_to continue_to_one_login_path(form_id: current_context.form.id, form_slug: current_context.form.form_slug) unless auth_service.logged_in?
       end
     end
 
