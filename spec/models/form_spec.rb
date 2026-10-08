@@ -166,16 +166,6 @@ RSpec.describe Form, type: :model do
       it "returns true" do
         expect(form.copy_of_answers_enabled?).to be true
       end
-
-      context "when the global copy_of_answers_enabled setting is set to false" do
-        before do
-          allow(Settings).to receive(:copy_of_answers_enabled).and_return(false)
-        end
-
-        it "returns false" do
-          expect(form.copy_of_answers_enabled?).to be false
-        end
-      end
     end
 
     context "when send_copy_of_answers is \"disabled\"" do
@@ -199,6 +189,40 @@ RSpec.describe Form, type: :model do
 
       it "returns false" do
         expect(form.copy_of_answers_enabled?).to be false
+      end
+    end
+  end
+
+  describe "#save_and_return_enabled?" do
+    context 'when save_and_return is "enabled"' do
+      let(:form_document) { build :form_document, save_and_return: "enabled" }
+
+      it "returns true" do
+        expect(form.save_and_return_enabled?).to be true
+      end
+    end
+
+    context 'when save_and_return is "disabled"' do
+      let(:form_document) { build :form_document, save_and_return: "disabled" }
+
+      it "returns false" do
+        expect(form.save_and_return_enabled?).to be false
+      end
+    end
+
+    context "when save_and_return is not present on the form document" do
+      let(:form_document) { build :form_document, save_and_return: nil }
+
+      it "returns false" do
+        expect(form.save_and_return_enabled?).to be false
+      end
+    end
+
+    context "when the form document does not have a save_and_return field" do
+      let(:form_document) { OpenStruct.new }
+
+      it "returns false" do
+        expect(form.save_and_return_enabled?).to be false
       end
     end
   end

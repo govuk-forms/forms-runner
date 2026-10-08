@@ -460,6 +460,7 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
           "last_form_slug" => form_data.form_slug,
           "last_mode" => mode.to_s,
           "last_locale" => nil,
+          "return_to" => "copy_of_answers",
         })
       end
 
