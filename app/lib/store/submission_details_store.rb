@@ -1,5 +1,5 @@
 module Store
-  class ConfirmationDetailsStore
+  class SubmissionDetailsStore
     CONFIRMATION_KEY = :confirmation_details
     SUBMISSION_REFERENCE_KEY = :submission_reference
     REQUESTED_EMAIL_CONFIRMATION_KEY = :requested_email_confirmation
