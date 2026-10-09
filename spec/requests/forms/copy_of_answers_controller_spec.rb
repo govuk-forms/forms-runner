@@ -123,7 +123,7 @@ RSpec.describe Forms::CopyOfAnswersController, type: :request do
           end
 
           it "saves the preference" do
-            expect(Store::ConfirmationDetailsStore.new(store, form.form_id).wants_copy_of_answers?).to be true
+            expect(Store::SubmissionDetailsStore.new(store, form.form_id).wants_copy_of_answers?).to be true
           end
         end
 
@@ -135,7 +135,7 @@ RSpec.describe Forms::CopyOfAnswersController, type: :request do
           end
 
           it "saves the preference" do
-            expect(Store::ConfirmationDetailsStore.new(store, form.form_id).wants_copy_of_answers?).to be false
+            expect(Store::SubmissionDetailsStore.new(store, form.form_id).wants_copy_of_answers?).to be false
           end
         end
       end
@@ -160,8 +160,8 @@ RSpec.describe Forms::CopyOfAnswersController, type: :request do
           end
 
           it "saves the preference and the user's email" do
-            expect(Store::ConfirmationDetailsStore.new(store, form.form_id).wants_copy_of_answers?).to be true
-            expect(Store::ConfirmationDetailsStore.new(store, form.form_id).get_copy_of_answers_email_address).to eq email
+            expect(Store::SubmissionDetailsStore.new(store, form.form_id).wants_copy_of_answers?).to be true
+            expect(Store::SubmissionDetailsStore.new(store, form.form_id).get_copy_of_answers_email_address).to eq email
           end
         end
 
@@ -173,8 +173,8 @@ RSpec.describe Forms::CopyOfAnswersController, type: :request do
           end
 
           it "saves the preference and does not save the user's email" do
-            expect(Store::ConfirmationDetailsStore.new(store, form.form_id).wants_copy_of_answers?).to be false
-            expect(Store::ConfirmationDetailsStore.new(store, form.form_id).get_copy_of_answers_email_address).to be_nil
+            expect(Store::SubmissionDetailsStore.new(store, form.form_id).wants_copy_of_answers?).to be false
+            expect(Store::SubmissionDetailsStore.new(store, form.form_id).get_copy_of_answers_email_address).to be_nil
           end
         end
       end

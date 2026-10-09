@@ -5,7 +5,7 @@ module Flow
     def initialize(form:, form_document:, store:)
       @form = form
       @answer_store = Store::SessionAnswerStore.new(store, form.id)
-      @confirmation_details_store = Store::ConfirmationDetailsStore.new(store, form.id)
+      @submission_details_store = Store::SubmissionDetailsStore.new(store, form.id)
       @journey = Journey.new(answer_store: @answer_store, form_document:)
     end
 
@@ -22,7 +22,7 @@ module Flow
              :save_copy_of_answers_email_address,
              :get_copy_of_answers_email_address,
              :will_send_copy_of_answers?,
-             to: :confirmation_details_store
+             to: :submission_details_store
 
     def save_step(step, locale: :en, context: nil)
       return false unless step.valid?(context)
@@ -33,6 +33,6 @@ module Flow
 
   private
 
-    attr_reader :answer_store, :confirmation_details_store
+    attr_reader :answer_store, :submission_details_store
   end
 end
