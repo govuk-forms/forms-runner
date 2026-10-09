@@ -15,7 +15,7 @@ class FormSubmissionService
     @email_confirmation_input = email_confirmation_input
     @mode = mode
     @timestamp = submission_timestamp
-    @submission_reference = ReferenceNumberService.generate
+    @submission_reference = current_context.generate_submission_reference
 
     CurrentRequestLoggingAttributes.submission_reference = submission_reference
   end
@@ -38,8 +38,6 @@ class FormSubmissionService
     )
 
     enqueue_send_confirmation_email_job(submission:) if requested_confirmation? || send_copy_of_answers?
-
-    submission_reference
   end
 
   def submission_locale

@@ -41,11 +41,9 @@ module Forms
       end
 
       begin
-        submission_reference = FormSubmissionService.call(current_context:,
-                                                          email_confirmation_input:,
-                                                          mode:).submit
+        FormSubmissionService.call(current_context:, email_confirmation_input:, mode:).submit
 
-        current_context.save_submission_details(submission_reference, requested_email_confirmation)
+        current_context.save_requested_email_confirmation(requested_email_confirmation)
 
         if auth_service.logged_in?
           auth_service.store_return_params(form: current_context.form, mode: mode, locale: locale_param)
