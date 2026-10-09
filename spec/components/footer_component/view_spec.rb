@@ -94,6 +94,40 @@ RSpec.describe FooterComponent::View, type: :component do
           expect(page).not_to have_text("©")
         end
       end
+
+      context "when the brand shows the Open Government Licence" do
+        let(:form) do
+          build(:form, brand_id: "weatherfield", id: 1).tap do |form|
+            allow(form).to receive(:branding).and_return(build(:brand, open_government_licence: true))
+          end
+        end
+
+        it "shows the licence" do
+          expect(page).to have_css(".govuk-footer__licence-logo")
+          expect(page).to have_text("All content is available under the Open Government Licence v3.0, except where otherwise stated")
+          expect(page).to have_link(I18n.t("footer.licence_link_text"), href: I18n.t("footer.licence_link_url"))
+        end
+
+        it "shows the copyright holder's copyright notice" do
+          expect(page).to have_text("© Weatherfield Borough Council")
+        end
+
+        it "does not show Crown copyright" do
+          expect(page).not_to have_text(I18n.t("footer.copyright"))
+        end
+
+        context "when the locale is cy" do
+          around do |example|
+            I18n.with_locale(:cy) do
+              example.run
+            end
+          end
+
+          it "shows the licence in Welsh" do
+            expect(page).to have_link(I18n.t("footer.licence_link_text", locale: :cy), href: I18n.t("footer.licence_link_url", locale: :cy))
+          end
+        end
+      end
     end
   end
 

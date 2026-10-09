@@ -37,6 +37,10 @@ module FooterComponent
       @form.branding.copyright_holder
     end
 
+    def open_government_licence?
+      @form.branding.open_government_licence.present?
+    end
+
     def accessibility_statement
       if @form&.has_custom_branding?
         form_branded_accessibility_statement_path(mode: @mode, form_id: @form.id, form_slug: @form.form_slug)

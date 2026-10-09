@@ -25,6 +25,7 @@ RSpec.describe Api::BrandResource do
         border_colour: "#00703c",
         logo_link: "https://www.weatherfield.example.com",
         copyright_holder: "Weatherfield Borough Council",
+        open_government_licence: false,
         logo_path: "/assets/brands/weatherfield/logo-abc123.png",
         favicon_path: "/assets/brands/weatherfield/favicon-abc123.ico",
         opengraph_image_path: "/assets/brands/weatherfield/opengraph-image-abc123.jpg",

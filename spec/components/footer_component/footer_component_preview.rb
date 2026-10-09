@@ -18,4 +18,14 @@ class FooterComponent::FooterComponentPreview < ViewComponent::Preview
                           branding: Brand.new(copyright_holder: "Cheshire East Council"))
     render(FooterComponent::View.new(mode:, form:))
   end
+
+  def with_custom_branding_and_open_government_licence
+    mode = Mode.new
+    form = OpenStruct.new(id: 1,
+                          name: "test",
+                          form_slug: "test",
+                          has_custom_branding?: true,
+                          branding: Brand.new(copyright_holder: "Cheshire East Council", open_government_licence: true))
+    render(FooterComponent::View.new(mode:, form:))
+  end
 end

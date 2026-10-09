@@ -37,6 +37,7 @@ RSpec.describe Brand, type: :model do
           organisation_name: "Weatherfield Borough Council",
           organisation_url: "https://www.weatherfield.example.com",
           copyright_holder: "Weatherfield Borough Council",
+          open_government_licence: false,
           logo: "/assets/brands/weatherfield/logo-abc123.png",
           favicon: "/assets/brands/weatherfield/favicon-abc123.ico",
           opengraph: "/assets/brands/weatherfield/opengraph-image-abc123.jpg",
@@ -70,6 +71,14 @@ RSpec.describe Brand, type: :model do
             favicon: nil,
             opengraph: nil,
           )
+        end
+      end
+
+      context "when the brand shows the Open Government Licence" do
+        let(:brand_resource) { build :brand_resource, open_government_licence: true }
+
+        it "returns a brand that shows the Open Government Licence" do
+          expect(described_class.find("weatherfield")).to have_attributes(open_government_licence: true)
         end
       end
     end
