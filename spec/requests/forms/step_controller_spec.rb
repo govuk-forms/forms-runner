@@ -208,6 +208,27 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
     end
   end
 
+  describe "submission reference logging" do
+    let(:api_url_suffix) { "/live" }
+    let(:mode) { "form" }
+    let(:reference) { "ABC23456" }
+
+    before do
+      allow(ReferenceNumberService).to receive(:generate).and_return(reference)
+      allow(CurrentRequestLoggingAttributes).to receive(:submission_reference=).and_call_original
+    end
+
+    it "logs the reference generated when the first page is saved and on later requests" do
+      post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { text: "answer text" } }
+      expect(log_lines.last["submission_reference"]).to eq(reference)
+
+      get form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: 2)
+      expect(log_lines.last["submission_reference"]).to eq(reference)
+
+      expect(CurrentRequestLoggingAttributes).to have_received(:submission_reference=).with(reference).at_least(:twice)
+    end
+  end
+
   describe "#show" do
     context "with preview mode on" do
       let(:api_url_suffix) { "/draft" }
