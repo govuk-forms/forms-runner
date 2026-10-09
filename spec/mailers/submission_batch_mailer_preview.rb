@@ -1,4 +1,4 @@
-class AwsSesSubmissionBatchMailerPreview < ActionMailer::Preview
+class SubmissionBatchMailerPreview < ActionMailer::Preview
   include FactoryBot::Syntax::Methods
 
   def daily_submission_batch_email
