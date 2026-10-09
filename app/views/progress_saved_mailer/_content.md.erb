@@ -1,0 +1,13 @@
+<%= I18n.t("mailer.progress_saved.you_saved_progress", form_name: form.name) %>
+
+<%= I18n.t("mailer.progress_saved.continue_filling", link: "[#{resume_form_link}](#{resume_form_link})") %>
+
+<%= I18n.t("mailer.progress_saved.you_need_to_sign_in")  %>
+
+<%= I18n.t("mailer.progress_saved.deletion_date", date: format_date(@deletion_date)) %>
+
+^<%= I18n.t("mailer.progress_saved.you_cannot_reply") %>^
+
+## <%= I18n.t("mailer.submission_confirmation.contact_details_heading") %>
+
+<%= render partial: "mailer_shared/support_contact_details", formats: [:md], locals: { form: form } %>
