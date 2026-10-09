@@ -34,6 +34,8 @@ module Store
       @store[ANSWERS_KEY][@form_key].nil?
     end
 
+    alias_method :starting_new_form?, :form_submitted?
+
     def answers
       @store[ANSWERS_KEY][@form_key]
     end

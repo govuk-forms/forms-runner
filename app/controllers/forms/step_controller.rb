@@ -97,10 +97,12 @@ module Forms
       page_params = params.fetch(:question, {}).permit(*@step.params)
       @step.assign_question_attributes(page_params)
 
-      start_new_submission if is_first_page? && !changing_existing_answer
+      starting_new_form = is_first_page? && current_context.starting_new_form?
 
       validation_context = @step.autocomplete_selection_question? ? :skip_none_of_the_above_question_validation : nil
       if current_context.save_step(@step, context: validation_context, locale:)
+        start_new_submission if starting_new_form
+
         # Redirect before logging when the question has multiple pages so that we don't send multiple form started
         # metrics to CloudWatch if this is the first question.
         return redirect_to selection_none_of_the_above_page if redirect_to_none_of_the_above_page?
