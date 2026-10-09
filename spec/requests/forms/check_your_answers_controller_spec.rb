@@ -87,6 +87,7 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
   before do
     ActiveResource::HttpMock.respond_to do |mock|
       mock.get "/api/v2/forms/#{form_id}#{api_url_suffix}", req_headers, form_data.to_json, 200
+      mock.get "/api/v3/forms/#{form_id}/delivery-configurations/current", {}, form_data.delivery_configurations.to_json, 200
     end
 
     allow(Flow::Context).to receive(:new).and_wrap_original do |original_method, *args|
