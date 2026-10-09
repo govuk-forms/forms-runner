@@ -10,24 +10,41 @@ RSpec.describe Store::ConfirmationDetailsStore do
   let(:other_form_id) { 2 }
   let(:other_form_confirmation_details_store) { described_class.new(store, other_form_id) }
 
-  describe "submission details" do
-    it "stores and retrieves submission details" do
-      confirmation_details_store.save_submission_details(reference, requested_email_confirmation)
+  before do
+    allow(ReferenceNumberService).to receive(:generate).and_return(reference)
+  end
+
+  describe "#generate_submission_reference" do
+    before do
+      allow(ReferenceNumberService).to receive(:generate).and_return(reference)
+    end
+
+    it "stores and returns a new submission reference" do
+      expect(confirmation_details_store.generate_submission_reference).to eq(reference)
       expect(confirmation_details_store.get_submission_reference).to eq(reference)
+    end
+
+    it "keeps the other submission details" do
+      confirmation_details_store.save_requested_email_confirmation(requested_email_confirmation)
+
+      confirmation_details_store.generate_submission_reference
+
+      expect(confirmation_details_store.requested_email_confirmation?).to eq(requested_email_confirmation)
+    end
+  end
+
+  describe "#save_requested_email_confirmation" do
+    it "stores and returns the requested email confirmation flag" do
+      confirmation_details_store.save_requested_email_confirmation(requested_email_confirmation)
       expect(confirmation_details_store.requested_email_confirmation?).to eq(requested_email_confirmation)
     end
 
-    it "stores the submission details for multiple forms without overwriting them" do
-      confirmation_details_store.save_submission_details(reference, requested_email_confirmation)
+    it "keeps the other submission details" do
+      confirmation_details_store.generate_submission_reference
 
-      other_form_reference = Faker::Alphanumeric.alphanumeric(number: 8).upcase
-      other_form_requested_email_confirmation = false
-      other_form_confirmation_details_store.save_submission_details(other_form_reference, other_form_requested_email_confirmation)
+      confirmation_details_store.save_requested_email_confirmation(requested_email_confirmation)
 
       expect(confirmation_details_store.get_submission_reference).to eq(reference)
-      expect(confirmation_details_store.requested_email_confirmation?).to eq(requested_email_confirmation)
-      expect(other_form_confirmation_details_store.get_submission_reference).to eq(other_form_reference)
-      expect(other_form_confirmation_details_store.requested_email_confirmation?).to eq(other_form_requested_email_confirmation)
     end
   end
 
@@ -69,7 +86,8 @@ RSpec.describe Store::ConfirmationDetailsStore do
 
   describe "#clear_submission_details" do
     it "clears the submission details" do
-      confirmation_details_store.save_submission_details(reference, requested_email_confirmation)
+      confirmation_details_store.generate_submission_reference
+      confirmation_details_store.save_requested_email_confirmation(requested_email_confirmation)
       confirmation_details_store.save_copy_of_answers_preference(true)
       confirmation_details_store.save_copy_of_answers_email_address(Faker::Internet.email)
 
