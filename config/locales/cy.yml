@@ -689,6 +689,8 @@ cy:
       title: Teitl
   question/selection:
     divider: neu
+  save_progress:
+    save_and_exit: Save and exit
   submission_csv:
     language: Language
     reference: Reference

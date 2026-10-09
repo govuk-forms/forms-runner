@@ -20,6 +20,12 @@
 
       <%= form.govuk_submit(t("continue")) %>
 
+      <% if @current_context.form.save_and_return_enabled? %>
+        <p class="govuk-body">
+          <%= link_to t("save_progress.save_and_exit"), save_progress_path(@form.id, @form.form_slug) %>
+        </p>
+      <% end %>
+
     <% end %>
 
     <% if @step.question.instance_of? Question::File %>
