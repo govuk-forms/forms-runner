@@ -1,7 +1,5 @@
 module Forms
   class SubmittedController < BaseController
-    def submitted
-      current_context.clear
-    end
+    def submitted; end
   end
 end

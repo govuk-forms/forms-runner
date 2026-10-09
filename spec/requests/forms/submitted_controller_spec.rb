@@ -76,9 +76,5 @@ RSpec.describe Forms::SubmittedController, type: :request do
     it "returns 200" do
       expect(response).to have_http_status(:ok)
     end
-
-    it "clears the context" do
-      expect(controller.session[:answers]["2"]).to be_nil
-    end
   end
 end
