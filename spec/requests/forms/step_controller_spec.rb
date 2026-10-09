@@ -767,11 +767,15 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
           post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { text: "answer text" } }
         end
 
-        context "when changing an existing answer" do
+        context "when there are already answers in the session" do
+          before do
+            allow_any_instance_of(Flow::Context).to receive(:starting_new_form?).and_return(false)
+          end
+
           it "does not start a new submission" do
             expect_any_instance_of(Flow::Context).not_to receive(:clear_submission_details)
             expect_any_instance_of(Flow::Context).not_to receive(:generate_submission_reference)
-            post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id, changing_existing_answer: true), params: { question: { text: "answer text" } }
+            post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { text: "answer text" } }
           end
         end
       end
