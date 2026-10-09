@@ -21,6 +21,46 @@ RSpec.describe Users::OmniauthController, type: :request do
     end
   end
 
+  describe "POST /auth/govuk_one_login", :capture_logging do
+    before do
+      OmniAuth.config.test_mode = true
+      OmniAuth.config.mock_auth[:default] = nil
+    end
+
+    let(:redirect_log_line) { log_lines.find { |line| line["event"] == "redirect_to_one_login" } }
+
+    it "logs a line including the session_id_hash" do
+      post "/auth/govuk_one_login"
+
+      expect(redirect_log_line).to include(
+        "request_id" => be_present,
+        "session_id_hash" => match(/\A\h{64}\z/),
+      )
+    end
+
+    context "when the return from One Login params are in the session" do
+      before do
+        return_store = instance_double(Store::ReturnFromOneLoginStore, form_id:)
+        allow(Store::ReturnFromOneLoginStore).to receive(:new).and_return(return_store)
+      end
+
+      it "logs the form_id" do
+        post "/auth/govuk_one_login"
+
+        expect(redirect_log_line).to include("form_id" => form_id)
+      end
+    end
+
+    context "when the return from One Login params are not in the session" do
+      it "logs the line without a form_id" do
+        post "/auth/govuk_one_login"
+
+        expect(redirect_log_line).to be_present
+        expect(redirect_log_line).not_to have_key("form_id")
+      end
+    end
+  end
+
   describe "GET #callback", :capture_logging do
     let(:store) do
       {
@@ -55,6 +95,11 @@ RSpec.describe Users::OmniauthController, type: :request do
     context "when the auth details are present on the request and the user has a valid session" do
       it "redirects to the check your answers page" do
         expect(response).to redirect_to(check_your_answers_path(form_id:, form_slug:, mode:, locale:))
+      end
+
+      it "logs the logged_in_with_one_login event with the form_id" do
+        log_line = log_lines.find { |line| line["event"] == "logged_in_with_one_login" }
+        expect(log_line).to include("form_id" => form_id)
       end
 
       it "stores the user's email address on the session" do
