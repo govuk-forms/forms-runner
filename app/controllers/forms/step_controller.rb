@@ -97,7 +97,7 @@ module Forms
       page_params = params.fetch(:question, {}).permit(*@step.params)
       @step.assign_question_attributes(page_params)
 
-      current_context.clear_submission_details if is_first_page? && !changing_existing_answer
+      start_new_submission if is_first_page? && current_context.starting_new_form?
 
       validation_context = @step.autocomplete_selection_question? ? :skip_none_of_the_above_question_validation : nil
       if current_context.save_step(@step, context: validation_context, locale:)
@@ -224,6 +224,11 @@ module Forms
 
     def admin_edit_condition_url(form_id, page_id)
       "#{Settings.forms_admin.base_url}/forms/#{form_id}/pages-by-external-id/#{page_id}/routes"
+    end
+
+    def start_new_submission
+      current_context.clear_submission_details
+      CurrentRequestLoggingAttributes.submission_reference = current_context.generate_submission_reference
     end
 
     def is_first_page?

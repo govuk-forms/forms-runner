@@ -308,6 +308,10 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
         expect(response).to redirect_to(form_submitted_path)
       end
 
+      it "clears the answers from the session" do
+        expect(store[:answers][form_id.to_s]).to be_nil
+      end
+
       it "emails the form submission" do
         deliveries = ActionMailer::Base.deliveries
         expect(deliveries.length).to eq 2
@@ -660,6 +664,10 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
 
       it "returns 500" do
         expect(response).to have_http_status(:internal_server_error)
+      end
+
+      it "does not clear the answers from the session" do
+        expect(store[:answers][form_id.to_s]).to be_present
       end
 
       include_examples "for notification references"

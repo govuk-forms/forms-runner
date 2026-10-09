@@ -80,20 +80,33 @@ RSpec.describe FormSubmissionService, :capture_logging do
   let(:wants_copy_of_answers) { false }
   let(:copy_of_answers_email_address) { nil }
   let(:will_send_copy_of_answers) { wants_copy_of_answers && copy_of_answers_email_address.present? }
+  let(:stored_submission_reference) { nil }
   let(:current_context) do
     instance_double(Flow::Context, form:, journey:, completed_steps: all_steps, answers:, locales_used:,
+                                   get_submission_reference: stored_submission_reference,
+                                   generate_submission_reference: reference,
                                    wants_copy_of_answers?: wants_copy_of_answers,
                                    get_copy_of_answers_email_address: copy_of_answers_email_address,
                                    will_send_copy_of_answers?: will_send_copy_of_answers)
   end
 
-  before do
-    allow(ReferenceNumberService).to receive(:generate).and_return(reference)
-  end
-
   describe "#submit" do
-    it "returns the submission reference" do
-      expect(service.submit).to eq reference
+    context "when a submission reference was generated at the start of the form" do
+      let(:stored_submission_reference) { "ABC23456" }
+
+      it "uses the stored submission reference" do
+        service.submit
+        expect(Submission.last.reference).to eq "ABC23456"
+        expect(current_context).not_to have_received(:generate_submission_reference)
+      end
+    end
+
+    context "when there is no stored submission reference" do
+      it "generates a submission reference and stores it in the context" do
+        service.submit
+        expect(Submission.last.reference).to eq reference
+        expect(current_context).to have_received(:generate_submission_reference).once
+      end
     end
 
     it "includes the submission reference in the logging context" do

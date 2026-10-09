@@ -36,7 +36,7 @@ class AuthService
     raise DataMissingError, "Token issued-at is missing in OmniAuth auth hash" if authenticated_at.blank?
 
     @auth_store.store_session(sub:, email:, token:, authenticated_at:)
-    Store::ConfirmationDetailsStore.new(@store, form_id).save_copy_of_answers_email_address(email)
+    Store::SubmissionDetailsStore.new(@store, form_id).save_copy_of_answers_email_address(email)
   end
 
   def current_one_login_session

@@ -22,6 +22,7 @@ module Forms
       super
       CurrentRequestLoggingAttributes.form_name = @form.name
       CurrentRequestLoggingAttributes.preview = mode.preview?
+      CurrentRequestLoggingAttributes.submission_reference = current_context.get_submission_reference
     end
 
   private
