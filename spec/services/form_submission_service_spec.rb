@@ -91,10 +91,22 @@ RSpec.describe FormSubmissionService, :capture_logging do
   end
 
   describe "#submit" do
-    it "generates a submission reference and stores it in the context" do
-      service.submit
-      expect(Submission.last.reference).to eq reference
-      expect(current_context).to have_received(:generate_submission_reference).once
+    context "when a submission reference was generated at the start of the form" do
+      let(:stored_submission_reference) { "ABC23456" }
+
+      it "uses the stored submission reference" do
+        service.submit
+        expect(Submission.last.reference).to eq "ABC23456"
+        expect(current_context).not_to have_received(:generate_submission_reference)
+      end
+    end
+
+    context "when there is no stored submission reference" do
+      it "generates a submission reference and stores it in the context" do
+        service.submit
+        expect(Submission.last.reference).to eq reference
+        expect(current_context).to have_received(:generate_submission_reference).once
+      end
     end
 
     it "includes the submission reference in the logging context" do

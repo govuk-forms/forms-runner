@@ -674,6 +674,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
 
   describe "#save" do
     before do
+      allow_any_instance_of(Flow::Context).to receive(:generate_submission_reference)
       allow_any_instance_of(Flow::Context).to receive(:clear_submission_details)
     end
 
@@ -760,14 +761,16 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
           post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { text: "answer text" } }
         end
 
-        it "clears the submission reference from the session" do
+        it "starts a new submission in the session" do
           expect_any_instance_of(Flow::Context).to receive(:clear_submission_details).once
+          expect_any_instance_of(Flow::Context).to receive(:generate_submission_reference).once
           post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { text: "answer text" } }
         end
 
         context "when changing an existing answer" do
-          it "does not clear the submission details from the session" do
+          it "does not start a new submission" do
             expect_any_instance_of(Flow::Context).not_to receive(:clear_submission_details)
+            expect_any_instance_of(Flow::Context).not_to receive(:generate_submission_reference)
             post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id, changing_existing_answer: true), params: { question: { text: "answer text" } }
           end
         end
@@ -779,8 +782,9 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
           post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: 2), params: { question: { text: "answer text" } }
         end
 
-        it "does not clear the submission reference from the session" do
+        it "does not start a new submission" do
           expect_any_instance_of(Flow::Context).not_to receive(:clear_submission_details)
+          expect_any_instance_of(Flow::Context).not_to receive(:generate_submission_reference)
           post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: 2), params: { question: { text: "answer text" } }
         end
       end
@@ -1077,6 +1081,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
 
   describe "#save_file_upload" do
     before do
+      allow_any_instance_of(Flow::Context).to receive(:generate_submission_reference)
       allow_any_instance_of(Flow::Context).to receive(:clear_submission_details)
     end
 
