@@ -25,6 +25,7 @@ FactoryBot.define do
     version { nil }
     updated_at { Time.current.iso8601(3) }
     send_copy_of_answers { "disabled" }
+    save_and_return { "disabled" }
     delivery_configurations { [build(:delivery_configuration, :immediate_email)] }
 
     trait :with_steps do
