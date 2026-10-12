@@ -227,6 +227,14 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
 
       expect(CurrentRequestLoggingAttributes).to have_received(:submission_reference=).with(reference).at_least(:twice)
     end
+
+    it "does not log the reference from a previous submission when redirecting to the first page" do
+      post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { text: "answer text" } }
+
+      get form_path(mode:, form_id: 2, form_slug: form_data.form_slug)
+      expect(response).to have_http_status(:redirect)
+      expect(log_lines.last).not_to have_key("submission_reference")
+    end
   end
 
   describe "#show" do
