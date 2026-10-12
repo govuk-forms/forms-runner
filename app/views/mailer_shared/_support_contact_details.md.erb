@@ -1,0 +1,21 @@
+<% if form.support_details.phone || form.support_details.email || form.support_details.url %>
+<% if form.support_details.phone.present? %>
+
+<%= normalize_and_convert_whitespace_to_markdown(form.support_details.phone) %>
+
+[<%= I18n.t('support_details.call_charges') %>](<%= form.support_details.call_charges_url %>)
+<% end %>
+
+<% if form.support_details.email.present? %>
+
+[<%= form.support_details.email %>](mailto:<%= form.support_details.email %>)
+<% end %>
+
+<% if form.support_details.url.present? && form.support_details.url_text.present? %>
+
+[<%= form.support_details.url_text %>](<%= form.support_details.url %>)
+<% end %>
+<% else %>
+
+<%= I18n.t("mailer.submission_confirmation.default_support_contact_details") %>
+<% end %>
