@@ -502,19 +502,47 @@ RSpec.describe FormSubmissionService, :capture_logging do
 
           before do
             allow(SendConfirmationEmailJob).to receive(:perform_later).and_yield(instance_double(SendConfirmationEmailJob, successfully_enqueued?: false, enqueue_error:))
+            allow(Sentry).to receive(:capture_message)
+            allow(Rails.logger).to receive(:error)
           end
 
           context "and there is no enqueue error" do
-            it "raises an error" do
-              expect { service.submit }.to change(Submission, :count).by(1).and raise_error(StandardError, "Failed to enqueue confirmation email for reference #{reference}")
+            it "does not raise an error" do
+              expect { service.submit }.to change(Submission, :count).by(1)
+            end
+
+            it "sends an error to Sentry including the submission reference" do
+              service.submit
+
+              expect(Sentry).to have_received(:capture_message).with("Failed to enqueue confirmation email", extra: {
+                enqueue_error: nil,
+                submission_reference: reference,
+              })
+            end
+
+            it "logs the error" do
+              service.submit
+
+              expect(Rails.logger).to have_received(:error).with("Failed to enqueue confirmation email", {
+                enqueue_error: nil,
+              })
             end
           end
 
           context "and there is an enqueue error" do
             let(:enqueue_error) { ActiveJob::EnqueueError.new("An error occurred enqueueing job") }
 
-            it "raises an error" do
-              expect { service.submit }.to change(Submission, :count).by(1).and raise_error(StandardError, "Failed to enqueue confirmation email for reference #{reference}: An error occurred enqueueing job")
+            it "does not raise an error" do
+              expect { service.submit }.to change(Submission, :count).by(1)
+            end
+
+            it "sends the enqueue error to Sentry" do
+              service.submit
+
+              expect(Sentry).to have_received(:capture_message).with("Failed to enqueue confirmation email", extra: {
+                enqueue_error: "An error occurred enqueueing job",
+                submission_reference: reference,
+              })
             end
           end
         end
