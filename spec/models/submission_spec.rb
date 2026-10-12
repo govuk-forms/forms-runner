@@ -162,6 +162,58 @@ RSpec.describe Submission, type: :model do
     end
   end
 
+  describe "#journey" do
+    let(:journey) { instance_double(Flow::Journey) }
+    let(:english_form_with_version) { Api::V3::FormDocumentResource.new(name: "English form with a version") }
+    let(:welsh_form_with_version) { Api::V3::FormDocumentResource.new(name: "Welsh form with a version") }
+
+    before do
+      allow(Flow::Journey).to receive(:new).and_return(journey)
+    end
+
+    context "when the submission has a form version" do
+      let(:submission) do
+        create(:submission,
+               form_version: 1111,
+               form_document: build(:form_document, name: "English form on submission"),
+               welsh_form_document: build(:form_document, name: "Welsh form on submission"))
+      end
+
+      before do
+        allow(Api::V3::FormDocumentRepository).to receive(:find_by_version).with(form_id: submission.form_id, version: 1111).and_return(english_form_with_version)
+        allow(Api::V3::FormDocumentRepository).to receive(:find_by_version).with(form_id: submission.form_id, version: 1111, language: :cy).and_return(welsh_form_with_version)
+      end
+
+      it "builds the English journey from the English v3 form document" do
+        expect(submission.journey).to eq(journey)
+        expect(Flow::Journey).to have_received(:new).with(answer_store: anything, form_document: english_form_with_version)
+      end
+
+      it "builds the Welsh journey from the Welsh v3 form document" do
+        expect(submission.journey(locale: :cy)).to eq(journey)
+        expect(Flow::Journey).to have_received(:new).with(answer_store: anything, form_document: welsh_form_with_version)
+      end
+    end
+
+    context "when the submission has no form version" do
+      let(:submission) do
+        create(:submission,
+               form_document: build(:form_document, name: "English form on submission"),
+               welsh_form_document: build(:form_document, name: "Welsh form on submission"))
+      end
+
+      it "builds the journeys from the form documents stored on the submission" do
+        expect(Api::V3::FormDocumentRepository).not_to receive(:find_by_version)
+
+        submission.journey
+        submission.journey(locale: :cy)
+
+        expect(Flow::Journey).to have_received(:new).with(answer_store: anything, form_document: have_attributes(name: "English form on submission"))
+        expect(Flow::Journey).to have_received(:new).with(answer_store: anything, form_document: have_attributes(name: "Welsh form on submission"))
+      end
+    end
+  end
+
   describe "#form" do
     context "when the submission has a form version" do
       let(:submission) { create(:submission, form_version: 1111, form_document: build(:form_document, name: "form on submission")) }
@@ -177,9 +229,9 @@ RSpec.describe Submission, type: :model do
       end
 
       it "raises an error when the form version cannot be found" do
-        allow(Api::V3::FormDocumentRepository).to receive(:find_by_version).and_return(nil)
+        allow(Api::V3::FormDocumentRepository).to receive(:find_by_version).and_raise(ActiveRecord::RecordNotFound)
 
-        expect { submission.form }.to raise_error(ActiveRecord::RecordNotFound, /Form version 1111/)
+        expect { submission.form }.to raise_error(ActiveRecord::RecordNotFound)
       end
     end
 
@@ -189,6 +241,63 @@ RSpec.describe Submission, type: :model do
       it "gets the form document stored on the submission" do
         expect(Api::V3::FormDocumentRepository).not_to receive(:find_by_version)
         expect(submission.form.name).to eq("form without version")
+      end
+    end
+  end
+
+  describe "#welsh_form" do
+    context "when the submission has a form version" do
+      let(:submission) do
+        create(:submission,
+               form_version: 1111,
+               submission_locale: "cy",
+               form_document: build(:form_document, name: "English form on submission"),
+               welsh_form_document: build(:form_document, name: "Welsh form on submission"))
+      end
+      let(:welsh_form_with_version) { Api::V3::FormDocumentResource.new(name: "Welsh form with a version") }
+
+      before do
+        allow(Api::V3::FormDocumentRepository).to receive(:find_by_version).and_return(welsh_form_with_version)
+      end
+
+      it "gets the Welsh form document from the v3 API" do
+        expect(submission.welsh_form.name).to eq("Welsh form with a version")
+        expect(Api::V3::FormDocumentRepository).to have_received(:find_by_version).with(form_id: submission.form_id, version: 1111, language: :cy)
+      end
+
+      it "raises an error when the Welsh form version cannot be found" do
+        allow(Api::V3::FormDocumentRepository).to receive(:find_by_version).and_raise(ActiveRecord::RecordNotFound)
+
+        expect { submission.welsh_form }.to raise_error(ActiveRecord::RecordNotFound)
+      end
+    end
+
+    context "when the submission has no form version" do
+      let(:submission) do
+        create(:submission,
+               submission_locale: "cy",
+               form_document: build(:form_document, name: "English form on submission"),
+               welsh_form_document: build(:form_document, name: "Welsh form on submission"))
+      end
+
+      it "gets the Welsh form document stored on the submission" do
+        expect(Api::V3::FormDocumentRepository).not_to receive(:find_by_version)
+        expect(submission.welsh_form.name).to eq("Welsh form on submission")
+      end
+    end
+
+    context "when the submission locale is not Welsh" do
+      let(:submission) do
+        create(:submission,
+               form_version: 1111,
+               submission_locale: "en",
+               form_document: build(:form_document, name: "English form on submission"),
+               welsh_form_document: build(:form_document, name: "Welsh form on submission"))
+      end
+
+      it "returns nil without fetching the Welsh form document" do
+        expect(Api::V3::FormDocumentRepository).not_to receive(:find_by_version)
+        expect(submission.welsh_form).to be_nil
       end
     end
   end

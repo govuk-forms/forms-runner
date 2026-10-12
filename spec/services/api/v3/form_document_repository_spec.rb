@@ -138,8 +138,8 @@ RSpec.describe Api::V3::FormDocumentRepository do
         allow(Api::V3::FormDocumentResource).to receive(:find_by_version).with(form_id, version).and_raise(ActiveResource::ResourceNotFound.new(nil))
       end
 
-      it "returns nil" do
-        expect(described_class.find_by_version(version:, form_id:)).to be_nil
+      it "propagates the ResourceNotFound error" do
+        expect { described_class.find_by_version(version:, form_id:) }.to raise_error(ActiveResource::ResourceNotFound)
       end
     end
 

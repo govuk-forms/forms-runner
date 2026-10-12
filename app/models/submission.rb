@@ -31,14 +31,11 @@ class Submission < ApplicationRecord
   end
 
   def form
-    # we are adding the form version to the submission, but we need to fallback on using the form document
-    # since the form version won't be present on older submissions.
-    # we can delete this fallback once we have migrated all submissions to include the form version (after 30 days)
-    @form ||= form_version.present? ? form_from_version : form_from_document
+    @form ||= Form.new(form_document_resource)
   end
 
   def welsh_form
-    @welsh_form ||= Form.new(welsh_form_document_resource) if welsh_form_document
+    @welsh_form ||= Form.new(welsh_form_document_resource) if submission_locale == "cy"
   end
 
   def submission_time
@@ -77,21 +74,6 @@ private
     Store::DatabaseAnswerStore.new(answers)
   end
 
-  def form_from_document
-    Form.new(form_document_resource)
-  end
-
-  def form_from_version
-    form_document = Api::V3::FormDocumentRepository.find_by_version(form_id:, version: form_version)
-    raise ActiveRecord::RecordNotFound, "Form version #{form_version} for form #{form_id} not found" unless form_document
-
-    Form.new(form_document)
-  end
-
-  def form_document_resource
-    @form_document_resource ||= Api::V2::FormDocumentResource.new(form_document, true)
-  end
-
   def ses_email_formatter(locale, confirmation_email)
     SesEmailFormatter.new(submission_reference: reference, steps: journey(locale:).completed_steps,
                           confirmation_email:)
@@ -105,7 +87,23 @@ private
     @welsh_journey ||= Flow::Journey.new(answer_store:, form_document: welsh_form_document_resource)
   end
 
+  def form_document_resource
+    @form_document_resource ||=
+      if form_version.present?
+        Api::V3::FormDocumentRepository.find_by_version(form_id:, version: form_version)
+      else
+        # we can delete this fallback once we have migrated all submissions to include the form version (after 1 Nov 26)
+        Api::V2::FormDocumentResource.new(form_document, true)
+      end
+  end
+
   def welsh_form_document_resource
-    @welsh_form_document_resource ||= Api::V2::FormDocumentResource.new(welsh_form_document, true)
+    @welsh_form_document_resource ||=
+      if form_version.present?
+        Api::V3::FormDocumentRepository.find_by_version(form_id:, version: form_version, language: :cy)
+      else
+        # we can delete this fallback once we have migrated all submissions to include the form version (after 1 Nov 26)
+        Api::V2::FormDocumentResource.new(welsh_form_document, true)
+      end
   end
 end
