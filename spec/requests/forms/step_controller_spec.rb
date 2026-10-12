@@ -285,6 +285,24 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
       it_behaves_like "question page"
 
       it_behaves_like "a translatable page"
+
+      context "when viewing the first page" do
+        it "clears submission details left over from a previous submission" do
+          expect_any_instance_of(Flow::Context).to receive(:clear_submission_details).once
+          get form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id)
+        end
+
+        context "when there are already answers in the session" do
+          before do
+            allow_any_instance_of(Flow::Context).to receive(:starting_new_form?).and_return(false)
+          end
+
+          it "does not clear submission details" do
+            expect_any_instance_of(Flow::Context).not_to receive(:clear_submission_details)
+            get form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id)
+          end
+        end
+      end
     end
 
     context "when viewing a live form with no routing_conditions" do

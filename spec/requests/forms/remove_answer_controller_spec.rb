@@ -38,9 +38,9 @@ RSpec.describe Forms::RemoveAnswerController, type: :request do
     answer_store = instance_double(Store::SessionAnswerStore)
     allow(Store::SessionAnswerStore).to receive(:new).and_return(answer_store)
     allow(answer_store).to receive(:clear_stored_answer)
-    allow(answer_store).to receive(:get_stored_answer).and_return(stored_answers)
     allow(answer_store).to receive(:save_step)
     allow(answer_store).to receive(:add_locale)
+    allow(answer_store).to receive_messages(get_stored_answer: stored_answers, starting_new_form?: false)
   end
 
   describe "GET #show" do

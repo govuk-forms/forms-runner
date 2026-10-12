@@ -1,6 +1,8 @@
 module Forms
   class StepController < BaseController
-    before_action :prepare_step, :set_request_logging_attributes, :changing_existing_answer, :check_goto_page_routing_error
+    before_action :prepare_step
+    before_action :clear_stale_submission_details, only: :show
+    before_action :set_request_logging_attributes, :changing_existing_answer, :check_goto_page_routing_error
 
     def set_request_logging_attributes
       super
@@ -97,11 +99,11 @@ module Forms
       page_params = params.fetch(:question, {}).permit(*@step.params)
       @step.assign_question_attributes(page_params)
 
-      starting_new_form = is_first_page? && current_context.starting_new_form?
+      starting_new_submission = first_page_of_new_submission?
 
       validation_context = @step.autocomplete_selection_question? ? :skip_none_of_the_above_question_validation : nil
       if current_context.save_step(@step, context: validation_context, locale:)
-        start_new_submission if starting_new_form
+        start_new_submission if starting_new_submission
 
         # Redirect before logging when the question has multiple pages so that we don't send multiple form started
         # metrics to CloudWatch if this is the first question.
@@ -226,6 +228,16 @@ module Forms
 
     def admin_edit_condition_url(form_id, page_id)
       "#{Settings.forms_admin.base_url}/forms/#{form_id}/pages-by-external-id/#{page_id}/routes"
+    end
+
+    def clear_stale_submission_details
+      return unless first_page_of_new_submission?
+
+      current_context.clear_submission_details
+    end
+
+    def first_page_of_new_submission?
+      is_first_page? && current_context.starting_new_form?
     end
 
     def start_new_submission
