@@ -1,0 +1,14 @@
+<% set_page_title(form_title(form_name: @current_context.form.name, page_name: t('.title'), mode: @mode)) %>
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    <%= govuk_notification_banner(success: true) do |banner| %>
+      <% banner.with_heading(text: t('.title')) %>
+      <%= t('.body_html') %>
+    <% end %>
+
+    <p class="govuk-body">
+      <%= link_to t('.sign_out_link'), "#" %>
+    </p>
+  </div>
+</div>

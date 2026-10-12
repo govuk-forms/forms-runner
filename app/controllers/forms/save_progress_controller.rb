@@ -5,6 +5,9 @@ module Forms
     def new
       if auth_service.logged_in?
         SaveFormProgressService.new(current_context:, user_id: auth_service.sub).save!
+        @one_login_email = auth_service.email
+        return
+      end
 
         redirect_to progress_saved_path(current_context.form.id, current_context.form.form_slug)
       else
