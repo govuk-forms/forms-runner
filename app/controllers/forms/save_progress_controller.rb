@@ -4,20 +4,24 @@ module Forms
 
     def new
       if auth_service.logged_in?
-        SaveFormProgressService.new(current_context:, user_id: auth_service.sub).save!
         @one_login_email = auth_service.email
         return
       end
 
-        redirect_to progress_saved_path(current_context.form.id, current_context.form.form_slug)
-      else
-        auth_service.store_return_params(
-          form: current_context.form,
-          mode:,
-          locale: locale_param,
-          return_to: "save_progress",
-        )
-      end
+      auth_service.store_return_params(
+        form: current_context.form,
+        mode:,
+        locale: locale_param,
+        return_to: "save_progress",
+      )
+    end
+
+    def create
+      return redirect_to(save_progress_path(current_context.form.id, current_context.form.form_slug)) unless auth_service.logged_in?
+
+      SaveFormProgressService.new(current_context:, user_id: auth_service.sub).save!
+
+      redirect_to progress_saved_path(current_context.form.id, current_context.form.form_slug)
     end
 
     def show; end
