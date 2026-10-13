@@ -74,7 +74,7 @@ RSpec.describe ReceiveConfirmationBouncesAndComplaintsJob do
                                      "message" => "Bounce notification received for confirmation email",
                                      "job_id" => @job_id,
                                      "job_class" => "ReceiveConfirmationBouncesAndComplaintsJob",
-                                     "confirmation_email_id" => message_id,
+                                     "email_id" => message_id,
                                      "ses_bounce" => {
                                        "bounce_type" => "Permanent",
                                        "bounce_sub_type" => "General",
@@ -98,7 +98,7 @@ RSpec.describe ReceiveConfirmationBouncesAndComplaintsJob do
                                      "message" => "Complaint notification received for confirmation email",
                                      "job_id" => @job_id,
                                      "job_class" => "ReceiveConfirmationBouncesAndComplaintsJob",
-                                     "confirmation_email_id" => message_id,
+                                     "email_id" => message_id,
                                    ))
     end
   end

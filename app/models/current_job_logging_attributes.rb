@@ -12,7 +12,7 @@ class CurrentJobLoggingAttributes < ActiveSupport::CurrentAttributes
             :delivery_method,
             :delivery_formats,
             :batch_begin_at,
-            :confirmation_email_id,
+            :email_id,
             :sqs_message_id,
             :sns_message_timestamp
 
@@ -31,7 +31,7 @@ class CurrentJobLoggingAttributes < ActiveSupport::CurrentAttributes
       delivery_method:,
       delivery_formats:,
       batch_begin_at:,
-      confirmation_email_id:,
+      email_id:,
       sqs_message_id:,
       sns_message_timestamp:,
     }.compact
