@@ -11,6 +11,7 @@ class SaveFormProgressService
     saved.answers = @current_context.answers
     saved.locale = @current_context.submission_locale
     saved.mode = @mode.to_s
+    saved.submission_reference = @current_context.get_submission_reference
     saved.save!
   end
 end
