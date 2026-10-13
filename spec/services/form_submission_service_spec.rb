@@ -178,6 +178,27 @@ RSpec.describe FormSubmissionService, :capture_logging do
           end
         end
 
+        context "when the request for the delivery configuration fails" do
+          before do
+            ActiveResource::HttpMock.respond_to do |mock|
+              mock.get "/api/v3/forms/1/delivery-configurations/current", {}, "Error", 500
+            end
+          end
+
+          it "does not record a submission count metric" do
+            expect(Metrics).not_to receive(:record_submission)
+
+            expect { service.submit }.to raise_error(StandardError)
+          end
+
+          it "deletes the submission and raises the original error" do
+            expect { service.submit }
+              .to not_change(Submission, :count)
+                    .and not_change(Delivery, :count)
+                           .and raise_error(ActiveResource::ServerError)
+          end
+        end
+
         context "when the job fails to enqueue" do
           let(:enqueue_error) { nil }
 
