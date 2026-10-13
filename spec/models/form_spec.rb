@@ -210,6 +210,16 @@ RSpec.describe Form, type: :model do
       it "returns true" do
         expect(form.save_and_return_enabled?).to be true
       end
+
+      context "when the global save_and_return_enabled setting is set to false" do
+        before do
+          allow(Settings).to receive(:save_and_return_enabled).and_return(false)
+        end
+
+        it "returns false" do
+          expect(form.save_and_return_enabled?).to be false
+        end
+      end
     end
 
     context 'when save_and_return is "disabled"' do

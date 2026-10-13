@@ -67,6 +67,7 @@ class Form
   end
 
   def save_and_return_enabled?
+    return false unless Settings.save_and_return_enabled
     return false unless form_document.respond_to?(:save_and_return)
 
     form_document.save_and_return == "enabled"
