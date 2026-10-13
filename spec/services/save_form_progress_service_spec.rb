@@ -1,10 +1,11 @@
 require "rails_helper"
 
 RSpec.describe SaveFormProgressService do
-  subject(:service) { described_class.new(current_context:, user_id:, mode:) }
+  subject(:service) { described_class.new(current_context:, user_id:, mode:, email:) }
 
   let(:user_id) { "one-login-sub" }
   let(:mode) { Mode.new("preview-draft") }
+  let(:email) { "test@example.com" }
   let(:form) { instance_double(Form, id: 1, version: 3) }
   let(:answers) { { "1" => { "text" => "an answer" } } }
   let(:submission_locale) { :cy }
@@ -25,6 +26,37 @@ RSpec.describe SaveFormProgressService do
         mode: "preview-draft",
         submission_reference: submission_reference,
       )
+    end
+
+    it "enqueues the progress saved email for the saved answer" do
+      allow(SendProgressSavedEmailJob).to receive(:perform_later)
+
+      service.save!
+
+      expect(SendProgressSavedEmailJob).to have_received(:perform_later).with(incomplete_submission: IncompleteSubmission.last, email_address: email)
+    end
+
+    context "when the email job fails to enqueue" do
+      let(:enqueue_error) { nil }
+
+      before do
+        allow(SendProgressSavedEmailJob).to receive(:perform_later)
+          .and_yield(instance_double(SendProgressSavedEmailJob, successfully_enqueued?: false, enqueue_error:))
+      end
+
+      it "raises an error" do
+        expect { service.save! }
+          .to raise_error(StandardError, "Failed to enqueue progress saved email for reference #{submission_reference}")
+      end
+
+      context "and there is an enqueue error" do
+        let(:enqueue_error) { ActiveJob::EnqueueError.new("An error occurred enqueueing job") }
+
+        it "includes the enqueue error message" do
+          expect { service.save! }
+            .to raise_error(StandardError, "Failed to enqueue progress saved email for reference #{submission_reference}: An error occurred enqueueing job")
+        end
+      end
     end
 
     context "when a saved answer already exists for the user and form" do
