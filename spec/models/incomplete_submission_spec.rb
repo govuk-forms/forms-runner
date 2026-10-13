@@ -46,4 +46,76 @@ RSpec.describe IncompleteSubmission, type: :model do
       expect { duplicate.save!(validate: false) }.to raise_error(ActiveRecord::RecordNotUnique)
     end
   end
+
+  describe "#form" do
+    let(:form_document) { Api::V3::FormDocumentResource.new(name: "English form") }
+
+    before do
+      allow(Api::V3::FormDocumentRepository).to receive(:find_by_version)
+                                                  .with(form_id: 1, version: 1, language: :en)
+                                                  .and_return(form_document)
+    end
+
+    it "returns a Form built from the English form document for the saved version" do
+      form = incomplete_submission.form
+
+      expect(form).to be_a(Form)
+      expect(form.name).to eq("English form")
+    end
+
+    context "when the mode is preview-draft" do
+      let(:draft_form_document) { Api::V3::FormDocumentResource.new(name: "Draft English form") }
+
+      before do
+        incomplete_submission.mode = "preview-draft"
+        allow(Api::V3::FormDocumentRepository).to receive(:find_draft)
+                                                    .with(form_id: 1, language: :en)
+                                                    .and_return(draft_form_document)
+      end
+
+      it "returns a Form built from the draft English form document" do
+        form = incomplete_submission.form
+
+        expect(form).to be_a(Form)
+        expect(form.name).to eq("Draft English form")
+        expect(Api::V3::FormDocumentRepository).not_to have_received(:find_by_version)
+      end
+    end
+  end
+
+  describe "#welsh_form" do
+    let(:welsh_form_document) { Api::V3::FormDocumentResource.new(name: "Welsh form") }
+
+    before do
+      allow(Api::V3::FormDocumentRepository).to receive(:find_by_version)
+                                                  .with(form_id: 1, version: 1, language: :cy)
+                                                  .and_return(welsh_form_document)
+    end
+
+    it "returns a Form built from the Welsh form document for the saved version" do
+      form = incomplete_submission.welsh_form
+
+      expect(form).to be_a(Form)
+      expect(form.name).to eq("Welsh form")
+    end
+
+    context "when the mode is preview-draft" do
+      let(:draft_welsh_form_document) { Api::V3::FormDocumentResource.new(name: "Draft Welsh form") }
+
+      before do
+        incomplete_submission.mode = "preview-draft"
+        allow(Api::V3::FormDocumentRepository).to receive(:find_draft)
+                                                    .with(form_id: 1, language: :cy)
+                                                    .and_return(draft_welsh_form_document)
+      end
+
+      it "returns a Form built from the draft Welsh form document" do
+        form = incomplete_submission.welsh_form
+
+        expect(form).to be_a(Form)
+        expect(form.name).to eq("Draft Welsh form")
+        expect(Api::V3::FormDocumentRepository).not_to have_received(:find_by_version)
+      end
+    end
+  end
 end
