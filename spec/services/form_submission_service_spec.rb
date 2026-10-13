@@ -80,20 +80,33 @@ RSpec.describe FormSubmissionService, :capture_logging do
   let(:wants_copy_of_answers) { false }
   let(:copy_of_answers_email_address) { nil }
   let(:will_send_copy_of_answers) { wants_copy_of_answers && copy_of_answers_email_address.present? }
+  let(:stored_submission_reference) { nil }
   let(:current_context) do
     instance_double(Flow::Context, form:, journey:, completed_steps: all_steps, answers:, locales_used:,
+                                   get_submission_reference: stored_submission_reference,
+                                   generate_submission_reference: reference,
                                    wants_copy_of_answers?: wants_copy_of_answers,
                                    get_copy_of_answers_email_address: copy_of_answers_email_address,
                                    will_send_copy_of_answers?: will_send_copy_of_answers)
   end
 
-  before do
-    allow(ReferenceNumberService).to receive(:generate).and_return(reference)
-  end
-
   describe "#submit" do
-    it "returns the submission reference" do
-      expect(service.submit).to eq reference
+    context "when a submission reference was generated at the start of the form" do
+      let(:stored_submission_reference) { "ABC23456" }
+
+      it "uses the stored submission reference" do
+        service.submit
+        expect(Submission.last.reference).to eq "ABC23456"
+        expect(current_context).not_to have_received(:generate_submission_reference)
+      end
+    end
+
+    context "when there is no stored submission reference" do
+      it "generates a submission reference and stores it in the context" do
+        service.submit
+        expect(Submission.last.reference).to eq reference
+        expect(current_context).to have_received(:generate_submission_reference).once
+      end
     end
 
     it "includes the submission reference in the logging context" do
@@ -489,19 +502,47 @@ RSpec.describe FormSubmissionService, :capture_logging do
 
           before do
             allow(SendConfirmationEmailJob).to receive(:perform_later).and_yield(instance_double(SendConfirmationEmailJob, successfully_enqueued?: false, enqueue_error:))
+            allow(Sentry).to receive(:capture_message)
+            allow(Rails.logger).to receive(:error)
           end
 
           context "and there is no enqueue error" do
-            it "raises an error" do
-              expect { service.submit }.to change(Submission, :count).by(1).and raise_error(StandardError, "Failed to enqueue confirmation email for reference #{reference}")
+            it "does not raise an error" do
+              expect { service.submit }.to change(Submission, :count).by(1)
+            end
+
+            it "sends an error to Sentry including the submission reference" do
+              service.submit
+
+              expect(Sentry).to have_received(:capture_message).with("Failed to enqueue confirmation email", extra: {
+                enqueue_error: nil,
+                submission_reference: reference,
+              })
+            end
+
+            it "logs the error" do
+              service.submit
+
+              expect(Rails.logger).to have_received(:error).with("Failed to enqueue confirmation email", {
+                enqueue_error: nil,
+              })
             end
           end
 
           context "and there is an enqueue error" do
             let(:enqueue_error) { ActiveJob::EnqueueError.new("An error occurred enqueueing job") }
 
-            it "raises an error" do
-              expect { service.submit }.to change(Submission, :count).by(1).and raise_error(StandardError, "Failed to enqueue confirmation email for reference #{reference}: An error occurred enqueueing job")
+            it "does not raise an error" do
+              expect { service.submit }.to change(Submission, :count).by(1)
+            end
+
+            it "sends the enqueue error to Sentry" do
+              service.submit
+
+              expect(Sentry).to have_received(:capture_message).with("Failed to enqueue confirmation email", extra: {
+                enqueue_error: "An error occurred enqueueing job",
+                submission_reference: reference,
+              })
             end
           end
         end

@@ -22,6 +22,10 @@ module Forms
       super
       CurrentRequestLoggingAttributes.form_name = @form.name
       CurrentRequestLoggingAttributes.preview = mode.preview?
+
+      unless action_name == "redirect_to_friendly_url_start"
+        CurrentRequestLoggingAttributes.submission_reference = current_context.get_submission_reference
+      end
     end
 
   private

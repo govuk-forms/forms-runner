@@ -15,7 +15,7 @@ class FormSubmissionService
     @email_confirmation_input = email_confirmation_input
     @mode = mode
     @timestamp = submission_timestamp
-    @submission_reference = ReferenceNumberService.generate
+    @submission_reference = current_context.get_submission_reference.presence || current_context.generate_submission_reference
 
     CurrentRequestLoggingAttributes.submission_reference = submission_reference
   end
@@ -38,8 +38,6 @@ class FormSubmissionService
     )
 
     enqueue_send_confirmation_email_job(submission:) if requested_confirmation? || send_copy_of_answers?
-
-    submission_reference
   end
 
   def submission_locale
@@ -184,8 +182,14 @@ private
     ) do |job|
       next if job.successfully_enqueued?
 
-      message_suffix = ": #{job.enqueue_error&.message}" if job.enqueue_error
-      raise StandardError, "Failed to enqueue confirmation email for reference #{submission_reference}#{message_suffix}"
+      # The submission has already been created and its deliveries enqueued, so don't raise an exception and show the
+      # user an error. Instead, report it so we know the confirmation email wasn't sent.
+      message = "Failed to enqueue confirmation email"
+      log_extra_attributes = { enqueue_error: job.enqueue_error&.message }
+      Sentry.capture_message(message, extra: log_extra_attributes.merge({
+        submission_reference: submission_reference,
+      }))
+      Rails.logger.error(message, log_extra_attributes)
     end
   end
 

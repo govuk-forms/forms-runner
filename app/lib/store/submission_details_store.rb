@@ -1,5 +1,5 @@
 module Store
-  class ConfirmationDetailsStore
+  class SubmissionDetailsStore
     CONFIRMATION_KEY = :confirmation_details
     SUBMISSION_REFERENCE_KEY = :submission_reference
     REQUESTED_EMAIL_CONFIRMATION_KEY = :requested_email_confirmation
@@ -12,9 +12,13 @@ module Store
       @store[CONFIRMATION_KEY] ||= {}
     end
 
-    def save_submission_details(reference, requested_email_confirmation)
+    def generate_submission_reference
       @store[CONFIRMATION_KEY][@form_key] ||= {}
-      @store[CONFIRMATION_KEY][@form_key][SUBMISSION_REFERENCE_KEY.to_s] = reference
+      @store[CONFIRMATION_KEY][@form_key][SUBMISSION_REFERENCE_KEY.to_s] = ReferenceNumberService.generate
+    end
+
+    def save_requested_email_confirmation(requested_email_confirmation)
+      @store[CONFIRMATION_KEY][@form_key] ||= {}
       @store[CONFIRMATION_KEY][@form_key][REQUESTED_EMAIL_CONFIRMATION_KEY.to_s] = requested_email_confirmation
     end
 

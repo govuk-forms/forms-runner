@@ -5,15 +5,16 @@ module Flow
     def initialize(form:, form_document:, store:)
       @form = form
       @answer_store = Store::SessionAnswerStore.new(store, form.id)
-      @confirmation_details_store = Store::ConfirmationDetailsStore.new(store, form.id)
+      @submission_details_store = Store::SubmissionDetailsStore.new(store, form.id)
       @journey = Journey.new(answer_store: @answer_store, form_document:)
     end
 
     delegate :support_details, to: :form
     delegate :step_by_id, :previous_step, :next_step_slug, :next_step, :can_visit?, :completed_steps, :all_steps, to: :journey
-    delegate :clear_stored_answer, :clear, :form_submitted?, :answers, :locales_used, to: :answer_store
-    delegate :save_submission_details,
+    delegate :clear_stored_answer, :clear, :form_submitted?, :starting_new_form?, :answers, :locales_used, to: :answer_store
+    delegate :generate_submission_reference,
              :get_submission_reference,
+             :save_requested_email_confirmation,
              :requested_email_confirmation?,
              :clear_submission_details,
              :save_copy_of_answers_preference,
@@ -21,7 +22,7 @@ module Flow
              :save_copy_of_answers_email_address,
              :get_copy_of_answers_email_address,
              :will_send_copy_of_answers?,
-             to: :confirmation_details_store
+             to: :submission_details_store
 
     def save_step(step, locale: :en, context: nil)
       return false unless step.valid?(context)
@@ -32,6 +33,6 @@ module Flow
 
   private
 
-    attr_reader :answer_store, :confirmation_details_store
+    attr_reader :answer_store, :submission_details_store
   end
 end
