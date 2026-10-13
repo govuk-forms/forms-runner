@@ -62,19 +62,51 @@ RSpec.describe Forms::SubmittedController, type: :request do
       # assert that we've set up the test correctly
       expect(controller.session[:answers].to_h).to match({ "2" => { "1" => a_hash_including(**store[:answers]["2"]["1"]), "2" => a_hash_including(**store[:answers]["2"]["2"]) } }) # rubocop: disable RSpec/ExpectInHook
 
-      get form_submitted_path(mode: "preview-draft", form_id: 2, form_slug: form_data.form_slug)
+      allow_any_instance_of(Store::SubmissionDetailsStore).to receive(:get_submission_reference).and_return(submission_reference) # rubocop: disable RSpec/AnyInstance
     end
 
-    it "renders the what happens next markdown" do
-      expect(response.body).to include(HtmlMarkdownSanitizer.new.render_scrubbed_markdown(form_data.what_happens_next_markdown))
+    let(:submission_reference) { "ABC123DE" }
+
+    context "when a submission exists with the reference in the session" do
+      before do
+        create :submission, reference: submission_reference, form_id: 2, mode: "preview-draft"
+
+        get form_submitted_path(mode: "preview-draft", form_id: 2, form_slug: form_data.form_slug)
+      end
+
+      it "renders the what happens next markdown" do
+        expect(response.body).to include(HtmlMarkdownSanitizer.new.render_scrubbed_markdown(form_data.what_happens_next_markdown))
+      end
+
+      it "renders the submitted page template" do
+        expect(response).to render_template("forms/submitted/submitted")
+      end
+
+      it "returns 200" do
+        expect(response).to have_http_status(:ok)
+      end
     end
 
-    it "renders the submitted page template" do
-      expect(response).to render_template("forms/submitted/submitted")
+    context "when no submission exists with the reference in the session" do
+      before do
+        get form_submitted_path(mode: "preview-draft", form_id: 2, form_slug: form_data.form_slug)
+      end
+
+      it "redirects to the form" do
+        expect(response).to redirect_to(form_path(mode: "preview-draft", form_id: 2, form_slug: form_data.form_slug))
+      end
     end
 
-    it "returns 200" do
-      expect(response).to have_http_status(:ok)
+    context "when there is no submission reference in the session" do
+      let(:submission_reference) { nil }
+
+      before do
+        get form_submitted_path(mode: "preview-draft", form_id: 2, form_slug: form_data.form_slug)
+      end
+
+      it "redirects to the form" do
+        expect(response).to redirect_to(form_path(mode: "preview-draft", form_id: 2, form_slug: form_data.form_slug))
+      end
     end
   end
 end
