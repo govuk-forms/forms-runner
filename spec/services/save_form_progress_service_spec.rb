@@ -8,7 +8,8 @@ RSpec.describe SaveFormProgressService do
   let(:form) { instance_double(Form, id: 1, version: 3) }
   let(:answers) { { "1" => { "text" => "an answer" } } }
   let(:submission_locale) { :cy }
-  let(:current_context) { instance_double(Flow::Context, form:, answers:, submission_locale:) }
+  let(:submission_reference) { Faker::Alphanumeric.alphanumeric(number: 8).upcase }
+  let(:current_context) { instance_double(Flow::Context, form:, answers:, submission_locale:, get_submission_reference: submission_reference) }
 
   describe "#save" do
     it "creates a saved answer from the current context" do
@@ -22,6 +23,7 @@ RSpec.describe SaveFormProgressService do
         answers:,
         locale: "cy",
         mode: "preview-draft",
+        submission_reference: submission_reference,
       )
     end
 
