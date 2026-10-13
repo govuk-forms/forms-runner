@@ -15,7 +15,7 @@ class SendConfirmationEmailJob < ApplicationJob
       )
 
       mail.deliver_now
-      CurrentJobLoggingAttributes.confirmation_email_id = mail.message_id
+      CurrentJobLoggingAttributes.email_id = mail.message_id
     end
   rescue StandardError
     CloudWatchService.record_job_failure_metric(self.class.name)

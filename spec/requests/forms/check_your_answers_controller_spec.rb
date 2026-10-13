@@ -81,7 +81,7 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
   let(:repeat_form_submission) { false }
 
   let(:reference) { Faker::Alphanumeric.alphanumeric(number: 8).upcase }
-  let(:confirmation_email_id) { "2222" }
+  let(:email_id) { "2222" }
   let(:confirmation_email_reference) { "confirmation-email-ref" }
 
   before do
@@ -283,7 +283,7 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
       allow_mailer_to_return_mail_with_govuk_notify_response_with(
         SubmissionConfirmationMailer,
         :submission_confirmation_email,
-        id: confirmation_email_id,
+        id: email_id,
       )
     end
 
@@ -322,9 +322,9 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
         expect(mail.subject).to match("TEST FORM SUBMISSION: #{form_data.name} - reference: #{reference}")
       end
 
-      it "includes the confirmation_email_id in the logging context" do
+      it "includes the email_id in the logging context" do
         deliveries = ActionMailer::Base.deliveries
-        expect(log_lines.last["confirmation_email_id"]).to eq(deliveries[1].message_id)
+        expect(log_lines.last["email_id"]).to eq(deliveries[1].message_id)
       end
 
       include_examples "for notification references"
@@ -355,9 +355,9 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
         expect(mail.subject).to match("Form submission: #{form_data.name} - reference: #{reference}")
       end
 
-      it "includes the confirmation_email_id in the logging context" do
+      it "includes the email_id in the logging context" do
         deliveries = ActionMailer::Base.deliveries
-        expect(log_lines.last["confirmation_email_id"]).to eq(deliveries[1].message_id)
+        expect(log_lines.last["email_id"]).to eq(deliveries[1].message_id)
       end
 
       include_examples "for notification references"
@@ -580,8 +580,8 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
         expect(response).to redirect_to(form_submitted_path)
       end
 
-      it "does not include the confirmation_email_id in the logging context" do
-        expect(log_line.keys).not_to include("confirmation_email_id")
+      it "does not include the email_id in the logging context" do
+        expect(log_line.keys).not_to include("email_id")
       end
 
       it "does not include confirmation_email_reference in logging context" do
@@ -631,9 +631,9 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
         expect(mail.to_s).to include(expected_personalisation[:submission_reference])
       end
 
-      it "includes the confirmation_email_id in the logging context" do
+      it "includes the email_id in the logging context" do
         deliveries = ActionMailer::Base.deliveries
-        expect(log_lines.last["confirmation_email_id"]).to eq(deliveries[1].message_id)
+        expect(log_lines.last["email_id"]).to eq(deliveries[1].message_id)
       end
 
       include_examples "for notification references"

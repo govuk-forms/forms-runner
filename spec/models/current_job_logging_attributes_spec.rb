@@ -23,7 +23,7 @@ RSpec.describe CurrentJobLoggingAttributes do
       current.delivery_method = "email"
       current.delivery_formats = %w[csv json]
       current.batch_begin_at = Time.zone.parse("2026-01-01 12:00")
-      current.confirmation_email_id = "CONF123"
+      current.email_id = "CONF123"
       current.sqs_message_id = "SQS123"
       current.sns_message_timestamp = "2025-05-09T10:25:43.972Z"
 
@@ -41,7 +41,7 @@ RSpec.describe CurrentJobLoggingAttributes do
         delivery_method: "email",
         delivery_formats: %w[csv json],
         batch_begin_at: Time.zone.parse("2026-01-01 12:00"),
-        confirmation_email_id: "CONF123",
+        email_id: "CONF123",
         sqs_message_id: "SQS123",
         sns_message_timestamp: "2025-05-09T10:25:43.972Z",
       })
