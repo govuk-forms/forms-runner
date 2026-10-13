@@ -1,6 +1,6 @@
 # GOV.UK Forms Runner [![Tests](https://github.com/govuk-forms/forms-runner/actions/workflows/test.yml/badge.svg)](https://github.com/govuk-forms/forms-runner/actions/workflows/test.yml)
 
-GOV.UK Forms is a service for creating forms. GOV.UK Forms Runner is a an application which displays those forms to end users so that they can be filled in. It's a Ruby on Rails application without a database. It uses Redis for state.
+GOV.UK Forms is a service for creating forms. GOV.UK Forms Runner is an application which displays those forms to end users so that they can be filled in. It's a Ruby on Rails application. It uses PostgreSQL to store submissions, deliveries and saved answers, and as the backing store for background jobs (Solid Queue). It uses Redis for session state.
 
 ## Before you start
 
@@ -8,6 +8,7 @@ To run the project, you will need to install:
 
 - [Ruby](https://www.ruby-lang.org/en/) - we use version 3 of Ruby. Before running the project, double check the [.ruby-version](.ruby-version) file to see the exact version.
 - [Node.js](https://nodejs.org/en/) - the frontend build requires Node.js. We use Node 20 LTS versions.
+- a running [PostgreSQL](https://www.postgresql.org/) database
 
 We recommend using a version manager to install and manage these, such as:
 
