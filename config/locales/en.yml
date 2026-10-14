@@ -690,6 +690,8 @@ en:
       title: Title
   question/selection:
     divider: or
+  save_progress:
+    save_and_exit: Save and exit
   submission_csv:
     language: Language
     reference: Reference
