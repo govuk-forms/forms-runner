@@ -3,10 +3,8 @@ module Forms
     before_action :redirect_if_save_and_return_disabled
 
     def new
-      if auth_service.logged_in?
-        @one_login_email = auth_service.email
-        return
-      end
+      @one_login_email = auth_service.email
+      return if auth_service.logged_in?
 
       auth_service.store_return_params(
         form: current_context.form,
@@ -24,7 +22,9 @@ module Forms
       redirect_to progress_saved_path(current_context.form.id, current_context.form.form_slug)
     end
 
-    def show; end
+    def show
+      @one_login_email = auth_service.email
+    end
 
   private
 

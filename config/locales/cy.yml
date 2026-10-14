@@ -439,7 +439,7 @@ cy:
         signed_in_body_html: "<p>We'll email you a link so you can continue filling in the form when you're ready.</p><p>We'll send it to the email address you use to sign in with GOV.UK One Login: %{email}.</p><p>We'll delete your saved form after 30 days.</p>"
         title: Use GOV.UK One Login to save your progress
       show:
-        body_html: "<p>We've sent a link to [email@domain.com] so you can continue filling in the form when you are ready. This is the email address you use to sign in with GOV.UK One Login.</p><p>Use this link to continue filling in the form: [url]</p><p>We'll delete your saved form on [deletion date].</p>"
+        body_html: "<p>We've sent a link to %{email} so you can continue filling in the form when you are ready. This is the email address you use to sign in with GOV.UK One Login.</p><p>Use this link to continue filling in the form: [url]</p><p>We'll delete your saved form on [deletion date].</p>"
         sign_out_link: Sign out of GOV.UK One Login
         title: Your form has been saved
   gov_uk_forms: GOV.UK Forms
