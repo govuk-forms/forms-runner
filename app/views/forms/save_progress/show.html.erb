@@ -7,7 +7,7 @@
     <% end %>
 
     <p class="govuk-body">
-      <%= t('.body_html', email: @one_login_email, deletion_date: @deletion_date) %>
+      <%= t('.body_html', email: @one_login_email, deletion_date: @deletion_date, form_url: form_url(@current_context.form.id, @current_context.form.form_slug)) %>
       <%= link_to t('.sign_out_link'), "#" %>
     </p>
   </div>

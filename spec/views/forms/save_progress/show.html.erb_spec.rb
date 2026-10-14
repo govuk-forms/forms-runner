@@ -4,6 +4,7 @@ describe "forms/save_progress/show.html.erb" do
   let(:form) { build :form, save_and_return: "enabled" }
   let(:one_login_email) { "test@example.com" }
   let(:deletion_date) { "13/11/2026" }
+  let(:form_url) { "http://www.example.com/form/#{form.id}/#{form.form_slug}" }
   let(:mode) { OpenStruct.new(preview_draft?: false, preview_archived?: false, preview_live?: false) }
 
   before do
@@ -12,6 +13,8 @@ describe "forms/save_progress/show.html.erb" do
     assign(:mode, mode)
     assign(:one_login_email, one_login_email)
     assign(:deletion_date, deletion_date)
+
+    allow(view).to receive(:form_url).with(form.id, form.form_slug).and_return(form_url)
 
     render
   end
@@ -25,11 +28,15 @@ describe "forms/save_progress/show.html.erb" do
   end
 
   it "has the body text" do
-    expect(rendered).to include(I18n.t("forms.save_progress.show.body_html", email: one_login_email, deletion_date:))
+    expect(rendered).to include(I18n.t("forms.save_progress.show.body_html", email: one_login_email, deletion_date:, form_url:))
   end
 
   it "has the deletion date" do
     expect(rendered).to include("We'll delete your saved form on #{deletion_date}.")
+  end
+
+  it "has a link to continue filling in the form" do
+    expect(rendered).to have_link(form_url, href: form_url)
   end
 
   it "has a link to sign out of GOV.UK One Login" do
