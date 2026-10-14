@@ -183,10 +183,6 @@ RSpec.describe Forms::SaveProgressController, type: :request do
   end
 
   describe "GET #show" do
-    before do
-      get progress_saved_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
-    end
-
     context "when save and return is disabled on the form" do
       let(:form) do
         build(:form_document, :with_support, form_id: 2, start_page: 1, steps:, available_languages:, save_and_return: "disabled")
@@ -196,18 +192,48 @@ RSpec.describe Forms::SaveProgressController, type: :request do
         { "1" => { "text" => "answer 1" } }
       end
 
+      before do
+        get progress_saved_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
+      end
+
       it "redirects to the next step in the form" do
         expect(response).to redirect_to(form_step_path(form.form_id, form.form_slug, 2, mode:))
       end
     end
 
     context "when save and return is enabled on the form" do
+      let(:auth_session) do
+        {
+          auth: {
+            sub: "user-sub-123",
+            email: "test@example.com",
+            token: "a-token",
+            authenticated_at: Time.current.to_i,
+          },
+        }
+      end
+
+      before do
+        IncompleteSubmission.create!(
+          user_id: "user-sub-123",
+          form_id: form.form_id,
+          answers:,
+          updated_at: Time.zone.local(2026, 10, 14, 12, 0, 0),
+        )
+
+        get progress_saved_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
+      end
+
       it "returns http success" do
         expect(response).to have_http_status(:ok)
       end
 
       it "renders the confirmation page" do
         expect(response).to render_template(:show)
+      end
+
+      it "shows the date the saved form will be deleted, 30 days after it was last saved" do
+        expect(response.body).to include("We'll delete your saved form on 13/11/2026.")
       end
     end
   end

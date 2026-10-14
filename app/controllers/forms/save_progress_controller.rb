@@ -24,6 +24,8 @@ module Forms
 
     def show
       @one_login_email = auth_service.email
+      saved = IncompleteSubmission.find_by(user_id: auth_service.sub, form_id: current_context.form.id)
+      @deletion_date = (saved.updated_at + 30.days).strftime("%d/%m/%Y")
     end
 
   private

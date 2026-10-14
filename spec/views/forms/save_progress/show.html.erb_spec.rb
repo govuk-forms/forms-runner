@@ -3,6 +3,7 @@ require "rails_helper"
 describe "forms/save_progress/show.html.erb" do
   let(:form) { build :form, save_and_return: "enabled" }
   let(:one_login_email) { "test@example.com" }
+  let(:deletion_date) { "13/11/2026" }
   let(:mode) { OpenStruct.new(preview_draft?: false, preview_archived?: false, preview_live?: false) }
 
   before do
@@ -10,6 +11,7 @@ describe "forms/save_progress/show.html.erb" do
     assign(:form, form)
     assign(:mode, mode)
     assign(:one_login_email, one_login_email)
+    assign(:deletion_date, deletion_date)
 
     render
   end
@@ -23,7 +25,11 @@ describe "forms/save_progress/show.html.erb" do
   end
 
   it "has the body text" do
-    expect(rendered).to include(I18n.t("forms.save_progress.show.body_html", email: one_login_email))
+    expect(rendered).to include(I18n.t("forms.save_progress.show.body_html", email: one_login_email, deletion_date:))
+  end
+
+  it "has the deletion date" do
+    expect(rendered).to include("We'll delete your saved form on #{deletion_date}.")
   end
 
   it "has a link to sign out of GOV.UK One Login" do
