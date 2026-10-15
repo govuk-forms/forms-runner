@@ -6,7 +6,8 @@ RSpec.describe SaveFormProgressService do
   let(:user_id) { "one-login-sub" }
   let(:form) { instance_double(Form, id: 1, version: 3) }
   let(:answers) { { "1" => { "text" => "an answer" } } }
-  let(:current_context) { instance_double(Flow::Context, form:, answers:) }
+  let(:submission_locale) { :cy }
+  let(:current_context) { instance_double(Flow::Context, form:, answers:, submission_locale:) }
 
   describe "#save" do
     it "creates a saved answer from the current context" do
@@ -18,6 +19,7 @@ RSpec.describe SaveFormProgressService do
         form_id: form.id,
         form_version: form.version,
         answers:,
+        locale: "cy",
       )
     end
 
