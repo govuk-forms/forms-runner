@@ -1,9 +1,10 @@
 require "rails_helper"
 
 RSpec.describe SaveFormProgressService do
-  subject(:service) { described_class.new(current_context:, user_id:) }
+  subject(:service) { described_class.new(current_context:, user_id:, mode:) }
 
   let(:user_id) { "one-login-sub" }
+  let(:mode) { Mode.new("preview-draft") }
   let(:form) { instance_double(Form, id: 1, version: 3) }
   let(:answers) { { "1" => { "text" => "an answer" } } }
   let(:submission_locale) { :cy }
@@ -20,6 +21,7 @@ RSpec.describe SaveFormProgressService do
         form_version: form.version,
         answers:,
         locale: "cy",
+        mode: "preview-draft",
       )
     end
 

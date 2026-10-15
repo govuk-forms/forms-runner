@@ -191,6 +191,7 @@ RSpec.describe Forms::SaveProgressController, type: :request do
 
             expect(incomplete_submission).to be_present
             expect(incomplete_submission.answers).to eq answers
+            expect(incomplete_submission.mode).to eq mode
           end
 
           it "redirects to the progress saved confirmation page" do
@@ -266,6 +267,7 @@ RSpec.describe Forms::SaveProgressController, type: :request do
 
         expect(incomplete_submission).to be_present
         expect(incomplete_submission.answers).to eq answers
+        expect(incomplete_submission.mode).to eq mode
       end
 
       it "redirects to the progress saved confirmation page" do
