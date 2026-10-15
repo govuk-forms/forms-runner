@@ -32,7 +32,7 @@ describe "forms/save_progress/show.html.erb" do
   end
 
   it "has the deletion date" do
-    expect(rendered).to include("We'll delete your saved form on #{deletion_date}.")
+    expect(rendered).to include("We’ll delete your saved form on #{deletion_date}.")
   end
 
   it "has a link to continue filling in the form" do
