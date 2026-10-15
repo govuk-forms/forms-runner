@@ -10,7 +10,7 @@ module Forms
         form: current_context.form,
         mode:,
         locale: locale_param,
-        return_to: "save_progress",
+        return_to: Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:save_and_return],
       )
     end
 

@@ -85,7 +85,7 @@ RSpec.describe Forms::SaveProgressController, type: :request do
           "last_form_slug" => form.form_slug,
           "last_mode" => mode.to_s,
           "last_locale" => nil,
-          "return_to" => "save_progress",
+          "return_to" => "save_and_return",
         })
       end
 

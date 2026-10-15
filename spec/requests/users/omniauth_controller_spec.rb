@@ -126,7 +126,7 @@ RSpec.describe Users::OmniauthController, type: :request do
           "last_form_slug" => form_slug,
           "last_mode" => mode,
           "last_locale" => locale,
-          "return_to" => "save_progress",
+          "return_to" => "save_and_return",
         }
       end
 

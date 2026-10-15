@@ -13,6 +13,11 @@ module Store
     LAST_MODE_KEY = "last_mode".freeze
     LAST_LOCALE_KEY = "last_locale".freeze
 
+    RETURN_TO_VALUES = {
+      copy_of_answers: "copy_of_answers",
+      save_and_return: "save_and_return",
+    }.freeze
+
     def initialize(store)
       @store = store
     end

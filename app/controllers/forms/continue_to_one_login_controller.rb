@@ -8,7 +8,7 @@ module Forms
         form: current_context.form,
         mode: mode,
         locale: locale_param,
-        return_to: "copy_of_answers",
+        return_to: Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:copy_of_answers],
       )
     end
 
