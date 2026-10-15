@@ -7,10 +7,11 @@ RSpec.describe Store::ReturnFromOneLoginStore do
   let(:form) { build(:form) }
   let(:mode) { Mode.new("form") }
   let(:locale) { :en }
+  let(:return_to) { "a_form_path" }
 
   describe "#get_path_params" do
     it "stores and return the path params" do
-      return_from_one_login_store.store_return_params(form:, mode:, locale:)
+      return_from_one_login_store.store_return_params(form:, mode:, locale:, return_to:)
 
       expect(return_from_one_login_store.form_path_params).to eq({
         mode: mode.to_s,
@@ -27,7 +28,7 @@ RSpec.describe Store::ReturnFromOneLoginStore do
 
   describe "#form_id" do
     it "stores the params and uses them to return the form id" do
-      return_from_one_login_store.store_return_params(form:, mode:, locale:)
+      return_from_one_login_store.store_return_params(form:, mode:, locale:, return_to:)
 
       expect(return_from_one_login_store.form_id).to eq form.id
     end

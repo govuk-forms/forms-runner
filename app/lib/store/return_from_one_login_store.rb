@@ -17,7 +17,7 @@ module Store
       @store = store
     end
 
-    def store_return_params(form:, mode:, locale:, return_to: "copy_of_answers")
+    def store_return_params(form:, mode:, locale:, return_to:)
       @store[RETURN_FROM_ONE_LOGIN_KEY] ||= {}
       @store[RETURN_FROM_ONE_LOGIN_KEY][RETURN_TO_KEY] = return_to
       @store[RETURN_FROM_ONE_LOGIN_KEY][LAST_FORM_ID_KEY] = form.id

@@ -8,6 +8,7 @@ module Forms
         form: current_context.form,
         mode: mode,
         locale: locale_param,
+        return_to: "copy_of_answers",
       )
     end
 
