@@ -40,12 +40,6 @@ class FormSubmissionService
     enqueue_send_confirmation_email_job(submission:) if requested_confirmation? || send_copy_of_answers?
   end
 
-  def submission_locale
-    return :cy if current_context.locales_used.present? && current_context.locales_used.include?(:cy)
-
-    :en
-  end
-
 private
 
   attr_accessor :current_context, :form, :email_confirmation_input, :mode, :timestamp, :submission_reference, :localised_form
@@ -66,7 +60,7 @@ private
   end
 
   def welsh_form_document
-    return unless submission_locale == :cy
+    return unless current_context.submission_locale == :cy
     return @welsh_form.document_json if @welsh_form.present?
 
     Api::V2::FormDocumentRepository.find_with_mode(form_id: form.id, mode:, language: :cy)
@@ -118,7 +112,7 @@ private
       mode: mode,
       form_document: form.document_json,
       welsh_form_document: welsh_form_document,
-      submission_locale:,
+      submission_locale: current_context.submission_locale,
       created_at: timestamp,
     )
   end

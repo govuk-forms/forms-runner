@@ -76,13 +76,14 @@ RSpec.describe FormSubmissionService, :capture_logging do
       },
     }
   end
-  let(:locales_used) { [:en] }
+  let(:submission_locale) { :en }
   let(:wants_copy_of_answers) { false }
   let(:copy_of_answers_email_address) { nil }
   let(:will_send_copy_of_answers) { wants_copy_of_answers && copy_of_answers_email_address.present? }
   let(:stored_submission_reference) { nil }
   let(:current_context) do
-    instance_double(Flow::Context, form:, journey:, completed_steps: all_steps, answers:, locales_used:,
+    instance_double(Flow::Context, form:, journey:, completed_steps: all_steps, answers:,
+                                   submission_locale:,
                                    get_submission_reference: stored_submission_reference,
                                    generate_submission_reference: reference,
                                    wants_copy_of_answers?: wants_copy_of_answers,
@@ -418,7 +419,7 @@ RSpec.describe FormSubmissionService, :capture_logging do
       end
 
       context "when Welsh has been used to complete the form" do
-        let(:locales_used) { %i[en cy] }
+        let(:submission_locale) { :cy }
 
         before do
           ActiveResource::HttpMock.respond_to do |mock|
@@ -467,7 +468,7 @@ RSpec.describe FormSubmissionService, :capture_logging do
         end
 
         context "when Welsh has been used to complete the form" do
-          let(:locales_used) { %i[en cy] }
+          let(:submission_locale) { :cy }
 
           it "saves the original Welsh version of the form on the submission" do
             expect {
@@ -605,32 +606,6 @@ RSpec.describe FormSubmissionService, :capture_logging do
             "include_copy_of_answers" => true,
           )
         end
-      end
-    end
-  end
-
-  describe "#submission_locale" do
-    context "when the context includes :cy in locales_used" do
-      let(:locales_used) { %i[en cy] }
-
-      it "the submission locale is decided as :cy" do
-        expect(service.submission_locale).to eq(:cy)
-      end
-    end
-
-    context "when the context does not include :cy in locales_used" do
-      let(:locales_used) { [:en] }
-
-      it "the submission locale is decided as :en" do
-        expect(service.submission_locale).to eq(:en)
-      end
-    end
-
-    context "when the context returns an empty array for locales_used" do
-      let(:locales_used) { [] }
-
-      it "the submission locale is decided as :en" do
-        expect(service.submission_locale).to eq(:en)
       end
     end
   end
