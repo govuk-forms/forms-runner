@@ -232,6 +232,10 @@ RSpec.describe Forms::SaveProgressController, type: :request do
         expect(response).to render_template(:show)
       end
 
+      it "shows the email address of the submitter" do
+        expect(response.body).to include("test@example.com")
+      end
+
       it "shows the date the saved form will be deleted, 30 days after it was last saved" do
         expect(response.body).to include("We’ll delete your saved form on 13 November 2026.")
       end
