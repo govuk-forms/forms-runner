@@ -26,6 +26,21 @@ RSpec.describe Store::ReturnFromOneLoginStore do
     end
   end
 
+  describe "#clear_return_to" do
+    it "clears the return to value but keeps the form path params" do
+      return_from_one_login_store.store_return_params(form:, mode:, locale:, return_to:)
+
+      return_from_one_login_store.clear_return_to
+
+      expect(return_from_one_login_store.return_to).to be_nil
+      expect(return_from_one_login_store.form_id).to eq form.id
+    end
+
+    it "does nothing if the return params have not been stored" do
+      expect { return_from_one_login_store.clear_return_to }.not_to raise_error
+    end
+  end
+
   describe "#form_id" do
     it "stores the params and uses them to return the form id" do
       return_from_one_login_store.store_return_params(form:, mode:, locale:, return_to:)

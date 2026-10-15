@@ -13,9 +13,18 @@ module Forms
         return
       end
 
-      return save_progress_and_redirect unless saved_progress_exists?
-
       @one_login_email = auth_service.email
+    end
+
+    def after_sign_in
+      unless auth_service.logged_in? && auth_service.return_to == Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:save_and_return]
+        return redirect_to(save_progress_path(current_context.form.id, current_context.form.form_slug))
+      end
+
+      # TODO: if saved progress already exists, redirect to page to ask user if they want to overwrite it
+
+      auth_service.clear_return_to
+      save_progress_and_redirect
     end
 
     def create
@@ -31,10 +40,6 @@ module Forms
     end
 
   private
-
-    def saved_progress_exists?
-      IncompleteSubmission.exists?(user_id: auth_service.sub, form_id: current_context.form.id)
-    end
 
     def save_progress_and_redirect
       SaveFormProgressService.new(current_context:, user_id: auth_service.sub).save!

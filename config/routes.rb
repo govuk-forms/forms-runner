@@ -39,6 +39,7 @@ Rails.application.routes.draw do
       get "/#{CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG}" => "forms/check_your_answers#show", as: :check_your_answers
       post "/#{CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG}" => "forms/check_your_answers#submit_answers", as: :form_submit_answers
       get "/save-your-progress" => "forms/save_progress#new", as: :save_progress
+      get "/save-your-progress/after-sign-in" => "forms/save_progress#after_sign_in", as: :save_progress_after_sign_in
       post "/save-your-progress" => "forms/save_progress#create", as: :create_save_progress
       get "/progress-saved" => "forms/save_progress#show", as: :progress_saved
       get "/submitted" => "forms/submitted#submitted", as: :form_submitted
