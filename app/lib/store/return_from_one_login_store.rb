@@ -35,8 +35,8 @@ module Store
       @store.dig(RETURN_FROM_ONE_LOGIN_KEY, RETURN_TO_KEY)
     end
 
-    def clear_return_to
-      @store[RETURN_FROM_ONE_LOGIN_KEY]&.delete(RETURN_TO_KEY)
+    def clear_return_from_one_login
+      @store.delete(RETURN_FROM_ONE_LOGIN_KEY)
     end
 
     def form_path_params

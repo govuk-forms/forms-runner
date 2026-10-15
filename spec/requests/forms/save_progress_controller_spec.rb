@@ -197,8 +197,8 @@ RSpec.describe Forms::SaveProgressController, type: :request do
             expect(response).to redirect_to(progress_saved_path(form.form_id, form.form_slug, mode:))
           end
 
-          it "clears the return to value so that the URL cannot be used to save again" do
-            expect(store.dig("return_from_one_login", "return_to")).to be_nil
+          it "clears the return from One Login params so that the URL cannot be used to save again" do
+            expect(store).not_to have_key "return_from_one_login"
           end
         end
 

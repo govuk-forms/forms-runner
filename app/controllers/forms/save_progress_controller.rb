@@ -23,7 +23,7 @@ module Forms
 
       # TODO: if saved progress already exists, redirect to page to ask user if they want to overwrite it
 
-      auth_service.clear_return_to
+      auth_service.clear_return_from_one_login
       save_progress_and_redirect
     end
 
