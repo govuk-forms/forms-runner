@@ -88,6 +88,66 @@ RSpec.describe Forms::SaveProgressController, type: :request do
           "return_to" => "save_and_return",
         })
       end
+    end
+
+    context "when the user is signed in to GOV.UK One Login" do
+      let(:auth_session) do
+        {
+          auth: {
+            sub: "user-sub-123",
+            email: "test@example.com",
+            token: "a-token",
+            authenticated_at: Time.current.to_i,
+          },
+        }
+      end
+
+      before do
+        get save_progress_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
+      end
+
+      it "returns http success" do
+        expect(response).to have_http_status(:ok)
+      end
+
+      it "renders the page with the button to save progress" do
+        expect(response).to render_template(:new)
+        expect(response.body).to include("test@example.com")
+      end
+    end
+  end
+
+  describe "GET #after_sign_in" do
+    def get_after_sign_in
+      get save_progress_after_sign_in_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
+    end
+
+    context "when save and return is disabled on the form" do
+      let(:form) do
+        build(:form_document, :with_support, form_id: 2, start_page: 1, steps:, available_languages:, save_and_return: "disabled")
+      end
+
+      let(:answers) do
+        { "1" => { "text" => "answer 1" } }
+      end
+
+      before { get_after_sign_in }
+
+      it "redirects to the next step in the form" do
+        expect(response).to redirect_to(form_step_path(form.form_id, form.form_slug, 2, mode:))
+      end
+
+      it "does not save the answers" do
+        expect(IncompleteSubmission.count).to eq 0
+      end
+    end
+
+    context "when the user is not signed in to GOV.UK One Login" do
+      before { get_after_sign_in }
+
+      it "redirects to the save progress sign-in interstitial" do
+        expect(response).to redirect_to(save_progress_path(form.form_id, form.form_slug, mode:))
+      end
 
       it "does not save the answers" do
         expect(IncompleteSubmission.count).to eq 0
@@ -106,44 +166,61 @@ RSpec.describe Forms::SaveProgressController, type: :request do
         }
       end
 
-      context "when the user does not have saved answers for the form" do
-        before do
-          get save_progress_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
+      context "when the save progress flow has not been started" do
+        before { get_after_sign_in }
+
+        it "redirects to the save progress page" do
+          expect(response).to redirect_to(save_progress_path(form.form_id, form.form_slug, mode:))
         end
 
-        it "saves the current answers keyed by the One Login sub" do
-          incomplete_submission = IncompleteSubmission.find_by(user_id: "user-sub-123", form_id: form.form_id)
-
-          expect(incomplete_submission).to be_present
-          expect(incomplete_submission.answers).to eq answers
-        end
-
-        it "redirects to the progress saved confirmation page" do
-          expect(response).to redirect_to(progress_saved_path(form.form_id, form.form_slug, mode:))
+        it "does not save the answers" do
+          expect(IncompleteSubmission.count).to eq 0
         end
       end
 
-      context "when the user already has saved answers for the form" do
-        let(:previously_saved_answers) { { "1" => { "text" => "previous answer" } } }
-
-        before do
-          IncompleteSubmission.create!(user_id: "user-sub-123", form_id: form.form_id, answers: previously_saved_answers)
-
-          get save_progress_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
+      context "when the save progress flow has been started" do
+        let(:auth_session) do
+          super().merge(return_from_one_login: { return_to: "save_and_return" })
         end
 
-        it "returns http success" do
-          expect(response).to have_http_status(:ok)
+        context "when the user does not have saved answers for the form" do
+          before { get_after_sign_in }
+
+          it "saves the current answers keyed by the One Login sub" do
+            incomplete_submission = IncompleteSubmission.find_by(user_id: "user-sub-123", form_id: form.form_id)
+
+            expect(incomplete_submission).to be_present
+            expect(incomplete_submission.answers).to eq answers
+          end
+
+          it "redirects to the progress saved confirmation page" do
+            expect(response).to redirect_to(progress_saved_path(form.form_id, form.form_slug, mode:))
+          end
+
+          it "clears the return to value so that the URL cannot be used to save again" do
+            expect(store.dig("return_from_one_login", "return_to")).to be_nil
+          end
         end
 
-        it "renders the One Login interstitial" do
-          expect(response).to render_template(:new)
-        end
+        context "when the user already has saved answers for the form" do
+          let(:previously_saved_answers) { { "1" => { "text" => "previous answer" } } }
 
-        it "does not overwrite the saved answers" do
-          incomplete_submission = IncompleteSubmission.find_by(user_id: "user-sub-123", form_id: form.form_id)
+          before do
+            IncompleteSubmission.create!(user_id: "user-sub-123", form_id: form.form_id, answers: previously_saved_answers)
 
-          expect(incomplete_submission.answers).to eq previously_saved_answers
+            get_after_sign_in
+          end
+
+          # TODO: this should redirect to a page asking the user to confirm the overwrite, once that page exists
+          it "overwrites the saved answers" do
+            incomplete_submission = IncompleteSubmission.find_by(user_id: "user-sub-123", form_id: form.form_id)
+
+            expect(incomplete_submission.answers).to eq answers
+          end
+
+          it "redirects to the progress saved confirmation page" do
+            expect(response).to redirect_to(progress_saved_path(form.form_id, form.form_slug, mode:))
+          end
         end
       end
     end

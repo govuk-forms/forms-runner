@@ -35,6 +35,10 @@ module Store
       @store.dig(RETURN_FROM_ONE_LOGIN_KEY, RETURN_TO_KEY)
     end
 
+    def clear_return_to
+      @store[RETURN_FROM_ONE_LOGIN_KEY]&.delete(RETURN_TO_KEY)
+    end
+
     def form_path_params
       raise MissingReturnParamsError if @store[RETURN_FROM_ONE_LOGIN_KEY].blank?
 
