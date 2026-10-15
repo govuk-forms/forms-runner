@@ -3,23 +3,25 @@ module Forms
     before_action :redirect_if_save_and_return_disabled
 
     def new
-      @one_login_email = auth_service.email
-      return if auth_service.logged_in?
+      unless auth_service.logged_in?
+        auth_service.store_return_params(
+          form: current_context.form,
+          mode:,
+          locale: locale_param,
+          return_to: Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:save_and_return],
+        )
+        return
+      end
 
-      auth_service.store_return_params(
-        form: current_context.form,
-        mode:,
-        locale: locale_param,
-        return_to: Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:save_and_return],
-      )
+      return save_progress_and_redirect unless saved_progress_exists?
+
+      @one_login_email = auth_service.email
     end
 
     def create
       return redirect_to(save_progress_path(current_context.form.id, current_context.form.form_slug)) unless auth_service.logged_in?
 
-      SaveFormProgressService.new(current_context:, user_id: auth_service.sub).save!
-
-      redirect_to progress_saved_path(current_context.form.id, current_context.form.form_slug)
+      save_progress_and_redirect
     end
 
     def show
@@ -29,6 +31,16 @@ module Forms
     end
 
   private
+
+    def saved_progress_exists?
+      IncompleteSubmission.exists?(user_id: auth_service.sub, form_id: current_context.form.id)
+    end
+
+    def save_progress_and_redirect
+      SaveFormProgressService.new(current_context:, user_id: auth_service.sub).save!
+
+      redirect_to progress_saved_path(current_context.form.id, current_context.form.form_slug)
+    end
 
     def redirect_if_save_and_return_disabled
       return if current_context.form.save_and_return_enabled?

@@ -106,20 +106,45 @@ RSpec.describe Forms::SaveProgressController, type: :request do
         }
       end
 
-      before do
-        get save_progress_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
+      context "when the user does not have saved answers for the form" do
+        before do
+          get save_progress_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
+        end
+
+        it "saves the current answers keyed by the One Login sub" do
+          incomplete_submission = IncompleteSubmission.find_by(user_id: "user-sub-123", form_id: form.form_id)
+
+          expect(incomplete_submission).to be_present
+          expect(incomplete_submission.answers).to eq answers
+        end
+
+        it "redirects to the progress saved confirmation page" do
+          expect(response).to redirect_to(progress_saved_path(form.form_id, form.form_slug, mode:))
+        end
       end
 
-      it "returns http success" do
-        expect(response).to have_http_status(:ok)
-      end
+      context "when the user already has saved answers for the form" do
+        let(:previously_saved_answers) { { "1" => { "text" => "previous answer" } } }
 
-      it "renders the One Login interstitial" do
-        expect(response).to render_template(:new)
-      end
+        before do
+          IncompleteSubmission.create!(user_id: "user-sub-123", form_id: form.form_id, answers: previously_saved_answers)
 
-      it "does not save the answers" do
-        expect(IncompleteSubmission.count).to eq 0
+          get save_progress_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
+        end
+
+        it "returns http success" do
+          expect(response).to have_http_status(:ok)
+        end
+
+        it "renders the One Login interstitial" do
+          expect(response).to render_template(:new)
+        end
+
+        it "does not overwrite the saved answers" do
+          incomplete_submission = IncompleteSubmission.find_by(user_id: "user-sub-123", form_id: form.form_id)
+
+          expect(incomplete_submission.answers).to eq previously_saved_answers
+        end
       end
     end
   end

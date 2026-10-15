@@ -52,9 +52,6 @@ feature "Save form progress", type: :feature do
     then_i_see_the_sign_in_interstitial
 
     when_i_continue_to_one_login
-    then_i_see_the_signed_in_interstitial
-
-    when_i_continue_to_save_my_progress
     then_i_see_the_confirmation_page
     and_my_answers_are_saved
   end
@@ -86,17 +83,6 @@ feature "Save form progress", type: :feature do
 
   def when_i_continue_to_one_login
     click_button "Continue to GOV.UK One Login"
-  end
-
-  def then_i_see_the_signed_in_interstitial
-    expect(page.find("h1")).to have_text "Use GOV.UK One Login to save your progress"
-    expect(page).to have_text one_login_email
-    expect(page).to have_button "Continue"
-    expect(page).to have_link "Sign in with a different GOV.UK One Login"
-  end
-
-  def when_i_continue_to_save_my_progress
-    click_button "Continue"
   end
 
   def then_i_see_the_confirmation_page
