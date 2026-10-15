@@ -11,7 +11,7 @@ module Flow
 
     delegate :support_details, to: :form
     delegate :step_by_id, :previous_step, :next_step_slug, :next_step, :can_visit?, :completed_steps, :all_steps, to: :journey
-    delegate :clear_stored_answer, :clear, :form_submitted?, :starting_new_form?, :answers, :locales_used, to: :answer_store
+    delegate :clear_stored_answer, :clear, :form_submitted?, :starting_new_form?, :answers, to: :answer_store
     delegate :generate_submission_reference,
              :get_submission_reference,
              :save_requested_email_confirmation,
@@ -23,6 +23,12 @@ module Flow
              :get_copy_of_answers_email_address,
              :will_send_copy_of_answers?,
              to: :submission_details_store
+
+    def submission_locale
+      return :cy if answer_store.locales_used.present? && answer_store.locales_used.include?(:cy)
+
+      :en
+    end
 
     def save_step(step, locale: :en, context: nil)
       return false unless step.valid?(context)
