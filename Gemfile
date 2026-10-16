@@ -64,7 +64,7 @@ gem "lograge"
 gem "opentelemetry-exporter-otlp", "~> 0.36.0"
 gem "opentelemetry-exporter-otlp-metrics", "~> 0.12.0"
 gem "opentelemetry-instrumentation-all", "~> 0.96.0"
-gem "opentelemetry-metrics-sdk", "~> 0.18.0"
+gem "opentelemetry-metrics-sdk", "~> 0.19.0"
 gem "opentelemetry-propagator-xray", "~> 0.27.0"
 gem "opentelemetry-sdk", "~> 1.13"
 
