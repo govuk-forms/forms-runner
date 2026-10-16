@@ -191,6 +191,7 @@ RSpec.describe Forms::SaveProgressController, type: :request do
 
             expect(incomplete_submission).to be_present
             expect(incomplete_submission.answers).to eq answers
+            expect(incomplete_submission.mode).to eq mode
           end
 
           it "redirects to the progress saved confirmation page" do
@@ -228,6 +229,7 @@ RSpec.describe Forms::SaveProgressController, type: :request do
 
   describe "POST #create" do
     before do
+      allow(SendProgressSavedEmailJob).to receive(:perform_later)
       post create_save_progress_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
     end
 
@@ -266,6 +268,14 @@ RSpec.describe Forms::SaveProgressController, type: :request do
 
         expect(incomplete_submission).to be_present
         expect(incomplete_submission.answers).to eq answers
+        expect(incomplete_submission.mode).to eq mode
+      end
+
+      it "sends the progress saved email to the One Login email address" do
+        expect(SendProgressSavedEmailJob).to have_received(:perform_later).with(
+          incomplete_submission: IncompleteSubmission.find_by(user_id: "user-sub-123", form_id: form.form_id),
+          email_address: "test@example.com",
+        )
       end
 
       it "redirects to the progress saved confirmation page" do
@@ -280,6 +290,10 @@ RSpec.describe Forms::SaveProgressController, type: :request do
 
       it "does not save the answers" do
         expect(IncompleteSubmission.count).to eq 0
+      end
+
+      it "does not send the progress saved email" do
+        expect(SendProgressSavedEmailJob).not_to have_received(:perform_later)
       end
     end
   end

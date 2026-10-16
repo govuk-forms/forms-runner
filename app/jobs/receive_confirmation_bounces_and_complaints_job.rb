@@ -11,7 +11,7 @@ class ReceiveConfirmationBouncesAndComplaintsJob < ApplicationJob
     )
 
     poller.poll do |ses_message_id, ses_message|
-      CurrentJobLoggingAttributes.confirmation_email_id = ses_message_id
+      CurrentJobLoggingAttributes.email_id = ses_message_id
       ses_event_type = ses_message["eventType"]
 
       if ses_event_type == "Bounce"

@@ -497,6 +497,13 @@ cy:
       heading: You cannot reply to this email
     check_before_using: Check that these answers look safe before you use them
     form_name: 'Form name: “%{form_name}”'
+    progress_saved:
+      continue_filling: 'Use this link to continue filling in the form: %{link}'
+      deletion_date: We’ll delete your saved form on %{date}.
+      subject: "%{form_name}: your progress has been saved"
+      you_cannot_reply: You cannot reply to this email. Use the contact details below if you need help with your form.
+      you_need_to_sign_in: You’ll need to sign in with GOV.UK One Login.
+      you_saved_progress: 'You saved your progress for the form: %{form_name}'
     submission:
       answers_submitted: Answers submitted
       csv_file: 'A CSV file of these answers is attached to this email in a file named: %{filename}'

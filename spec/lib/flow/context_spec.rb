@@ -22,6 +22,39 @@ RSpec.describe Flow::Context do
   end
   let(:form) { Form.new(form_document) }
 
+  describe "#submission_locale" do
+    let(:answer_store) { instance_double(Store::SessionAnswerStore, locales_used:) }
+    let(:context_instance) { described_class.new(form:, form_document:, store: {}) }
+
+    before do
+      allow(context_instance).to receive(:answer_store).and_return(answer_store)
+    end
+
+    context "when locales_used includes :cy" do
+      let(:locales_used) { %i[en cy] }
+
+      it "returns :cy" do
+        expect(context_instance.submission_locale).to eq(:cy)
+      end
+    end
+
+    context "when locales_used does not include :cy" do
+      let(:locales_used) { [:en] }
+
+      it "returns :en" do
+        expect(context_instance.submission_locale).to eq(:en)
+      end
+    end
+
+    context "when locales_used is empty" do
+      let(:locales_used) { [] }
+
+      it "returns :en" do
+        expect(context_instance.submission_locale).to eq(:en)
+      end
+    end
+  end
+
   describe "#save_step" do
     let(:answer_store) { instance_double(Store::SessionAnswerStore) }
     let(:step) { instance_double(Step) }
