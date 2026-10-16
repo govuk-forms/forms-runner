@@ -47,7 +47,7 @@ module Forms
         current_context.clear
 
         if auth_service.logged_in?
-          auth_service.store_return_params(form: current_context.form, mode: mode, locale: locale_param)
+          auth_service.store_return_params(form: current_context.form, mode: mode, locale: locale_param, return_to: Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:copy_of_answers])
           redirect_to auth_service.logout_redirect_uri(omniauth_logged_out_url), allow_other_host: true
         else
           redirect_to :form_submitted

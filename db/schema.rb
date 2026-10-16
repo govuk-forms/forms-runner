@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_07_122013) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_13_090000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -30,6 +30,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_07_122013) do
     t.index ["delivery_reference"], name: "index_deliveries_on_delivery_reference"
   end
 
+  create_table "incomplete_submissions", force: :cascade do |t|
+    t.string "user_id", null: false, comment: "The 'sub' identifier from GOV.UK One Login"
+    t.integer "form_id", null: false
+    t.integer "form_version"
+    t.jsonb "answers"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "form_id"], name: "index_incomplete_submissions_on_user_id_and_form_id", unique: true
+  end
+
   create_table "submission_deliveries", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.bigint "delivery_id", null: false
@@ -44,12 +54,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_07_122013) do
     t.datetime "created_at", null: false
     t.jsonb "form_document"
     t.integer "form_id"
-    t.integer "form_version"
     t.string "mode"
     t.string "reference"
     t.string "submission_locale", default: "en", null: false, comment: "The language the form was submitted in ISO 2 letter format. Normally either 'en' or 'cy'"
     t.datetime "updated_at", null: false
     t.jsonb "welsh_form_document"
+    t.integer "form_version"
     t.index ["created_at", "form_id", "mode"], name: "index_submissions_on_created_at_and_form_id_and_mode"
   end
 

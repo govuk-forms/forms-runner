@@ -83,3 +83,6 @@ analytics_enabled: false
 
 # Allows us to globally disable users getting a copy of their answers in the case that One Login is unavailable.
 copy_of_answers_enabled: true
+
+# Allows us to globally disable save and return in the case that One Login is unavailable.
+save_and_return_enabled: true

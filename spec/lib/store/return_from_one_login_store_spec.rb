@@ -7,10 +7,11 @@ RSpec.describe Store::ReturnFromOneLoginStore do
   let(:form) { build(:form) }
   let(:mode) { Mode.new("form") }
   let(:locale) { :en }
+  let(:return_to) { "a_form_path" }
 
   describe "#get_path_params" do
     it "stores and return the path params" do
-      return_from_one_login_store.store_return_params(form:, mode:, locale:)
+      return_from_one_login_store.store_return_params(form:, mode:, locale:, return_to:)
 
       expect(return_from_one_login_store.form_path_params).to eq({
         mode: mode.to_s,
@@ -25,9 +26,25 @@ RSpec.describe Store::ReturnFromOneLoginStore do
     end
   end
 
+  describe "#clear_return_from_one_login" do
+    it "clears the return to value and the form path params" do
+      return_from_one_login_store.store_return_params(form:, mode:, locale:, return_to:)
+
+      return_from_one_login_store.clear_return_from_one_login
+
+      expect(store).not_to have_key(Store::ReturnFromOneLoginStore::RETURN_FROM_ONE_LOGIN_KEY)
+      expect(return_from_one_login_store.return_to).to be_nil
+      expect { return_from_one_login_store.form_path_params }.to raise_error(Store::ReturnFromOneLoginStore::MissingReturnParamsError)
+    end
+
+    it "does nothing if the return params have not been stored" do
+      expect { return_from_one_login_store.clear_return_from_one_login }.not_to raise_error
+    end
+  end
+
   describe "#form_id" do
     it "stores the params and uses them to return the form id" do
-      return_from_one_login_store.store_return_params(form:, mode:, locale:)
+      return_from_one_login_store.store_return_params(form:, mode:, locale:, return_to:)
 
       expect(return_from_one_login_store.form_id).to eq form.id
     end

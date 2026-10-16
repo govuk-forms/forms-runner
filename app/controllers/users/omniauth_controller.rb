@@ -24,7 +24,7 @@ module Users
       CurrentRequestLoggingAttributes.form_id = form_path_params[:form_id]
       EventLogger.log({ event: "logged_in_with_one_login" })
 
-      redirect_to check_your_answers_path(**form_path_params)
+      redirect_after_sign_in
     rescue Store::ReturnFromOneLoginStore::MissingReturnParamsError => e
       CurrentRequestLoggingAttributes.rescued_exception = [e.class.name, e.message]
       render "errors/return_from_one_login_session_missing", status: :bad_request
@@ -50,6 +50,14 @@ module Users
     end
 
   private
+
+    def redirect_after_sign_in
+      if auth_service.return_to == Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:save_and_return]
+        redirect_to save_progress_after_sign_in_path(**auth_service.form_path_params)
+      else # "copy_of_answers" as the default to help avoid regression issues when deploying for current users
+        redirect_to check_your_answers_path(**auth_service.form_path_params)
+      end
+    end
 
     def suppress_error?(exception)
       # CallbackStateMismatchError is raised when a request is made to the callback URL without the expected parameters.
