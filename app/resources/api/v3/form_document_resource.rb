@@ -19,8 +19,6 @@ class Api::V3::FormDocumentResource < ActiveResource::Base
       get("#{form_id}/versions/#{version}", **options)
     end
 
-  private
-
     def draft_form_document(form_id, **options)
       get("#{form_id}/versions/draft", **options)
     end

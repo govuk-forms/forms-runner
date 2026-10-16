@@ -23,6 +23,11 @@ class Api::V3::FormDocumentRepository
       find_by_tag(form_id:, tag: mode.tag, language:)
     end
 
+    def find_draft(form_id:, language: :en)
+      form_document_json = Api::V3::FormDocumentResource.draft_form_document(form_id, **options_for_language(language))
+      Api::V3::FormDocumentResource.new(form_document_json)
+    end
+
   private
 
     # Don't include English in the options hash as it's the default
