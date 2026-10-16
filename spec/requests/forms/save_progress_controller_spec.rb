@@ -342,5 +342,26 @@ RSpec.describe Forms::SaveProgressController, type: :request do
         expect(response.body).to include("We’ll delete your saved form on 13 November 2026.")
       end
     end
+
+    context "when the user does not have saved answers for the form" do
+      let(:auth_session) do
+        {
+          auth: {
+            sub: "user-sub-123",
+            email: "test@example.com",
+            token: "a-token",
+            authenticated_at: Time.current.to_i,
+          },
+        }
+      end
+
+      before do
+        get progress_saved_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
+      end
+
+      it "redirects to the start of the save progress journey" do
+        expect(response).to redirect_to(save_progress_path(form.form_id, form.form_slug, mode:))
+      end
+    end
   end
 end
