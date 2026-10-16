@@ -560,7 +560,7 @@ GEM
     pg (1.6.3-x86_64-linux-musl)
     pp (0.6.4)
       prettyprint
-    prettyprint (0.2.0)
+    prettyprint (0.2.1)
     prism (1.9.0)
     public_suffix (7.0.5)
     puma (8.0.2)
@@ -705,10 +705,10 @@ GEM
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2, < 4.0)
       websocket (~> 1.0)
-    sentry-rails (7.0.0)
+    sentry-rails (7.1.0)
       railties (>= 5.2.0)
-      sentry-ruby (~> 7.0.0)
-    sentry-ruby (7.0.0)
+      sentry-ruby (~> 7.1.0)
+    sentry-ruby (7.1.0)
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
       logger
@@ -734,7 +734,7 @@ GEM
     unicode-display_width (3.2.0)
       unicode-emoji (~> 4.1)
     unicode-emoji (4.2.0)
-    uri (1.1.1)
+    uri (1.1.2)
     uri-idna (0.3.1)
     useragent (0.16.11)
     view_component (4.15.0)
@@ -1013,7 +1013,7 @@ CHECKSUMS
   pg (1.6.3-x86_64-linux) sha256=5d9e188c8f7a0295d162b7b88a768d8452a899977d44f3274d1946d67920ae8d
   pg (1.6.3-x86_64-linux-musl) sha256=9c9c90d98c72f78eb04c0f55e9618fe55d1512128e411035fe229ff427864009
   pp (0.6.4) sha256=dfcb0fce700c41456265922884f9fe195d7fbb0674a3578e6c0f69588e82b570
-  prettyprint (0.2.0) sha256=2bc9e15581a94742064a3cc8b0fb9d45aae3d03a1baa6ef80922627a0766f193
+  prettyprint (0.2.1) sha256=d555d57ea6d7cf001d4774b693546a6bd88bec1e778ddffb5c60b68ceec4b7d4
   prism (1.9.0) sha256=7b530c6a9f92c24300014919c9dcbc055bf4cdf51ec30aed099b06cd6674ef85
   public_suffix (7.0.5) sha256=1a8bb08f1bbea19228d3bed6e5ed908d1cb4f7c2726d18bd9cadf60bc676f623
   puma (8.0.2) sha256=c8ed871dfbbe66448ea9ffd46692342d9804d4071522b52b5331b7b6e7b686fb
@@ -1059,8 +1059,8 @@ CHECKSUMS
   rubyzip (3.7.0) sha256=65c19294da75297a939006f3516deacc33185fbd721ff1954f7a231db6d3e121
   securerandom (0.4.1) sha256=cc5193d414a4341b6e225f0cb4446aceca8e50d5e1888743fac16987638ea0b1
   selenium-webdriver (4.49.0) sha256=b430f091a3cababb356b6f6132e0e4f385b017819355f563557e1537819edc89
-  sentry-rails (7.0.0) sha256=6ac6a010e088632e46710ce42db75aa5281a6b52a547efee10568cc2ed80605a
-  sentry-ruby (7.0.0) sha256=e9616ff521355a983fad404ca575d8bb1f1949a8cac42a7a893dd02156bcdb1a
+  sentry-rails (7.1.0) sha256=21e2092f8ab013ec384a4a3e406622a1c2a04d6638c697b8f922d9d46da634fa
+  sentry-ruby (7.1.0) sha256=bd6d2d022d879268526f62f0dccfb76aac99542bfce355e2b6a49cd1a81c0102
   simplecov (1.3.1) sha256=b326d38e819053499aa2ebe35d544d8bd780eba143a50f48a624b450ad87feec
   simpleidn (0.2.3) sha256=08ce96f03fa1605286be22651ba0fc9c0b2d6272c9b27a260bc88be05b0d2c29
   solid_queue (1.7.0) sha256=6566b70b801d1c317c81bba7bcdd5677c019afac584a30374b4164002ca356d3
@@ -1073,7 +1073,7 @@ CHECKSUMS
   uk_postcode (2.1.8) sha256=470ad343a86a9a8103cfa53e0d1c2e5d6dff09cba5894a33493c547889df0162
   unicode-display_width (3.2.0) sha256=0cdd96b5681a5949cdbc2c55e7b420facae74c4aaf9a9815eee1087cb1853c42
   unicode-emoji (4.2.0) sha256=519e69150f75652e40bf736106cfbc8f0f73aa3fb6a65afe62fefa7f80b0f80f
-  uri (1.1.1) sha256=379fa58d27ffb1387eaada68c749d1426738bd0f654d812fcc07e7568f5c57c6
+  uri (1.1.2) sha256=89292e98eabbef6248b0a0ed5e7e398e152f83f17560023a6d94a7f492b169fb
   uri-idna (0.3.1) sha256=c8601a9ca545670a763f5a7c56c99d7072bc2b1f6d83df63e6f35c264b609823
   useragent (0.16.11) sha256=700e6413ad4bb954bb63547fa098dddf7b0ebe75b40cc6f93b8d54255b173844
   view_component (4.15.0) sha256=2924e207b102c04ab51c4d318535f03f1c3aab3c81ecff99b1cc631b43e14eac
