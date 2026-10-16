@@ -169,6 +169,19 @@ RSpec.describe Api::V3::FormDocumentRepository do
     end
   end
 
+  describe ".find_draft" do
+    before do
+      allow(Api::V3::FormDocumentResource).to receive(:draft_form_document).with("1").and_return(api_v3_response_data)
+    end
+
+    it "returns the draft form document" do
+      form = described_class.find_draft(form_id: "1")
+
+      expect(form).to be_a Api::V3::FormDocumentResource
+      expect(form).to have_attributes(form_id: "1", name: "All question types form")
+    end
+  end
+
   describe ".find_with_mode" do
     before do
       allow(Api::V3::FormDocumentResource).to receive(:find_by_tag).with(1, :draft).and_return(api_v3_response_data)
