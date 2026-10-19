@@ -1,5 +1,6 @@
 import { initAll } from 'govuk-frontend'
 import rawDfeAutocomplete from 'dfe-autocomplete'
+import { initCrossServiceHeader } from '@govuk-one-login/service-header'
 import {
   loadConsentStatus,
   CONSENT_STATUS
@@ -60,3 +61,5 @@ const dfeAutocomplete =
   typeof rawDfeAutocomplete === 'object' && rawDfeAutocomplete !== null && rawDfeAutocomplete.__esModule ? rawDfeAutocomplete.default : rawDfeAutocomplete
 
 window.dfeAutocomplete = dfeAutocomplete
+
+initOneLoginHeader()
