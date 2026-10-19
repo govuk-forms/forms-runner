@@ -50,6 +50,7 @@ locals {
     { name = "SETTINGS__ACT_AS_USER_ENABLED", value = "true" },
     { name = "SETTINGS__AUTH_PROVIDER", value = "developer" },
     { name = "SETTINGS__FORMS_ENV", value = "review" },
+    { name = "SETTINGS__FORMS_PRODUCT_PAGE__URL", value = "https://www.forms.service.gov.uk" },
     { name = "SETTINGS__FORMS_RUNNER__URL", value = "https://${local.runner_review_app_hostname}" },
     { name = "SETTINGS__AWS__ASSETS_S3_BUCKET_NAME", value = local.assets_bucket_name },
     { name = "ALLOWED_HOST_PATTERNS", value = "localhost:3000" },
