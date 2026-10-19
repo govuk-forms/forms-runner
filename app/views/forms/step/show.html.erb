@@ -18,12 +18,13 @@
       <% view_component = Object.const_get("#{@step.question.class.name}Component::View") %>
       <%= render view_component.new(form_builder: form, question: @step.question, mode: @mode) %>
 
-      <%= form.govuk_submit(t("continue")) %>
-
       <% if @current_context.form.save_and_return_enabled? %>
-        <p class="govuk-body govuk-!-margin-bottom-8">
-          <%= link_to t("save_progress.save_and_exit"), save_progress_path(@form.id, @form.form_slug) %>
-        </p>
+        <div class="govuk-button-group">
+          <%= form.govuk_submit(t("continue")) %>
+          <%= govuk_button_link_to t("save_progress.save_and_exit"), save_progress_path(@form.id, @form.form_slug), secondary: true %>
+        </div>
+      <% else %>
+        <%= form.govuk_submit(t("continue")) %>
       <% end %>
 
     <% end %>
