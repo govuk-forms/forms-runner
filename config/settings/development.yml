@@ -1,5 +1,6 @@
 govuk_one_login:
   base_url: https://oidc.integration.account.gov.uk/
+  one_login_url: https://home.integration.account.gov.uk
   signed_out_url: https://home.integration.account.gov.uk/signed-out
 
 active_record_encryption:
