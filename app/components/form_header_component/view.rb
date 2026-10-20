@@ -24,26 +24,17 @@ module FormHeaderComponent
                           class: "app-header__logo-image")
                 end
               end
+              header.with_service_navigation(**service_navigation_options)
             end,
-            govuk_service_navigation(
-              service_name: form_name,
-              service_url: form_start_page_url,
-              navigation_items: navigation_items,
-            ),
           ], "\n")
         else
           homepage_url = @mode.preview? ? Settings.forms_admin.base_url : GOVUK_BASE_URL
 
           safe_join([
-            govuk_header(homepage_url:,
-                         classes:) do |header|
+            govuk_header(homepage_url:, classes:) do |header|
               header.with_product_name(name: product_name_with_tag)
+              header.with_service_navigation(**service_navigation_options)
             end,
-            govuk_service_navigation(
-              service_name: form_name,
-              service_url: form_start_page_url,
-              navigation_items: navigation_items,
-            ),
           ], "\n")
         end
       else
@@ -78,6 +69,14 @@ module FormHeaderComponent
 
     def classes
       ["govuk-header--full-width-border", "app-header", "app-header--#{@mode}"]
+    end
+
+    def service_navigation_options
+      {
+        service_name: form_name,
+        service_url: form_start_page_url,
+        navigation_items: navigation_items,
+      }
     end
 
     def form_name

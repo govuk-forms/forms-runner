@@ -8,8 +8,10 @@ RSpec.describe FormHeaderComponent::View, type: :component do
   it "has service name" do
     render_inline(described_class.new(current_context:, mode:))
 
-    expect(page).to have_selector(".govuk-service-navigation .govuk-service-navigation__service-name")
-    expect(page).to have_text("test_form_name")
+    expect(page).to have_selector(
+      "header .govuk-service-navigation .govuk-service-navigation__service-name",
+      text: "test_form_name",
+    )
   end
 
   it "links to the GOV.UK homepage" do
@@ -38,9 +40,11 @@ RSpec.describe FormHeaderComponent::View, type: :component do
     it "has service name" do
       render_inline(described_class.new(current_context:, mode:))
 
-      expect(page).to have_selector(".govuk-service-navigation .govuk-service-navigation__service-name")
+      expect(page).to have_selector(
+        "header .govuk-service-navigation .govuk-service-navigation__service-name",
+        text: "test_form_name",
+      )
       expect(page).to have_selector(".app-header--preview-draft")
-      expect(page).to have_content("test_form_name")
     end
 
     it "has a link to 'Add and edit your questions' in admin" do
@@ -65,9 +69,11 @@ RSpec.describe FormHeaderComponent::View, type: :component do
     it "has service name" do
       render_inline(described_class.new(current_context:, mode:))
 
-      expect(page).to have_selector(".govuk-service-navigation .govuk-service-navigation__service-name")
+      expect(page).to have_selector(
+        "header .govuk-service-navigation .govuk-service-navigation__service-name",
+        text: "test_form_name",
+      )
       expect(page).to have_selector(".app-header--preview-archived")
-      expect(page).to have_content("test_form_name")
     end
 
     it "links to the forms-admin homepage" do
@@ -85,9 +91,11 @@ RSpec.describe FormHeaderComponent::View, type: :component do
     it "has service name" do
       render_inline(described_class.new(current_context:, mode:))
 
-      expect(page).to have_selector(".govuk-service-navigation .govuk-service-navigation__service-name")
+      expect(page).to have_selector(
+        "header .govuk-service-navigation .govuk-service-navigation__service-name",
+        text: "test_form_name",
+      )
       expect(page).to have_selector(".app-header--preview-live")
-      expect(page).to have_content("test_form_name")
     end
 
     it "has a link to 'Your Questions' in admin" do
@@ -135,6 +143,15 @@ RSpec.describe FormHeaderComponent::View, type: :component do
                      form_slug: "test",
                      has_custom_branding?: true,
                      branding: build(:brand))
+    end
+
+    it "has service name" do
+      render_inline(described_class.new(current_context:, mode:))
+
+      expect(page).to have_selector(
+        "header .govuk-service-navigation .govuk-service-navigation__service-name",
+        text: "test_form_name",
+      )
     end
 
     it "renders the brand logo with the organisation name as alt text" do
