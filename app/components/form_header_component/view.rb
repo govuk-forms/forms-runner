@@ -2,8 +2,9 @@ module FormHeaderComponent
   GOVUK_BASE_URL = "https://www.gov.uk/".freeze
 
   class View < ApplicationComponent
-    def initialize(current_context:, mode:, hosting_environment: HostingEnvironment)
+    def initialize(current_context:, auth_service:, mode:, hosting_environment: HostingEnvironment)
       @current_context = current_context
+      @auth_service = auth_service
       @mode = mode
       @hosting_environment = hosting_environment
       super()
@@ -30,12 +31,21 @@ module FormHeaderComponent
         else
           homepage_url = @mode.preview? ? Settings.forms_admin.base_url : GOVUK_BASE_URL
 
-          safe_join([
-            govuk_header(homepage_url:, classes:) do |header|
-              header.with_product_name(name: product_name_with_tag)
-              header.with_service_navigation(**service_navigation_options)
-            end,
-          ], "\n")
+          if @auth_service&.logged_in?
+            tag.header do
+              safe_join([
+                render(GovukOneLogin::ServiceHeaderComponent::View.new(homepage_url:)),
+                govuk_service_navigation(**service_navigation_options),
+              ], "\n")
+            end
+          else
+            safe_join([
+              govuk_header(homepage_url:, classes:) do |header|
+                header.with_product_name(name: product_name_with_tag)
+                header.with_service_navigation(**service_navigation_options)
+              end,
+            ], "\n")
+          end
         end
       else
         govuk_header(homepage_url: GOVUK_BASE_URL, classes:) do |header|
