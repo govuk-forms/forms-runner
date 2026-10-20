@@ -71,13 +71,14 @@ private
   end
 
   def enqueue_deliveries(submission)
-    delivery_configurations = form.delivery_configurations.filter { |c| c.delivery_schedule == "immediate" }
+    begin
+      delivery_configurations = Api::DeliveryConfigurationResource.from_form(form.id, draft: mode.preview_draft?).filter { |c| c.delivery_schedule == "immediate" }
 
-    if delivery_configurations.blank? && mode.live?
-      submission.destroy!
       raise StandardError, "Form id(#{form.id}) has no immediate delivery configurations" if delivery_configurations.blank? && mode.live?
+    rescue StandardError => e
+      submission.destroy!
+      raise e
     end
-
     delivery_configurations.each { |c| enqueue_delivery(c, submission) }
   end
 
