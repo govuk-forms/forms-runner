@@ -44,7 +44,7 @@ module Forms
   private
 
     def save_progress_and_redirect
-      SaveFormProgressService.new(current_context:, user_id: auth_service.sub).save!
+      SaveFormProgressService.new(current_context:, user_id: auth_service.sub, mode:, email: auth_service.email).save!
 
       redirect_to progress_saved_path(current_context.form.id, current_context.form.form_slug)
     end
