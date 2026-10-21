@@ -17,6 +17,10 @@ module Store
       @store[ANSWERS_KEY][@form_key][page_key(step)] = answer
     end
 
+    def load_answers(saved_answers)
+      @store[ANSWERS_KEY][@form_key] = saved_answers
+    end
+
     def get_stored_answer(step)
       @store.dig(ANSWERS_KEY, @form_key, page_key(step))
     end
