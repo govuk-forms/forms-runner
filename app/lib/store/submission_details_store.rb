@@ -26,6 +26,11 @@ module Store
       @store.dig(CONFIRMATION_KEY, @form_key, SUBMISSION_REFERENCE_KEY.to_s)
     end
 
+    def set_submission_reference(reference)
+      @store[CONFIRMATION_KEY][@form_key] ||= {}
+      @store[CONFIRMATION_KEY][@form_key][SUBMISSION_REFERENCE_KEY.to_s] = reference
+    end
+
     def requested_email_confirmation?
       @store.dig(CONFIRMATION_KEY, @form_key, REQUESTED_EMAIL_CONFIRMATION_KEY.to_s)
     end

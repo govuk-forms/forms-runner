@@ -134,6 +134,21 @@ RSpec.describe Store::SessionAnswerStore do
     end
   end
 
+  describe "#load_answers" do
+    let(:saved_answers) do
+      {
+        "1" => { "selection" => "Option 1" },
+        "2" => { "text" => "Example text" },
+      }
+    end
+
+    it "stores the answers for the form" do
+      answer_store.load_answers(saved_answers)
+
+      expect(answer_store.answers).to eq(saved_answers)
+    end
+  end
+
   describe "#locales_used" do
     context "when no locales have been added" do
       it "returns []" do
