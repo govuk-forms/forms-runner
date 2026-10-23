@@ -2,10 +2,10 @@ class BatchSubmissionsSelector
   Batch = Data.define(:form_id, :mode, :submissions)
 
   DAILY_BATCH_FORM_DOCUMENT_CONDITION = <<~SQL.squish
-    form_document->'delivery_configurations' @> '[{"delivery_schedule":"daily"}]'::jsonb
+    delivery_configurations @> '[{"delivery_schedule":"daily"}]'::jsonb
   SQL
   WEEKLY_BATCH_FORM_DOCUMENT_CONDITION = <<~SQL.squish
-    form_document->'delivery_configurations' @> '[{"delivery_schedule":"weekly"}]'::jsonb
+    delivery_configurations @> '[{"delivery_schedule":"weekly"}]'::jsonb
   SQL
 
   class << self
@@ -16,7 +16,7 @@ class BatchSubmissionsSelector
 
           # If the most recent submission is configured for daily batching, include all submissions on that day in the
           # batch. If it is not, do not return a batch for any of the submissions on that day.
-          next unless submissions.any? && daily_delivery_configuration?(submissions.first.form_document)
+          next unless submissions.any? && daily_delivery_configuration?(submissions.first)
 
           yielder << Batch.new(form_id, mode, submissions)
         end
@@ -30,7 +30,7 @@ class BatchSubmissionsSelector
 
           # If the most recent submission is configured for weekly batching, include all submissions in that week in
           # the batch. If it is not, do not return a batch for any of the submissions in that week.
-          next unless submissions.any? && weekly_delivery_configuration?(submissions.first.form_document)
+          next unless submissions.any? && weekly_delivery_configuration?(submissions.first)
 
           yielder << Batch.new(form_id, mode, submissions)
         end
@@ -55,12 +55,12 @@ class BatchSubmissionsSelector
                 .pluck(:form_id, :mode)
     end
 
-    def daily_delivery_configuration?(form_document)
-      form_document["delivery_configurations"]&.any? { |configuration| configuration["delivery_schedule"] == "daily" }
+    def daily_delivery_configuration?(submission)
+      submission.delivery_configurations&.any? { |configuration| configuration["delivery_schedule"] == "daily" }
     end
 
-    def weekly_delivery_configuration?(form_document)
-      form_document["delivery_configurations"]&.any? { |configuration| configuration["delivery_schedule"] == "weekly" }
+    def weekly_delivery_configuration?(submission)
+      submission.delivery_configurations&.any? { |configuration| configuration["delivery_schedule"] == "weekly" }
     end
   end
 end
