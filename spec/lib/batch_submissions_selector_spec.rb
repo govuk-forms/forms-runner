@@ -2,42 +2,35 @@ require "rails_helper"
 
 RSpec.describe BatchSubmissionsSelector do
   let(:form_id) { 101 }
+  let(:form_document) { build(:form_document) }
+  let(:daily_delivery_configuration) { build(:delivery_configuration, :daily_email) }
+  let(:weekly_delivery_configuration) { build(:delivery_configuration, :weekly_email) }
+  let(:immediate_delivery_configuration) { build(:delivery_configuration, :immediate_email) }
 
   describe ".daily_batches" do
     subject(:daily_batches) { described_class.daily_batches(date) }
 
     let(:date) { Time.zone.local(2022, 12, 1) }
 
-    let(:form_document_with_batch_enabled) do
-      build(:form_document, delivery_configurations: [
-        build(:delivery_configuration, :daily_email),
-      ])
-    end
-    let(:form_document_with_batch_disabled) do
-      build(:form_document, delivery_configurations: [
-        build(:delivery_configuration, :immediate_email),
-      ])
-    end
-
     context "when the form document has a daily delivery_configuration" do
       context "when the date is during BST" do
         let(:date) { Time.zone.local(2022, 6, 1) }
 
         let!(:form_submission) do
-          create(:submission, form_id: form_id, mode: "form", reference: "INCLUDED1", created_at: Time.utc(2022, 5, 31, 23, 0, 0), form_document: form_document_with_batch_enabled)
+          create(:submission, form_id: form_id, mode: "form", reference: "INCLUDED1", created_at: Time.utc(2022, 5, 31, 23, 0, 0), form_document:, delivery_configurations: [daily_delivery_configuration])
         end
         let!(:preview_draft_submission) do
-          create(:submission, form_id: form_id, mode: "preview-draft", reference: "INCLUDED2", created_at: Time.utc(2022, 6, 1, 22, 59, 59), form_document: form_document_with_batch_enabled)
+          create(:submission, form_id: form_id, mode: "preview-draft", reference: "INCLUDED2", created_at: Time.utc(2022, 6, 1, 22, 59, 59), form_document:, delivery_configurations: [daily_delivery_configuration])
         end
 
         before do
           # create form/mode combinations that only have submissions outside the BST day
-          create(:submission, form_id: form_id, mode: "preview-archived", reference: "OMITTED1", created_at: Time.utc(2022, 5, 31, 22, 59, 59), form_document: form_document_with_batch_enabled)
-          create(:submission, form_id: 102, mode: "form", reference: "OMITTED2", created_at: Time.utc(2022, 6, 1, 23, 0, 0), form_document: form_document_with_batch_enabled)
+          create(:submission, form_id: form_id, mode: "preview-archived", reference: "OMITTED1", created_at: Time.utc(2022, 5, 31, 22, 59, 59), form_document:, delivery_configurations: [daily_delivery_configuration])
+          create(:submission, form_id: 102, mode: "form", reference: "OMITTED2", created_at: Time.utc(2022, 6, 1, 23, 0, 0), form_document:, delivery_configurations: [daily_delivery_configuration])
 
           # create submissions for the form/mode included in a batch outside the BST day to ensure they are excluded
-          create(:submission, form_id: form_id, mode: "form", reference: "OMITTED3", created_at: Time.utc(2022, 5, 31, 22, 59, 59), form_document: form_document_with_batch_enabled)
-          create(:submission, form_id: form_id, mode: "form", reference: "OMITTED4", created_at: Time.utc(2022, 6, 1, 23, 0, 0), form_document: form_document_with_batch_enabled)
+          create(:submission, form_id: form_id, mode: "form", reference: "OMITTED3", created_at: Time.utc(2022, 5, 31, 22, 59, 59), form_document:, delivery_configurations: [daily_delivery_configuration])
+          create(:submission, form_id: form_id, mode: "form", reference: "OMITTED4", created_at: Time.utc(2022, 6, 1, 23, 0, 0), form_document:, delivery_configurations: [daily_delivery_configuration])
         end
 
         it "includes only forms/modes with submissions on the date" do
@@ -57,20 +50,20 @@ RSpec.describe BatchSubmissionsSelector do
         let(:date) { Time.zone.local(2022, 12, 1) }
 
         let!(:form_submission) do
-          create(:submission, form_id: form_id, mode: "form", reference: "INCLUDED1", created_at: Time.utc(2022, 12, 1, 0, 0, 0), form_document: form_document_with_batch_enabled)
+          create(:submission, form_id: form_id, mode: "form", reference: "INCLUDED1", created_at: Time.utc(2022, 12, 1, 0, 0, 0), form_document:, delivery_configurations: [daily_delivery_configuration])
         end
         let!(:preview_draft_submission) do
-          create(:submission, form_id: form_id, mode: "preview-draft", reference: "INCLUDED2", created_at: Time.utc(2022, 12, 1, 23, 59, 59), form_document: form_document_with_batch_enabled)
+          create(:submission, form_id: form_id, mode: "preview-draft", reference: "INCLUDED2", created_at: Time.utc(2022, 12, 1, 23, 59, 59), form_document:, delivery_configurations: [daily_delivery_configuration])
         end
 
         before do
           # create form/mode combinations that only have submissions outside the day
-          create(:submission, form_id: form_id, mode: "preview-archived", reference: "OMITTED1", created_at: Time.utc(2022, 11, 30, 23, 59, 59), form_document: form_document_with_batch_enabled)
-          create(:submission, form_id: 102, mode: "form", reference: "OMITTED2", created_at: Time.utc(2022, 12, 2, 0, 0, 0), form_document: form_document_with_batch_enabled)
+          create(:submission, form_id: form_id, mode: "preview-archived", reference: "OMITTED1", created_at: Time.utc(2022, 11, 30, 23, 59, 59), form_document:, delivery_configurations: [daily_delivery_configuration])
+          create(:submission, form_id: 102, mode: "form", reference: "OMITTED2", created_at: Time.utc(2022, 12, 2, 0, 0, 0), form_document:, delivery_configurations: [daily_delivery_configuration])
 
           # create submissions for the form/mode included in a batch outside the day to ensure they are excluded
-          create(:submission, form_id: form_id, mode: "form", reference: "OMITTED3", created_at: Time.utc(2022, 11, 30, 23, 59, 59), form_document: form_document_with_batch_enabled)
-          create(:submission, form_id: form_id, mode: "form", reference: "OMITTED4", created_at: Time.utc(2022, 12, 2, 0, 0, 0), form_document: form_document_with_batch_enabled)
+          create(:submission, form_id: form_id, mode: "form", reference: "OMITTED3", created_at: Time.utc(2022, 11, 30, 23, 59, 59), form_document:, delivery_configurations: [daily_delivery_configuration])
+          create(:submission, form_id: form_id, mode: "form", reference: "OMITTED4", created_at: Time.utc(2022, 12, 2, 0, 0, 0), form_document:, delivery_configurations: [daily_delivery_configuration])
         end
 
         it "includes only forms/modes with submissions on the date" do
@@ -89,10 +82,10 @@ RSpec.describe BatchSubmissionsSelector do
 
     context "when a daily delivery_configuration is added part-way through the day for the form document" do
       let!(:latest_submission) do
-        create(:submission, form_id: form_id, mode: "form", reference: "INCLUDED1", created_at: Time.utc(2022, 12, 1, 10, 0, 0), form_document: form_document_with_batch_enabled)
+        create(:submission, form_id: form_id, mode: "form", reference: "INCLUDED1", created_at: Time.utc(2022, 12, 1, 10, 0, 0), form_document:, delivery_configurations: [daily_delivery_configuration])
       end
       let!(:earlier_submission) do
-        create(:submission, form_id: form_id, mode: "form", reference: "INCLUDED2", created_at: Time.utc(2022, 12, 1, 9, 0, 0), form_document: form_document_with_batch_disabled)
+        create(:submission, form_id: form_id, mode: "form", reference: "INCLUDED2", created_at: Time.utc(2022, 12, 1, 9, 0, 0), form_document:, delivery_configurations: [immediate_delivery_configuration])
       end
 
       it "includes a batch for the form and mode" do
@@ -109,7 +102,7 @@ RSpec.describe BatchSubmissionsSelector do
 
     context "when a daily delivery_configuration does not exist for the form document" do
       before do
-        create(:submission, form_id: form_id, mode: "form", created_at: Time.utc(2022, 12, 1, 10, 0, 0), form_document: form_document_with_batch_disabled)
+        create(:submission, form_id: form_id, mode: "form", created_at: Time.utc(2022, 12, 1, 10, 0, 0), form_document:)
       end
 
       it "does not include a batch for the form and mode" do
@@ -119,8 +112,8 @@ RSpec.describe BatchSubmissionsSelector do
 
     context "when a daily delivery_configuration is removed part-way through the day for the form document" do
       before do
-        create(:submission, form_id: form_id, mode: "form", created_at: Time.utc(2022, 12, 1, 10, 0, 0), form_document: form_document_with_batch_disabled)
-        create(:submission, form_id: form_id, mode: "form", created_at: Time.utc(2022, 12, 1, 9, 0, 0), form_document: form_document_with_batch_enabled)
+        create(:submission, form_id: form_id, mode: "form", created_at: Time.utc(2022, 12, 1, 10, 0, 0), form_document:, delivery_configurations: [immediate_delivery_configuration])
+        create(:submission, form_id: form_id, mode: "form", created_at: Time.utc(2022, 12, 1, 9, 0, 0), form_document:, delivery_configurations: [daily_delivery_configuration])
       end
 
       it "does not include a batch for the form and mode" do
@@ -134,36 +127,25 @@ RSpec.describe BatchSubmissionsSelector do
 
     let(:date) { Time.zone.local(2025, 5, 19) }
 
-    let(:form_document_with_batch_enabled) do
-      build(:form_document, delivery_configurations: [
-        build(:delivery_configuration, :weekly_email),
-      ])
-    end
-    let(:form_document_with_batch_disabled) do
-      build(:form_document, delivery_configurations: [
-        build(:delivery_configuration, :immediate_email),
-      ])
-    end
-
     context "when the form document has a weekly delivery_configuration" do
       context "when the week is during BST" do
         let(:date) { Time.zone.local(2025, 5, 19) }
 
         let!(:form_submission) do
-          create(:submission, form_id: form_id, mode: "form", reference: "INCLUDED1", created_at: Time.utc(2025, 5, 18, 23, 0, 0), form_document: form_document_with_batch_enabled)
+          create(:submission, form_id: form_id, mode: "form", reference: "INCLUDED1", created_at: Time.utc(2025, 5, 18, 23, 0, 0), form_document:, delivery_configurations: [weekly_delivery_configuration])
         end
         let!(:preview_draft_submission) do
-          create(:submission, form_id: form_id, mode: "preview-draft", reference: "INCLUDED2", created_at: Time.utc(2025, 5, 25, 22, 59, 59), form_document: form_document_with_batch_enabled)
+          create(:submission, form_id: form_id, mode: "preview-draft", reference: "INCLUDED2", created_at: Time.utc(2025, 5, 25, 22, 59, 59), form_document:, delivery_configurations: [weekly_delivery_configuration])
         end
 
         before do
           # create form/mode combinations that only have submissions outside the BST week
-          create(:submission, form_id: form_id, mode: "preview-archived", reference: "OMITTED1", created_at: Time.utc(2025, 5, 18, 22, 59, 59), form_document: form_document_with_batch_enabled)
-          create(:submission, form_id: 102, mode: "form", reference: "OMITTED2", created_at: Time.utc(2025, 5, 25, 23, 0, 0), form_document: form_document_with_batch_enabled)
+          create(:submission, form_id: form_id, mode: "preview-archived", reference: "OMITTED1", created_at: Time.utc(2025, 5, 18, 22, 59, 59), form_document:, delivery_configurations: [weekly_delivery_configuration])
+          create(:submission, form_id: 102, mode: "form", reference: "OMITTED2", created_at: Time.utc(2025, 5, 25, 23, 0, 0), form_document:, delivery_configurations: [weekly_delivery_configuration])
 
           # create submissions for the form/mode included in a batch outside the BST week to ensure they are excluded
-          create(:submission, form_id: form_id, mode: "form", reference: "OMITTED3", created_at: Time.utc(2025, 5, 18, 22, 59, 59), form_document: form_document_with_batch_enabled)
-          create(:submission, form_id: form_id, mode: "form", reference: "OMITTED4", created_at: Time.utc(2025, 5, 25, 23, 0, 0), form_document: form_document_with_batch_enabled)
+          create(:submission, form_id: form_id, mode: "form", reference: "OMITTED3", created_at: Time.utc(2025, 5, 18, 22, 59, 59), form_document:, delivery_configurations: [weekly_delivery_configuration])
+          create(:submission, form_id: form_id, mode: "form", reference: "OMITTED4", created_at: Time.utc(2025, 5, 25, 23, 0, 0), form_document:, delivery_configurations: [weekly_delivery_configuration])
         end
 
         it "includes only forms/modes with submissions in the week" do
@@ -183,20 +165,20 @@ RSpec.describe BatchSubmissionsSelector do
         let(:date) { Time.zone.local(2025, 11, 3) }
 
         let!(:form_submission) do
-          create(:submission, form_id: form_id, mode: "form", reference: "INCLUDED1", created_at: Time.utc(2025, 11, 3, 0, 0, 0), form_document: form_document_with_batch_enabled)
+          create(:submission, form_id: form_id, mode: "form", reference: "INCLUDED1", created_at: Time.utc(2025, 11, 3, 0, 0, 0), form_document:, delivery_configurations: [weekly_delivery_configuration])
         end
         let!(:preview_draft_submission) do
-          create(:submission, form_id: form_id, mode: "preview-draft", reference: "INCLUDED2", created_at: Time.utc(2025, 11, 9, 23, 59, 59), form_document: form_document_with_batch_enabled)
+          create(:submission, form_id: form_id, mode: "preview-draft", reference: "INCLUDED2", created_at: Time.utc(2025, 11, 9, 23, 59, 59), form_document:, delivery_configurations: [weekly_delivery_configuration])
         end
 
         before do
           # create form/mode combinations that only have submissions outside the week
-          create(:submission, form_id: form_id, mode: "preview-archived", reference: "OMITTED1", created_at: Time.utc(2025, 11, 2, 23, 59, 59), form_document: form_document_with_batch_enabled)
-          create(:submission, form_id: 102, mode: "form", reference: "OMITTED2", created_at: Time.utc(2025, 11, 10, 0, 0, 0), form_document: form_document_with_batch_enabled)
+          create(:submission, form_id: form_id, mode: "preview-archived", reference: "OMITTED1", created_at: Time.utc(2025, 11, 2, 23, 59, 59), form_document:, delivery_configurations: [weekly_delivery_configuration])
+          create(:submission, form_id: 102, mode: "form", reference: "OMITTED2", created_at: Time.utc(2025, 11, 10, 0, 0, 0), form_document:, delivery_configurations: [weekly_delivery_configuration])
 
           # create submissions for the form/mode included in a batch outside the week to ensure they are excluded
-          create(:submission, form_id: form_id, mode: "form", reference: "OMITTED3", created_at: Time.utc(2025, 11, 2, 23, 59, 59), form_document: form_document_with_batch_enabled)
-          create(:submission, form_id: form_id, mode: "form", reference: "OMITTED4", created_at: Time.utc(2025, 11, 10, 0, 0, 0), form_document: form_document_with_batch_enabled)
+          create(:submission, form_id: form_id, mode: "form", reference: "OMITTED3", created_at: Time.utc(2025, 11, 2, 23, 59, 59), form_document:, delivery_configurations: [weekly_delivery_configuration])
+          create(:submission, form_id: form_id, mode: "form", reference: "OMITTED4", created_at: Time.utc(2025, 11, 10, 0, 0, 0), form_document:, delivery_configurations: [weekly_delivery_configuration])
         end
 
         it "includes only forms/modes with submissions in the week" do
@@ -217,10 +199,10 @@ RSpec.describe BatchSubmissionsSelector do
       let(:date) { Time.zone.local(2025, 11, 3) }
 
       let!(:latest_submission) do
-        create(:submission, form_id: form_id, mode: "form", reference: "INCLUDED1", created_at: Time.utc(2025, 11, 5, 0, 0, 0), form_document: form_document_with_batch_enabled)
+        create(:submission, form_id: form_id, mode: "form", reference: "INCLUDED1", created_at: Time.utc(2025, 11, 5, 0, 0, 0), form_document:, delivery_configurations: [weekly_delivery_configuration])
       end
       let!(:earlier_submission) do
-        create(:submission, form_id: form_id, mode: "form", reference: "INCLUDED2", created_at: Time.utc(2025, 11, 4, 0, 0, 0), form_document: form_document_with_batch_disabled)
+        create(:submission, form_id: form_id, mode: "form", reference: "INCLUDED2", created_at: Time.utc(2025, 11, 4, 0, 0, 0), form_document:, delivery_configurations: [immediate_delivery_configuration])
       end
 
       it "includes a batch for the form and mode" do
@@ -239,7 +221,7 @@ RSpec.describe BatchSubmissionsSelector do
       let(:date) { Time.zone.local(2025, 11, 3) }
 
       before do
-        create(:submission, form_id: form_id, mode: "form", created_at: Time.utc(2025, 11, 5, 10, 0, 0), form_document: form_document_with_batch_disabled)
+        create(:submission, form_id: form_id, mode: "form", created_at: Time.utc(2025, 11, 5, 10, 0, 0), form_document:)
       end
 
       it "does not include a batch for the form and mode" do
@@ -251,8 +233,8 @@ RSpec.describe BatchSubmissionsSelector do
       let(:date) { Time.zone.local(2025, 11, 3) }
 
       before do
-        create(:submission, form_id: form_id, mode: "form", created_at: Time.utc(2025, 11, 5, 0, 0, 0), form_document: form_document_with_batch_disabled)
-        create(:submission, form_id: form_id, mode: "form", created_at: Time.utc(2025, 11, 4, 0, 0, 0), form_document: form_document_with_batch_enabled)
+        create(:submission, form_id: form_id, mode: "form", created_at: Time.utc(2025, 11, 5, 0, 0, 0), form_document:, delivery_configurations: [immediate_delivery_configuration])
+        create(:submission, form_id: form_id, mode: "form", created_at: Time.utc(2025, 11, 4, 0, 0, 0), form_document:, delivery_configurations: [weekly_delivery_configuration])
       end
 
       it "does not include a batch for the form and mode" do
