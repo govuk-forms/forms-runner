@@ -281,6 +281,7 @@ RSpec.describe FormSubmissionService, :capture_logging do
                                                      form_document: document_json,
                                                      form_version: 1111,
                                                      welsh_form_document: nil,
+                                                     delivery_configurations: delivery_configurations.map(&:to_h).map(&:deep_stringify_keys),
                                                      submission_locale: "en")
         end
 

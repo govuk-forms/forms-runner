@@ -72,13 +72,14 @@ private
 
   def enqueue_deliveries(submission)
     begin
-      delivery_configurations = Api::DeliveryConfigurationResource.from_form(form.id, draft: mode.preview_draft?).filter { |c| c.delivery_schedule == "immediate" }
+      delivery_configurations = submission.delivery_configurations.map { Api::DeliveryConfigurationResource.new(it) }.filter { |c| c.delivery_schedule == "immediate" }
 
       raise StandardError, "Form id(#{form.id}) has no immediate delivery configurations" if delivery_configurations.blank? && mode.live?
     rescue StandardError => e
       submission.destroy!
       raise e
     end
+
     delivery_configurations.each { |c| enqueue_delivery(c, submission) }
   end
 
@@ -105,6 +106,8 @@ private
   end
 
   def create_submission_record
+    delivery_configurations = Api::DeliveryConfigurationResource.from_form(form.id, draft: mode.preview_draft?)
+
     Submission.create!(
       reference: submission_reference,
       form_id: form.id,
@@ -114,6 +117,7 @@ private
       form_document: form.document_json,
       welsh_form_document: welsh_form_document,
       submission_locale: current_context.submission_locale,
+      delivery_configurations: delivery_configurations,
       created_at: timestamp,
     )
   end
