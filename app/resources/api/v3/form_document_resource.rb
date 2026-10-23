@@ -22,5 +22,9 @@ class Api::V3::FormDocumentResource < ActiveResource::Base
     def draft_form_document(form_id, **options)
       get("#{form_id}/versions/draft", **options)
     end
+
+    def forms_with_delivery_schedule(schedule, **options)
+      get("with-delivery-schedule/#{schedule}", **options).map(&:symbolize_keys)
+    end
   end
 end
