@@ -39,6 +39,35 @@ RSpec.describe "submissions.rake", type: :task do
     end
   end
 
+  describe "submissions:inspect_submission_deliveries" do
+    subject(:task) do
+      Rake::Task["submissions:inspect_submission_deliveries"]
+    end
+
+    let(:submission) { create :submission, reference: "test_ref" }
+
+    it "displays an error message when submission is not found" do
+      expect {
+        task.invoke("non_existent_ref")
+      }.to raise_error(SystemExit)
+       .and output("Submission with reference non_existent_ref not found\n").to_stderr
+    end
+
+    it "displays the failure reason for a bounced delivery" do
+      create :delivery, :bounced, submissions: [submission]
+
+      expect { task.invoke("test_ref") }.to output(a_string_including("failure_reason: bounced")).to_stdout
+    end
+
+    it "displays the error for a failed delivery job" do
+      delivery = create :delivery, submissions: [submission]
+      job = create :solid_queue_job, arguments: { "arguments" => [{ "_aj_globalid" => delivery.to_global_id.to_s }] }
+      create :solid_queue_failed_execution, job:, error: { "exception_class" => "StandardError", "message" => "Illegal address" }
+
+      expect { task.invoke("test_ref") }.to output(a_string_including("error: StandardError: Illegal address")).to_stdout
+    end
+  end
+
   describe "submissions:check_delivery_statuses" do
     subject(:task) do
       Rake::Task["submissions:check_delivery_statuses"]
