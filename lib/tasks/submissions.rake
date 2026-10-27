@@ -55,6 +55,62 @@ namespace :submissions do
     end
   end
 
+  # Print the deliveries for a submission, along with any reasons they failed
+  #
+  # For each delivery it prints the delivery status and timestamps, the SES bounce details if the email bounced, and
+  # the error for any failed delivery job.
+  #
+  # Example:
+  #
+  #   submissions:inspect_submission_deliveries[S37296TN]
+  #
+  desc "Show the delivery status and any failure details for a submission given a reference"
+  task :inspect_submission_deliveries, %i[reference] => :environment do |_, args|
+    reference = args[:reference]
+
+    usage_message = "usage: rake submissions:inspect_submission_deliveries[<reference>]".freeze
+    abort usage_message if reference.blank?
+
+    submission = Submission.find_by(reference: reference)
+    abort "Submission with reference #{reference} not found" if submission.nil?
+
+    deliveries = submission.deliveries.order(:created_at)
+
+    puts "Submission #{reference} for form #{submission.form_id} (#{submission.mode}) created at #{submission.created_at}"
+    puts "Found #{deliveries.length} deliveries"
+
+    deliveries.each do |delivery|
+      puts ""
+      puts "Delivery #{delivery.id} (#{delivery.delivery_method}, #{delivery.delivery_schedule})"
+      puts "  status: #{delivery.status}"
+      puts "  delivery_reference: #{delivery.delivery_reference.presence || '(none, the email was not sent by SES)'}"
+      %i[batch_begin_at created_at last_attempt_at delivered_at failed_at failure_reason].each do |attribute|
+        value = delivery.public_send(attribute)
+        puts "  #{attribute}: #{value}" if value.present?
+      end
+
+      if delivery.failure_reason == "bounced" && delivery.failure_details.present?
+        bounce = delivery.failure_details
+        puts "  bounce: #{bounce['bounceType']}/#{bounce['bounceSubType']} at #{bounce['timestamp']}"
+        Array(bounce["bouncedRecipients"]).each do |recipient|
+          puts "  bounced recipient: #{recipient['emailAddress']}, action: #{recipient['action']}, status: #{recipient['status']}, diagnostic code: #{recipient['diagnosticCode']}"
+        end
+      end
+
+      # Solid Queue is in a separate database, so match on the delivery's GlobalID in the serialized job arguments
+      delivery_global_id = delivery.to_global_id.to_s
+      failed_jobs = SolidQueue::Job.joins(:failed_execution)
+                                   .includes(:failed_execution)
+                                   .where("arguments LIKE ?", "%\"#{SolidQueue::Job.sanitize_sql_like(delivery_global_id)}\"%")
+
+      failed_jobs.each do |job|
+        failed_execution = job.failed_execution
+        puts "  failed job: #{job.active_job_id} (#{job.class_name}) failed at #{failed_execution.created_at}"
+        puts "    error: #{failed_execution.exception_class}: #{failed_execution.message.to_s.truncate(500)}"
+      end
+    end
+  end
+
   desc "Retry bounced deliveries"
   task :retry_bounced_deliveries, %i[form_id] => :environment do |_, args|
     form_id = args[:form_id]
