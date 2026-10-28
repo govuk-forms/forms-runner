@@ -4,11 +4,11 @@ module Forms
     around_action :set_locale
 
     def redirect_to_friendly_url_start
+      LogEventService.log_form_start unless mode.preview?
+
       return redirect_to resume_options_path(@form.id, @form.form_slug) if @form.save_and_return_enabled?
 
       redirect_to form_step_path(params.require(:form_id), @form.form_slug, @form.start_page)
-
-      LogEventService.log_form_start unless mode.preview?
     end
 
     rescue_from ActiveResource::ResourceNotFound, RepeatableStep::AnswerIndexError do
