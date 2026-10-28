@@ -31,5 +31,15 @@ RSpec.describe Forms::ResumeOptionsController, type: :request do
       expect(response).to have_http_status(:ok)
       expect(response).to render_template(:show)
     end
+
+    context "when save and return is disabled on the form" do
+      let(:form) do
+        build(:form_document, :with_support, form_id: 2, start_page: 1, steps:, save_and_return: "disabled")
+      end
+
+      it "redirects to the first question" do
+        expect(response).to redirect_to(form_step_path(form.form_id, form.form_slug, 1, mode:))
+      end
+    end
   end
 end
