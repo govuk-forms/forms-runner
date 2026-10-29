@@ -200,6 +200,10 @@ cy:
           attributes:
             remove:
               blank: Rhaid i chi ddewis opsiwn
+        resume_options_input:
+          attributes:
+            resume_options:
+              blank: Select whether you want to start a new form or continue filling in a saved form
   autocomplete:
     assistive_hint: 'Pan fo canlyniadau awtolenwi ar gael, defnyddiwch y saethau i fyny ac i lawr i adolygu a defnyddiwch ‘enter’ i ddewis. Defnyddwyr dyfeisiau cyffwrdd: chwiliwch drwy gyffwrdd neu sweipio'
     no_results: Dim canlyniadau wedi’u canfod
@@ -480,6 +484,10 @@ cy:
         options:
           'no': Na
           'yes': Ydw
+      resume_options_input:
+        options:
+          continue_saved: Continue filling in a saved form
+          start_new: Start a new form
     legend:
       email_confirmation_input:
         send_confirmation: Ydych chi eisiau derbyn e-bost yn cadarnhau bod eich ffurflen wedi’i chyflwyno?
