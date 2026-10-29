@@ -425,6 +425,9 @@ en:
       show:
         radios_legend: Are you sure you want to remove your file?
         title: Remove your file
+    resume_options:
+      show:
+        title: What do you want to do?
     review_file:
       show:
         check_file: Check your uploaded file
