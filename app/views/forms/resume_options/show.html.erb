@@ -1,7 +1,23 @@
 <% set_page_title(form_title(form_name: @current_context.form.name, page_name: t('.title'), mode: @mode)) %>
 
-<div class="govuk-grid-row">
-  <div class="govuk-grid-column-two-thirds">
-    <h1 class="govuk-heading-l"><%= t('.title') %></h1>
+
+<%= form_with(model: @resume_options_input, url: resume_options_continue_path(form_id: @form.id, form_slug: @form.form_slug)) do |f| %>
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <% if @resume_options_input&.errors&.any? %>
+        <%= f.govuk_error_summary(t("error_summary_title")) %>
+      <% end %>
+
+      <%= f.govuk_collection_radio_buttons :resume_options,
+                                           @resume_options_input.values,
+                                           ->(option) { option },
+                                           ->(option) { t("helpers.label.resume_options_input.options.#{option}") },
+                                           ->(option) { t("helpers.hint.resume_options_input.options.#{option}", default: nil) },
+                                           legend: { text: t('.title'), tag: 'h1', size: 'l' },
+                                           bold_labels: false %>
+
+
+      <%= f.govuk_submit(t("continue")) %>
+    </div>
   </div>
-</div>
+<% end %>
