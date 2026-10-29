@@ -431,6 +431,7 @@ en:
         title: Remove your file
     resume_options:
       show:
+        heading: What do you want to do?
         title: What do you want to do?
     review_file:
       show:
@@ -466,6 +467,9 @@ en:
     hint:
       email_confirmation_input:
         send_confirmation: We’ll only use the email address you provide here to send a confirmation that your form’s been successfully submitted. It will not contain a copy of your answers.
+      resume_options_input:
+        options:
+          continue_saved: You’ll need to sign in to your GOV.UK One Login
     label:
       add_another_answer_input:
         options:

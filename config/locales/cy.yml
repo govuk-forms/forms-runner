@@ -431,6 +431,7 @@ cy:
         title: Tynnu’ch ffeil
     resume_options:
       show:
+        heading: What do you want to do?
         title: What do you want to do?
     review_file:
       show:
@@ -466,6 +467,9 @@ cy:
     hint:
       email_confirmation_input:
         send_confirmation: Byddwn ond yn defnyddio’r cyfeiriad e-bost rydych yn ei ddarparu yma i anfon cadarnhad bod eich ffurflen wedi’i chyflwyno’n llwyddiannus. Ni fydd yn cynnwys copi o’ch atebion.
+      resume_options_input:
+        options:
+          continue_saved: You’ll need to sign in to your GOV.UK One Login
     label:
       add_another_answer_input:
         options:

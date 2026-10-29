@@ -1,7 +1,9 @@
 module Forms
   class ResumeOptionsController < BaseController
     before_action :back_to_start
-    def show; end
+    def show
+      @resume_options_input = ResumeOptionsInput.new
+    end
 
   private
 
