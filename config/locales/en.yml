@@ -200,6 +200,10 @@ en:
           attributes:
             remove:
               blank: You must select an option
+        resume_options_input:
+          attributes:
+            resume_options:
+              blank: Select whether you want to start a new form or continue filling in a saved form
   autocomplete:
     assistive_hint: When autocomplete results are available use up and down arrows to review and enter to select.  Touch device users, explore by touch or with swipe gestures.
     no_results: No results found
@@ -480,6 +484,10 @@ en:
         options:
           'no': 'No'
           'yes': 'Yes'
+      resume_options_input:
+        options:
+          continue_saved: Continue filling in a saved form
+          start_new: Start a new form
     legend:
       email_confirmation_input:
         send_confirmation: Do you want to get an email confirming your form has been submitted?
