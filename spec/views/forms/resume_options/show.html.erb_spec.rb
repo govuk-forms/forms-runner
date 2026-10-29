@@ -12,7 +12,7 @@ describe "forms/resume_options/show.html.erb" do
     assign(:resume_options_input, resume_options_input)
 
     without_partial_double_verification do
-      allow(view).to receive(:save_resume_options_path).and_return("/save_resume_options")
+      allow(view).to receive(:resume_options_continue_path).and_return("/resume_options_continue")
     end
 
     render

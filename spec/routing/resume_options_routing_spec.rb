@@ -9,10 +9,10 @@ RSpec.describe Forms::ResumeOptionsController, type: :routing do
       end
     end
 
-    describe "#save_resume_options" do
-      it "routes to #save" do
-        expect(post: save_resume_options_path(mode: "form", form_id: 999, form_slug: "valid-slug"))
-          .to route_to("forms/resume_options#save", mode: "form", form_id: "999", form_slug: "valid-slug")
+    describe "#resume_options_continue" do
+      it "routes to #continue" do
+        expect(post: resume_options_continue_path(mode: "form", form_id: 999, form_slug: "valid-slug"))
+          .to route_to("forms/resume_options#continue", mode: "form", form_id: "999", form_slug: "valid-slug")
       end
     end
   end
