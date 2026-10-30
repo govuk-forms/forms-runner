@@ -16,19 +16,23 @@ module Store
     RETURN_TO_VALUES = {
       copy_of_answers: "copy_of_answers",
       save_and_return: "save_and_return",
+      signed_out: "signed_out",
     }.freeze
 
     def initialize(store)
       @store = store
     end
 
-    def store_return_params(form:, mode:, locale:, return_to:)
-      @store[RETURN_FROM_ONE_LOGIN_KEY] ||= {}
+    def store_return_params(return_to:, locale:, form: nil, mode: nil)
+      @store[RETURN_FROM_ONE_LOGIN_KEY] = {}
       @store[RETURN_FROM_ONE_LOGIN_KEY][RETURN_TO_KEY] = return_to
+      @store[RETURN_FROM_ONE_LOGIN_KEY][LAST_LOCALE_KEY] = locale
+
+      return if return_to == RETURN_TO_VALUES[:signed_out]
+
       @store[RETURN_FROM_ONE_LOGIN_KEY][LAST_FORM_ID_KEY] = form.id
       @store[RETURN_FROM_ONE_LOGIN_KEY][LAST_FORM_SLUG_KEY] = form.form_slug
       @store[RETURN_FROM_ONE_LOGIN_KEY][LAST_MODE_KEY] = mode.to_s
-      @store[RETURN_FROM_ONE_LOGIN_KEY][LAST_LOCALE_KEY] = locale
     end
 
     def return_to
@@ -54,6 +58,12 @@ module Store
       raise MissingReturnParamsError if @store[RETURN_FROM_ONE_LOGIN_KEY].blank?
 
       @store.dig(RETURN_FROM_ONE_LOGIN_KEY, LAST_FORM_ID_KEY)
+    end
+
+    def last_locale
+      raise MissingReturnParamsError if @store[RETURN_FROM_ONE_LOGIN_KEY].blank?
+
+      @store.dig(RETURN_FROM_ONE_LOGIN_KEY, LAST_LOCALE_KEY)
     end
   end
 end

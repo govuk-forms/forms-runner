@@ -21,6 +21,21 @@ RSpec.describe Store::ReturnFromOneLoginStore do
         "return_to" => return_to,
       })
     end
+
+    context "when returning to signed out page" do
+      let(:return_to) do
+        Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:signed_out]
+      end
+
+      it "does not store the form path params" do
+        return_from_one_login_store.store_return_params(form:, mode:, locale:, return_to:)
+
+        expect(store["return_from_one_login"]).to eq({
+          "last_locale" => locale,
+          "return_to" => return_to,
+        })
+      end
+    end
   end
 
   describe "#return_to" do
@@ -77,6 +92,18 @@ RSpec.describe Store::ReturnFromOneLoginStore do
 
     it "raises an error if the return params have not been stored" do
       expect { return_from_one_login_store.form_id }.to raise_error(Store::ReturnFromOneLoginStore::MissingReturnParamsError)
+    end
+  end
+
+  describe "#last_locale" do
+    it "returns the stored locale" do
+      return_from_one_login_store.store_return_params(form:, mode:, locale: "cy", return_to:)
+
+      expect(return_from_one_login_store.last_locale).to eq "cy"
+    end
+
+    it "raises an error if the return params have not been stored" do
+      expect { return_from_one_login_store.last_locale }.to raise_error(Store::ReturnFromOneLoginStore::MissingReturnParamsError)
     end
   end
 end

@@ -39,8 +39,23 @@ module Users
       end
     end
 
+    def logout
+      return head :unauthorized unless auth_service.logged_in?
+
+      auth_service.store_return_params(
+        return_to: Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:signed_out],
+        locale: locale_param,
+      )
+
+      redirect_to auth_service.logout_redirect_uri(omniauth_logged_out_url), allow_other_host: true
+    end
+
     def logged_out
       auth_service.clear_auth_session
+
+      if auth_service.return_to == Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:signed_out]
+        return redirect_to one_login_signed_out_url, allow_other_host: true
+      end
 
       path_params = auth_service.form_path_params
       redirect_to form_submitted_path(**path_params)
@@ -62,6 +77,12 @@ module Users
     def suppress_error?(exception)
       # CallbackStateMismatchError is raised when a request is made to the callback URL without the expected parameters.
       exception.cause&.instance_of?(OmniAuth::GovukOneLogin::CallbackStateMismatchError)
+    end
+
+    def one_login_signed_out_url
+      locale = auth_service.return_from_one_login_store.last_locale
+      params = locale.present? ? "?lng=#{locale}" : ""
+      "#{Settings.govuk_one_login.signed_out_url}#{params}"
     end
   end
 end

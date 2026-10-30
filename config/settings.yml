@@ -22,6 +22,7 @@ govuk_one_login:
   private_key:
   client_id: changeme
   base_url: https://oidc.account.gov.uk/
+  signed_out_url: https://home.account.gov.uk/signed-out
   # 1 hour in seconds
   session_timeout_seconds: 3600
 
