@@ -97,4 +97,72 @@ RSpec.describe Forms::ContinueSavedFormController, type: :request do
       end
     end
   end
+
+  describe "GET #signed_in" do
+    def get_signed_in
+      get continue_saved_form_signed_in_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
+    end
+
+    let(:signed_in_session) do
+      {
+        auth: {
+          sub: "user-sub-123",
+          email: "test@example.com",
+          token: "a-token",
+          authenticated_at: Time.current.to_i,
+        },
+      }
+    end
+
+    context "when the user is not signed in to GOV.UK One Login" do
+      before { get_signed_in }
+
+      it "redirects to the sign-in interstitial" do
+        expect(response).to redirect_to(continue_saved_form_path(form.form_id, form.form_slug, mode:))
+      end
+    end
+
+    context "when the user is signed in but did not start the continue saved form journey" do
+      let(:auth_session) { signed_in_session }
+
+      before { get_signed_in }
+
+      it "redirects to the sign-in interstitial" do
+        expect(response).to redirect_to(continue_saved_form_path(form.form_id, form.form_slug, mode:))
+      end
+    end
+
+    context "when the user is signed in after starting the continue saved form journey" do
+      let(:auth_session) { signed_in_session.merge(return_from_one_login: { return_to: "continue_saved_form" }) }
+
+      context "and they have saved progress for the form" do
+        before do
+          IncompleteSubmission.create!(user_id: "user-sub-123", form_id: form.form_id, answers: { "1" => { "text" => "a saved answer" } })
+
+          get_signed_in
+        end
+
+        it "redirects to the first question" do
+          expect(response).to redirect_to(form_step_path(mode:, form_id: form.form_id, form_slug: form.form_slug, step_slug: 1))
+        end
+
+        it "loads the saved answers into the session" do
+          expect(store.dig(:answers, form.form_id.to_s)).to eq({ "1" => { "text" => "a saved answer" } })
+        end
+
+        it "clears the return from One Login params" do
+          expect(store).not_to have_key(:return_from_one_login)
+        end
+      end
+
+      context "and they have no saved progress for the form" do
+        before { get_signed_in }
+
+        it "shows the page saying their saved form could not be found" do
+          expect(response).to have_http_status(:not_found)
+          expect(response).to render_template(:not_found)
+        end
+      end
+    end
+  end
 end
