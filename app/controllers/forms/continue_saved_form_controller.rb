@@ -16,6 +16,15 @@ module Forms
       load_saved_progress_and_redirect
     end
 
+    def signed_in
+      unless auth_service.logged_in? && auth_service.return_to == Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:continue_saved_form]
+        return redirect_to(continue_saved_form_path(current_context.form.id, current_context.form.form_slug))
+      end
+
+      auth_service.clear_return_from_one_login
+      load_saved_progress_and_redirect
+    end
+
   private
 
     def load_saved_progress_and_redirect
