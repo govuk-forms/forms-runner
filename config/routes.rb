@@ -40,8 +40,8 @@ Rails.application.routes.draw do
       post "/#{CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG}" => "forms/check_your_answers#submit_answers", as: :form_submit_answers
       get "what-do-you-want-to-do" => "forms/resume_options#show", as: :resume_options
       post "what-do-you-want-to-do" => "forms/resume_options#continue", as: :resume_options_continue
-      get "continue-saved-form" => "forms/resume_progress#new", as: :resume_progress
-      get "continue-saved-form/signed-in" => "forms/resume_progress#signed_in", as: :resume_progress_signed_in
+      get "continue-saved-form" => "forms/continue_saved_form#new", as: :continue_saved_form
+      get "continue-saved-form/signed-in" => "forms/continue_saved_form#signed_in", as: :continue_saved_form_signed_in
       get "/save-your-progress" => "forms/save_progress#new", as: :save_progress
       get "/save-your-progress/after-sign-in" => "forms/save_progress#after_sign_in", as: :save_progress_after_sign_in
       post "/save-your-progress" => "forms/save_progress#create", as: :create_save_progress

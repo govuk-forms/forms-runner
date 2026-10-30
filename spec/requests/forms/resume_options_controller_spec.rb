@@ -61,7 +61,7 @@ RSpec.describe Forms::ResumeOptionsController, type: :request do
       let(:resume_options) { "continue_saved" }
 
       it "redirects to resume their saved progress" do
-        expect(response).to redirect_to(resume_progress_path(form.form_id, form.form_slug, mode:))
+        expect(response).to redirect_to(continue_saved_form_path(form.form_id, form.form_slug, mode:))
       end
     end
 
