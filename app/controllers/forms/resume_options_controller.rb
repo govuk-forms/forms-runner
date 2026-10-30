@@ -14,7 +14,7 @@ module Forms
 
       return redirect_to form_step_path(current_context.form.id, current_context.form.form_slug, current_context.form.start_page) unless @resume_options_input.continue_saved?
 
-      redirect_to resume_progress_path(form_id: @current_context.form.id, form_slug: @current_context.form.form_slug)
+      redirect_to continue_saved_form_path(form_id: @current_context.form.id, form_slug: @current_context.form.form_slug)
     end
 
   private
