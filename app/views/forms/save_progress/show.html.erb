@@ -6,7 +6,10 @@
       <% banner.with_heading(text: t('.title')) %>
     <% end %>
 
-      <%= t('.body_html', email: @one_login_email, deletion_date: @deletion_date, form_url: form_url(@current_context.form.id, @current_context.form.form_slug)) %>
+      <%= t('.body_html', email: @one_login_email, deletion_date: @deletion_date, form_url: continue_saved_form_url(@current_context.form.id, @current_context.form.form_slug)) %>
+
+      <%= govuk_button_link_to t('.continue_button'), form_step_path(@current_context.form.id, @current_context.form.form_slug, @current_context.next_step_slug) %>
+
       <p class="govuk-body"><%= link_to t('.sign_out_link'), "#" %></p>
   </div>
 </div>
