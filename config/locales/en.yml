@@ -403,6 +403,11 @@ en:
         view_english_form: 'You can still complete the form in English:'
         welsh_version_archived: The Welsh version of this form has been archived and is no longer available.
     back: Back
+    continue_saved_form:
+      not_found:
+        body_html: <p class="govuk-body">This could be because:</p><ul class="govuk-list govuk-list--bullet"><li>you did not save your progress for this form</li><li>you used a different GOV.UK One Login to save the form</li><li>it has been more than 30 days since you saved the form (we delete saved forms after 30 days)</li></ul>
+        start_new_form_button: Start a new form
+        title: We could not find your saved form
     continue_to_one_login:
       show:
         body_html: "<p>The email with your answers will be sent to the email address linked to your GOV.UK One Login.</p><p>If you need the answers sent to a different email address - for example, your work email - you can create a new GOV.UK One Login.</p>"
@@ -431,7 +436,6 @@ en:
         title: Remove your file
     resume_options:
       show:
-        heading: What do you want to do?
         title: What do you want to do?
     review_file:
       show:
