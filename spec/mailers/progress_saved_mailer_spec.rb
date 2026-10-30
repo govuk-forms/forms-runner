@@ -20,7 +20,7 @@ RSpec.describe ProgressSavedMailer, type: :mailer do
       updated_at: Time.zone.local(2026, 10, 12, 12, 0, 0),
     )
   end
-  let(:resume_form_link) { "#{Settings.forms_runner.base_url}/form/#{form_document.form_id}/my-form" }
+  let(:resume_form_link) { "#{Settings.forms_runner.base_url}/form/#{form_document.form_id}/my-form/continue-saved-form" }
   let(:form_document) do
     build(:form_document,
           name: "My form",
@@ -91,7 +91,7 @@ RSpec.describe ProgressSavedMailer, type: :mailer do
   end
 
   context "when the incomplete submission is for a draft preview" do
-    let(:preview_draft_resume_form_link) { "#{Settings.forms_runner.base_url}/preview-draft/#{form_document.form_id}/my-form" }
+    let(:preview_draft_resume_form_link) { "#{Settings.forms_runner.base_url}/preview-draft/#{form_document.form_id}/my-form/continue-saved-form" }
 
     before do
       incomplete_submission.mode = "preview-draft"
@@ -138,7 +138,7 @@ RSpec.describe ProgressSavedMailer, type: :mailer do
 
   context "when the saved answers are in Welsh" do
     let(:locale) { "cy" }
-    let(:welsh_resume_form_link) { "#{Settings.forms_runner.base_url}/form/#{form_document.form_id}/welsh-form.cy" }
+    let(:welsh_resume_form_link) { "#{Settings.forms_runner.base_url}/form/#{form_document.form_id}/welsh-form.cy/continue-saved-form" }
     let(:welsh_form_document) do
       build(:form_document,
             form_id: form_document.form_id,

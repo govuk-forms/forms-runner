@@ -410,6 +410,7 @@ en:
         title: Sign in to your GOV.UK One Login
       not_found:
         body_html: <p class="govuk-body">This could be because:</p><ul class="govuk-list govuk-list--bullet"><li>you did not save your progress for this form</li><li>you used a different GOV.UK One Login to save the form</li><li>it has been more than 30 days since you saved the form (we delete saved forms after 30 days)</li></ul>
+        sign_in_different_link: Sign in with a different GOV.UK One Login
         start_new_form_button: Start a new form
         title: We could not find your saved form
     continue_to_one_login:
@@ -456,8 +457,9 @@ en:
         title: Use GOV.UK One Login to save your progress
       show:
         body_html: '<p>We’ve sent a link to %{email} so you can continue filling in the form when you are ready. This is the email address you use to sign in with GOV.UK One Login.</p><p>Use this link to continue filling in the form: <a href="%{form_url}" class="govuk-link">%{form_url}</a></p><p>We’ll delete your saved form on %{deletion_date}.</p>'
+        continue_button: Continue filling the form
         sign_out_link: Sign out of GOV.UK One Login
-        title: Your form has been saved
+        title: Your progress has been saved
   gov_uk_forms: GOV.UK Forms
   govuk_components:
     govuk_summary_list:

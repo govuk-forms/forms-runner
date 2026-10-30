@@ -86,7 +86,7 @@ feature "Save form progress", type: :feature do
   end
 
   def then_i_see_the_confirmation_page
-    expect(page).to have_css(".govuk-notification-banner--success", text: "Your form has been saved")
+    expect(page).to have_css(".govuk-notification-banner--success", text: "Your progress has been saved")
     expect(page).to have_link "Sign out of GOV.UK One Login"
   end
 
