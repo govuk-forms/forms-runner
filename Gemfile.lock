@@ -119,14 +119,14 @@ GEM
       public_suffix (>= 2.0.2, < 8.0)
     ast (2.4.3)
     aws-eventstream (1.4.1)
-    aws-partitions (1.1299.0)
-    aws-sdk-cloudwatch (1.150.0)
-      aws-sdk-core (~> 3, >= 3.258.0)
+    aws-partitions (1.1299.1)
+    aws-sdk-cloudwatch (1.152.0)
+      aws-sdk-core (~> 3, >= 3.260.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-codepipeline (1.121.0)
-      aws-sdk-core (~> 3, >= 3.258.0)
+    aws-sdk-codepipeline (1.123.0)
+      aws-sdk-core (~> 3, >= 3.260.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-core (3.261.0)
+    aws-sdk-core (3.263.0)
       aws-eventstream (~> 1, >= 1.4.1)
       aws-partitions (~> 1, >= 1.992.0)
       aws-sigv4 (~> 1.9)
@@ -135,18 +135,18 @@ GEM
       jmespath (~> 1, >= 1.6.1)
       logger
       rexml (~> 3.4, >= 3.4.2)
-    aws-sdk-kms (1.133.0)
-      aws-sdk-core (~> 3, >= 3.258.0)
+    aws-sdk-kms (1.135.0)
+      aws-sdk-core (~> 3, >= 3.260.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.234.0)
+    aws-sdk-s3 (1.235.0)
       aws-sdk-core (~> 3, >= 3.258.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
-    aws-sdk-sesv2 (1.113.0)
-      aws-sdk-core (~> 3, >= 3.258.0)
+    aws-sdk-sesv2 (1.115.0)
+      aws-sdk-core (~> 3, >= 3.260.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-sqs (1.120.0)
-      aws-sdk-core (~> 3, >= 3.258.0)
+    aws-sdk-sqs (1.122.0)
+      aws-sdk-core (~> 3, >= 3.260.0)
       aws-sigv4 (~> 1.5)
     aws-sdk-sts (1.12.0)
       aws-sdk-core (~> 3, >= 3.110.0)
@@ -237,11 +237,11 @@ GEM
       rake (~> 13.3)
     googleapis-common-protos-types (1.24.0)
       google-protobuf (~> 4.26)
-    govuk-components (6.5.0)
+    govuk-components (6.6.0)
       html-attributes-utils (~> 1.0.0, >= 1.0.0)
       pagy (>= 6, < 10)
       view_component (>= 4.9, < 4.16)
-    govuk_design_system_formbuilder (6.5.0)
+    govuk_design_system_formbuilder (6.6.0)
       actionview (>= 7.2)
       activemodel (>= 7.2)
       activesupport (>= 7.2)
@@ -366,7 +366,7 @@ GEM
       googleapis-common-protos-types (~> 1.3)
       opentelemetry-api (~> 1.1)
       opentelemetry-common (~> 0.20)
-    opentelemetry-exporter-otlp-metrics (0.14.0)
+    opentelemetry-exporter-otlp-metrics (0.15.0)
       google-protobuf (>= 3.18, < 5.0)
       googleapis-common-protos-types (~> 1.3)
       opentelemetry-api (~> 1.1)
@@ -539,7 +539,7 @@ GEM
       opentelemetry-api (~> 1.0)
     opentelemetry-metrics-api (0.10.0)
       opentelemetry-api (~> 1.0)
-    opentelemetry-metrics-sdk (0.21.0)
+    opentelemetry-metrics-sdk (0.22.0)
       opentelemetry-api (~> 1.1)
       opentelemetry-metrics-api (~> 0.10.0)
       opentelemetry-sdk (~> 1.13.0)
@@ -782,7 +782,7 @@ DEPENDENCIES
   active_kms
   activeresource
   aws-sdk-cloudwatch
-  aws-sdk-codepipeline (~> 1.121)
+  aws-sdk-codepipeline (~> 1.123)
   aws-sdk-kms
   aws-sdk-s3
   aws-sdk-sesv2
@@ -809,9 +809,9 @@ DEPENDENCIES
   omniauth-rails_csrf_protection
   omniauth_govuk_one_login!
   opentelemetry-exporter-otlp (~> 0.37.0)
-  opentelemetry-exporter-otlp-metrics (~> 0.14.0)
+  opentelemetry-exporter-otlp-metrics (~> 0.15.0)
   opentelemetry-instrumentation-all (~> 0.99.0)
-  opentelemetry-metrics-sdk (~> 0.21.0)
+  opentelemetry-metrics-sdk (~> 0.22.0)
   opentelemetry-propagator-xray (~> 0.27.0)
   opentelemetry-sdk (~> 1.13)
   pg (~> 1.7)
@@ -853,14 +853,14 @@ CHECKSUMS
   addressable (2.9.0) sha256=7fdf6ac3660f7f4e867a0838be3f6cf722ace541dd97767fa42bc6cfa980c7af
   ast (2.4.3) sha256=954615157c1d6a382bc27d690d973195e79db7f55e9765ac7c481c60bdb4d383
   aws-eventstream (1.4.1) sha256=ceb6a99c61df4bb00344e54aed0351574beca24f87a0d1487d1d2ed80929ce96
-  aws-partitions (1.1299.0) sha256=de8a9cf51f505a57343cb81a79279b4ae91e7acc09647f692416be85788ffce9
-  aws-sdk-cloudwatch (1.150.0) sha256=03a38c21618d8e61b2de10d4c5659a3c6d120310fcf241dccdd1498d592574bd
-  aws-sdk-codepipeline (1.121.0) sha256=64d07a777773bac022238b3a3ce424472d9222d694d1ca0a7cbf329cbd2f200b
-  aws-sdk-core (3.261.0) sha256=db5499a701378d1113458e1d6ea3e9d61436f998d0449b67298821bcdcd2eab6
-  aws-sdk-kms (1.133.0) sha256=5cd848878c650492daa198858e1d02a85897cd3d5bae8f0966c0a4cd06ce5cd6
-  aws-sdk-s3 (1.234.0) sha256=bea0d8cf8bfc36fb905ab39eb4a9b20a1c63a4cd64fdf706c6a6cf3bd96262e1
-  aws-sdk-sesv2 (1.113.0) sha256=1b9553c61a2b1f936de5d08ebe7b4bbe345857e276a4336c111274f4bfabf1d8
-  aws-sdk-sqs (1.120.0) sha256=c4de7e7a64eb16ec17b777daea8acfc3bec782fbc07a2fef8bfa6c46a4335fb2
+  aws-partitions (1.1299.1) sha256=bf50f8edee6299b6b709973db2192a86caa005a4eee5712338728f7071bf69a6
+  aws-sdk-cloudwatch (1.152.0) sha256=0bd25fb3832bd19e3f30b9a9859da29fb46a955b1e0095abe005d1f8fded1555
+  aws-sdk-codepipeline (1.123.0) sha256=31d8209f01a89c5bc5976711760beea688de762f18a3a5f39f8943e51d455336
+  aws-sdk-core (3.263.0) sha256=9b6d396ed8b3e5ba19b0640fbdbfa1875b0c485353e1bb836f1e72b403c8892d
+  aws-sdk-kms (1.135.0) sha256=8879a194c716a9ee0df14b59c6bf27c7b6879fc251e206262a781d49a8455475
+  aws-sdk-s3 (1.235.0) sha256=e42c1d4ee18014fe0b7d92267e97f20bb02634e35aa604443f76869255be5660
+  aws-sdk-sesv2 (1.115.0) sha256=d336abd17c1707c38f051e2699d31435425a15425449043e62f261bd8c8971a2
+  aws-sdk-sqs (1.122.0) sha256=a74975bf769b6f33ce7b69b99138df4960960011ebbfeb87de2c27e06d9b9b4d
   aws-sdk-sts (1.12.0) sha256=9bbd64223dd2423540291d9faaac4a169ace8cfe123b1075c9a127fcd65e061f
   aws-sigv4 (1.12.1) sha256=6973ff95cb0fd0dc58ba26e90e9510a2219525d07620c8babeb70ef831826c00
   axe-core-api (4.13.0) sha256=6556c36d541090993b0efffd2659e13c289c109a0a6bf65d28271e363fc7ffa3
@@ -904,9 +904,9 @@ CHECKSUMS
   google-protobuf (4.36.2-x86_64-linux-gnu) sha256=d25a820873e423f1d209ae8c672a4a28b019e2429debd0901d26670a0b4e14db
   google-protobuf (4.36.2-x86_64-linux-musl) sha256=0fa17686c896da96a60a705e56ddc7d4ff56413f52787c655bd4c9fb33ffe14f
   googleapis-common-protos-types (1.24.0) sha256=f76599ac6eeddf9ed1cc909c2ff6c9f028c50f69cb1696f43101df6a1fe9f106
-  govuk-components (6.5.0) sha256=9f2476ac0c64a15ce4afc5d331c5f318679401f6cb844876a03b2f120f47b45c
+  govuk-components (6.6.0) sha256=99edf19e81f7560fdc752b709a8b661d379a92074f2186ac4c9eaddcffbae308
   govuk-forms-markdown (0.12.0)
-  govuk_design_system_formbuilder (6.5.0) sha256=ab8932ed72d49025418a4c91d062d221c4fcf761232c9af217ef8e71c3ae4485
+  govuk_design_system_formbuilder (6.6.0) sha256=f4f60620989b50beec1e8f6d1af4b3065a48cb1a86ebb6d01689b676ea9370c4
   govuk_notify_rails (3.0.0) sha256=e0e1b8b0a7c47f90963034f290fb2982652aa8051a733c25c178680d44f2d7aa
   hana (1.3.7) sha256=5425db42d651fea08859811c29d20446f16af196308162894db208cac5ce9b0d
   hashie (5.1.0) sha256=c266471896f323c446ea8207f8ffac985d2718df0a0ba98651a3057096ca3870
@@ -954,7 +954,7 @@ CHECKSUMS
   opentelemetry-common (0.25.2) sha256=c035d44987789356fe8feeeb870708b44fe7564ffc032dec7200c39da92a911d
   opentelemetry-exporter-otlp (0.37.0) sha256=edc8bda657dce5f4d527ac735f75d44043bb5924de6df0e3f01260108aa76136
   opentelemetry-exporter-otlp-common (0.4.0) sha256=a52eee35b18267b960b107dbd875cdd6d66d0f8e09e91332a87983ca0f645cd8
-  opentelemetry-exporter-otlp-metrics (0.14.0) sha256=ba25126db14cbb25c00d9ee0f20ca189966fb66132744c70c20c50e7dea421f1
+  opentelemetry-exporter-otlp-metrics (0.15.0) sha256=54ab87d96462988736c02588cffef5526ccd262834b70ecced53a79c69b1414c
   opentelemetry-helpers-mysql (0.6.0) sha256=7eeb5e6950c434775a8cf28b5fde4defc12e8b865c86479ce3119fcf593d9337
   opentelemetry-helpers-sql (0.4.0) sha256=b10e8c3a2cca28a98af951bbb3e4efdc59e68b25ba0825e055574af543420afb
   opentelemetry-helpers-sql-processor (0.5.1) sha256=c0a054c56429b549af33b7af9ad1db9db2cc33f1267fe120cbee4241fb6cf825
@@ -1007,7 +1007,7 @@ CHECKSUMS
   opentelemetry-instrumentation-trilogy (0.69.1) sha256=26c448b1655bef76e526cbf439986b6a5724cd603bdaa42f0af3bf76e3942c44
   opentelemetry-logs-api (0.7.0) sha256=53ea80e36b830bf068d6e44ec3776da7bf42f62ccc1d5a5944cc221999febe5d
   opentelemetry-metrics-api (0.10.0) sha256=bbeeba7606886d7a918b3e4edeb96ac51eb8d3308630d610eee12be53836c755
-  opentelemetry-metrics-sdk (0.21.0) sha256=eddb7772559e0b5a60b31059df68d4390baac2f2972f594574f2e9dd8da2e383
+  opentelemetry-metrics-sdk (0.22.0) sha256=8bf3e7d4dc32ff4b41d91e626ca36e8c23fab0bf0f77b1922e6abbe7bb80ebe2
   opentelemetry-propagator-xray (0.27.0) sha256=753f756c7ad3146f182d428b06041084eecc77769edfd280f365e0bc09b9c4d1
   opentelemetry-registry (0.6.3) sha256=568fa8eaea94394f29f4fce3f0339ab10c3bf6d6c8beed6b3cfee6fd37fcc608
   opentelemetry-sdk (1.13.1) sha256=91c9cc315ac7ef30243549eeff8b27cd0d39bd02bdf9c9ae481ab96a1cec6754
