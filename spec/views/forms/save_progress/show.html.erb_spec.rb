@@ -4,17 +4,20 @@ describe "forms/save_progress/show.html.erb" do
   let(:form) { build :form, save_and_return: "enabled" }
   let(:one_login_email) { "test@example.com" }
   let(:deletion_date) { "13/11/2026" }
-  let(:form_url) { "http://www.example.com/form/#{form.id}/#{form.form_slug}" }
+  let(:form_url) { "http://www.example.com/form/#{form.id}/#{form.form_slug}/continue-saved-form" }
   let(:mode) { OpenStruct.new(preview_draft?: false, preview_archived?: false, preview_live?: false) }
+  let(:next_step_slug) { "2" }
+  let(:next_step_path) { "/form/#{form.id}/#{form.form_slug}/#{next_step_slug}" }
 
   before do
-    assign(:current_context, OpenStruct.new(form:))
+    assign(:current_context, OpenStruct.new(form:, next_step_slug:))
     assign(:form, form)
     assign(:mode, mode)
     assign(:one_login_email, one_login_email)
     assign(:deletion_date, deletion_date)
 
-    allow(view).to receive(:form_url).with(form.id, form.form_slug).and_return(form_url)
+    allow(view).to receive(:continue_saved_form_url).with(form.id, form.form_slug).and_return(form_url)
+    allow(view).to receive(:form_step_path).with(form.id, form.form_slug, next_step_slug).and_return(next_step_path)
 
     render
   end
@@ -37,6 +40,10 @@ describe "forms/save_progress/show.html.erb" do
 
   it "has a link to continue filling in the form" do
     expect(rendered).to have_link(form_url, href: form_url)
+  end
+
+  it "has a button to continue filling the form from the next incomplete step" do
+    expect(rendered).to have_link(I18n.t("forms.save_progress.show.continue_button"), href: next_step_path, class: "govuk-button")
   end
 
   it "has a link to sign out of GOV.UK One Login" do
