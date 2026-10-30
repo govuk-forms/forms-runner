@@ -404,6 +404,10 @@ cy:
         welsh_version_archived: Mae’r fersiwn Gymraeg o’r ffurflen hon wedi’i harchifo ac nid yw ar gael mwyach.
     back: Yn ôl
     continue_saved_form:
+      new:
+        body_html: "<p>We use GOV.UK One Login to keep your information secure.</p><p>Sign in to your GOV.UK One Login to continue filling in your saved form.</p>"
+        continue_to_one_login_button: Continue to GOV.UK One Login
+        title: Sign in to your GOV.UK One Login
       not_found:
         body_html: <p class="govuk-body">This could be because:</p><ul class="govuk-list govuk-list--bullet"><li>you did not save your progress for this form</li><li>you used a different GOV.UK One Login to save the form</li><li>it has been more than 30 days since you saved the form (we delete saved forms after 30 days)</li></ul>
         start_new_form_button: Start a new form

@@ -34,6 +34,28 @@ RSpec.describe Forms::ContinueSavedFormController, type: :request do
   end
 
   describe "GET #new" do
+    context "when the user is not signed in to GOV.UK One Login" do
+      before do
+        get continue_saved_form_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
+      end
+
+      it "renders the One Login sign-in interstitial" do
+        expect(response).to have_http_status(:ok)
+        expect(response).to render_template(:new)
+        expect(response.body).to include(I18n.t("forms.continue_saved_form.new.title"))
+      end
+
+      it "stores the continue saved form return params for returning from One Login on the session" do
+        expect(store["return_from_one_login"]).to eq({
+          "last_form_id" => form.form_id,
+          "last_form_slug" => form.form_slug,
+          "last_mode" => mode.to_s,
+          "last_locale" => nil,
+          "return_to" => "continue_saved_form",
+        })
+      end
+    end
+
     context "when the user is signed in to GOV.UK One Login" do
       let(:auth_session) do
         {
