@@ -23,7 +23,7 @@ class ProgressSavedMailer < ApplicationMailer
   end
 
   def resume_form_link(form, mode, locale: nil)
-    path = Rails.application.routes.url_helpers.form_path(mode:, form_id: form.id, form_slug: form.form_slug, locale:)
+    path = Rails.application.routes.url_helpers.continue_saved_form_path(mode:, form_id: form.id, form_slug: form.form_slug, locale:)
     "#{Settings.forms_runner.base_url}#{path}"
   end
 

@@ -200,6 +200,10 @@ en:
           attributes:
             remove:
               blank: You must select an option
+        resume_options_input:
+          attributes:
+            resume_options:
+              blank: Select whether you want to start a new form or continue filling in a saved form
   autocomplete:
     assistive_hint: When autocomplete results are available use up and down arrows to review and enter to select.  Touch device users, explore by touch or with swipe gestures.
     no_results: No results found
@@ -399,6 +403,16 @@ en:
         view_english_form: 'You can still complete the form in English:'
         welsh_version_archived: The Welsh version of this form has been archived and is no longer available.
     back: Back
+    continue_saved_form:
+      new:
+        body_html: "<p>We use GOV.UK One Login to keep your information secure.</p><p>Sign in to your GOV.UK One Login to continue filling in your saved form.</p>"
+        continue_to_one_login_button: Continue to GOV.UK One Login
+        title: Sign in to your GOV.UK One Login
+      not_found:
+        body_html: <p class="govuk-body">This could be because:</p><ul class="govuk-list govuk-list--bullet"><li>you did not save your progress for this form</li><li>you used a different GOV.UK One Login to save the form</li><li>it has been more than 30 days since you saved the form (we delete saved forms after 30 days)</li></ul>
+        sign_in_different_link: Sign in with a different GOV.UK One Login
+        start_new_form_button: Start a new form
+        title: We could not find your saved form
     continue_to_one_login:
       show:
         body_html: "<p>The email with your answers will be sent to the email address linked to your GOV.UK One Login.</p><p>If you need the answers sent to a different email address - for example, your work email - you can create a new GOV.UK One Login.</p>"
@@ -425,6 +439,9 @@ en:
       show:
         radios_legend: Are you sure you want to remove your file?
         title: Remove your file
+    resume_options:
+      show:
+        title: What do you want to do?
     review_file:
       show:
         check_file: Check your uploaded file
@@ -440,8 +457,9 @@ en:
         title: Use GOV.UK One Login to save your progress
       show:
         body_html: '<p>We’ve sent a link to %{email} so you can continue filling in the form when you are ready. This is the email address you use to sign in with GOV.UK One Login.</p><p>Use this link to continue filling in the form: <a href="%{form_url}" class="govuk-link">%{form_url}</a></p><p>We’ll delete your saved form on %{deletion_date}.</p>'
+        continue_button: Continue filling the form
         sign_out_link: Sign out of GOV.UK One Login
-        title: Your form has been saved
+        title: Your progress has been saved
   gov_uk_forms: GOV.UK Forms
   govuk_components:
     govuk_summary_list:
@@ -459,6 +477,9 @@ en:
     hint:
       email_confirmation_input:
         send_confirmation: We’ll only use the email address you provide here to send a confirmation that your form’s been successfully submitted. It will not contain a copy of your answers.
+      resume_options_input:
+        options:
+          continue_saved: You’ll need to sign in to your GOV.UK One Login
     label:
       add_another_answer_input:
         options:
@@ -477,6 +498,10 @@ en:
         options:
           'no': 'No'
           'yes': 'Yes'
+      resume_options_input:
+        options:
+          continue_saved: Continue filling in a saved form
+          start_new: Start a new form
     legend:
       email_confirmation_input:
         send_confirmation: Do you want to get an email confirming your form has been submitted?

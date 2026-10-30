@@ -33,6 +33,14 @@ RSpec.describe Store::SubmissionDetailsStore do
     end
   end
 
+  describe "#store_submission_reference" do
+    it "stores the given submission reference" do
+      submission_details_store.set_submission_reference("SAVEDREF")
+
+      expect(submission_details_store.get_submission_reference).to eq("SAVEDREF")
+    end
+  end
+
   describe "#save_requested_email_confirmation" do
     it "stores and returns the requested email confirmation flag" do
       submission_details_store.save_requested_email_confirmation(requested_email_confirmation)

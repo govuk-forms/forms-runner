@@ -200,6 +200,10 @@ cy:
           attributes:
             remove:
               blank: Rhaid i chi ddewis opsiwn
+        resume_options_input:
+          attributes:
+            resume_options:
+              blank: Select whether you want to start a new form or continue filling in a saved form
   autocomplete:
     assistive_hint: 'Pan fo canlyniadau awtolenwi ar gael, defnyddiwch y saethau i fyny ac i lawr i adolygu a defnyddiwch ‘enter’ i ddewis. Defnyddwyr dyfeisiau cyffwrdd: chwiliwch drwy gyffwrdd neu sweipio'
     no_results: Dim canlyniadau wedi’u canfod
@@ -399,6 +403,16 @@ cy:
         view_english_form: 'Gallwch lenwi’r ffurflen yn Saesneg o hyd:'
         welsh_version_archived: Mae’r fersiwn Gymraeg o’r ffurflen hon wedi’i harchifo ac nid yw ar gael mwyach.
     back: Yn ôl
+    continue_saved_form:
+      new:
+        body_html: "<p>We use GOV.UK One Login to keep your information secure.</p><p>Sign in to your GOV.UK One Login to continue filling in your saved form.</p>"
+        continue_to_one_login_button: Continue to GOV.UK One Login
+        title: Sign in to your GOV.UK One Login
+      not_found:
+        body_html: <p class="govuk-body">This could be because:</p><ul class="govuk-list govuk-list--bullet"><li>you did not save your progress for this form</li><li>you used a different GOV.UK One Login to save the form</li><li>it has been more than 30 days since you saved the form (we delete saved forms after 30 days)</li></ul>
+        sign_in_different_link: Sign in with a different GOV.UK One Login
+        start_new_form_button: Start a new form
+        title: We could not find your saved form
     continue_to_one_login:
       show:
         body_html: "<p>Bydd yr e-bost gyda’ch atebion yn cael ei anfon i’r cyfeiriad e-bost sy’n gysylltiedig â’ch GOV.UK One Login.</p><p>Os ydych angen i’r atebion gael eu hanfon i gyfeiriad e-bost gwahanol - er enghraifft, eich e-bost gwaith - gallwch greu GOV.UK One Login newydd.</p>"
@@ -425,6 +439,9 @@ cy:
       show:
         radios_legend: Ydych chi’n siŵr yr hoffech chi dynnu’ch ffeil?
         title: Tynnu’ch ffeil
+    resume_options:
+      show:
+        title: What do you want to do?
     review_file:
       show:
         check_file: Gwiriwch y ffeil sydd wedi’i huwchlwytho
@@ -440,8 +457,9 @@ cy:
         title: Use GOV.UK One Login to save your progress
       show:
         body_html: '<p>We’ve sent a link to %{email} so you can continue filling in the form when you are ready. This is the email address you use to sign in with GOV.UK One Login.</p><p>Use this link to continue filling in the form: <a href="%{form_url}" class="govuk-link">%{form_url}</a></p><p>We’ll delete your saved form on %{deletion_date}.</p>'
+        continue_button: Continue filling the form
         sign_out_link: Sign out of GOV.UK One Login
-        title: Your form has been saved
+        title: Your progress has been saved
   gov_uk_forms: GOV.UK Forms
   govuk_components:
     govuk_summary_list:
@@ -459,6 +477,9 @@ cy:
     hint:
       email_confirmation_input:
         send_confirmation: Byddwn ond yn defnyddio’r cyfeiriad e-bost rydych yn ei ddarparu yma i anfon cadarnhad bod eich ffurflen wedi’i chyflwyno’n llwyddiannus. Ni fydd yn cynnwys copi o’ch atebion.
+      resume_options_input:
+        options:
+          continue_saved: You’ll need to sign in to your GOV.UK One Login
     label:
       add_another_answer_input:
         options:
@@ -477,6 +498,10 @@ cy:
         options:
           'no': Na
           'yes': Ydw
+      resume_options_input:
+        options:
+          continue_saved: Continue filling in a saved form
+          start_new: Start a new form
     legend:
       email_confirmation_input:
         send_confirmation: Ydych chi eisiau derbyn e-bost yn cadarnhau bod eich ffurflen wedi’i chyflwyno?

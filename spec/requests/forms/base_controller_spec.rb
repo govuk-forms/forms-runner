@@ -14,9 +14,11 @@ RSpec.describe Forms::BaseController, type: :request do
       declaration_markdown: "agree to the declaration",
       steps: steps_data,
       language:,
+      save_and_return:,
     )
   end
   let(:start_page) { 1 }
+  let(:save_and_return) { "disabled" }
   let(:language) { "en" }
 
   let(:no_data_found_response) do
@@ -300,6 +302,18 @@ RSpec.describe Forms::BaseController, type: :request do
 
             it "Logs the form_visit event" do
               expect(LogEventService).to have_received(:log_form_start)
+            end
+
+            context "and save and return is enabled" do
+              let(:save_and_return) { "enabled" }
+
+              it "redirects to the page asking whether to start a new form or continue a saved one" do
+                expect(response).to redirect_to(resume_options_path(mode: "form", form_id: 2, form_slug: form_response_data.form_slug))
+              end
+
+              it "Logs the form_visit event" do
+                expect(LogEventService).to have_received(:log_form_start)
+              end
             end
           end
 

@@ -44,7 +44,7 @@ feature "Save form progress", type: :feature do
   end
 
   scenario "As a form filler, I sign in with GOV.UK One Login to save my progress" do
-    when_i_visit_the_form_start_page
+    when_i_visit_the_first_question
     and_i_answer_the_first_question
     then_i_see_the_save_and_exit_link
 
@@ -56,8 +56,8 @@ feature "Save form progress", type: :feature do
     and_my_answers_are_saved
   end
 
-  def when_i_visit_the_form_start_page
-    visit form_path(mode: "form", form_id: 1, form_slug: form.form_slug)
+  def when_i_visit_the_first_question
+    visit form_step_path(mode: "form", form_id: 1, form_slug: form.form_slug, step_slug: 1)
     expect(page.find("h1")).to have_text first_question_text
   end
 
@@ -86,7 +86,7 @@ feature "Save form progress", type: :feature do
   end
 
   def then_i_see_the_confirmation_page
-    expect(page).to have_css(".govuk-notification-banner--success", text: "Your form has been saved")
+    expect(page).to have_css(".govuk-notification-banner--success", text: "Your progress has been saved")
     expect(page).to have_link "Sign out of GOV.UK One Login"
   end
 
