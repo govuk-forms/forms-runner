@@ -3,6 +3,16 @@ module Forms
     before_action :redirect_if_save_and_return_disabled
 
     def new
+      unless auth_service.logged_in?
+        auth_service.store_return_params(
+          form: current_context.form,
+          mode:,
+          locale: locale_param,
+          return_to: Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:continue_saved_form],
+        )
+        return
+      end
+
       load_saved_progress_and_redirect
     end
 
