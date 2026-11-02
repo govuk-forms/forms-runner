@@ -15,7 +15,9 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest watch",
-    "lint": "standard | snazzy && stylelint 'app/**/*.scss'",
+    "lint": "npm run lint:javascript && npm run lint:scss",
+    "lint:scss": "stylelint 'app/**/*.scss'",
+    "lint:javascript": "standard | snazzy",
     "format": "standard --fix && stylelint 'app/**/*.scss' --fix",
     "ci": "bin/setup && bin/rails server",
     "dev": "vite dev"
