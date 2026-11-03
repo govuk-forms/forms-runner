@@ -1,4 +1,4 @@
-arn_matching_expr = /arn:aws:sts::498160065950:assumed-role\/[a-z0-9.]+-readonly\/\d+/
+arn_matching_expr = /arn:aws:sts::498160065950:assumed-role\/[a-z0-9.]+-readonly\/[\w+=,.@-]+/
 
 err_msg = <<~MSG
   You must have assumed the readonly role in the development account
