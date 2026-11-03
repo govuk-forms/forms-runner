@@ -21,10 +21,10 @@
     "dev": "vite dev"
   },
   "devDependencies": {
-    "autoprefixer": "^10.6.1",
+    "autoprefixer": "^10.6.2",
     "esbuild": "0.28.2",
     "jsdom": "^30.1.3",
-    "postcss": "^8.5.31",
+    "postcss": "^8.5.32",
     "sass": "^1.106.1",
     "snazzy": "^9.0.0",
     "standard": "^17.1.2",
