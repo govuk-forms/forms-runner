@@ -41,6 +41,7 @@ Rails.application.routes.draw do
       get "/save-your-progress" => "forms/save_progress#new", as: :save_progress
       get "/save-your-progress/after-sign-in" => "forms/save_progress#after_sign_in", as: :save_progress_after_sign_in
       post "/save-your-progress" => "forms/save_progress#create", as: :create_save_progress
+      post "/save-your-progress/overwrite" => "forms/save_progress#overwrite", as: :overwrite_saved_progress
       get "/progress-saved" => "forms/save_progress#show", as: :progress_saved
       get "/submitted" => "forms/submitted#submitted", as: :form_submitted
       get "/privacy" => "forms/privacy_page#show", as: :form_privacy

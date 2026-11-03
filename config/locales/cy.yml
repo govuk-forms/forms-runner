@@ -87,6 +87,10 @@ cy:
             add_another_answer:
               blank: Dewiswch ydw os ydych angen ychwanegu ateb arall
               max_answers_reached: Dewiswch ydw os ydych angen ychwanegu ateb arall
+        already_saved_input:
+          attributes:
+            already_saved:
+              blank: Select whether you want to replace the saved version of the form
         copy_of_answers_input:
           attributes:
             copy_of_answers:
@@ -432,6 +436,12 @@ cy:
         remove_file_guidance: Cewch dynnu’r ffeil yma os oes angen ichi uwchlwytho un wahanol.
         your_file: Eich ffeil chi
     save_progress:
+      already_saved:
+        body_html: "<p>You last saved this form at %{time} on %{date}.</p>"
+        keep_saved: No, return to the form without saving
+        legend: Do you want to replace the saved version?
+        overwrite: Yes, replace the saved version
+        title: You already have a saved version of this form
       new:
         body_html: "<p>We’ll email you a link so you can continue filling in the form when you’re ready.</p><p>We’ll send it to the email address you use to sign in with GOV.UK One Login.</p><p>We’ll delete your saved form after 30 days.</p>"
         continue_to_one_login_button: Continue to GOV.UK One Login
