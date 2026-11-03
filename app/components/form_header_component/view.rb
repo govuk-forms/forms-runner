@@ -1,3 +1,5 @@
+require "govuk_one_login"
+
 module FormHeaderComponent
   GOVUK_BASE_URL = "https://www.gov.uk/".freeze
 
@@ -36,7 +38,7 @@ module FormHeaderComponent
               safe_join([
                 render(GovukOneLogin::ServiceHeaderComponent::View.new(
                          homepage_url:,
-                         one_login_url: Settings.govuk_one_login.one_login_url,
+                         one_login_url: GovukOneLogin.home_url,
                          sign_out_form_action: omniauth_logout_path,
                        )),
                 govuk_service_navigation(**service_navigation_options),

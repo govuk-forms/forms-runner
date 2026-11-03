@@ -19,5 +19,4 @@ file_upload:
   poll_scan_status_max_attempts: 2
 
 govuk_one_login:
-  base_url: http://example.com/one-login-mock/
-  signed_out_url: http://example.com/one-login-mock/signed-out
+  domain: example.com/one-login-mock

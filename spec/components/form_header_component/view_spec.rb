@@ -205,7 +205,7 @@ RSpec.describe FormHeaderComponent::View, type: :component do
     it "links to GOV.UK One Login" do
       render_inline(described_class.new(current_context:, auth_service:, mode:))
 
-      expect(page.find("header")).to have_link href: "https://home.account.gov.uk"
+      expect(page.find("header")).to have_link href: "https://home.example.com/one-login-mock"
     end
 
     it "has a sign out button" do

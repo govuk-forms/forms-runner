@@ -401,14 +401,14 @@ RSpec.describe Users::OmniauthController, type: :request do
         let(:return_to) { "signed_out" }
 
         it "redirects to the GOV.UK One Login signed out page" do
-          expect(response).to redirect_to("http://example.com/one-login-mock/signed-out?lng=cy")
+          expect(response).to redirect_to("https://home.example.com/one-login-mock/signed-out?lng=cy")
         end
 
         context "when the locale is nil" do
           let(:locale) { nil }
 
           it "redirects to the GOV.UK One Login signed out page in the default locale" do
-            expect(response).to redirect_to("http://example.com/one-login-mock/signed-out")
+            expect(response).to redirect_to("https://home.example.com/one-login-mock/signed-out")
           end
         end
       end

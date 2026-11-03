@@ -1,3 +1,5 @@
+require "govuk_one_login"
+
 module Users
   class OmniauthController < ApplicationController
     class FailureError < StandardError; end
@@ -82,7 +84,7 @@ module Users
     def one_login_signed_out_url
       locale = auth_service.return_from_one_login_store.last_locale
       params = locale.present? ? "?lng=#{locale}" : ""
-      "#{Settings.govuk_one_login.signed_out_url}#{params}"
+      "#{GovukOneLogin.signed_out_url}#{params}"
     end
   end
 end
