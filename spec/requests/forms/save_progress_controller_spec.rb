@@ -114,6 +114,24 @@ RSpec.describe Forms::SaveProgressController, type: :request do
         expect(response).to render_template(:new)
         expect(response.body).to include("test@example.com")
       end
+
+      context "when the user already has saved answers for the form" do
+        before do
+          IncompleteSubmission.create!(
+            user_id: "user-sub-123",
+            form_id: form.form_id,
+            answers: { "1" => { "text" => "previous answer" } },
+            mode:,
+            updated_at: Time.zone.local(2026, 5, 6, 12, 32),
+          )
+
+          get save_progress_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
+        end
+
+        it "shows when the answers were last saved" do
+          expect(response.body).to include("You last saved this form at 12:32pm on 6 May 2026.")
+        end
+      end
     end
   end
 
@@ -212,17 +230,71 @@ RSpec.describe Forms::SaveProgressController, type: :request do
             get_after_sign_in
           end
 
-          # TODO: this should redirect to a page asking the user to confirm the overwrite, once that page exists
-          it "overwrites the saved answers" do
-            incomplete_submission = IncompleteSubmission.find_by(user_id: "user-sub-123", form_id: form.form_id)
-
-            expect(incomplete_submission.answers).to eq answers
+          it "renders the page asking whether to replace the saved answers" do
+            expect(response).to render_template(:already_saved)
           end
 
-          it "redirects to the progress saved confirmation page" do
-            expect(response).to redirect_to(progress_saved_path(form.form_id, form.form_slug, mode:))
+          it "clears the return from One Login params" do
+            expect(store).not_to have_key "return_from_one_login"
           end
         end
+      end
+    end
+  end
+
+  describe "POST #overwrite" do
+    let(:already_saved_choice) { "overwrite" }
+
+    let(:auth_session) do
+      {
+        auth: {
+          sub: "user-sub-123",
+          email: "test@example.com",
+          token: "a-token",
+          authenticated_at: Time.current.to_i,
+        },
+      }
+    end
+
+    before do
+      allow(SendProgressSavedEmailJob).to receive(:perform_later)
+      IncompleteSubmission.create!(user_id: "user-sub-123", form_id: form.form_id, answers: { "1" => { "text" => "previous answer" } }, mode:)
+      post overwrite_saved_progress_path(mode:, form_id: form.form_id, form_slug: form.form_slug),
+           params: { already_saved_input: { already_saved: already_saved_choice } }
+    end
+
+    context "when the user chooses to overwrite the saved version" do
+      it "overwrites the saved answers after the user confirms" do
+        incomplete_submission = IncompleteSubmission.find_by(user_id: "user-sub-123", form_id: form.form_id)
+
+        expect(incomplete_submission.answers).to eq answers
+      end
+
+      it "redirects to the progress saved confirmation page" do
+        expect(response).to redirect_to(progress_saved_path(form.form_id, form.form_slug, mode:))
+      end
+    end
+
+    context "when the user chooses to keep the saved version" do
+      let(:already_saved_choice) { "keep_saved" }
+
+      it "does not overwrite the saved answers" do
+        incomplete_submission = IncompleteSubmission.find_by(user_id: "user-sub-123", form_id: form.form_id)
+
+        expect(incomplete_submission.answers).to eq("1" => { "text" => "previous answer" })
+      end
+
+      it "returns the user to the form" do
+        expect(response).to redirect_to(form_step_path(form.form_id, form.form_slug, CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG, mode:))
+      end
+    end
+
+    context "when the user does not choose an option" do
+      let(:already_saved_choice) { nil }
+
+      it "renders the page with a validation error" do
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(response).to render_template(:already_saved)
       end
     end
   end
