@@ -73,6 +73,14 @@ feature "Continue a saved form", type: :feature do
     then_i_see_the_first_question_with_no_answer
   end
 
+  scenario "As a form filler who has already answered some questions, I choose to start a new form" do
+    given_i_have_answered_the_first_question
+
+    when_i_visit_the_form_start_page
+    and_i_choose_to_start_a_new_form
+    then_i_see_the_first_question_with_no_answer
+  end
+
   def given_i_have_saved_progress_for_the_form
     IncompleteSubmission.create!(
       user_id: one_login_sub,
@@ -83,6 +91,13 @@ feature "Continue a saved form", type: :feature do
       mode: "form",
       submission_reference: "SAVEDREF",
     )
+  end
+
+  def given_i_have_answered_the_first_question
+    visit form_step_path(mode: "form", form_id: 1, form_slug: form.form_slug, step_slug: 1)
+    fill_in first_question_text, with: "Sir Robin"
+    click_button "Continue"
+    expect(page.find("h1")).to have_text second_question_text
   end
 
   def when_i_visit_the_form_start_page

@@ -16,9 +16,21 @@ RSpec.describe Forms::ResumeOptionsController, type: :request do
   let(:api_url_suffix) { "/draft" }
   let(:mode) { "preview-draft" }
 
+  let(:store) do
+    {
+      answers: { form.form_id.to_s => { "1" => { "text" => "an answer from an earlier visit" } } },
+      locales: { form.form_id.to_s => %w[en] },
+      confirmation_details: { form.form_id.to_s => { "submission_reference" => "OLDREF", "wants_copy_of_answers" => true } },
+    }.with_indifferent_access
+  end
+
   before do
     ActiveResource::HttpMock.respond_to do |mock|
       mock.get "/api/v2/forms/#{form.form_id}#{api_url_suffix}", req_headers, form.to_json, 200
+    end
+
+    allow(Flow::Context).to receive(:new).and_wrap_original do |original_method, *args|
+      original_method.call(form: args[0][:form], form_document: args[0][:form_document], store:)
     end
   end
 
@@ -54,6 +66,14 @@ RSpec.describe Forms::ResumeOptionsController, type: :request do
 
       it "redirects to the first question" do
         expect(response).to redirect_to(form_step_path(form.form_id, form.form_slug, 1, mode:))
+      end
+
+      it "clears the answers for the form from the session" do
+        expect(store.dig(:answers, form.form_id.to_s)).to be_nil
+      end
+
+      it "clears the submission details for the form from the session" do
+        expect(store.dig(:confirmation_details, form.form_id.to_s)).to be_nil
       end
     end
 

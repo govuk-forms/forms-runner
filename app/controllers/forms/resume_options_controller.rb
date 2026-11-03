@@ -12,12 +12,19 @@ module Forms
         return render :show, status: :unprocessable_entity
       end
 
-      return redirect_to form_step_path(current_context.form.id, current_context.form.form_slug, current_context.form.start_page) unless @resume_options_input.continue_saved?
+      return start_new_form unless @resume_options_input.continue_saved?
 
       redirect_to continue_saved_form_path(form_id: @current_context.form.id, form_slug: @current_context.form.form_slug)
     end
 
   private
+
+    def start_new_form
+      current_context.clear
+      current_context.clear_submission_details
+
+      redirect_to form_step_path(current_context.form.id, current_context.form.form_slug, current_context.form.start_page)
+    end
 
     def back_to_start
       unless @current_context.form.save_and_return_enabled?
