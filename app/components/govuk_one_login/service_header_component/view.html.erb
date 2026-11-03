@@ -56,11 +56,15 @@
           <li class="one-login-header__nav__list-item">
             <% if sign_out_form_action %>
               <%= button_to(sign_out_form_action, form_class: "one-login-header__nav__form", class: "one-login-header__nav__button") do %>
-                <span class="one-login-header__nav__text one-login-header__nav__text--sign-out"><%= sign_out_text || t(".sign_out") %></span>
+                <span class="one-login-header__nav__text one-login-header__nav__text--sign-out">
+                  <%= sign_out_text || t("govuk_one_login.service_header_component.view.sign_out") %>
+                </span>
               <% end %>
             <% else %>
               <a class="one-login-header__nav__link" href="<%= sign_out_link_href %>">
-                <span class="one-login-header__nav__text one-login-header__nav__text--sign-out"><%= sign_out_text || t(".sign_out") %></span>
+                <span class="one-login-header__nav__text one-login-header__nav__text--sign-out">
+                  <%= sign_out_text || t("govuk_one_login.service_header_component.view.sign_out") %>
+                </span>
               </a>
             <% end %>
           </li>
