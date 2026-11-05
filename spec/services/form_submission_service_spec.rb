@@ -119,6 +119,43 @@ RSpec.describe FormSubmissionService, :capture_logging do
       end
     end
 
+    context "when the user saved their progress before submitting" do
+      let(:stored_submission_reference) { "ABC23456" }
+
+      let!(:saved_progress) do
+        IncompleteSubmission.create!(user_id: "one-login-sub", form_id: 1, answers:, submission_reference: "ABC23456", mode: "form")
+      end
+      let!(:saved_progress_in_other_mode) do
+        IncompleteSubmission.create!(user_id: "one-login-sub", form_id: 1, answers:, submission_reference: "DRAFTREF", mode: "preview-draft")
+      end
+
+      it "deletes the saved progress so it cannot be continued again" do
+        service.submit
+
+        expect(IncompleteSubmission.exists?(saved_progress.id)).to be false
+      end
+
+      it "keeps saved progress for the form in other modes" do
+        service.submit
+
+        expect(IncompleteSubmission.exists?(saved_progress_in_other_mode.id)).to be true
+      end
+
+      context "and the submission fails" do
+        before do
+          ActiveResource::HttpMock.respond_to do |mock|
+            mock.get "/api/v3/forms/1/delivery-configurations/current", {}, "Error", 500
+          end
+        end
+
+        it "keeps the saved progress" do
+          expect { service.submit }.to raise_error(ActiveResource::ServerError)
+
+          expect(IncompleteSubmission.exists?(saved_progress.id)).to be true
+        end
+      end
+    end
+
     it "includes the submission reference in the logging context" do
       service.submit
       expect(log_line["submission_reference"]).to eq(reference)

@@ -207,7 +207,7 @@ RSpec.describe Forms::SaveProgressController, type: :request do
           let(:previously_saved_answers) { { "1" => { "text" => "previous answer" } } }
 
           before do
-            IncompleteSubmission.create!(user_id: "user-sub-123", form_id: form.form_id, answers: previously_saved_answers)
+            IncompleteSubmission.create!(user_id: "user-sub-123", form_id: form.form_id, answers: previously_saved_answers, mode:)
 
             get_after_sign_in
           end
@@ -334,6 +334,7 @@ RSpec.describe Forms::SaveProgressController, type: :request do
           user_id: "user-sub-123",
           form_id: form.form_id,
           answers:,
+          mode:,
           updated_at: Time.zone.local(2026, 10, 14, 12, 0, 0),
         )
 

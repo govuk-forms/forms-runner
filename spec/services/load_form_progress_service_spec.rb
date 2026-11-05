@@ -1,9 +1,10 @@
 require "rails_helper"
 
 RSpec.describe LoadFormProgressService do
-  subject(:service) { described_class.new(current_context:, user_id:) }
+  subject(:service) { described_class.new(current_context:, user_id:, mode:) }
 
   let(:user_id) { "one-login-sub" }
+  let(:mode) { Mode.new("form") }
   let(:form_document) { build(:form_document, form_id: 1, start_page: 1, steps: [build(:question_step, :with_text_settings, id: 1)]) }
   let(:form) { Form.new(form_document) }
   let(:current_context) { Flow::Context.new(form:, form_document:, store: {}) }
@@ -13,7 +14,7 @@ RSpec.describe LoadFormProgressService do
       let(:saved_answers) { { "1" => { "text" => "a saved answer" } } }
 
       let!(:incomplete_submission) do
-        IncompleteSubmission.create!(user_id:, form_id: form.id, answers: saved_answers, submission_reference: "SAVEDREF", locale: "cy")
+        IncompleteSubmission.create!(user_id:, form_id: form.id, answers: saved_answers, submission_reference: "SAVEDREF", locale: "cy", mode: "form")
       end
 
       it "returns the saved progress" do
@@ -42,6 +43,22 @@ RSpec.describe LoadFormProgressService do
     context "when the user has no saved progress for the form" do
       it "returns nil" do
         expect(service.load!).to be_nil
+      end
+    end
+
+    context "when the user only has saved progress for the form in a different mode" do
+      before do
+        IncompleteSubmission.create!(user_id:, form_id: form.id, answers: { "1" => { "text" => "a draft answer" } }, mode: "preview-draft")
+      end
+
+      it "returns nil" do
+        expect(service.load!).to be_nil
+      end
+
+      it "does not load the answers into the session" do
+        service.load!
+
+        expect(current_context.answers).to be_nil
       end
     end
   end

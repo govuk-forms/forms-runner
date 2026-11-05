@@ -25,7 +25,7 @@ module Forms
   private
 
     def load_saved_progress_and_redirect
-      incomplete_submission = LoadFormProgressService.new(current_context:, user_id: auth_service.sub).load!
+      incomplete_submission = LoadFormProgressService.new(current_context:, user_id: auth_service.sub, mode:).load!
       return redirect_to form_step_path(current_context.form.id, current_context.form.form_slug, current_context.form.start_page) if incomplete_submission
 
       current_context.clear

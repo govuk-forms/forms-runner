@@ -34,7 +34,7 @@ module Forms
     end
 
     def show
-      saved = IncompleteSubmission.find_by(user_id: auth_service.sub, form_id: current_context.form.id)
+      saved = IncompleteSubmission.find_by(user_id: auth_service.sub, form_id: current_context.form.id, mode: mode.to_s)
       return redirect_to(save_progress_path(current_context.form.id, current_context.form.form_slug)) unless saved
 
       @one_login_email = auth_service.email
