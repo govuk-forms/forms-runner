@@ -10,6 +10,7 @@ RSpec.describe DeleteSubmissionsJob, type: :job do
            :sent,
            reference: "31DAYS",
            form_id: form_with_file_upload.form_id,
+           form_version: 1,
            form_document: form_with_file_upload,
            created_at: 31.days.ago,
            answers: form_with_file_upload_answers
@@ -19,6 +20,7 @@ RSpec.describe DeleteSubmissionsJob, type: :job do
            :sent,
            reference: "30DAYS",
            form_id: form_without_file_upload.form_id,
+           form_version: 1,
            form_document: form_without_file_upload,
            created_at: 30.days.ago
   end
@@ -27,6 +29,7 @@ RSpec.describe DeleteSubmissionsJob, type: :job do
            :sent,
            reference: "29DAYS",
            form_id: form_without_file_upload.form_id,
+           form_version: 1,
            form_document: form_without_file_upload,
            created_at: 29.days.ago
   end
@@ -51,6 +54,10 @@ RSpec.describe DeleteSubmissionsJob, type: :job do
   before do
     allow(Question::FileUploadS3Service).to receive(:new).and_return(file_upload_s3_service_spy)
     allow(CloudWatchService).to receive_messages(record_job_started_metric: nil, record_submission_deleted_metric: nil)
+    allow(Api::V3::FormDocumentRepository).to receive(:find_by_version)
+      .with(form_id: form_with_file_upload.form_id, version: 1).and_return(form_with_file_upload)
+    allow(Api::V3::FormDocumentRepository).to receive(:find_by_version)
+      .with(form_id: form_without_file_upload.form_id, version: 1).and_return(form_without_file_upload)
 
     job = described_class.perform_later
     @job_id = job.job_id
@@ -120,6 +127,19 @@ RSpec.describe DeleteSubmissionsJob, type: :job do
     it "sends cloudwatch metric for each submission deleted" do
       perform_enqueued_jobs
       expect(CloudWatchService).to have_received(:record_submission_deleted_metric).twice.with(:pending)
+    end
+  end
+
+  context "when the form can no longer be loaded from the API" do
+    before do
+      allow(file_upload_s3_service_spy).to receive(:delete_from_s3)
+      allow(Api::V3::FormDocumentRepository).to receive(:find_by_version).and_raise(ActiveResource::ResourceNotFound.new(Net::HTTPNotFound.new("1.1", "404", "Not Found")))
+    end
+
+    it "still deletes the files from S3 and destroys the submission" do
+      expect { perform_enqueued_jobs }.to change(Submission, :count).by(-2)
+      expect(file_upload_s3_service_spy).to have_received(:delete_from_s3).with("key1").once
+      expect(file_upload_s3_service_spy).to have_received(:delete_from_s3).with("key2").once
     end
   end
 

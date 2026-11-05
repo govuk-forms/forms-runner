@@ -38,10 +38,14 @@ RSpec.describe ReceiveSubmissionBouncesAndComplaintsJob, type: :job do
   let(:delivery_reference) { "delivery-reference" }
   let(:reference) { "submission-reference" }
   let(:mode) { "form" }
-  let(:submission) { create :submission, reference:, mode: }
+  let(:form_version) { mode == "form" ? 3 : nil }
+  let(:form_document) { build :form_document, :with_steps }
+  let(:submission) { create :submission, reference:, mode:, form_version: }
   let!(:delivery) { create :delivery, delivery_reference:, submissions: [submission] }
 
   before do
+    allow(Api::V3::FormDocumentRepository).to receive(:find_by_version).and_return(form_document)
+
     allow(Settings.aws).to receive(:submission_email_bounces_and_complaints_sqs_queue_name).and_return(queue_name)
 
     sts_client = instance_double(Aws::STS::Client)
@@ -153,6 +157,38 @@ RSpec.describe ReceiveSubmissionBouncesAndComplaintsJob, type: :job do
 
       context "when it is for a preview submission" do
         it_behaves_like "preview submission bounce behaviour", "form_submission_bounced"
+      end
+
+      context "when the form no longer exists in the API" do
+        before do
+          allow(Api::V3::FormDocumentRepository).to receive(:find_by_version)
+            .with(form_id: submission.form_id, version: 3)
+            .and_raise(ActiveResource::ResourceNotFound.new(Net::HTTPNotFound.new("1.1", "404", "Not Found")))
+        end
+
+        it "does not raise an error" do
+          allow(Sentry).to receive(:capture_exception)
+
+          expect { perform_enqueued_jobs }.not_to raise_error
+          expect(Sentry).not_to have_received(:capture_exception)
+        end
+
+        it "records the bounce on the delivery and deletes the SQS message" do
+          perform_enqueued_jobs
+
+          expect(delivery.reload.failure_reason).to eq("bounced")
+          expect(sqs_client).to have_received(:delete_message)
+        end
+
+        it "logs the form event using the submission's form_id and form_version" do
+          perform_enqueued_jobs
+
+          expect(log_lines).to include(hash_including(
+                                         "event" => "form_submission_bounced",
+                                         "form_id" => submission.form_id,
+                                         "form_version" => 3,
+                                       ))
+        end
       end
     end
 

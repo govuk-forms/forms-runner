@@ -162,6 +162,23 @@ RSpec.describe Submission, type: :model do
     end
   end
 
+  describe "#uploaded_file_keys" do
+    it "returns the uploaded file keys from the stored answers" do
+      submission = build :submission, answers: {
+        "1" => { "uploaded_file_key" => "key1", "original_filename" => "a.png" },
+        "2" => { "text" => "hello" },
+        "3" => { "uploaded_file_key" => "", "original_filename" => "" },
+        "4" => { "uploaded_file_key" => "key2", "original_filename" => "b.txt" },
+      }
+
+      expect(submission.uploaded_file_keys).to eq %w[key1 key2]
+    end
+
+    it "returns an empty array when there are no answers" do
+      expect(build(:submission, answers: nil).uploaded_file_keys).to eq []
+    end
+  end
+
   describe "#journey" do
     let(:journey) { instance_double(Flow::Journey) }
     let(:english_form_with_version) { Api::V3::FormDocumentResource.new(name: "English form with a version") }
@@ -241,6 +258,34 @@ RSpec.describe Submission, type: :model do
       it "gets the form document stored on the submission" do
         expect(Api::V3::FormDocumentRepository).not_to receive(:find_by_version)
         expect(submission.form.name).to eq("form without version")
+      end
+    end
+  end
+
+  describe "#form_name" do
+    context "when the submission has a form version" do
+      let(:submission) { create(:submission, form_version: 1111) }
+
+      it "returns the name of the form from the v3 API" do
+        allow(Api::V3::FormDocumentRepository).to receive(:find_by_version)
+          .and_return(Api::V3::FormDocumentResource.new(name: "form with a version"))
+
+        expect(submission.form_name).to eq("form with a version")
+      end
+
+      it "returns nil when the form has been deleted" do
+        allow(Api::V3::FormDocumentRepository).to receive(:find_by_version)
+          .and_raise(ActiveResource::ResourceNotFound.new(Struct.new(:code).new("404")))
+
+        expect(submission.form_name).to be_nil
+      end
+    end
+
+    context "when the submission has no form version" do
+      let(:submission) { create(:submission, form_document: build(:form_document, name: "form without version")) }
+
+      it "returns the name of the form stored on the submission" do
+        expect(submission.form_name).to eq("form without version")
       end
     end
   end

@@ -34,8 +34,20 @@ class Submission < ApplicationRecord
     @form ||= Form.new(form_document_resource)
   end
 
+  def form_name
+    form.name
+  rescue ActiveResource::ResourceNotFound
+    nil
+  end
+
   def welsh_form
     @welsh_form ||= Form.new(welsh_form_document_resource) if submission_locale == "cy"
+  end
+
+  def uploaded_file_keys
+    answers.to_h.values.filter_map do |answer|
+      answer["uploaded_file_key"].presence if answer.is_a?(Hash)
+    end
   end
 
   def submission_time
