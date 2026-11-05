@@ -162,6 +162,23 @@ RSpec.describe Submission, type: :model do
     end
   end
 
+  describe "#uploaded_file_keys" do
+    it "returns the uploaded file keys from the stored answers" do
+      submission = build :submission, answers: {
+        "1" => { "uploaded_file_key" => "key1", "original_filename" => "a.png" },
+        "2" => { "text" => "hello" },
+        "3" => { "uploaded_file_key" => "", "original_filename" => "" },
+        "4" => { "uploaded_file_key" => "key2", "original_filename" => "b.txt" },
+      }
+
+      expect(submission.uploaded_file_keys).to eq %w[key1 key2]
+    end
+
+    it "returns an empty array when there are no answers" do
+      expect(build(:submission, answers: nil).uploaded_file_keys).to eq []
+    end
+  end
+
   describe "#journey" do
     let(:journey) { instance_double(Flow::Journey) }
     let(:english_form_with_version) { Api::V3::FormDocumentResource.new(name: "English form with a version") }

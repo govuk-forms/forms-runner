@@ -44,6 +44,12 @@ class Submission < ApplicationRecord
     @welsh_form ||= Form.new(welsh_form_document_resource) if submission_locale == "cy"
   end
 
+  def uploaded_file_keys
+    answers.to_h.values.filter_map do |answer|
+      answer["uploaded_file_key"].presence if answer.is_a?(Hash)
+    end
+  end
+
   def submission_time
     created_at.in_time_zone(TimeZoneUtils.submission_time_zone)
   end

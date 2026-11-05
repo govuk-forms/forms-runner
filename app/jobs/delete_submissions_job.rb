@@ -17,8 +17,8 @@ class DeleteSubmissionsJob < ApplicationJob
     set_submission_logging_attributes(submission:)
     delivery_status = submission.delivery_status
 
-    files = submission.journey.completed_file_upload_questions
-    files.each(&:delete_from_s3)
+    file_upload_s3_service = Question::FileUploadS3Service.new
+    submission.uploaded_file_keys.each { |key| file_upload_s3_service.delete_from_s3(key) }
     submission.destroy!
 
     EventLogger.log_form_event("submission_deleted", { delivery_status: })
