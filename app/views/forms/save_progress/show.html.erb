@@ -8,7 +8,12 @@
 
       <%= t('.body_html', email: @one_login_email, deletion_date: @deletion_date, form_url: continue_saved_form_url(@current_context.form.id, @current_context.form.form_slug)) %>
 
-      <%= govuk_button_link_to t('.continue_button'), form_step_path(@current_context.form.id, @current_context.form.form_slug, @current_context.next_step_slug) %>
+      <% continue_path = if @current_context.next_step_slug == CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG && @current_context.form.copy_of_answers_enabled?
+                           copy_of_answers_path(form_id: @current_context.form.id, form_slug: @current_context.form.form_slug)
+                         else
+                           form_step_path(@current_context.form.id, @current_context.form.form_slug, @current_context.next_step_slug)
+                         end %>
+      <%= govuk_button_link_to t('.continue_button'), continue_path %>
 
       <p class="govuk-body"><%= link_to t('.sign_out_link'), "#" %></p>
   </div>
