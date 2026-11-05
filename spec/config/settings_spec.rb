@@ -22,7 +22,7 @@ describe "Settings" do
     it "has a default value" do
       features = settings[:features]
 
-      expect(features).to eq({ "dummy" => false })
+      expect(features).to eq({ "dummy" => false, "pin_form_version" => false })
     end
   end
 

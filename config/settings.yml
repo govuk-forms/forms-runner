@@ -1,6 +1,6 @@
 features:
   dummy: false
-
+  pin_form_version: false
 
 forms_admin:
   # URL to form-admin
