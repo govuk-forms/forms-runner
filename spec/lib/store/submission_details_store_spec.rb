@@ -33,7 +33,7 @@ RSpec.describe Store::SubmissionDetailsStore do
     end
   end
 
-  describe "#store_submission_reference" do
+  describe "#set_submission_reference" do
     it "stores the given submission reference" do
       submission_details_store.set_submission_reference("SAVEDREF")
 
