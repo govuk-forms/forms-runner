@@ -245,6 +245,34 @@ RSpec.describe Submission, type: :model do
     end
   end
 
+  describe "#form_name" do
+    context "when the submission has a form version" do
+      let(:submission) { create(:submission, form_version: 1111) }
+
+      it "returns the name of the form from the v3 API" do
+        allow(Api::V3::FormDocumentRepository).to receive(:find_by_version)
+          .and_return(Api::V3::FormDocumentResource.new(name: "form with a version"))
+
+        expect(submission.form_name).to eq("form with a version")
+      end
+
+      it "returns nil when the form has been deleted" do
+        allow(Api::V3::FormDocumentRepository).to receive(:find_by_version)
+          .and_raise(ActiveResource::ResourceNotFound.new(Struct.new(:code).new("404")))
+
+        expect(submission.form_name).to be_nil
+      end
+    end
+
+    context "when the submission has no form version" do
+      let(:submission) { create(:submission, form_document: build(:form_document, name: "form without version")) }
+
+      it "returns the name of the form stored on the submission" do
+        expect(submission.form_name).to eq("form without version")
+      end
+    end
+  end
+
   describe "#welsh_form" do
     context "when the submission has a form version" do
       let(:submission) do

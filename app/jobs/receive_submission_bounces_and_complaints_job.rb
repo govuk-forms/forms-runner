@@ -33,7 +33,7 @@ private
     if delivery.immediate?
       set_submission_logging_attributes(submission:, delivery:)
     elsif delivery.daily? || delivery.weekly?
-      set_submission_batch_logging_attributes(form: submission.form, mode: submission.mode_object, delivery:)
+      set_submission_batch_logging_attributes(included_submission: submission, delivery:)
     end
   end
 

@@ -20,7 +20,7 @@ class SendSubmissionBatchJob < ApplicationJob
 
     batch_begin_date = delivery.batch_begin_at.in_time_zone(TimeZoneUtils.submission_time_zone).to_date
 
-    set_submission_batch_logging_attributes(form:, mode:, delivery:)
+    set_submission_batch_logging_attributes(included_submission: latest_submission, delivery:)
 
     if form.submission_email.blank?
       if mode.preview?

@@ -18,9 +18,13 @@ RSpec.describe ReceiveSubmissionDeliveriesJob, type: :job do
   let(:ses_delivery_message_body) { { "mail" => { "messageId" => delivery_reference }, "eventType": event_type, "delivery": { "timestamp": ses_delivery_timestamp } } }
   let(:delivery_reference) { "delivery-reference" }
   let(:reference) { "submission-reference" }
-  let!(:submission) { create :submission, :sent, delivery_reference:, reference:, created_at: Time.zone.parse("2025-05-09T10:25:35.001Z") }
+  let(:form_version) { 3 }
+  let(:form_document) { build :form_document, :with_steps }
+  let!(:submission) { create :submission, :sent, delivery_reference:, reference:, form_version:, created_at: Time.zone.parse("2025-05-09T10:25:35.001Z") }
 
   before do
+    allow(Api::V3::FormDocumentRepository).to receive(:find_by_version).and_return(form_document)
+
     allow(Settings.aws).to receive(:submission_email_deliveries_sqs_queue_name).and_return(queue_name)
 
     sts_client = instance_double(Aws::STS::Client)
@@ -60,7 +64,7 @@ RSpec.describe ReceiveSubmissionDeliveriesJob, type: :job do
     end
 
     context "when the delivery is a daily batch delivery" do
-      let(:submission) { create :submission, :sent, delivery_reference: "something-else", created_at: Time.zone.parse("2025-05-09T10:25:35.001Z") }
+      let(:submission) { create :submission, :sent, delivery_reference: "something-else", form_version:, created_at: Time.zone.parse("2025-05-09T10:25:35.001Z") }
 
       before do
         create :delivery, :daily, delivery_reference:, submissions: [submission], created_at: Time.zone.parse("2025-05-09T10:25:35.001Z")
@@ -73,7 +77,7 @@ RSpec.describe ReceiveSubmissionDeliveriesJob, type: :job do
     end
 
     context "when the delivery is a weekly batch delivery" do
-      let(:submission) { create :submission, :sent, delivery_reference: "something-else", created_at: Time.zone.parse("2025-05-09T10:25:35.001Z") }
+      let(:submission) { create :submission, :sent, delivery_reference: "something-else", form_version:, created_at: Time.zone.parse("2025-05-09T10:25:35.001Z") }
 
       before do
         create :delivery, :weekly, delivery_reference:, submissions: [submission], created_at: Time.zone.parse("2025-05-09T10:25:35.001Z")
@@ -118,8 +122,40 @@ RSpec.describe ReceiveSubmissionDeliveriesJob, type: :job do
                                    ))
     end
 
+    context "when the form no longer exists in the API" do
+      before do
+        allow(Api::V3::FormDocumentRepository).to receive(:find_by_version)
+          .with(form_id: submission.form_id, version: form_version)
+          .and_raise(ActiveResource::ResourceNotFound.new(Net::HTTPNotFound.new("1.1", "404", "Not Found")))
+      end
+
+      it "does not raise an error" do
+        allow(Sentry).to receive(:capture_exception)
+
+        expect { perform_enqueued_jobs }.not_to raise_error
+        expect(Sentry).not_to have_received(:capture_exception)
+      end
+
+      it "updates the delivery delivered_at timestamp and deletes the SQS message" do
+        perform_enqueued_jobs
+
+        expect(submission.deliveries.first.reload.delivered_at).to eq ses_delivery_timestamp
+        expect(sqs_client).to have_received(:delete_message)
+      end
+
+      it "logs the form event using the submission's form_id and form_version", :capture_logging do
+        perform_enqueued_jobs
+
+        expect(log_lines).to include(hash_including(
+                                       "event" => "form_submission_delivered",
+                                       "form_id" => submission.form_id,
+                                       "form_version" => form_version,
+                                     ))
+      end
+    end
+
     context "when the delivery is a daily batch delivery" do
-      let!(:submission) { create :submission, :sent, delivery_reference: "something-else" }
+      let!(:submission) { create :submission, :sent, delivery_reference: "something-else", form_version: }
       let!(:delivery) { create(:delivery, :daily_scheduled_delivery, delivery_reference:, submissions: [submission], created_at: Time.zone.parse("2025-05-09T10:25:35.001Z")) }
 
       it "logs form event with batch delivery details", :capture_logging do
@@ -144,7 +180,7 @@ RSpec.describe ReceiveSubmissionDeliveriesJob, type: :job do
     end
 
     context "when the delivery is a weekly batch delivery" do
-      let!(:submission) { create :submission, :sent, delivery_reference: "something-else" }
+      let!(:submission) { create :submission, :sent, delivery_reference: "something-else", form_version: }
       let!(:delivery) { create(:delivery, :weekly_scheduled_delivery, delivery_reference:, submissions: [submission], created_at: Time.zone.parse("2025-05-09T10:25:35.001Z")) }
 
       it "logs form event with batch delivery details", :capture_logging do

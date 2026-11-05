@@ -34,6 +34,12 @@ class Submission < ApplicationRecord
     @form ||= Form.new(form_document_resource)
   end
 
+  def form_name
+    form.name
+  rescue ActiveResource::ResourceNotFound
+    nil
+  end
+
   def welsh_form
     @welsh_form ||= Form.new(welsh_form_document_resource) if submission_locale == "cy"
   end
