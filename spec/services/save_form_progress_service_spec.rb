@@ -25,7 +25,6 @@ RSpec.describe SaveFormProgressService do
         answers:,
         locale: "cy",
         mode: "preview-draft",
-        submission_reference: submission_reference,
         submission_uuid: submission_uuid,
       )
     end
@@ -82,7 +81,6 @@ RSpec.describe SaveFormProgressService do
           answers:,
           locale: "cy",
           mode: "preview-draft",
-          submission_reference:,
           submission_uuid:,
           updated_at: 1.day.ago,
         )

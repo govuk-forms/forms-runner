@@ -13,7 +13,6 @@ class SaveFormProgressService
     incomplete_submission.form_version = @current_context.form.version
     incomplete_submission.answers = @current_context.answers
     incomplete_submission.locale = @current_context.submission_locale
-    incomplete_submission.submission_reference = @current_context.get_submission_reference
     incomplete_submission.submission_uuid = @current_context.get_submission_uuid
     incomplete_submission.updated_at = Time.current
     save_with_unique_submission_uuid!(incomplete_submission)
@@ -52,7 +51,7 @@ private
       next if job.successfully_enqueued?
 
       message_suffix = ": #{job.enqueue_error&.message}" if job.enqueue_error
-      raise StandardError, "Failed to enqueue progress saved email for reference #{incomplete_submission.submission_reference}#{message_suffix}"
+      raise StandardError, "Failed to enqueue progress saved email for submission #{incomplete_submission.submission_uuid}#{message_suffix}"
     end
   end
 end

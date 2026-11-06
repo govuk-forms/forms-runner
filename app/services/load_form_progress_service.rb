@@ -13,7 +13,6 @@ class LoadFormProgressService
     @current_context.clear_submission_details
 
     @current_context.load_answers(incomplete_submission.answers)
-    @current_context.set_submission_reference(incomplete_submission.submission_reference)
     @current_context.add_locale(incomplete_submission.locale)
 
     @current_context.set_submission_uuid(incomplete_submission.submission_uuid)

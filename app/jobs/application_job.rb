@@ -27,7 +27,6 @@ class ApplicationJob < ActiveJob::Base
 
   def set_incomplete_submission_logging_attributes(incomplete_submission:)
     set_job_logging_attributes
-    CurrentJobLoggingAttributes.submission_reference = incomplete_submission.submission_reference
     CurrentJobLoggingAttributes.submission_uuid = incomplete_submission.submission_uuid
     CurrentJobLoggingAttributes.form_id = incomplete_submission.form_id
     CurrentJobLoggingAttributes.form_name = incomplete_submission.form.name
