@@ -15,6 +15,8 @@ module Flow
     delegate :generate_submission_reference,
              :get_submission_reference,
              :set_submission_reference,
+             :generate_submission_uuid,
+             :get_submission_uuid,
              :save_requested_email_confirmation,
              :requested_email_confirmation?,
              :clear_submission_details,
