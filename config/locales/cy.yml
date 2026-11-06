@@ -709,6 +709,7 @@ cy:
     divider: neu
   save_progress:
     save_and_exit: Save and exit
+  sign_out_of_govuk_one_login: Allgofnodi o GOV.UK One Login
   submission_csv:
     language: Language
     reference: Reference

@@ -6,11 +6,13 @@ describe "forms/submitted/submitted.html.erb" do
   let(:requested_email_confirmation) { false }
   let(:payment_url) { nil }
   let(:reference) { Faker::Alphanumeric.alphanumeric(number: 8).upcase }
+  let(:logged_in) { false }
 
   before do
     assign(:mode, OpenStruct.new(preview_draft?: false, preview_archived?: false, preview_live?: false))
 
     assign(:current_context, OpenStruct.new(form:, get_submission_reference: reference, requested_email_confirmation?: requested_email_confirmation))
+    assign(:auth_service, instance_double(AuthService, logged_in?: logged_in))
 
     render template: "forms/submitted/submitted", locals: { requested_email_confirmation: }
   end
@@ -59,6 +61,25 @@ describe "forms/submitted/submitted.html.erb" do
 
     it "displays the email confirmation message" do
       expect(rendered).to have_css("p", text: I18n.t("form.submitted.email_sent"))
+    end
+  end
+
+  context "when the user is not signed in to GOV.UK One Login" do
+    let(:logged_in) { false }
+
+    it "does not render a sign out button" do
+      expect(rendered).not_to have_button(I18n.t("sign_out_of_govuk_one_login"))
+    end
+  end
+
+  context "when the user is signed in to GOV.UK One Login" do
+    let(:logged_in) { true }
+
+    it "renders a sign out button" do
+      expect(rendered).to have_button(I18n.t("sign_out_of_govuk_one_login")) do |button|
+        expect(button).to match_css ".govuk-button--secondary"
+        expect(button.ancestor("form")[:action]).to eq omniauth_logout_path
+      end
     end
   end
 end
