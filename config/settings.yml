@@ -21,7 +21,7 @@ forms_product_page:
 govuk_one_login:
   private_key:
   client_id: changeme
-  base_url: https://oidc.integration.account.gov.uk/
+  domain: account.gov.uk
   # 1 hour in seconds
   session_timeout_seconds: 3600
 

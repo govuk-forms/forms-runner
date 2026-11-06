@@ -1,3 +1,5 @@
+require "govuk_one_login"
+
 OmniAuth.config.logger = Rails.logger
 
 private_key_pem = Settings.govuk_one_login.private_key
@@ -16,7 +18,7 @@ Rails.application.config.middleware.use OmniAuth::Builder do
   provider :govuk_one_login, {
     name: :govuk_one_login,
     client_id: Settings.govuk_one_login.client_id,
-    idp_base_url: Settings.govuk_one_login.base_url,
+    idp_base_url: GovukOneLogin.idp_base_url,
     private_key: private_key,
     redirect_uri: "/auth/govuk_one_login/callback",
     private_key_kid: public_key_jwk&.kid,
@@ -48,4 +50,4 @@ Rails.application.config.middleware.use OmniAuth::Builder do
 end
 
 # Store this globally so we only make a request to the One Login discovery endpoint once as the configuration should not regularly change
-Rails.application.config.x.one_login.idp_configuration = OmniAuth::GovukOneLogin::IdpConfiguration.new(idp_base_url: Settings.govuk_one_login.base_url)
+Rails.application.config.x.one_login.idp_configuration = OmniAuth::GovukOneLogin::IdpConfiguration.new(idp_base_url: GovukOneLogin.idp_base_url)

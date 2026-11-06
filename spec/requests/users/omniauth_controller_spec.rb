@@ -1,12 +1,14 @@
 require "rails_helper"
 
 RSpec.describe Users::OmniauthController, type: :request do
+  let(:return_to) { "copy_of_answers" }
   let(:form_id) { 42 }
   let(:form_slug) { "test-form" }
   let(:mode) { "preview-draft" }
   let(:locale) { "cy" }
   let(:return_from_one_login_session) do
     {
+      "return_to" => return_to,
       "last_form_id" => form_id,
       "last_form_slug" => form_slug,
       "last_mode" => mode,
@@ -280,6 +282,76 @@ RSpec.describe Users::OmniauthController, type: :request do
     end
   end
 
+  describe "POST #logout" do
+    let(:auth_service) { AuthService.new(store) }
+
+    context "when the user is not logged in" do
+      before do
+        allow(auth_service).to receive_messages(
+          logged_in?: false,
+        )
+
+        allow(AuthService).to receive(:new).and_return auth_service
+      end
+
+      it "responds 401 unauthorized" do
+        post omniauth_logout_path
+
+        expect(response).to have_http_status :unauthorized
+      end
+    end
+
+    context "when the user is logged in" do
+      before do
+        allow(auth_service).to receive_messages(
+          logged_in?: true,
+          logout_redirect_uri: "http://example.com/one-login-mock/logout",
+        )
+
+        allow(AuthService).to receive(:new).and_return auth_service
+      end
+
+      it "redirects to the GOV.UK One Login logout endpoint" do
+        post omniauth_logout_path
+
+        expect(response).to redirect_to("http://example.com/one-login-mock/logout")
+      end
+
+      it "asks GOV.UK One Login to send the user back to the logged out route" do
+        post omniauth_logout_path
+
+        expect(auth_service)
+          .to have_received(:logout_redirect_uri)
+          .with omniauth_logged_out_url
+      end
+
+      it "stores the return from one login params in the session" do
+        post omniauth_logout_path
+
+        expect(store["return_from_one_login"]).to eq({
+          "return_to" => "signed_out",
+          "last_locale" => nil,
+        })
+      end
+
+      context "when the locale is the default locale" do
+        it "does not store the locale in the session" do
+          post omniauth_logout_path(locale: I18n.default_locale)
+
+          expect(store["return_from_one_login"]["last_locale"]).to be_nil
+        end
+      end
+
+      context "when the locale is not the default locale" do
+        it "stores the locale in the session" do
+          post omniauth_logout_path(locale: :cy)
+
+          expect(store["return_from_one_login"]["last_locale"]).to eq "cy"
+        end
+      end
+    end
+  end
+
   describe "GET #logged_out", :capture_logging do
     let(:token) { Faker::Alphanumeric.alphanumeric }
 
@@ -302,8 +374,43 @@ RSpec.describe Users::OmniauthController, type: :request do
         expect(store).not_to have_key("auth")
       end
 
-      it "redirects to the form submitted page" do
-        expect(response).to redirect_to(form_submitted_path(form_id:, form_slug:, mode:, locale:))
+      context "when return_to is not set" do
+        let(:return_from_one_login_session) do
+          {
+            "last_form_id" => form_id,
+            "last_form_slug" => form_slug,
+            "last_mode" => mode,
+            "last_locale" => locale,
+          }
+        end
+
+        it "redirects to the form submitted page" do
+          expect(response).to redirect_to(form_submitted_path(form_id:, form_slug:, mode:, locale:))
+        end
+      end
+
+      context "when the session says to return to copy of answers" do
+        let(:return_to) { "copy_of_answers" }
+
+        it "redirects to the form submitted page" do
+          expect(response).to redirect_to(form_submitted_path(form_id:, form_slug:, mode:, locale:))
+        end
+      end
+
+      context "when the session says to return to signed out page" do
+        let(:return_to) { "signed_out" }
+
+        it "redirects to the GOV.UK One Login signed out page" do
+          expect(response).to redirect_to("https://home.example.com/one-login-mock/signed-out?lng=cy")
+        end
+
+        context "when the locale is nil" do
+          let(:locale) { nil }
+
+          it "redirects to the GOV.UK One Login signed out page in the default locale" do
+            expect(response).to redirect_to("https://home.example.com/one-login-mock/signed-out")
+          end
+        end
       end
     end
 
