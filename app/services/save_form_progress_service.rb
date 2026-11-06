@@ -7,11 +7,10 @@ class SaveFormProgressService
   end
 
   def save!
-    incomplete_submission = IncompleteSubmission.find_or_initialize_by(user_id: @user_id, form_id: @current_context.form.id)
+    incomplete_submission = IncompleteSubmission.find_or_initialize_by(user_id: @user_id, form_id: @current_context.form.id, mode: @mode.to_s)
     incomplete_submission.form_version = @current_context.form.version
     incomplete_submission.answers = @current_context.answers
     incomplete_submission.locale = @current_context.submission_locale
-    incomplete_submission.mode = @mode.to_s
     incomplete_submission.submission_reference = @current_context.get_submission_reference
     incomplete_submission.save!
 

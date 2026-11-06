@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe IncompleteSubmission, type: :model do
   subject(:incomplete_submission) do
-    described_class.new(user_id: "one-login-sub", form_id: 1, form_version: 1, answers: {})
+    described_class.new(user_id: "one-login-sub", form_id: 1, form_version: 1, answers: {}, mode: "form")
   end
 
   describe "validations" do
@@ -28,22 +28,46 @@ RSpec.describe IncompleteSubmission, type: :model do
       end
     end
 
-    context "when an incomplete submission already exists for the same user and form" do
-      before { described_class.create!(user_id: incomplete_submission.user_id, form_id: incomplete_submission.form_id) }
+    context "without a mode" do
+      before { incomplete_submission.mode = nil }
+
+      it "is invalid" do
+        expect(incomplete_submission).not_to be_valid
+        expect(incomplete_submission.errors[:mode]).to include("can't be blank")
+      end
+    end
+
+    context "when an incomplete submission already exists for the same user, form and mode" do
+      before { described_class.create!(user_id: incomplete_submission.user_id, form_id: incomplete_submission.form_id, mode: "form") }
 
       it "is invalid" do
         expect(incomplete_submission).not_to be_valid
         expect(incomplete_submission.errors[:form_id]).to include("has already been taken")
       end
     end
+
+    context "when an incomplete submission already exists for the same user and form in a different mode" do
+      before { described_class.create!(user_id: incomplete_submission.user_id, form_id: incomplete_submission.form_id, mode: "preview-draft") }
+
+      it "is valid" do
+        expect(incomplete_submission).to be_valid
+      end
+    end
   end
 
   describe "database constraints" do
-    it "rejects a duplicate (user_id, form_id) that bypasses validation" do
-      described_class.create!(user_id: "one-login-sub", form_id: 1)
-      duplicate = described_class.new(user_id: "one-login-sub", form_id: 1)
+    it "rejects a duplicate (user_id, form_id, mode) that bypasses validation" do
+      described_class.create!(user_id: "one-login-sub", form_id: 1, mode: "form")
+      duplicate = described_class.new(user_id: "one-login-sub", form_id: 1, mode: "form")
 
       expect { duplicate.save!(validate: false) }.to raise_error(ActiveRecord::RecordNotUnique)
+    end
+
+    it "allows the same user and form in a different mode" do
+      described_class.create!(user_id: "one-login-sub", form_id: 1, mode: "form")
+      other_mode = described_class.new(user_id: "one-login-sub", form_id: 1, mode: "preview-draft")
+
+      expect { other_mode.save!(validate: false) }.not_to raise_error
     end
   end
 

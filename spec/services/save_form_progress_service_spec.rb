@@ -61,13 +61,31 @@ RSpec.describe SaveFormProgressService do
 
     context "when a saved answer already exists for the user and form" do
       let!(:existing) do
-        IncompleteSubmission.create!(user_id:, form_id: form.id, form_version: 1, answers: { "old" => "answer" })
+        IncompleteSubmission.create!(user_id:, form_id: form.id, form_version: 1, answers: { "old" => "answer" }, mode: "preview-draft")
       end
 
       it "updates the existing row in place rather than creating a duplicate" do
         expect { service.save! }.not_to change(IncompleteSubmission, :count)
 
         expect(existing.reload).to have_attributes(form_version: form.version, answers:)
+      end
+    end
+
+    context "when a saved answer exists for the user and form in a different mode" do
+      let!(:other_mode) do
+        IncompleteSubmission.create!(user_id:, form_id: form.id, form_version: 1, answers: { "old" => "answer" }, mode: "form")
+      end
+
+      it "creates a separate row for this mode" do
+        expect { service.save! }.to change(IncompleteSubmission, :count).by(1)
+
+        expect(IncompleteSubmission.find_by(user_id:, form_id: form.id, mode: "preview-draft").answers).to eq answers
+      end
+
+      it "leaves the other mode's saved answers unchanged" do
+        service.save!
+
+        expect(other_mode.reload.answers).to eq({ "old" => "answer" })
       end
     end
   end
