@@ -41,6 +41,42 @@ RSpec.describe Store::SubmissionDetailsStore do
     end
   end
 
+  describe "#generate_submission_uuid" do
+    it "stores and returns a new submission uuid" do
+      uuid = submission_details_store.generate_submission_uuid
+
+      expect(uuid).to match(/\A\h{8}-\h{4}-\h{4}-\h{4}-\h{12}\z/)
+      expect(submission_details_store.get_submission_uuid).to eq(uuid)
+    end
+
+    it "stores the uuid separately for each form" do
+      submission_details_store.generate_submission_uuid
+      other_form_submission_details_store.generate_submission_uuid
+
+      expect(submission_details_store.get_submission_uuid).not_to eq(other_form_submission_details_store.get_submission_uuid)
+    end
+
+    it "keeps the submission reference" do
+      submission_details_store.generate_submission_reference
+
+      submission_details_store.generate_submission_uuid
+
+      expect(submission_details_store.get_submission_reference).to eq(reference)
+    end
+  end
+
+  describe "#get_submission_uuid" do
+    it "returns the submission uuid when one has been generated" do
+      uuid = submission_details_store.generate_submission_uuid
+
+      expect(submission_details_store.get_submission_uuid).to eq(uuid)
+    end
+
+    it "returns nil when no submission uuid has been generated" do
+      expect(submission_details_store.get_submission_uuid).to be_nil
+    end
+  end
+
   describe "#save_requested_email_confirmation" do
     it "stores and returns the requested email confirmation flag" do
       submission_details_store.save_requested_email_confirmation(requested_email_confirmation)
@@ -95,6 +131,7 @@ RSpec.describe Store::SubmissionDetailsStore do
   describe "#clear_submission_details" do
     it "clears the submission details" do
       submission_details_store.generate_submission_reference
+      submission_details_store.generate_submission_uuid
       submission_details_store.save_requested_email_confirmation(requested_email_confirmation)
       submission_details_store.save_copy_of_answers_preference(true)
       submission_details_store.save_copy_of_answers_email_address(Faker::Internet.email)
@@ -102,6 +139,7 @@ RSpec.describe Store::SubmissionDetailsStore do
       submission_details_store.clear_submission_details
 
       expect(submission_details_store.get_submission_reference).to be_nil
+      expect(submission_details_store.get_submission_uuid).to be_nil
       expect(submission_details_store.requested_email_confirmation?).to be_nil
       expect(submission_details_store.wants_copy_of_answers?).to be_nil
       expect(submission_details_store.get_copy_of_answers_email_address).to be_nil

@@ -242,6 +242,7 @@ module Forms
 
     def start_new_submission
       current_context.clear_submission_details
+      current_context.generate_submission_uuid
       CurrentRequestLoggingAttributes.submission_reference = current_context.generate_submission_reference
     end
 
