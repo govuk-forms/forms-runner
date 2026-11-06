@@ -28,7 +28,6 @@ module Forms
       CurrentRequestLoggingAttributes.preview = mode.preview?
 
       unless action_name == "redirect_to_friendly_url_start"
-        CurrentRequestLoggingAttributes.submission_reference = current_context.get_submission_reference
         CurrentRequestLoggingAttributes.submission_uuid = current_context.get_submission_uuid
       end
     end
