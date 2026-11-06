@@ -259,6 +259,26 @@ RSpec.describe Users::OmniauthController, type: :request do
         )
       end
 
+      context "and the user was signing in to continue a saved form" do
+        let(:return_to) { "continue_saved_form" }
+
+        it "links back to the continue saved form page so they can try signing in again" do
+          expect(response).to render_template("errors/auth_error")
+          expect(response.body).to include("href=\"#{continue_saved_form_path(mode:, form_id:, form_slug:, locale:)}\"")
+          expect(response.body).not_to include("href=\"#{copy_of_answers_path(mode:, form_id:, form_slug:, locale:)}\"")
+        end
+      end
+
+      context "and the user was signing in to save their progress" do
+        let(:return_to) { "save_and_return" }
+
+        it "links back to the save progress page so they can try signing in again" do
+          expect(response).to render_template("errors/auth_error")
+          expect(response.body).to include("href=\"#{save_progress_path(mode:, form_id:, form_slug:, locale:)}\"")
+          expect(response.body).not_to include("href=\"#{copy_of_answers_path(mode:, form_id:, form_slug:, locale:)}\"")
+        end
+      end
+
       context "and the error is a CallbackStateMismatchError" do
         let(:error) { OmniAuth::GovukOneLogin::CallbackStateMismatchError.new "Callback state mismatch" }
 

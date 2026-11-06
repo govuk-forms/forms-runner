@@ -9,7 +9,7 @@ module Users
 
       Sentry.capture_exception(exception) unless suppress_error?(exception)
 
-      link_url = copy_of_answers_path(**auth_service.form_path_params)
+      link_url = auth_error_link_url
       locale = auth_service.form_path_params[:locale] || I18n.default_locale
       I18n.with_locale(locale) do
         render "errors/auth_error", locals: { link_url: }, status: :bad_request
@@ -75,6 +75,17 @@ module Users
         redirect_to continue_saved_form_signed_in_path(**auth_service.form_path_params)
       else # "copy_of_answers" as the default to help avoid regression issues when deploying for current users
         redirect_to check_your_answers_path(**auth_service.form_path_params)
+      end
+    end
+
+    def auth_error_link_url
+      case auth_service.return_to
+      when Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:save_and_return]
+        save_progress_path(**auth_service.form_path_params)
+      when Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:continue_saved_form]
+        continue_saved_form_path(**auth_service.form_path_params)
+      else
+        copy_of_answers_path(**auth_service.form_path_params)
       end
     end
 
