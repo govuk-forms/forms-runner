@@ -125,10 +125,10 @@ RSpec.describe FormSubmissionService, :capture_logging do
       let(:stored_submission_reference) { "ABC23456" }
 
       let!(:saved_progress) do
-        IncompleteSubmission.create!(user_id: "one-login-sub", form_id: 1, answers:, submission_reference: "ABC23456", submission_uuid: SecureRandom.uuid, mode: "form")
+        IncompleteSubmission.create!(user_id: "one-login-sub", form_id: 1, answers:, submission_uuid: SecureRandom.uuid, mode: "form")
       end
       let!(:saved_progress_in_other_mode) do
-        IncompleteSubmission.create!(user_id: "one-login-sub", form_id: 1, answers:, submission_reference: "DRAFTREF", submission_uuid: SecureRandom.uuid, mode: "preview-draft")
+        IncompleteSubmission.create!(user_id: "one-login-sub", form_id: 1, answers:, submission_uuid: SecureRandom.uuid, mode: "preview-draft")
       end
 
       it "keeps saved progress for the form in other modes" do

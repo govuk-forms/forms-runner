@@ -9,9 +9,8 @@ RSpec.describe SaveFormProgressService do
   let(:form) { instance_double(Form, id: 1, version: 3) }
   let(:answers) { { "1" => { "text" => "an answer" } } }
   let(:submission_locale) { :cy }
-  let(:submission_reference) { Faker::Alphanumeric.alphanumeric(number: 8).upcase }
   let(:submission_uuid) { SecureRandom.uuid }
-  let(:current_context) { instance_double(Flow::Context, form:, answers:, submission_locale:, get_submission_reference: submission_reference, get_submission_uuid: submission_uuid) }
+  let(:current_context) { instance_double(Flow::Context, form:, answers:, submission_locale:, get_submission_uuid: submission_uuid) }
 
   describe "#save" do
     it "creates a saved answer from the current context" do
@@ -47,7 +46,7 @@ RSpec.describe SaveFormProgressService do
 
       it "raises an error" do
         expect { service.save! }
-          .to raise_error(StandardError, "Failed to enqueue progress saved email for reference #{submission_reference}")
+          .to raise_error(StandardError, "Failed to enqueue progress saved email for submission #{submission_uuid}")
       end
 
       context "and there is an enqueue error" do
@@ -55,7 +54,7 @@ RSpec.describe SaveFormProgressService do
 
         it "includes the enqueue error message" do
           expect { service.save! }
-            .to raise_error(StandardError, "Failed to enqueue progress saved email for reference #{submission_reference}: An error occurred enqueueing job")
+            .to raise_error(StandardError, "Failed to enqueue progress saved email for submission #{submission_uuid}: An error occurred enqueueing job")
         end
       end
     end
