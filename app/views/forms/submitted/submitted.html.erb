@@ -19,5 +19,9 @@
     <% if @current_context.form.payment_url.present? && @current_context.get_submission_reference.present? %>
       <%= govuk_button_to(t('form.submitted.continue_to_pay'), @current_context.form.payment_url_with_reference(@current_context.get_submission_reference))%>
     <% end %>
+
+    <% if @auth_service.logged_in? %>
+      <%= govuk_button_to(t('sign_out_of_govuk_one_login'), omniauth_logout_path, secondary: true) %>
+    <% end %>
   </div>
 </div>

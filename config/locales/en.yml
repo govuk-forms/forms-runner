@@ -709,6 +709,7 @@ en:
     divider: or
   save_progress:
     save_and_exit: Save and exit
+  sign_out_of_govuk_one_login: Sign out of GOV.UK One Login
   submission_csv:
     language: Language
     reference: Reference
