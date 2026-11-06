@@ -5,12 +5,14 @@ permissions:
 jobs:
   validate_dependabot_opened_this_PR:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     if: github.event.pull_request.user.login == 'dependabot[bot]'
     steps:
       - run: echo "This PR was raised by Dependabot"
   validate_this_is_an_allowed_dependency:
     needs: validate_dependabot_opened_this_PR
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     outputs:
       is_allowed_dependency: ${{ steps.check_if_allowed_dependency.outputs.is_allowed_dependency }}
     steps:
@@ -25,6 +27,7 @@ jobs:
           echo "is_allowed_dependency=1" >> "$GITHUB_OUTPUT"
   wait_for_checks:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: [ validate_dependabot_opened_this_PR, validate_this_is_an_allowed_dependency ]
     if: ${{ needs.validate_this_is_an_allowed_dependency.outputs.is_allowed_dependency == 1 }}
     steps:
@@ -85,6 +88,7 @@ jobs:
       pull-requests: write
       contents: write
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: [validate_dependabot_opened_this_PR, validate_this_is_an_allowed_dependency, wait_for_checks]
     if: ${{ needs.validate_this_is_an_allowed_dependency.outputs.is_allowed_dependency == 1 }}
     steps:

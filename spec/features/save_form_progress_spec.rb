@@ -78,7 +78,6 @@ feature "Save form progress", type: :feature do
   def then_i_see_the_sign_in_interstitial
     expect(page.find("h1")).to have_text "Use GOV.UK One Login to save your progress"
     expect(page).to have_button "Continue to GOV.UK One Login"
-    expect(page).to have_no_link "Sign in with a different GOV.UK One Login"
   end
 
   def when_i_continue_to_one_login

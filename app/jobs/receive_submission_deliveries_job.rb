@@ -39,7 +39,7 @@ private
         { delivered_at: delivery.delivered_at, delivery_latency: },
       )
     elsif delivery.daily? || delivery.weekly?
-      set_submission_batch_logging_attributes(form: submission.form, mode: submission.mode_object, delivery:)
+      set_submission_batch_logging_attributes(included_submission: submission, delivery:)
       EventLogger.log_form_event("submission_batch_delivered")
     end
   end

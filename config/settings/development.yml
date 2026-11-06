@@ -1,3 +1,6 @@
+govuk_one_login:
+  domain: integration.account.gov.uk
+
 active_record_encryption:
   primary_key: CC2SOludR0L15FLQkLNv8sbiQ5yNyHiF
   deterministic_key: vN8HaxVlbWVnohKU0aV8p36nwYEK1hZN

@@ -40,10 +40,6 @@ describe "forms/save_progress/new.html.erb" do
       expect(rendered).to have_css("form[action='/auth/govuk_one_login'][method='post']")
       expect(rendered).to have_button(I18n.t("forms.save_progress.new.continue_to_one_login_button"))
     end
-
-    it "does not have a link to sign in with a different GOV.UK One Login" do
-      expect(rendered).not_to have_link(I18n.t("forms.save_progress.new.sign_in_different_link"))
-    end
   end
 
   context "when the user is signed in to GOV.UK One Login" do
@@ -60,10 +56,6 @@ describe "forms/save_progress/new.html.erb" do
 
     it "does not have a button that posts to GOV.UK One Login" do
       expect(rendered).not_to have_css("form[action='/auth/govuk_one_login']")
-    end
-
-    it "has a link to sign in with a different GOV.UK One Login" do
-      expect(rendered).to have_link(I18n.t("forms.save_progress.new.sign_in_different_link"))
     end
   end
 end

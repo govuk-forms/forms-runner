@@ -1,6 +1,7 @@
 module Forms
   class BaseController < ApplicationController
     prepend_before_action :prepare_context
+    before_action :auth_service
     around_action :set_locale
 
     def redirect_to_friendly_url_start
