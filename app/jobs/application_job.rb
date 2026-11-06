@@ -5,6 +5,7 @@ class ApplicationJob < ActiveJob::Base
     CurrentJobLoggingAttributes.form_name = submission.form_name
     CurrentJobLoggingAttributes.form_version = submission.form_version
     CurrentJobLoggingAttributes.submission_reference = submission.reference
+    CurrentJobLoggingAttributes.submission_uuid = submission.submission_uuid
     CurrentJobLoggingAttributes.preview = submission.preview?
     CurrentJobLoggingAttributes.delivery_id = delivery&.id
     CurrentJobLoggingAttributes.delivery_reference = delivery&.delivery_reference
@@ -27,6 +28,7 @@ class ApplicationJob < ActiveJob::Base
   def set_incomplete_submission_logging_attributes(incomplete_submission:)
     set_job_logging_attributes
     CurrentJobLoggingAttributes.submission_reference = incomplete_submission.submission_reference
+    CurrentJobLoggingAttributes.submission_uuid = incomplete_submission.submission_uuid
     CurrentJobLoggingAttributes.form_id = incomplete_submission.form_id
     CurrentJobLoggingAttributes.form_name = incomplete_submission.form.name
     CurrentJobLoggingAttributes.form_version = incomplete_submission.form_version

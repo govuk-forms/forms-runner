@@ -16,6 +16,7 @@ RSpec.describe CurrentJobLoggingAttributes do
       current.form_name = "A form"
       current.form_version = 1
       current.submission_reference = "ABC123"
+      current.submission_uuid = "a-submission-uuid"
       current.preview = true
       current.delivery_id = 123
       current.delivery_reference = "REF123"
@@ -34,6 +35,7 @@ RSpec.describe CurrentJobLoggingAttributes do
         form_name: "A form",
         form_version: 1,
         submission_reference: "ABC123",
+        submission_uuid: "a-submission-uuid",
         preview: "true",
         delivery_id: 123,
         delivery_reference: "REF123",

@@ -2,6 +2,7 @@ module Store
   class SubmissionDetailsStore
     CONFIRMATION_KEY = :confirmation_details
     SUBMISSION_REFERENCE_KEY = :submission_reference
+    SUBMISSION_UUID_KEY = :submission_uuid
     REQUESTED_EMAIL_CONFIRMATION_KEY = :requested_email_confirmation
     REQUESTED_COPY_OF_ANSWERS_KEY = :wants_copy_of_answers
     COPY_OF_ANSWERS_EMAIL_ADDRESS_KEY = :copy_of_answers_email_address
@@ -15,6 +16,20 @@ module Store
     def generate_submission_reference
       @store[CONFIRMATION_KEY][@form_key] ||= {}
       @store[CONFIRMATION_KEY][@form_key][SUBMISSION_REFERENCE_KEY.to_s] = ReferenceNumberService.generate
+    end
+
+    def generate_submission_uuid
+      @store[CONFIRMATION_KEY][@form_key] ||= {}
+      @store[CONFIRMATION_KEY][@form_key][SUBMISSION_UUID_KEY.to_s] = SecureRandom.uuid
+    end
+
+    def get_submission_uuid
+      @store.dig(CONFIRMATION_KEY, @form_key, SUBMISSION_UUID_KEY.to_s)
+    end
+
+    def set_submission_uuid(uuid)
+      @store[CONFIRMATION_KEY][@form_key] ||= {}
+      @store[CONFIRMATION_KEY][@form_key][SUBMISSION_UUID_KEY.to_s] = uuid
     end
 
     def save_requested_email_confirmation(requested_email_confirmation)

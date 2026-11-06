@@ -27,9 +27,12 @@ RSpec.describe Forms::SaveProgressController, type: :request do
 
   let(:auth_session) { {} }
 
+  let(:submission_uuid) { SecureRandom.uuid }
+
   let(:store) do
     {
       answers: { form.form_id.to_s => answers },
+      confirmation_details: { form.form_id.to_s => { "submission_uuid" => submission_uuid } },
     }.merge(auth_session).with_indifferent_access
   end
 
@@ -207,7 +210,7 @@ RSpec.describe Forms::SaveProgressController, type: :request do
           let(:previously_saved_answers) { { "1" => { "text" => "previous answer" } } }
 
           before do
-            IncompleteSubmission.create!(user_id: "user-sub-123", form_id: form.form_id, answers: previously_saved_answers, mode:)
+            IncompleteSubmission.create!(user_id: "user-sub-123", form_id: form.form_id, answers: previously_saved_answers, submission_uuid: SecureRandom.uuid, mode:)
 
             get_after_sign_in
           end
@@ -334,6 +337,7 @@ RSpec.describe Forms::SaveProgressController, type: :request do
           user_id: "user-sub-123",
           form_id: form.form_id,
           answers:,
+          submission_uuid: SecureRandom.uuid,
           mode:,
           updated_at: Time.zone.local(2026, 10, 14, 12, 0, 0),
         )

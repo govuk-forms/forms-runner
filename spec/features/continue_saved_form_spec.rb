@@ -90,6 +90,7 @@ feature "Continue a saved form", type: :feature do
       locale: "en",
       mode: "form",
       submission_reference: "SAVEDREF",
+      submission_uuid: SecureRandom.uuid,
     )
   end
 

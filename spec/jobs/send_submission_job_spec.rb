@@ -41,6 +41,11 @@ RSpec.describe SendSubmissionJob, type: :job do
       expect(aws_ses_submission_service_spy).to have_received(:submit)
     end
 
+    it "sets the submission reference and uuid in the job logging attributes" do
+      expect(CurrentJobLoggingAttributes.submission_reference).to eq(submission.reference)
+      expect(CurrentJobLoggingAttributes.submission_uuid).to eq(submission.submission_uuid)
+    end
+
     it "sets the delivery reference on the existing delivery record" do
       expect(delivery.reload.delivery_reference).to eq(delivery_reference)
     end
