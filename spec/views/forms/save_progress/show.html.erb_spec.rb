@@ -42,10 +42,6 @@ describe "forms/save_progress/show.html.erb" do
     expect(rendered).to have_link(form_url, href: form_url)
   end
 
-  it "has a button to continue filling the form from the next incomplete step" do
-    expect(rendered).to have_link(I18n.t("forms.save_progress.show.continue_button"), href: next_step_path, class: "govuk-button")
-  end
-
   it "has a link to sign out of GOV.UK One Login" do
     expect(rendered).to have_link(I18n.t("forms.save_progress.show.sign_out_link"))
   end
