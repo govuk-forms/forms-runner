@@ -129,12 +129,6 @@ RSpec.describe FormSubmissionService, :capture_logging do
         IncompleteSubmission.create!(user_id: "one-login-sub", form_id: 1, answers:, submission_reference: "DRAFTREF", mode: "preview-draft")
       end
 
-      it "deletes the saved progress so it cannot be continued again" do
-        service.submit
-
-        expect(IncompleteSubmission.exists?(saved_progress.id)).to be false
-      end
-
       it "keeps saved progress for the form in other modes" do
         service.submit
 

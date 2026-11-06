@@ -28,7 +28,6 @@ class FormSubmissionService
 
     submission = create_submission_record
     enqueue_deliveries(submission)
-    delete_saved_progress
 
     Metrics.record_submission(form_id: form.id, form_name: form.name, mode:)
 
@@ -103,10 +102,6 @@ private
     else
       raise "unrecognized delivery method #{delivery_configuration.delivery_method.inspect}"
     end
-  end
-
-  def delete_saved_progress
-    IncompleteSubmission.where(form_id: form.id, mode: mode.to_s, submission_reference:).delete_all
   end
 
   def create_submission_record
