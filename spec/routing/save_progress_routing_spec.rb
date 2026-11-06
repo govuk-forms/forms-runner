@@ -28,6 +28,13 @@ RSpec.describe Forms::SaveProgressController, type: :routing do
       end
     end
 
+    describe "#overwrite" do
+      it "routes POST to #overwrite" do
+        expect(post: overwrite_saved_progress_path(mode: "form", form_id: 999, form_slug: "valid-slug"))
+          .to route_to("forms/save_progress#overwrite", mode: "form", form_id: "999", form_slug: "valid-slug")
+      end
+    end
+
     describe "#form_progress_saved" do
       it "routes to #show" do
         expect(get: progress_saved_path(mode: "form", form_id: 999, form_slug: "valid-slug"))

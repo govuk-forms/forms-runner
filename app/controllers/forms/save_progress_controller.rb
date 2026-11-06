@@ -14,6 +14,7 @@ module Forms
       end
 
       @one_login_email = auth_service.email
+      render_already_saved if saved_progress_exists?
     end
 
     def after_sign_in
@@ -21,14 +22,34 @@ module Forms
         return redirect_to(save_progress_path(current_context.form.id, current_context.form.form_slug))
       end
 
-      # TODO: if saved progress already exists, redirect to page to ask user if they want to overwrite it
-
       auth_service.clear_return_from_one_login
+
+      if saved_progress_exists?
+        return render_already_saved
+      end
+
       save_progress_and_redirect
     end
 
     def create
       return redirect_to(save_progress_path(current_context.form.id, current_context.form.form_slug)) unless auth_service.logged_in?
+
+      if saved_progress_exists?
+        return render_already_saved
+      end
+
+      save_progress_and_redirect
+    end
+
+    def overwrite
+      return redirect_to(save_progress_path(current_context.form.id, current_context.form.form_slug)) unless auth_service.logged_in?
+
+      @already_saved_input = AlreadySavedInput.new(already_saved_input_params)
+      unless @already_saved_input.valid?
+        return render_already_saved(status: :unprocessable_content)
+      end
+
+      return redirect_to(form_step_path(current_context.form.id, current_context.form.form_slug, current_context.next_step_slug)) if @already_saved_input.keep_saved?
 
       save_progress_and_redirect
     end
@@ -43,10 +64,26 @@ module Forms
 
   private
 
+    def render_already_saved(status: :ok)
+      saved = IncompleteSubmission.find_by!(user_id: auth_service.sub, form_id: current_context.form.id)
+      @already_saved_input ||= AlreadySavedInput.new
+      @last_saved_date = saved.updated_at.strftime("%-d %B %Y")
+      @last_saved_time = saved.updated_at.strftime("%l:%M%P").strip
+      render :already_saved, status:
+    end
+
+    def already_saved_input_params
+      params.fetch(:already_saved_input, ActionController::Parameters.new).permit(:already_saved)
+    end
+
     def save_progress_and_redirect
       SaveFormProgressService.new(current_context:, user_id: auth_service.sub, mode:, email: auth_service.email).save!
 
       redirect_to progress_saved_path(current_context.form.id, current_context.form.form_slug)
+    end
+
+    def saved_progress_exists?
+      IncompleteSubmission.exists?(user_id: auth_service.sub, form_id: current_context.form.id)
     end
 
     def redirect_if_save_and_return_disabled
