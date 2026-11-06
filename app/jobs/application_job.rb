@@ -5,6 +5,7 @@ class ApplicationJob < ActiveJob::Base
     CurrentJobLoggingAttributes.form_name = submission.form_name
     CurrentJobLoggingAttributes.form_version = submission.form_version
     CurrentJobLoggingAttributes.submission_reference = submission.reference
+    CurrentJobLoggingAttributes.submission_uuid = submission.submission_uuid
     CurrentJobLoggingAttributes.preview = submission.preview?
     CurrentJobLoggingAttributes.delivery_id = delivery&.id
     CurrentJobLoggingAttributes.delivery_reference = delivery&.delivery_reference
