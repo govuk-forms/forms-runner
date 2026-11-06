@@ -41,6 +41,14 @@ RSpec.describe Store::SubmissionDetailsStore do
     end
   end
 
+  describe "#set_submission_uuid" do
+    it "stores the given submission uuid" do
+      submission_details_store.set_submission_uuid("saved-uuid")
+
+      expect(submission_details_store.get_submission_uuid).to eq("saved-uuid")
+    end
+  end
+
   describe "#generate_submission_uuid" do
     it "stores and returns a new submission uuid" do
       uuid = submission_details_store.generate_submission_uuid
