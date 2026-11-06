@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe IncompleteSubmission, type: :model do
   subject(:incomplete_submission) do
-    described_class.new(user_id: "one-login-sub", form_id: 1, form_version: 1, answers: {}, mode: "form")
+    described_class.new(user_id: "one-login-sub", form_id: 1, form_version: 1, answers: {}, mode: "form", submission_uuid: SecureRandom.uuid)
   end
 
   describe "validations" do
@@ -37,8 +37,17 @@ RSpec.describe IncompleteSubmission, type: :model do
       end
     end
 
+    context "without a submission_uuid" do
+      before { incomplete_submission.submission_uuid = nil }
+
+      it "is invalid" do
+        expect(incomplete_submission).not_to be_valid
+        expect(incomplete_submission.errors[:submission_uuid]).to include("can't be blank")
+      end
+    end
+
     context "when an incomplete submission already exists for the same user, form and mode" do
-      before { described_class.create!(user_id: incomplete_submission.user_id, form_id: incomplete_submission.form_id, mode: "form") }
+      before { described_class.create!(user_id: incomplete_submission.user_id, form_id: incomplete_submission.form_id, mode: "form", submission_uuid: SecureRandom.uuid) }
 
       it "is invalid" do
         expect(incomplete_submission).not_to be_valid
@@ -47,25 +56,44 @@ RSpec.describe IncompleteSubmission, type: :model do
     end
 
     context "when an incomplete submission already exists for the same user and form in a different mode" do
-      before { described_class.create!(user_id: incomplete_submission.user_id, form_id: incomplete_submission.form_id, mode: "preview-draft") }
+      before { described_class.create!(user_id: incomplete_submission.user_id, form_id: incomplete_submission.form_id, mode: "preview-draft", submission_uuid: SecureRandom.uuid) }
 
       it "is valid" do
         expect(incomplete_submission).to be_valid
       end
     end
+
+    context "when another incomplete submission has the same submission_uuid" do
+      before do
+        described_class.create!(user_id: "other-user", form_id: 2, mode: "form", submission_uuid: "abc-123")
+        incomplete_submission.submission_uuid = "abc-123"
+      end
+
+      it "is invalid" do
+        expect(incomplete_submission).not_to be_valid
+        expect(incomplete_submission.errors[:submission_uuid]).to include("has already been taken")
+      end
+    end
   end
 
   describe "database constraints" do
+    it "rejects a duplicate submission_uuid that bypasses validation" do
+      described_class.create!(user_id: "user-1", form_id: 1, mode: "form", submission_uuid: "abc-123")
+      duplicate = described_class.new(user_id: "user-2", form_id: 2, mode: "form", submission_uuid: "abc-123")
+
+      expect { duplicate.save!(validate: false) }.to raise_error(ActiveRecord::RecordNotUnique)
+    end
+
     it "rejects a duplicate (user_id, form_id, mode) that bypasses validation" do
-      described_class.create!(user_id: "one-login-sub", form_id: 1, mode: "form")
-      duplicate = described_class.new(user_id: "one-login-sub", form_id: 1, mode: "form")
+      described_class.create!(user_id: "one-login-sub", form_id: 1, mode: "form", submission_uuid: SecureRandom.uuid)
+      duplicate = described_class.new(user_id: "one-login-sub", form_id: 1, mode: "form", submission_uuid: SecureRandom.uuid)
 
       expect { duplicate.save!(validate: false) }.to raise_error(ActiveRecord::RecordNotUnique)
     end
 
     it "allows the same user and form in a different mode" do
-      described_class.create!(user_id: "one-login-sub", form_id: 1, mode: "form")
-      other_mode = described_class.new(user_id: "one-login-sub", form_id: 1, mode: "preview-draft")
+      described_class.create!(user_id: "one-login-sub", form_id: 1, mode: "form", submission_uuid: SecureRandom.uuid)
+      other_mode = described_class.new(user_id: "one-login-sub", form_id: 1, mode: "preview-draft", submission_uuid: SecureRandom.uuid)
 
       expect { other_mode.save!(validate: false) }.not_to raise_error
     end

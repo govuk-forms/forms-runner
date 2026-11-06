@@ -14,7 +14,7 @@ RSpec.describe LoadFormProgressService do
       let(:saved_answers) { { "1" => { "text" => "a saved answer" } } }
 
       let!(:incomplete_submission) do
-        IncompleteSubmission.create!(user_id:, form_id: form.id, answers: saved_answers, submission_reference: "SAVEDREF", locale: "cy", mode: "form")
+        IncompleteSubmission.create!(user_id:, form_id: form.id, answers: saved_answers, submission_reference: "SAVEDREF", submission_uuid: "saved-uuid", locale: "cy", mode: "form")
       end
 
       it "returns the saved progress" do
@@ -48,7 +48,7 @@ RSpec.describe LoadFormProgressService do
 
     context "when the user only has saved progress for the form in a different mode" do
       before do
-        IncompleteSubmission.create!(user_id:, form_id: form.id, answers: { "1" => { "text" => "a draft answer" } }, mode: "preview-draft")
+        IncompleteSubmission.create!(user_id:, form_id: form.id, answers: { "1" => { "text" => "a draft answer" } }, submission_uuid: SecureRandom.uuid, mode: "preview-draft")
       end
 
       it "returns nil" do

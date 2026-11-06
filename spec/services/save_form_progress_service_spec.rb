@@ -10,7 +10,8 @@ RSpec.describe SaveFormProgressService do
   let(:answers) { { "1" => { "text" => "an answer" } } }
   let(:submission_locale) { :cy }
   let(:submission_reference) { Faker::Alphanumeric.alphanumeric(number: 8).upcase }
-  let(:current_context) { instance_double(Flow::Context, form:, answers:, submission_locale:, get_submission_reference: submission_reference) }
+  let(:submission_uuid) { SecureRandom.uuid }
+  let(:current_context) { instance_double(Flow::Context, form:, answers:, submission_locale:, get_submission_reference: submission_reference, get_submission_uuid: submission_uuid) }
 
   describe "#save" do
     it "creates a saved answer from the current context" do
@@ -25,6 +26,7 @@ RSpec.describe SaveFormProgressService do
         locale: "cy",
         mode: "preview-draft",
         submission_reference: submission_reference,
+        submission_uuid: submission_uuid,
       )
     end
 
@@ -61,7 +63,7 @@ RSpec.describe SaveFormProgressService do
 
     context "when a saved answer already exists for the user and form" do
       let!(:existing) do
-        IncompleteSubmission.create!(user_id:, form_id: form.id, form_version: 1, answers: { "old" => "answer" }, mode: "preview-draft")
+        IncompleteSubmission.create!(user_id:, form_id: form.id, form_version: 1, answers: { "old" => "answer" }, mode: "preview-draft", submission_uuid: SecureRandom.uuid)
       end
 
       it "updates the existing row in place rather than creating a duplicate" do
@@ -73,7 +75,7 @@ RSpec.describe SaveFormProgressService do
 
     context "when a saved answer exists for the user and form in a different mode" do
       let!(:other_mode) do
-        IncompleteSubmission.create!(user_id:, form_id: form.id, form_version: 1, answers: { "old" => "answer" }, mode: "form")
+        IncompleteSubmission.create!(user_id:, form_id: form.id, form_version: 1, answers: { "old" => "answer" }, mode: "form", submission_uuid: SecureRandom.uuid)
       end
 
       it "creates a separate row for this mode" do
