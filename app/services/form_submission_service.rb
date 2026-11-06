@@ -107,6 +107,7 @@ private
   def create_submission_record
     Submission.create!(
       reference: submission_reference,
+      submission_uuid: current_context.get_submission_uuid,
       form_id: form.id,
       form_version: form.version,
       answers: current_context.answers,
