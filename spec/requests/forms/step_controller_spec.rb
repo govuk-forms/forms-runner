@@ -212,18 +212,22 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
     let(:api_url_suffix) { "/live" }
     let(:mode) { "form" }
     let(:reference) { "ABC23456" }
+    let(:uuid) { "6f1c1c1e-3b0a-4a5e-9d55-0d3f6a1b2c3d" }
 
     before do
       allow(ReferenceNumberService).to receive(:generate).and_return(reference)
+      allow(SecureRandom).to receive(:uuid).and_return(uuid)
       allow(CurrentRequestLoggingAttributes).to receive(:submission_reference=).and_call_original
     end
 
     it "logs the reference generated when the first page is saved and on later requests" do
       post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { text: "answer text" } }
       expect(log_lines.last["submission_reference"]).to eq(reference)
+      expect(log_lines.last["submission_uuid"]).to eq(uuid)
 
       get form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: 2)
       expect(log_lines.last["submission_reference"]).to eq(reference)
+      expect(log_lines.last["submission_uuid"]).to eq(uuid)
 
       expect(CurrentRequestLoggingAttributes).to have_received(:submission_reference=).with(reference).at_least(:twice)
     end
@@ -234,6 +238,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
       get form_path(mode:, form_id: 2, form_slug: form_data.form_slug)
       expect(response).to have_http_status(:redirect)
       expect(log_lines.last).not_to have_key("submission_reference")
+      expect(log_lines.last).not_to have_key("submission_uuid")
     end
   end
 
