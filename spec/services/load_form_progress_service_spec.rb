@@ -33,6 +33,12 @@ RSpec.describe LoadFormProgressService do
         expect(current_context.get_submission_reference).to eq("SAVEDREF")
       end
 
+      it "loads the submission uuid into the session" do
+        service.load!
+
+        expect(current_context.get_submission_uuid).to eq("saved-uuid")
+      end
+
       it "loads the locale the form was being filled in" do
         service.load!
 

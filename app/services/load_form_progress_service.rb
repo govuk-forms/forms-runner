@@ -16,6 +16,9 @@ class LoadFormProgressService
     @current_context.set_submission_reference(incomplete_submission.submission_reference)
     @current_context.add_locale(incomplete_submission.locale)
 
+    @current_context.set_submission_uuid(incomplete_submission.submission_uuid)
+    CurrentRequestLoggingAttributes.submission_uuid = incomplete_submission.submission_uuid
+
     incomplete_submission
   end
 end
