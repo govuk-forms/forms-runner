@@ -243,7 +243,6 @@ module Forms
     def start_new_submission
       current_context.clear_submission_details
       CurrentRequestLoggingAttributes.submission_uuid = current_context.generate_submission_uuid
-      current_context.generate_submission_reference
     end
 
     def is_first_page?
