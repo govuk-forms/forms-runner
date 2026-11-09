@@ -71,6 +71,25 @@ RSpec.describe SaveFormProgressService do
       end
     end
 
+    context "when the existing saved answer has not changed but the user clicks save" do
+      let!(:existing) do
+        IncompleteSubmission.create!(
+          user_id:,
+          form_id: form.id,
+          form_version: form.version,
+          answers:,
+          locale: "cy",
+          mode: "preview-draft",
+          submission_reference:,
+          updated_at: 1.day.ago,
+        )
+      end
+
+      it "updates the saved answer timestamp" do
+        expect { service.save! }.to(change { existing.reload.updated_at })
+      end
+    end
+
     context "when a saved answer exists for the user and form in a different mode" do
       let!(:other_mode) do
         IncompleteSubmission.create!(user_id:, form_id: form.id, form_version: 1, answers: { "old" => "answer" }, mode: "form")

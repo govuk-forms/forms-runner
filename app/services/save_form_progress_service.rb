@@ -12,6 +12,7 @@ class SaveFormProgressService
     incomplete_submission.answers = @current_context.answers
     incomplete_submission.locale = @current_context.submission_locale
     incomplete_submission.submission_reference = @current_context.get_submission_reference
+    incomplete_submission.updated_at = Time.current
     incomplete_submission.save!
 
     enqueue_send_email_job(incomplete_submission)
