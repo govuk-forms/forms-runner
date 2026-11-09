@@ -112,6 +112,10 @@ module Question
       uploaded_file_key.present?
     end
 
+    def extend_life
+      FileUploadS3Service.new.extend_life(uploaded_file_key)
+    end
+
     def question_text_for_check_your_answers
       return question_text_with_optional_suffix if page_heading.blank?
 
