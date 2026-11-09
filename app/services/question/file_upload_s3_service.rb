@@ -19,6 +19,18 @@ class Question::FileUploadS3Service
     key
   end
 
+  def extend_life(key)
+    @s3.copy_object({
+      key: key,
+      bucket: @bucket,
+      copy_source: "#{@bucket}/#{key}",
+      metadata: { "extended_at" => Time.current.iso8601 },
+      metadata_directive: "REPLACE",
+      tagging_directive: "REPLACE",
+    })
+    FileUploadLogger.log_s3_operation(key, "Extended life of file in S3")
+  end
+
   def file_from_s3(key)
     file = @s3.get_object({
       bucket: @bucket,
