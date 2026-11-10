@@ -9,7 +9,6 @@ RSpec.describe SendProgressSavedEmailJob, type: :job do
       form_id: form_document.form_id,
       form_version: 3,
       locale: "en",
-      submission_reference: "ABC12345",
       mode: "form",
       updated_at: Time.zone.local(2026, 10, 12, 12, 0, 0),
     )
@@ -43,7 +42,6 @@ RSpec.describe SendProgressSavedEmailJob, type: :job do
     described_class.perform_now(incomplete_submission:, email_address:)
 
     expect(CurrentJobLoggingAttributes.job_class).to eq("SendProgressSavedEmailJob")
-    expect(CurrentJobLoggingAttributes.submission_reference).to eq("ABC12345")
     expect(CurrentJobLoggingAttributes.form_id).to eq(form_document.form_id)
     expect(CurrentJobLoggingAttributes.form_name).to eq("My form")
     expect(CurrentJobLoggingAttributes.preview).to be false

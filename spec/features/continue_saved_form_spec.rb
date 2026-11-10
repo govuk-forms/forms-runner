@@ -89,7 +89,6 @@ feature "Continue a saved form", type: :feature do
       answers: { "1" => { "text" => "Sir Lancelot" } },
       locale: "en",
       mode: "form",
-      submission_reference: "SAVEDREF",
       submission_uuid: SecureRandom.uuid,
     )
   end

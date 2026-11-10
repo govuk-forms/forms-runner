@@ -14,7 +14,7 @@ RSpec.describe LoadFormProgressService do
       let(:saved_answers) { { "1" => { "text" => "a saved answer" } } }
 
       let!(:incomplete_submission) do
-        IncompleteSubmission.create!(user_id:, form_id: form.id, answers: saved_answers, submission_reference: "SAVEDREF", submission_uuid: "saved-uuid", locale: "cy", mode: "form")
+        IncompleteSubmission.create!(user_id:, form_id: form.id, answers: saved_answers, submission_uuid: "saved-uuid", locale: "cy", mode: "form")
       end
 
       it "returns the saved progress" do
@@ -25,12 +25,6 @@ RSpec.describe LoadFormProgressService do
         service.load!
 
         expect(current_context.answers).to eq(saved_answers)
-      end
-
-      it "loads the submission reference into the session" do
-        service.load!
-
-        expect(current_context.get_submission_reference).to eq("SAVEDREF")
       end
 
       it "loads the submission uuid into the session" do

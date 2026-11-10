@@ -33,14 +33,6 @@ RSpec.describe Store::SubmissionDetailsStore do
     end
   end
 
-  describe "#set_submission_reference" do
-    it "stores the given submission reference" do
-      submission_details_store.set_submission_reference("SAVEDREF")
-
-      expect(submission_details_store.get_submission_reference).to eq("SAVEDREF")
-    end
-  end
-
   describe "#set_submission_uuid" do
     it "stores the given submission uuid" do
       submission_details_store.set_submission_uuid("saved-uuid")
