@@ -10,7 +10,9 @@ RSpec.describe SaveFormProgressService do
   let(:answers) { { "1" => { "text" => "an answer" } } }
   let(:submission_locale) { :cy }
   let(:submission_uuid) { SecureRandom.uuid }
-  let(:current_context) { instance_double(Flow::Context, form:, answers:, submission_locale:, get_submission_uuid: submission_uuid) }
+  let(:current_context) { instance_double(Flow::Context, form:, journey:, answers:, submission_locale:, get_submission_uuid: submission_uuid) }
+  let(:journey) { instance_double(Flow::Journey, completed_file_upload_questions: [file_question]) }
+  let(:file_question) { instance_double(Question::File, extend_life: nil) }
 
   describe "#save" do
     it "creates a saved answer from the current context" do
@@ -157,6 +159,14 @@ RSpec.describe SaveFormProgressService do
         service.save!
 
         expect(other_mode.reload.answers).to eq({ "old" => "answer" })
+      end
+    end
+
+    context "when there is an existing uploaded file that has been updated" do
+      it "extends the life of the file" do
+        service.save!
+
+        expect(file_question).to have_received(:extend_life)
       end
     end
   end

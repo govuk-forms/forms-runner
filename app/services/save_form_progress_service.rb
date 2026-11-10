@@ -14,6 +14,7 @@ class SaveFormProgressService
     incomplete_submission.answers = @current_context.answers
     incomplete_submission.locale = @current_context.submission_locale
     incomplete_submission.submission_uuid = @current_context.get_submission_uuid
+    @current_context.journey.completed_file_upload_questions.each(&:extend_life)
     incomplete_submission.updated_at = Time.current
     save_with_unique_submission_uuid!(incomplete_submission)
 
