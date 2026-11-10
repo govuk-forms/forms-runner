@@ -14,7 +14,8 @@ module Forms
       end
 
       @one_login_email = auth_service.email
-      render_already_saved if saved_progress_exists?
+      saved = find_saved_progress
+      render_already_saved(saved) if saved
     end
 
     def after_sign_in
@@ -24,9 +25,8 @@ module Forms
 
       auth_service.clear_return_from_one_login
 
-      if saved_progress_exists?
-        return render_already_saved
-      end
+      saved = find_saved_progress
+      return render_already_saved(saved) if saved
 
       save_progress_and_redirect
     end
@@ -34,9 +34,8 @@ module Forms
     def create
       return redirect_to(save_progress_path(current_context.form.id, current_context.form.form_slug)) unless auth_service.logged_in?
 
-      if saved_progress_exists?
-        return render_already_saved
-      end
+      saved = find_saved_progress
+      return render_already_saved(saved) if saved
 
       save_progress_and_redirect
     end
@@ -46,7 +45,7 @@ module Forms
 
       @already_saved_input = AlreadySavedInput.new(already_saved_input_params)
       unless @already_saved_input.valid?
-        return render_already_saved(status: :unprocessable_content)
+        return render_already_saved(find_saved_progress, status: :unprocessable_content)
       end
 
       return redirect_to(form_step_path(current_context.form.id, current_context.form.form_slug, current_context.next_step_slug)) if @already_saved_input.keep_saved?
@@ -55,7 +54,7 @@ module Forms
     end
 
     def show
-      saved = IncompleteSubmission.find_by(user_id: auth_service.sub, form_id: current_context.form.id, mode: mode.to_s)
+      saved = find_saved_progress
       return redirect_to(save_progress_path(current_context.form.id, current_context.form.form_slug)) unless saved
 
       @one_login_email = auth_service.email
@@ -64,8 +63,7 @@ module Forms
 
   private
 
-    def render_already_saved(status: :ok)
-      saved = IncompleteSubmission.find_by!(user_id: auth_service.sub, form_id: current_context.form.id)
+    def render_already_saved(saved, status: :ok)
       @already_saved_input ||= AlreadySavedInput.new
       @last_saved_date = saved.updated_at.strftime("%-d %B %Y")
       @last_saved_time = saved.updated_at.strftime("%l:%M%P").strip
@@ -82,8 +80,8 @@ module Forms
       redirect_to progress_saved_path(current_context.form.id, current_context.form.form_slug)
     end
 
-    def saved_progress_exists?
-      IncompleteSubmission.exists?(user_id: auth_service.sub, form_id: current_context.form.id)
+    def find_saved_progress
+      IncompleteSubmission.find_by(user_id: auth_service.sub, form_id: current_context.form.id, mode: mode.to_s)
     end
 
     def redirect_if_save_and_return_disabled
