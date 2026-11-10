@@ -26,6 +26,7 @@ class FormSubmissionService
     validate_submission
     validate_confirmation_email_address if requested_confirmation?
 
+    current_context.journey.completed_file_upload_questions.each(&:extend_life)
     submission = create_submission_record
     enqueue_deliveries(submission)
 

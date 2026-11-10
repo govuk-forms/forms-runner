@@ -14,7 +14,7 @@ class SaveFormProgressService
     incomplete_submission.answers = @current_context.answers
     incomplete_submission.locale = @current_context.submission_locale
     incomplete_submission.submission_uuid = @current_context.get_submission_uuid
-    @current_context.journey.completed_file_upload_questions.each(&:extend_life)
+    extend_life_of_uploaded_files(incomplete_submission)
     incomplete_submission.updated_at = Time.current
     save_with_unique_submission_uuid!(incomplete_submission)
 
@@ -45,6 +45,14 @@ private
     return if @current_context.get_submission_uuid.present?
 
     CurrentRequestLoggingAttributes.submission_uuid = @current_context.generate_submission_uuid
+  end
+
+  def extend_life_of_uploaded_files(incomplete_submission)
+    uploaded_file_keys = incomplete_submission.uploaded_file_keys
+    return if uploaded_file_keys.empty?
+
+    file_upload_s3_service = Question::FileUploadS3Service.new
+    uploaded_file_keys.each { |key| file_upload_s3_service.extend_life(key) }
   end
 
   def enqueue_send_email_job(incomplete_submission)

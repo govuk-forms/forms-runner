@@ -10,9 +10,12 @@ RSpec.describe SaveFormProgressService do
   let(:answers) { { "1" => { "text" => "an answer" } } }
   let(:submission_locale) { :cy }
   let(:submission_uuid) { SecureRandom.uuid }
-  let(:current_context) { instance_double(Flow::Context, form:, journey:, answers:, submission_locale:, get_submission_uuid: submission_uuid) }
-  let(:journey) { instance_double(Flow::Journey, completed_file_upload_questions: [file_question]) }
-  let(:file_question) { instance_double(Question::File, extend_life: nil) }
+  let(:current_context) { instance_double(Flow::Context, form:, answers:, submission_locale:, get_submission_uuid: submission_uuid) }
+  let(:file_upload_s3_service) { instance_double(Question::FileUploadS3Service, extend_life: nil) }
+
+  before do
+    allow(Question::FileUploadS3Service).to receive(:new).and_return(file_upload_s3_service)
+  end
 
   describe "#save" do
     it "creates a saved answer from the current context" do
@@ -162,11 +165,19 @@ RSpec.describe SaveFormProgressService do
       end
     end
 
-    context "when there is an existing uploaded file that has been updated" do
-      it "extends the life of the file" do
+    context "when the answers include uploaded files" do
+      let(:answers) do
+        {
+          "1" => { "uploaded_file_key" => "key-on-current-route", "original_filename" => "a.png" },
+          "2" => { "uploaded_file_key" => "key-on-previously-visited-route", "original_filename" => "b.png" },
+        }
+      end
+
+      it "extends the life of every uploaded file in the answers" do
         service.save!
 
-        expect(file_question).to have_received(:extend_life)
+        expect(file_upload_s3_service).to have_received(:extend_life).with("key-on-current-route")
+        expect(file_upload_s3_service).to have_received(:extend_life).with("key-on-previously-visited-route")
       end
     end
   end
