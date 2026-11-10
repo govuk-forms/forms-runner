@@ -3,6 +3,7 @@ class IncompleteSubmission < ApplicationRecord
   validates :user_id, presence: true
   validates :form_id, presence: true, uniqueness: { scope: %i[user_id mode] }
   validates :mode, presence: true
+  validates :submission_uuid, presence: true
 
   def mode_object
     Mode.new(mode)

@@ -3,6 +3,7 @@ FactoryBot.define do
     created_at { Time.zone.now - 2.minutes }
     updated_at { created_at }
     reference { Faker::Alphanumeric.alphanumeric(number: 8).upcase }
+    submission_uuid { SecureRandom.uuid }
     form_id { Faker::Number.number(digits: 5) }
     answers do
       {

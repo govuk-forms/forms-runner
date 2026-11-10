@@ -22,6 +22,7 @@ RSpec.describe CurrentRequestLoggingAttributes, type: :model do
       current.trace_id = "a-trace-id"
       current.question_number = 3
       current.submission_reference = "a-submission-ref"
+      current.submission_uuid = "a-submission-uuid"
       current.confirmation_email_reference = "a-confirmation-email-ref"
       current.rescued_exception = "StandardError"
       current.rescued_exception_trace = "a trace"
@@ -42,6 +43,7 @@ RSpec.describe CurrentRequestLoggingAttributes, type: :model do
         trace_id: "a-trace-id",
         question_number: 3,
         submission_reference: "a-submission-ref",
+        submission_uuid: "a-submission-uuid",
         confirmation_email_reference: "a-confirmation-email-ref",
         rescued_exception: "StandardError",
         rescued_exception_trace: "a trace",

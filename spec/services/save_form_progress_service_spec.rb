@@ -10,7 +10,8 @@ RSpec.describe SaveFormProgressService do
   let(:answers) { { "1" => { "text" => "an answer" } } }
   let(:submission_locale) { :cy }
   let(:submission_reference) { Faker::Alphanumeric.alphanumeric(number: 8).upcase }
-  let(:current_context) { instance_double(Flow::Context, form:, answers:, submission_locale:, get_submission_reference: submission_reference) }
+  let(:submission_uuid) { SecureRandom.uuid }
+  let(:current_context) { instance_double(Flow::Context, form:, answers:, submission_locale:, get_submission_reference: submission_reference, get_submission_uuid: submission_uuid) }
 
   describe "#save" do
     it "creates a saved answer from the current context" do
@@ -25,6 +26,7 @@ RSpec.describe SaveFormProgressService do
         locale: "cy",
         mode: "preview-draft",
         submission_reference: submission_reference,
+        submission_uuid: submission_uuid,
       )
     end
 
@@ -61,7 +63,7 @@ RSpec.describe SaveFormProgressService do
 
     context "when a saved answer already exists for the user and form" do
       let!(:existing) do
-        IncompleteSubmission.create!(user_id:, form_id: form.id, form_version: 1, answers: { "old" => "answer" }, mode: "preview-draft")
+        IncompleteSubmission.create!(user_id:, form_id: form.id, form_version: 1, answers: { "old" => "answer" }, mode: "preview-draft", submission_uuid: SecureRandom.uuid)
       end
 
       it "updates the existing row in place rather than creating a duplicate" do
@@ -81,6 +83,7 @@ RSpec.describe SaveFormProgressService do
           locale: "cy",
           mode: "preview-draft",
           submission_reference:,
+          submission_uuid:,
           updated_at: 1.day.ago,
         )
       end
@@ -90,9 +93,61 @@ RSpec.describe SaveFormProgressService do
       end
     end
 
+    context "when a concurrent save inserts a conflicting row after we have loaded the existing one" do
+      def insert_competing_row_after_load(**attributes)
+        allow(IncompleteSubmission).to receive(:find_or_initialize_by).and_wrap_original do |original, *args, **kwargs|
+          original.call(*args, **kwargs).tap do
+            IncompleteSubmission.create!(form_version: 1, answers: { "old" => "answer" }, **attributes)
+          end
+        end
+      end
+
+      context "and it uses the same submission_uuid" do
+        let(:new_uuid) { SecureRandom.uuid }
+
+        before do
+          insert_competing_row_after_load(user_id: "other-sub", form_id: form.id, mode: "preview-draft", submission_uuid:)
+
+          allow(current_context).to receive(:generate_submission_uuid) do
+            allow(current_context).to receive(:get_submission_uuid).and_return(new_uuid)
+            new_uuid
+          end
+          allow(Rails.logger).to receive(:info)
+        end
+
+        it "saves a new row with a regenerated submission_uuid" do
+          expect { service.save! }.to change(IncompleteSubmission, :count).by(2)
+
+          expect(IncompleteSubmission.find_by(user_id:)).to have_attributes(submission_uuid: new_uuid, answers:)
+        end
+
+        it "leaves the competing row unchanged" do
+          service.save!
+
+          expect(IncompleteSubmission.find_by(user_id: "other-sub")).to have_attributes(answers: { "old" => "answer" }, submission_uuid:)
+        end
+
+        it "logs that the submission_uuid was regenerated" do
+          service.save!
+
+          expect(Rails.logger).to have_received(:info).with(/Regenerated submission_uuid/, { previous_submission_uuid: submission_uuid })
+        end
+      end
+
+      context "and it is for the same user, form and mode" do
+        before do
+          insert_competing_row_after_load(user_id:, form_id: form.id, mode: "preview-draft", submission_uuid: SecureRandom.uuid)
+        end
+
+        it "does not regenerate the submission_uuid and raises the error" do
+          expect { service.save! }.to raise_error(ActiveRecord::RecordInvalid, /Form has already been taken/)
+        end
+      end
+    end
+
     context "when a saved answer exists for the user and form in a different mode" do
       let!(:other_mode) do
-        IncompleteSubmission.create!(user_id:, form_id: form.id, form_version: 1, answers: { "old" => "answer" }, mode: "form")
+        IncompleteSubmission.create!(user_id:, form_id: form.id, form_version: 1, answers: { "old" => "answer" }, mode: "form", submission_uuid: SecureRandom.uuid)
       end
 
       it "creates a separate row for this mode" do

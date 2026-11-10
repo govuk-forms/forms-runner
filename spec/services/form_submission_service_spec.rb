@@ -62,6 +62,7 @@ RSpec.describe FormSubmissionService, :capture_logging do
   let(:delivery_configurations) { [build(:delivery_configuration, :immediate_email)] }
 
   let(:reference) { Faker::Alphanumeric.alphanumeric(number: 8).upcase }
+  let(:submission_uuid) { SecureRandom.uuid }
 
   let(:step) { OpenStruct.new({ question_text: "What is the meaning of life?", show_answer_in_email: "42" }) }
   let(:all_steps) { [step] }
@@ -85,6 +86,7 @@ RSpec.describe FormSubmissionService, :capture_logging do
     instance_double(Flow::Context, form:, journey:, completed_steps: all_steps, answers:,
                                    submission_locale:,
                                    get_submission_reference: stored_submission_reference,
+                                   get_submission_uuid: submission_uuid,
                                    generate_submission_reference: reference,
                                    wants_copy_of_answers?: wants_copy_of_answers,
                                    get_copy_of_answers_email_address: copy_of_answers_email_address,
@@ -123,10 +125,10 @@ RSpec.describe FormSubmissionService, :capture_logging do
       let(:stored_submission_reference) { "ABC23456" }
 
       let!(:saved_progress) do
-        IncompleteSubmission.create!(user_id: "one-login-sub", form_id: 1, answers:, submission_reference: "ABC23456", mode: "form")
+        IncompleteSubmission.create!(user_id: "one-login-sub", form_id: 1, answers:, submission_reference: "ABC23456", submission_uuid: SecureRandom.uuid, mode: "form")
       end
       let!(:saved_progress_in_other_mode) do
-        IncompleteSubmission.create!(user_id: "one-login-sub", form_id: 1, answers:, submission_reference: "DRAFTREF", mode: "preview-draft")
+        IncompleteSubmission.create!(user_id: "one-login-sub", form_id: 1, answers:, submission_reference: "DRAFTREF", submission_uuid: SecureRandom.uuid, mode: "preview-draft")
       end
 
       it "keeps saved progress for the form in other modes" do
@@ -148,6 +150,11 @@ RSpec.describe FormSubmissionService, :capture_logging do
           expect(IncompleteSubmission.exists?(saved_progress.id)).to be true
         end
       end
+    end
+
+    it "stores the submission uuid from the session on the submission" do
+      service.submit
+      expect(Submission.last.submission_uuid).to eq submission_uuid
     end
 
     it "includes the submission reference in the logging context" do
