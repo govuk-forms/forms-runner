@@ -28,6 +28,7 @@ class FormSubmissionService
 
     submission = create_submission_record
     enqueue_deliveries(submission)
+    delete_saved_progress
 
     Metrics.record_submission(form_id: form.id, form_name: form.name, mode:)
 
@@ -203,5 +204,9 @@ private
     else
       email_confirmation_input.confirmation_email_address
     end
+  end
+
+  def delete_saved_progress
+    IncompleteSubmission.find_by(submission_uuid: current_context.get_submission_uuid)&.destroy!
   end
 end
