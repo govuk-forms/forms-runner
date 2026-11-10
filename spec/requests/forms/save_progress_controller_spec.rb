@@ -136,6 +136,29 @@ RSpec.describe Forms::SaveProgressController, type: :request do
           expect(response.body).to include("You last saved this form at 12:32pm on 6 May 2026.")
         end
       end
+
+      context "when the user has saved answers for the form in a different mode" do
+        before do
+          IncompleteSubmission.create!(
+            user_id: "user-sub-123",
+            form_id: form.form_id,
+            answers: { "1" => { "text" => "previous answer" } },
+            submission_uuid: SecureRandom.uuid,
+            mode: "preview-live",
+          )
+
+          get save_progress_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
+        end
+
+        it "renders the page with the button to save progress" do
+          expect(response).to render_template(:new)
+        end
+
+        it "does not show the already saved page" do
+          expect(response).not_to render_template(:already_saved)
+          expect(response.body).not_to include("You already have a saved version of this form")
+        end
+      end
     end
   end
 
