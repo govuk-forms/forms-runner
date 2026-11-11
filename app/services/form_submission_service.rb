@@ -106,7 +106,7 @@ private
   end
 
   def create_submission_record
-    Submission.create!(
+    submission = Submission.new(
       reference: submission_reference,
       submission_uuid: current_context.get_submission_uuid,
       form_id: form.id,
@@ -118,6 +118,31 @@ private
       submission_locale: current_context.submission_locale,
       created_at: timestamp,
     )
+
+    save_with_unique_submission_uuid(submission)
+    submission
+  end
+
+  # This is a temporary fix while we investigate why a new submission_uuid isn't always generated after a user
+  # submits and then starts a new form.
+  def save_with_unique_submission_uuid(submission)
+    submission.save!
+  rescue ActiveRecord::RecordNotUnique => e
+    raise unless e.message.include?("submission_uuid")
+
+    submission.submission_uuid = regenerate_submission_uuid
+    submission.save!
+  end
+
+  def regenerate_submission_uuid
+    previous_submission_uuid = current_context.get_submission_uuid
+    new_submission_uuid = current_context.generate_submission_uuid
+
+    CurrentRequestLoggingAttributes.submission_uuid = new_submission_uuid
+    Rails.logger.warn("Regenerated submission_uuid because it was already in use for another submission",
+                      { previous_submission_uuid: })
+
+    new_submission_uuid
   end
 
   def enqueue_deliver_submission_job(job_class, submission, delivery)

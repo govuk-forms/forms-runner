@@ -147,6 +147,37 @@ RSpec.describe FormSubmissionService, :capture_logging do
       expect(Submission.last.submission_uuid).to eq submission_uuid
     end
 
+    context "when the submission_uuid is already in use by another submission" do
+      let(:new_submission_uuid) { SecureRandom.uuid }
+
+      before do
+        create(:submission, submission_uuid:)
+        allow(current_context).to receive(:generate_submission_uuid) do
+          allow(current_context).to receive(:get_submission_uuid).and_return(new_submission_uuid)
+          new_submission_uuid
+        end
+      end
+
+      it "regenerates the submission_uuid and creates the submission with it" do
+        expect { service.submit }.to change(Submission, :count).by(1)
+
+        expect(current_context).to have_received(:generate_submission_uuid).once
+        expect(Submission.last.submission_uuid).to eq new_submission_uuid
+      end
+
+      it "logs that the submission_uuid was regenerated" do
+        service.submit
+
+        expect(log_lines).to include(
+          hash_including(
+            "level" => "WARN",
+            "message" => "Regenerated submission_uuid because it was already in use for another submission",
+            "previous_submission_uuid" => submission_uuid,
+          ),
+        )
+      end
+    end
+
     it "includes the submission reference in the logging context" do
       service.submit
       expect(log_line["submission_reference"]).to eq(reference)
