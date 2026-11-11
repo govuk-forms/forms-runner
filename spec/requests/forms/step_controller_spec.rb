@@ -1152,6 +1152,38 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
         post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id, params: { question: { selection: "Option 2" }, changing_existing_answer: false })
         expect(response).to redirect_to form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: 2)
       end
+
+      context "when the save and exit button is used" do
+        let(:save_and_return) { "enabled" }
+
+        it "redirects to the exit page when exit page answer given" do
+          post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { selection: "Option 1" }, save_and_exit: "true" }
+          expect(response).to redirect_to exit_page_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id, exit_page_id: exit_page.id)
+        end
+
+        it "redirects to the save progress page when any other answer given" do
+          post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { selection: "Option 2" }, save_and_exit: "true" }
+          expect(response).to redirect_to(save_progress_path(2, form_data.form_slug, mode:))
+        end
+      end
+
+      context "when none of the above routes to an exit page on a question with a follow-up question on a separate page" do
+        let(:save_and_return) { "enabled" }
+        let(:first_step_in_form) do
+          build(:selection_question_step,
+                :with_none_of_the_above_question,
+                id: 1,
+                next_step_id: 2,
+                selection_options: 31.times.map { |i| { name: "Option #{i}", value: "Option #{i}" } },
+                exit_pages: [exit_page],
+                routing_conditions: [build(:condition_resource, :with_exit_page, exit_page:, routing_page_id: 1, check_page_id: 1, answer_value: Question::Selection::NONE_OF_THE_ABOVE_VALUE)])
+        end
+
+        it "redirects to the save progress page when the save and exit button is used" do
+          post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { selection: Question::Selection::NONE_OF_THE_ABOVE_VALUE }, save_and_exit: "true" }
+          expect(response).to redirect_to(save_progress_path(2, form_data.form_slug, mode:))
+        end
+      end
     end
 
     context "when the save and exit button is used" do
