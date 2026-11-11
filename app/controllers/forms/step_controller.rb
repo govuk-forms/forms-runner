@@ -115,7 +115,7 @@ module Forms
           LogEventService.new(current_context, @step, request, changing_existing_answer, page_params).log_page_save
         end
 
-        return redirect_to save_progress_path(@form.id, @form.form_slug) if save_and_exit?
+        return redirect_to save_progress_path(@form.id, @form.form_slug) if save_and_exit? && !@step.exit_page_condition_matches?
 
         redirect_post_save
       else

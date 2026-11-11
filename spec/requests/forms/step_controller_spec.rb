@@ -1139,6 +1139,20 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
         post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id, params: { question: { selection: "Option 2" }, changing_existing_answer: false })
         expect(response).to redirect_to form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: 2)
       end
+
+      context "when the save and exit button is used" do
+        let(:save_and_return) { "enabled" }
+
+        it "redirects to the exit page when exit page answer given" do
+          post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { selection: "Option 1" }, save_and_exit: "true" }
+          expect(response).to redirect_to exit_page_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id, exit_page_id: exit_page.id)
+        end
+
+        it "redirects to the save progress page when any other answer given" do
+          post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { selection: "Option 2" }, save_and_exit: "true" }
+          expect(response).to redirect_to(save_progress_path(2, form_data.form_slug, mode:))
+        end
+      end
     end
 
     context "when the save and exit button is used" do
