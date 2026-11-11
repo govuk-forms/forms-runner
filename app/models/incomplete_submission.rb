@@ -5,8 +5,6 @@ class IncompleteSubmission < ApplicationRecord
   validates :mode, presence: true
   validates :submission_uuid, presence: true
 
-  self.ignored_columns = %w[submission_reference]
-
   def mode_object
     Mode.new(mode)
   end
