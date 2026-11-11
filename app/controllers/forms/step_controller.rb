@@ -99,7 +99,7 @@ module Forms
       page_params = params.fetch(:question, {}).permit(*@step.params)
       @step.assign_question_attributes(page_params)
 
-      starting_new_submission = first_page_of_new_submission?
+      starting_new_submission = current_context.starting_new_form?
 
       validation_context = @step.autocomplete_selection_question? ? :skip_none_of_the_above_question_validation : nil
       if current_context.save_step(@step, context: validation_context, locale:)
@@ -231,22 +231,14 @@ module Forms
     end
 
     def clear_stale_submission_details
-      return unless first_page_of_new_submission?
+      return unless current_context.starting_new_form?
 
       current_context.clear_submission_details
-    end
-
-    def first_page_of_new_submission?
-      is_first_page? && current_context.starting_new_form?
     end
 
     def start_new_submission
       current_context.clear_submission_details
       CurrentRequestLoggingAttributes.submission_uuid = current_context.generate_submission_uuid
-    end
-
-    def is_first_page?
-      current_context.form.start_page.to_s == @step.id
     end
   end
 end
