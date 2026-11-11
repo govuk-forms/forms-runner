@@ -17,6 +17,7 @@ module Flow
              :generate_submission_uuid,
              :get_submission_uuid,
              :set_submission_uuid,
+             :clear_submission_uuid,
              :save_requested_email_confirmation,
              :requested_email_confirmation?,
              :clear_submission_details,

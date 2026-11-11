@@ -128,6 +128,24 @@ RSpec.describe Store::SubmissionDetailsStore do
     end
   end
 
+  describe "#clear_submission_uuid" do
+    it "clears only the submission uuid" do
+      submission_details_store.generate_submission_reference
+      submission_details_store.generate_submission_uuid
+      submission_details_store.save_requested_email_confirmation(requested_email_confirmation)
+
+      submission_details_store.clear_submission_uuid
+
+      expect(submission_details_store.get_submission_uuid).to be_nil
+      expect(submission_details_store.get_submission_reference).to be_present
+      expect(submission_details_store.requested_email_confirmation?).to eq requested_email_confirmation
+    end
+
+    it "does nothing when there are no submission details" do
+      expect { submission_details_store.clear_submission_uuid }.not_to raise_error
+    end
+  end
+
   describe "#clear_submission_details" do
     it "clears the submission details" do
       submission_details_store.generate_submission_reference

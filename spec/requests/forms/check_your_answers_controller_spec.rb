@@ -333,6 +333,13 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
 
     context "with preview mode off" do
       let(:mode) { "form" }
+      let(:submission_uuid) { SecureRandom.uuid }
+      let(:store) do
+        {
+          answers:,
+          confirmation_details: { form_id.to_s => { "submission_uuid" => submission_uuid } },
+        }.with_indifferent_access
+      end
 
       before do
         travel_to frozen_time do
@@ -344,6 +351,15 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
 
       it "redirects to confirmation page" do
         expect(response).to redirect_to(form_submitted_path)
+      end
+
+      it "saves the submission with the submission_uuid from the session" do
+        expect(Submission.last.submission_uuid).to eq submission_uuid
+      end
+
+      it "clears the submission_uuid from the session but keeps the other submission details" do
+        expect(store.dig(:confirmation_details, form_id.to_s, "submission_uuid")).to be_nil
+        expect(store.dig(:confirmation_details, form_id.to_s, "submission_reference")).to eq reference
       end
 
       it "emails the form submission" do
@@ -632,6 +648,16 @@ RSpec.describe Forms::CheckYourAnswersController, :capture_logging, type: :reque
 
       it "does not clear the answers from the session" do
         expect(store[:answers][form_id.to_s]).to be_present
+      end
+
+      it "does not clear the submission_uuid from the session" do
+        store[:confirmation_details] = { form_id.to_s => { "submission_uuid" => "existing-uuid" } }
+
+        travel_to timestamp_of_request do
+          post form_submit_answers_path(form_id:, form_slug: "form-name", mode:), params: { email_confirmation_input: }
+        end
+
+        expect(store.dig(:confirmation_details, form_id.to_s, "submission_uuid")).to eq "existing-uuid"
       end
 
       include_examples "for notification references"
