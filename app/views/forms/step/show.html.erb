@@ -21,7 +21,7 @@
       <% if @current_context.form.save_and_return_enabled? %>
         <div class="govuk-button-group">
           <%= form.govuk_submit(t("continue")) %>
-          <%= govuk_button_link_to t("save_progress.save_and_exit"), save_progress_path(@form.id, @form.form_slug), secondary: true %>
+          <%= form.govuk_submit t("save_progress.save_and_exit"), secondary: true, name: "save_and_exit", value: "true" %>
         </div>
       <% else %>
         <%= form.govuk_submit(t("continue")) %>

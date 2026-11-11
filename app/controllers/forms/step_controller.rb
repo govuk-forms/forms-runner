@@ -97,6 +97,8 @@ module Forms
 
     def perform_save
       page_params = params.fetch(:question, {}).permit(*@step.params)
+      return redirect_to save_progress_path(@form.id, @form.form_slug) if save_and_exit? && no_answer_given?(page_params)
+
       @step.assign_question_attributes(page_params)
 
       starting_new_submission = current_context.starting_new_form?
@@ -107,17 +109,27 @@ module Forms
 
         # Redirect before logging when the question has multiple pages so that we don't send multiple form started
         # metrics to CloudWatch if this is the first question.
-        return redirect_to selection_none_of_the_above_page if redirect_to_none_of_the_above_page?
+        return redirect_to selection_none_of_the_above_page if redirect_to_none_of_the_above_page? && !save_and_exit?
 
         unless mode.preview?
           LogEventService.new(current_context, @step, request, changing_existing_answer, page_params).log_page_save
         end
+
+        return redirect_to save_progress_path(@form.id, @form.form_slug) if save_and_exit?
 
         redirect_post_save
       else
         setup_instance_vars_for_view
         render :show, status: :unprocessable_content
       end
+    end
+
+    def save_and_exit?
+      @form.save_and_return_enabled? && params[:save_and_exit].present?
+    end
+
+    def no_answer_given?(page_params)
+      page_params.to_h.values.flatten.all?(&:blank?)
     end
 
     def redirect_post_save

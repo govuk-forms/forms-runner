@@ -46,7 +46,7 @@ feature "Save form progress", type: :feature do
   scenario "As a form filler, I sign in with GOV.UK One Login to save my progress" do
     when_i_visit_the_first_question
     and_i_answer_the_first_question
-    then_i_see_the_save_and_exit_link
+    then_i_see_the_save_and_exit_button
 
     when_i_click_save_and_exit
     then_i_see_the_sign_in_interstitial
@@ -67,12 +67,12 @@ feature "Save form progress", type: :feature do
     expect(page.find("h1")).to have_text second_question_text
   end
 
-  def then_i_see_the_save_and_exit_link
-    expect(page).to have_link("Save and exit")
+  def then_i_see_the_save_and_exit_button
+    expect(page).to have_button("Save and exit")
   end
 
   def when_i_click_save_and_exit
-    click_link "Save and exit"
+    click_button "Save and exit"
   end
 
   def then_i_see_the_sign_in_interstitial
