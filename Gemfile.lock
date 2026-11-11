@@ -250,7 +250,7 @@ GEM
       notifications-ruby-client (~> 6.2)
       rails (>= 4.1.0)
     hana (1.3.7)
-    hashie (5.1.0)
+    hashie (5.2.0)
       logger
     highline (3.1.2)
       reline
@@ -341,11 +341,11 @@ GEM
       racc (~> 1.4)
     notifications-ruby-client (6.4.0)
       jwt (>= 1.5, < 4)
-    omniauth (2.1.4)
-      hashie (>= 3.4.6)
+    omniauth (2.2.0)
+      hashie (>= 3.5.2)
       logger
-      rack (>= 2.2.3)
-      rack-protection
+      rack (>= 2.2.8)
+      rack-protection (>= 2.2.0)
     omniauth-rails_csrf_protection (2.0.1)
       actionpack (>= 4.2)
       omniauth (~> 2.0)
@@ -909,7 +909,7 @@ CHECKSUMS
   govuk_design_system_formbuilder (6.6.0) sha256=f4f60620989b50beec1e8f6d1af4b3065a48cb1a86ebb6d01689b676ea9370c4
   govuk_notify_rails (3.0.0) sha256=e0e1b8b0a7c47f90963034f290fb2982652aa8051a733c25c178680d44f2d7aa
   hana (1.3.7) sha256=5425db42d651fea08859811c29d20446f16af196308162894db208cac5ce9b0d
-  hashie (5.1.0) sha256=c266471896f323c446ea8207f8ffac985d2718df0a0ba98651a3057096ca3870
+  hashie (5.2.0) sha256=357a22635195c2e3911fbbc3de9a7d528843d1f42ab0aae02171048f16332d72
   highline (3.1.2) sha256=67cbd34d19f6ef11a7ee1d82ffab5d36dfd5b3be861f450fc1716c7125f4bb4a
   html-attributes-utils (1.0.2) sha256=594e0b37b3dd4e554abe893bee9719896f876675fd08fe534fc2e6e1b4e2538c
   i18n (1.15.2) sha256=00f9eb62412fe593b2a65a97daa75300d37abb8f7202ec748e94b6d46a9dd1b5
@@ -947,7 +947,7 @@ CHECKSUMS
   nokogiri (1.19.7-x86_64-linux-gnu) sha256=25865ccb462f714e712fdf8906fde07849cb6704a808e3d629d75baa5af5dd3b
   nokogiri (1.19.7-x86_64-linux-musl) sha256=464d1f3dfb0d53cf54c0c6a7e23e8e91cf68ec3cafc2b27dc4a7682f2d9bf546
   notifications-ruby-client (6.4.0) sha256=1aff01a7990d6c2b8a261c144e1d65143372da4674f73dd37409ca287dcc2822
-  omniauth (2.1.4) sha256=42a05b0496f0d22e1dd85d42aaf602f064e36bb47a6826a27ab55e5ba608763c
+  omniauth (2.2.0) sha256=8c7a05284621a35766d39fea106ea4801d3895dee59657b86c32e1f60887f1ce
   omniauth-rails_csrf_protection (2.0.1) sha256=c6e3204d7e3925bb537cb52d50fdfc9f05293f1a9d87c5d4ab4ca3a39ba8c32d
   omniauth_govuk_one_login (1.7.0)
   opentelemetry-api (1.11.1) sha256=d07f9987ea6240b3fd5ed5dd7450f93c58e403e0553e804069c23ae18ba61ff7
