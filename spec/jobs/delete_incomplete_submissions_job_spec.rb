@@ -4,10 +4,8 @@ RSpec.describe DeleteIncompleteSubmissionsJob, type: :job do
   let!(:updated_31_days_ago) { create :incomplete_submission, updated_at: 31.days.ago }
   let!(:updated_29_days_ago) { create :incomplete_submission, updated_at: 29.days.ago }
 
-  let(:form_document) { build(:form_document, name: "My form") }
   before do
     allow(CloudWatchService).to receive(:record_job_started_metric)
-    allow(Api::V3::FormDocumentRepository).to receive(:find_by_version).and_return(form_document)
     allow(EventLogger).to receive(:log_form_event)
   end
 
@@ -35,13 +33,13 @@ RSpec.describe DeleteIncompleteSubmissionsJob, type: :job do
       attributes = {
         submission_uuid: CurrentJobLoggingAttributes.submission_uuid,
         form_id: CurrentJobLoggingAttributes.form_id,
-        form_name: CurrentJobLoggingAttributes.form_name,
+        form_version: CurrentJobLoggingAttributes.form_version,
       }
     end
 
     described_class.perform_now
 
-    expect(attributes).to eq(submission_uuid: updated_31_days_ago.submission_uuid, form_id: updated_31_days_ago.form_id, form_name: "My form")
+    expect(attributes).to eq(submission_uuid: updated_31_days_ago.submission_uuid, form_id: updated_31_days_ago.form_id, form_version: updated_31_days_ago.form_version)
   end
 
   context "when the incomplete submission changes after it has been queried" do

@@ -39,7 +39,6 @@ RSpec.describe SendProgressSavedEmailJob, type: :job do
 
     expect(CurrentJobLoggingAttributes.job_class).to eq("SendProgressSavedEmailJob")
     expect(CurrentJobLoggingAttributes.form_id).to eq(form_document.form_id)
-    expect(CurrentJobLoggingAttributes.form_name).to eq("My form")
     expect(CurrentJobLoggingAttributes.preview).to be false
     expect(CurrentJobLoggingAttributes.email_id).to be_present
   end
