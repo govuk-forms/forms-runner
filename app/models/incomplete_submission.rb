@@ -7,6 +7,8 @@ class IncompleteSubmission < ApplicationRecord
   validates :mode, presence: true
   validates :submission_uuid, presence: true
 
+  scope :for_email, ->(email) { where(email_hash: hash_email(email)) }
+
   def self.hash_email(email)
     OpenSSL::HMAC.hexdigest("SHA256", Settings.incomplete_submissions.email_hmac_key, email.to_s.strip.downcase)
   end

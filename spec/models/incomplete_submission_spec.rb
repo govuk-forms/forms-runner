@@ -94,6 +94,18 @@ RSpec.describe IncompleteSubmission, type: :model do
     end
   end
 
+  describe ".for_email" do
+    let!(:matching) { create(:incomplete_submission, email: "test@example.com") }
+
+    before do
+      create(:incomplete_submission, email: "other@example.com")
+    end
+
+    it "returns the incomplete submissions for the email address" do
+      expect(described_class.for_email("Test@example.com")).to eq [matching]
+    end
+  end
+
   describe "database constraints" do
     it "rejects a duplicate submission_uuid" do
       described_class.create!(user_id: "user-1", form_id: 1, mode: "form", submission_uuid: "abc-123")
