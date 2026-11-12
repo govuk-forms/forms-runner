@@ -17,7 +17,6 @@ class DeleteSubmissionsJob < ApplicationJob
     set_submission_logging_attributes(submission:)
     delivery_status = submission.delivery_status
 
-    file_upload_s3_service = Question::FileUploadS3Service.new
     submission.uploaded_file_keys.each { |key| file_upload_s3_service.delete_from_s3(key) }
     submission.destroy!
 
@@ -28,5 +27,11 @@ class DeleteSubmissionsJob < ApplicationJob
     Sentry.capture_exception(e)
   ensure
     CurrentJobLoggingAttributes.reset
+  end
+
+private
+
+  def file_upload_s3_service
+    @file_upload_s3_service ||= Question::FileUploadS3Service.new
   end
 end
