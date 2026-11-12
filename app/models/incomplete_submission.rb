@@ -1,4 +1,6 @@
 class IncompleteSubmission < ApplicationRecord
+  include HasUploadedFileKeys
+
   encrypts :answers
   validates :user_id, presence: true
   validates :form_id, presence: true, uniqueness: { scope: %i[user_id mode] }

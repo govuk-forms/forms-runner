@@ -370,6 +370,22 @@ RSpec.describe Question::File, type: :model do
     end
   end
 
+  describe "#extend_life" do
+    let(:attributes) { { original_filename: "a-file.png", uploaded_file_key: } }
+
+    let(:uploaded_file_key) { Faker::Alphanumeric.alphanumeric }
+
+    before do
+      allow(mock_file_upload_s3_service).to receive(:extend_life)
+    end
+
+    it("calls S3 to extend the life of the file") do
+      expect(mock_file_upload_s3_service).to receive(:extend_life)
+
+      question.extend_life
+    end
+  end
+
   describe "#file_uploaded?" do
     let(:attributes) { { uploaded_file_key: } }
 

@@ -104,6 +104,37 @@ RSpec.describe Question::FileUploadS3Service do
     end
   end
 
+  describe "#extend_life" do
+    before do
+      allow(mock_s3_client).to receive(:copy_object).with(any_args)
+    end
+
+    it "copies the file onto itself with new metadata" do
+      freeze_time do
+        expect(mock_s3_client).to receive(:copy_object).with(
+          {
+            key: key,
+            bucket: bucket,
+            copy_source: "#{bucket}/#{key}",
+            metadata: { "extended_at" => Time.current.iso8601 },
+            metadata_directive: "REPLACE",
+            tagging_directive: "REPLACE",
+          },
+        )
+
+        service.extend_life(key)
+      end
+    end
+
+    it "logs at info level" do
+      expect(Rails.logger).to receive(:info).once.with("Extended life of file in S3", {
+        s3_object_key: key,
+      })
+
+      service.extend_life(key)
+    end
+  end
+
   describe "#poll_for_scan_status" do
     let(:no_threats_status) { "NO_THREATS_FOUND" }
     let(:scan_status_tagging_response) { { tag_set: [{ key: "GuardDutyMalwareScanStatus", value: no_threats_status }] } }

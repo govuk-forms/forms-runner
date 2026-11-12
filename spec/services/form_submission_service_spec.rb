@@ -66,7 +66,8 @@ RSpec.describe FormSubmissionService, :capture_logging do
 
   let(:step) { OpenStruct.new({ question_text: "What is the meaning of life?", show_answer_in_email: "42" }) }
   let(:all_steps) { [step] }
-  let(:journey) { instance_double(Flow::Journey, completed_steps: all_steps, all_steps:) }
+  let(:journey) { instance_double(Flow::Journey, completed_steps: all_steps, all_steps:, completed_file_upload_questions:) }
+  let(:completed_file_upload_questions) { [] }
   let(:answers) do
     {
       "1" => {
@@ -105,6 +106,29 @@ RSpec.describe FormSubmissionService, :capture_logging do
       service.submit
       expect(Submission.last.reference).to eq reference
       expect(current_context).to have_received(:generate_submission_reference).once
+    end
+
+    context "when the form has an uploaded file" do
+      let(:file_question) { instance_double(Question::File, extend_life: nil) }
+      let(:completed_file_upload_questions) { [file_question] }
+
+      it "extends the life of the file" do
+        service.submit
+
+        expect(file_question).to have_received(:extend_life)
+      end
+
+      context "when extending the life of the file fails" do
+        before do
+          allow(file_question).to receive(:extend_life).and_raise(Aws::S3::Errors::ServiceError.new(nil, "S3 is down"))
+        end
+
+        it "does not create a submission" do
+          expect { service.submit }
+            .to not_change(Submission, :count)
+                  .and raise_error(Aws::S3::Errors::ServiceError)
+        end
+      end
     end
 
     context "when the user saved their progress before submitting" do
