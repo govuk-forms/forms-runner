@@ -133,10 +133,10 @@ RSpec.describe FormSubmissionService, :capture_logging do
 
     context "when the user saved their progress before submitting" do
       let!(:saved_progress) do
-        IncompleteSubmission.create!(user_id: "one-login-sub", form_id: 1, answers:, submission_uuid:, mode: "form")
+        create(:incomplete_submission, user_id: "one-login-sub", form_id: 1, answers:, submission_uuid:)
       end
       let!(:saved_progress_with_other_uuid) do
-        IncompleteSubmission.create!(user_id: "one-login-sub", form_id: 1, answers:, submission_uuid: SecureRandom.uuid, mode: "preview-draft")
+        create(:incomplete_submission, user_id: "one-login-sub", form_id: 1, answers:, mode: "preview-draft")
       end
 
       it "deletes the saved progress so it cannot be continued again" do

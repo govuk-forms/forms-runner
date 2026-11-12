@@ -66,7 +66,7 @@ RSpec.describe SaveFormProgressService do
 
     context "when a saved answer already exists for the user and form" do
       let!(:existing) do
-        IncompleteSubmission.create!(user_id:, form_id: form.id, form_version: 1, answers: { "old" => "answer" }, mode: "preview-draft", submission_uuid: SecureRandom.uuid)
+        create(:incomplete_submission, user_id:, form_id: form.id, form_version: 1, answers: { "old" => "answer" }, mode: "preview-draft")
       end
 
       it "updates the existing row in place rather than creating a duplicate" do
@@ -78,16 +78,15 @@ RSpec.describe SaveFormProgressService do
 
     context "when the existing saved answer has not changed but the user clicks save" do
       let!(:existing) do
-        IncompleteSubmission.create!(
-          user_id:,
-          form_id: form.id,
-          form_version: form.version,
-          answers:,
-          locale: "cy",
-          mode: "preview-draft",
-          submission_uuid:,
-          updated_at: 1.day.ago,
-        )
+        create(:incomplete_submission,
+               user_id:,
+               form_id: form.id,
+               form_version: form.version,
+               answers:,
+               locale: "cy",
+               mode: "preview-draft",
+               submission_uuid:,
+               updated_at: 1.day.ago)
       end
 
       it "updates the saved answer timestamp" do
@@ -99,7 +98,7 @@ RSpec.describe SaveFormProgressService do
       def insert_competing_row_after_load(**attributes)
         allow(IncompleteSubmission).to receive(:find_or_initialize_by).and_wrap_original do |original, *args, **kwargs|
           original.call(*args, **kwargs).tap do
-            IncompleteSubmission.create!(form_version: 1, answers: { "old" => "answer" }, **attributes)
+            create(:incomplete_submission, form_version: 1, answers: { "old" => "answer" }, **attributes)
           end
         end
       end
@@ -149,7 +148,7 @@ RSpec.describe SaveFormProgressService do
 
     context "when a saved answer exists for the user and form in a different mode" do
       let!(:other_mode) do
-        IncompleteSubmission.create!(user_id:, form_id: form.id, form_version: 1, answers: { "old" => "answer" }, mode: "form", submission_uuid: SecureRandom.uuid)
+        create(:incomplete_submission, user_id:, form_id: form.id, form_version: 1, answers: { "old" => "answer" })
       end
 
       it "creates a separate row for this mode" do
