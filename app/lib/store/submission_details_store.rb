@@ -32,6 +32,10 @@ module Store
       @store[CONFIRMATION_KEY][@form_key][SUBMISSION_UUID_KEY.to_s] = uuid
     end
 
+    def clear_submission_uuid
+      @store.dig(CONFIRMATION_KEY, @form_key)&.delete(SUBMISSION_UUID_KEY.to_s)
+    end
+
     def save_requested_email_confirmation(requested_email_confirmation)
       @store[CONFIRMATION_KEY][@form_key] ||= {}
       @store[CONFIRMATION_KEY][@form_key][REQUESTED_EMAIL_CONFIRMATION_KEY.to_s] = requested_email_confirmation

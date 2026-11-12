@@ -45,6 +45,7 @@ module Forms
 
         current_context.save_requested_email_confirmation(requested_email_confirmation)
         current_context.clear
+        current_context.clear_submission_uuid
 
         redirect_to :form_submitted
       rescue FormSubmissionService::ConfirmationEmailToAddressError
