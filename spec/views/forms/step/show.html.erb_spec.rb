@@ -15,10 +15,6 @@ describe "forms/check_your_answers/show.html.erb" do
     assign(:save_url, "/save")
     assign(:support_details, support_details)
 
-    without_partial_double_verification do
-      allow(view).to receive(:save_progress_path).and_return("/save-your-progress")
-    end
-
     render template: "forms/step/show"
   end
 
@@ -30,15 +26,15 @@ describe "forms/check_your_answers/show.html.erb" do
     expect(rendered).not_to have_text(I18n.t("question/file.file_requirements.summary"))
   end
 
-  it "does not display the save and exit link" do
-    expect(rendered).not_to have_link(I18n.t("save_progress.save_and_exit"))
+  it "does not display the save and exit button" do
+    expect(rendered).not_to have_button(I18n.t("save_progress.save_and_exit"))
   end
 
   context "when save and return is enabled on the form" do
     let(:form) { build :form, :with_support, save_and_return: "enabled" }
 
-    it "displays the save and exit link" do
-      expect(rendered).to have_link(I18n.t("save_progress.save_and_exit"), href: "/save-your-progress")
+    it "displays the save and exit button as a secondary submit button for the question form" do
+      expect(rendered).to have_css("form[action='/save'] button.govuk-button--secondary[type=submit][name=save_and_exit][value=true]", text: I18n.t("save_progress.save_and_exit"))
     end
   end
 

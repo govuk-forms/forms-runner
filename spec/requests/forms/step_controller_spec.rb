@@ -5,6 +5,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
   let(:timestamp_of_request) { Time.utc(2022, 12, 14, 10, 0o0, 0o0) }
 
   let(:send_copy_of_answers) { "enabled" }
+  let(:save_and_return) { "disabled" }
   let(:form_data) do
     build(:form_document, :with_support,
           form_id: 2,
@@ -14,6 +15,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
           declaration_markdown: "agree to the declaration",
           available_languages:,
           send_copy_of_answers:,
+          save_and_return:,
           steps: steps_data)
   end
 
@@ -1136,6 +1138,77 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
       it "redirects to the next step in the form when any other answer given" do
         post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id, params: { question: { selection: "Option 2" }, changing_existing_answer: false })
         expect(response).to redirect_to form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: 2)
+      end
+
+      context "when the save and exit button is used" do
+        let(:save_and_return) { "enabled" }
+
+        it "redirects to the exit page when exit page answer given" do
+          post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { selection: "Option 1" }, save_and_exit: "true" }
+          expect(response).to redirect_to exit_page_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id, exit_page_id: exit_page.id)
+        end
+
+        it "redirects to the save progress page when any other answer given" do
+          post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { selection: "Option 2" }, save_and_exit: "true" }
+          expect(response).to redirect_to(save_progress_path(2, form_data.form_slug, mode:))
+        end
+      end
+    end
+
+    context "when the save and exit button is used" do
+      let(:save_and_return) { "enabled" }
+
+      it "redirects to the save progress page" do
+        post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { text: "answer text" }, save_and_exit: "true" }
+        expect(response).to redirect_to(save_progress_path(2, form_data.form_slug, mode:))
+      end
+
+      it "saves the answer" do
+        post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { text: "answer text" }, save_and_exit: "true" }
+        expect(session[:answers]["2"]["1"]).to eq({ "text" => "answer text" })
+      end
+
+      it "logs the page save event" do
+        expect(EventLogger).to receive(:log_page_event).with("first_page_save", first_step_in_form.data.question_text, nil)
+        post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { text: "answer text" }, save_and_exit: "true" }
+      end
+
+      context "when no answer is given" do
+        before do
+          post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { text: "" }, save_and_exit: "true" }
+        end
+
+        it "redirects to the save progress page without validating the answer" do
+          expect(response).to redirect_to(save_progress_path(2, form_data.form_slug, mode:))
+        end
+
+        it "does not save an answer" do
+          expect(session[:answers]&.dig("2", "1")).to be_nil
+        end
+      end
+
+      context "when the answer is invalid" do
+        let(:first_step_in_form) do
+          build :question_step, id: first_step_id, next_step_id: 2, answer_type: "email", is_optional: false
+        end
+
+        before do
+          post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { email: "not an email address" }, save_and_exit: "true" }
+        end
+
+        it "renders the show page template with errors" do
+          expect(response).to render_template("forms/step/show")
+          expect(response).to have_http_status(:unprocessable_content)
+        end
+      end
+
+      context "when save and return is disabled on the form" do
+        let(:save_and_return) { "disabled" }
+
+        it "redirects to the next page" do
+          post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { text: "answer text" }, save_and_exit: "true" }
+          expect(response).to redirect_to(form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: 2))
+        end
       end
     end
   end
