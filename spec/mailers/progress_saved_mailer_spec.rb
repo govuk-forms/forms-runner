@@ -11,14 +11,11 @@ RSpec.describe ProgressSavedMailer, type: :mailer do
   let(:email_address) { "testing@example.gov.uk" }
   let(:locale) { "en" }
   let(:incomplete_submission) do
-    IncompleteSubmission.new(
-      user_id: "user-1",
-      form_id: form_document.form_id,
-      form_version: 3,
-      mode: "form",
-      locale:,
-      updated_at: Time.zone.local(2026, 10, 12, 12, 0, 0),
-    )
+    build(:incomplete_submission,
+          form_id: form_document.form_id,
+          form_version: 3,
+          locale:,
+          updated_at: Time.zone.local(2026, 10, 12, 12, 0, 0))
   end
   let(:resume_form_link) { "#{Settings.forms_runner.base_url}/form/#{form_document.form_id}/my-form/continue-saved-form" }
   let(:form_document) do

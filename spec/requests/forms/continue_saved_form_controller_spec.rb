@@ -70,7 +70,7 @@ RSpec.describe Forms::ContinueSavedFormController, type: :request do
 
       context "and they have saved progress for the form" do
         before do
-          IncompleteSubmission.create!(user_id: "user-sub-123", form_id: form.form_id, answers: { "1" => { "text" => "a saved answer" } }, submission_uuid: SecureRandom.uuid, mode:)
+          create(:incomplete_submission, user_id: "user-sub-123", form_id: form.form_id, answers: { "1" => { "text" => "a saved answer" } }, mode:)
 
           get continue_saved_form_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
         end
@@ -137,7 +137,7 @@ RSpec.describe Forms::ContinueSavedFormController, type: :request do
 
       context "and they have saved progress for the form" do
         before do
-          IncompleteSubmission.create!(user_id: "user-sub-123", form_id: form.form_id, answers: { "1" => { "text" => "a saved answer" } }, submission_uuid: SecureRandom.uuid, mode:)
+          create(:incomplete_submission, user_id: "user-sub-123", form_id: form.form_id, answers: { "1" => { "text" => "a saved answer" } }, mode:)
 
           get_signed_in
         end

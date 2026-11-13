@@ -82,15 +82,11 @@ feature "Continue a saved form", type: :feature do
   end
 
   def given_i_have_saved_progress_for_the_form
-    IncompleteSubmission.create!(
-      user_id: one_login_sub,
-      form_id: 1,
-      form_version: form.version,
-      answers: { "1" => { "text" => "Sir Lancelot" } },
-      locale: "en",
-      mode: "form",
-      submission_uuid: SecureRandom.uuid,
-    )
+    create(:incomplete_submission,
+           user_id: one_login_sub,
+           form_id: 1,
+           form_version: form.version,
+           answers: { "1" => { "text" => "Sir Lancelot" } })
   end
 
   def given_i_have_answered_the_first_question

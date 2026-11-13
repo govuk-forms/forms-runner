@@ -21,3 +21,6 @@ submission_status_api:
 
 submissions:
   maximum_retention_seconds: 300
+
+incomplete_submissions:
+  maximum_retention_seconds: 300

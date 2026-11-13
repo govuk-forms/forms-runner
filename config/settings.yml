@@ -65,6 +65,9 @@ file_upload:
 submissions:
   maximum_retention_seconds: 2592000 # 30 days
 
+incomplete_submissions:
+  maximum_retention_seconds: 2592000 # 30 days
+
 maintenance_mode:
   # When set to true, All pages will render 'Maintenance mode' message
   enabled: false

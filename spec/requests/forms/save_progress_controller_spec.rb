@@ -120,14 +120,12 @@ RSpec.describe Forms::SaveProgressController, type: :request do
 
       context "when the user already has saved answers for the form" do
         before do
-          IncompleteSubmission.create!(
-            user_id: "user-sub-123",
-            form_id: form.form_id,
-            answers: { "1" => { "text" => "previous answer" } },
-            submission_uuid: SecureRandom.uuid,
-            mode:,
-            updated_at: Time.zone.local(2026, 5, 6, 12, 32),
-          )
+          create(:incomplete_submission,
+                 user_id: "user-sub-123",
+                 form_id: form.form_id,
+                 answers: { "1" => { "text" => "previous answer" } },
+                 mode:,
+                 updated_at: Time.zone.local(2026, 5, 6, 12, 32))
 
           get save_progress_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
         end
@@ -139,13 +137,11 @@ RSpec.describe Forms::SaveProgressController, type: :request do
 
       context "when the user has saved answers for the form in a different mode" do
         before do
-          IncompleteSubmission.create!(
-            user_id: "user-sub-123",
-            form_id: form.form_id,
-            answers: { "1" => { "text" => "previous answer" } },
-            submission_uuid: SecureRandom.uuid,
-            mode: "preview-live",
-          )
+          create(:incomplete_submission,
+                 user_id: "user-sub-123",
+                 form_id: form.form_id,
+                 answers: { "1" => { "text" => "previous answer" } },
+                 mode: "preview-live")
 
           get save_progress_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
         end
@@ -252,7 +248,7 @@ RSpec.describe Forms::SaveProgressController, type: :request do
           let(:previously_saved_answers) { { "1" => { "text" => "previous answer" } } }
 
           before do
-            IncompleteSubmission.create!(user_id: "user-sub-123", form_id: form.form_id, answers: previously_saved_answers, submission_uuid: SecureRandom.uuid, mode:)
+            create(:incomplete_submission, user_id: "user-sub-123", form_id: form.form_id, answers: previously_saved_answers, mode:)
 
             get_after_sign_in
           end
@@ -285,7 +281,7 @@ RSpec.describe Forms::SaveProgressController, type: :request do
 
     before do
       allow(SendProgressSavedEmailJob).to receive(:perform_later)
-      IncompleteSubmission.create!(user_id: "user-sub-123", form_id: form.form_id, answers: { "1" => { "text" => "previous answer" } }, submission_uuid: SecureRandom.uuid, mode:)
+      create(:incomplete_submission, user_id: "user-sub-123", form_id: form.form_id, answers: { "1" => { "text" => "previous answer" } }, mode:)
       post overwrite_saved_progress_path(mode:, form_id: form.form_id, form_slug: form.form_slug),
            params: { already_saved_input: { already_saved: already_saved_choice } }
     end
@@ -429,14 +425,12 @@ RSpec.describe Forms::SaveProgressController, type: :request do
       end
 
       before do
-        IncompleteSubmission.create!(
-          user_id: "user-sub-123",
-          form_id: form.form_id,
-          answers:,
-          submission_uuid: SecureRandom.uuid,
-          mode:,
-          updated_at: Time.zone.local(2026, 10, 14, 12, 0, 0),
-        )
+        create(:incomplete_submission,
+               user_id: "user-sub-123",
+               form_id: form.form_id,
+               answers:,
+               mode:,
+               updated_at: Time.zone.local(2026, 10, 14, 12, 0, 0))
 
         get progress_saved_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
       end

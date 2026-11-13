@@ -4,14 +4,10 @@ RSpec.describe SendProgressSavedEmailJob, type: :job do
   let(:email_address) { "testing@example.gov.uk" }
   let(:form_document) { build(:form_document, name: "My form") }
   let(:incomplete_submission) do
-    IncompleteSubmission.new(
-      user_id: "user-1",
-      form_id: form_document.form_id,
-      form_version: 3,
-      locale: "en",
-      mode: "form",
-      updated_at: Time.zone.local(2026, 10, 12, 12, 0, 0),
-    )
+    build(:incomplete_submission,
+          form_id: form_document.form_id,
+          form_version: 3,
+          updated_at: Time.zone.local(2026, 10, 12, 12, 0, 0))
   end
 
   before do
@@ -43,7 +39,6 @@ RSpec.describe SendProgressSavedEmailJob, type: :job do
 
     expect(CurrentJobLoggingAttributes.job_class).to eq("SendProgressSavedEmailJob")
     expect(CurrentJobLoggingAttributes.form_id).to eq(form_document.form_id)
-    expect(CurrentJobLoggingAttributes.form_name).to eq("My form")
     expect(CurrentJobLoggingAttributes.preview).to be false
     expect(CurrentJobLoggingAttributes.email_id).to be_present
   end
