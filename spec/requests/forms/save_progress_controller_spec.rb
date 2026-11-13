@@ -479,4 +479,195 @@ RSpec.describe Forms::SaveProgressController, type: :request do
       end
     end
   end
+
+  describe "POST #sign_out" do
+    context "when the user is not signed in to GOV.UK One Login" do
+      it "responds 401 unauthorized" do
+        post form_sign_out_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
+        expect(response).to have_http_status :unauthorized
+      end
+    end
+
+    context "when the user is signed in to GOV.UK One Login" do
+      let(:auth_session) do
+        {
+          auth: {
+            sub: "user-sub-123",
+            email: "test@example.com",
+            token: "a-token",
+            authenticated_at: Time.current.to_i,
+          },
+        }
+      end
+
+      context "when save and return is disabled on the form" do
+        let(:form) do
+          build(:form_document, :with_support, form_id: 2, start_page: 1, steps:, available_languages:, save_and_return: "disabled")
+        end
+
+        let(:answers) do
+          { "1" => { "text" => "answer 1" } }
+        end
+
+        it "signs the user out" do
+          post form_sign_out_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
+          expect(response).to redirect_to omniauth_logout_path
+        end
+      end
+
+      context "when the user does not have saved answers for the form" do
+        it "signs the user out" do
+          post form_sign_out_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
+          expect(response).to redirect_to omniauth_logout_path
+        end
+      end
+
+      context "when the user already has saved answers for the form" do
+        before do
+          IncompleteSubmission.create!(
+            user_id: "user-sub-123",
+            form_id: form.form_id,
+            answers: { "1" => { "text" => "previous answer" } },
+            submission_uuid: SecureRandom.uuid,
+            mode:,
+            updated_at: Time.zone.local(2026, 5, 6, 12, 32),
+          )
+        end
+
+        before do
+          post form_sign_out_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
+        end
+
+        it "renders a page asking if they want to replace their saved answers" do
+          expect(response).to render_template :already_saved_sign_out
+        end
+
+        it "shows when the answers were last saved" do
+          expect(response.body).to include("You last saved this form at 12:32pm on 6 May 2026.")
+        end
+      end
+    end
+  end
+
+  describe "POST #save_progress_and_sign_out" do
+    before do
+      allow(SendProgressSavedEmailJob).to receive(:perform_later)
+    end
+
+    context "when the user is not signed in to GOV.UK One Login" do
+      it "responds 401 unauthorized" do
+        post save_progress_and_sign_out_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
+        expect(response).to have_http_status :unauthorized
+      end
+    end
+
+    context "when the user is signed in to GOV.UK One Login" do
+      let(:auth_session) do
+        {
+          auth: {
+            sub: "user-sub-123",
+            email: "test@example.com",
+            token: "a-token",
+            authenticated_at: Time.current.to_i,
+          },
+        }
+      end
+
+      context "when save and return is disabled on the form" do
+        let(:form) do
+          build(:form_document, :with_support, form_id: 2, start_page: 1, steps:, available_languages:, save_and_return: "disabled")
+        end
+
+        let(:answers) do
+          { "1" => { "text" => "answer 1" } }
+        end
+
+        it "signs the user out" do
+          post save_progress_and_sign_out_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
+          expect(response).to redirect_to omniauth_logout_path
+        end
+      end
+
+      context "when the user already has saved answers for the form" do
+        before do
+          IncompleteSubmission.create!(
+            user_id: "user-sub-123",
+            form_id: form.form_id,
+            answers: { "1" => { "text" => "previous answer" } },
+            submission_uuid: SecureRandom.uuid,
+            mode:,
+            updated_at: Time.zone.local(2026, 5, 6, 12, 32),
+          )
+        end
+
+        context "with invalid params" do
+          before do
+            post save_progress_and_sign_out_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
+          end
+
+          it "renders a page asking if they want to replace their saved answers" do
+            expect(response).to render_template :already_saved_sign_out
+            expect(response).to have_http_status :unprocessable_content
+            expect(response.body).to include("already_saved_sign_out_input")
+          end
+
+          it "shows when the answers were last saved" do
+            expect(response.body).to include("You last saved this form at 12:32pm on 6 May 2026.")
+          end
+        end
+
+        context "with valid params" do
+          let(:params) {
+            { already_saved_sign_out_input: { already_saved: already_saved_choice } }
+          }
+
+          before do
+            post save_progress_and_sign_out_path(mode:, form_id: form.form_id, form_slug: form.form_slug), params:
+          end
+
+          context "when the user chooses to overwrite the saved version" do
+            let(:already_saved_choice) { "overwrite" }
+
+            it "overwrites the saved answers after the user confirms" do
+              incomplete_submission = IncompleteSubmission.find_by(user_id: "user-sub-123", form_id: form.form_id)
+
+              expect(incomplete_submission.answers).to eq answers
+            end
+
+            it "redirects to a page with a sign out button" do
+              expect(response).to redirect_to progress_saved_path
+            end
+          end
+
+          context "when the user chooses to continue filling in the form" do
+            let(:already_saved_choice) { "keep_saved" }
+
+            it "does not overwrite the saved answers" do
+              incomplete_submission = IncompleteSubmission.find_by(user_id: "user-sub-123", form_id: form.form_id)
+
+              expect(incomplete_submission.answers).to eq("1" => { "text" => "previous answer" })
+            end
+
+            it "returns the user to the form" do
+              expect(response).to redirect_to(form_step_path(form.form_id, form.form_slug, CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG, mode:))
+            end
+          end
+
+          context "when the user chooses to sign out without saving" do
+            let(:already_saved_choice) { "sign_out_without_saving" }
+
+            it "does not overwrite the saved answers" do
+              incomplete_submission = IncompleteSubmission.find_by(user_id: "user-sub-123", form_id: form.form_id)
+
+              expect(incomplete_submission.answers).to eq("1" => { "text" => "previous answer" })
+            end
+
+            it "signs the user out" do
+              expect(response).to redirect_to omniauth_logout_path
+            end
+          end
+        end
+      end
+    end
+  end
 end
