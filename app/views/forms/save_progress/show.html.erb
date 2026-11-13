@@ -2,12 +2,12 @@
 
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
-    <%= govuk_notification_banner(success: true) do |banner| %>
-      <% banner.with_heading(text: t('.title')) %>
+    <h1 class="govuk-heading-l"><%= t('.title') %></h1>
+
+    <%= t('.body_html', email: @one_login_email, deletion_date: @deletion_date, form_url: form_url(@current_context.form.id, @current_context.form.form_slug)) %>
+
+    <% if @auth_service.logged_in? %>
+      <%= govuk_button_to(t('sign_out_of_govuk_one_login'), omniauth_logout_path, secondary: true) %>
     <% end %>
-
-      <%= t('.body_html', email: @one_login_email, deletion_date: @deletion_date, form_url: continue_saved_form_url(@current_context.form.id, @current_context.form.form_slug)) %>
-
-      <p class="govuk-body"><%= link_to t('.sign_out_link'), "#" %></p>
   </div>
 </div>

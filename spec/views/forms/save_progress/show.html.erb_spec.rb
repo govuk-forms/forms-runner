@@ -15,6 +15,7 @@ describe "forms/save_progress/show.html.erb" do
     assign(:mode, mode)
     assign(:one_login_email, one_login_email)
     assign(:deletion_date, deletion_date)
+    assign(:auth_service, instance_double(AuthService, logged_in?: true))
 
     allow(view).to receive(:continue_saved_form_url).with(form.id, form.form_slug).and_return(form_url)
     allow(view).to receive(:form_step_path).with(form.id, form.form_slug, next_step_slug).and_return(next_step_path)
@@ -42,8 +43,11 @@ describe "forms/save_progress/show.html.erb" do
     expect(rendered).to have_link(form_url, href: form_url)
   end
 
-  it "has a link to sign out of GOV.UK One Login" do
-    expect(rendered).to have_link(I18n.t("forms.save_progress.show.sign_out_link"))
+  it "has a button to sign out of GOV.UK One Login" do
+    expect(rendered).to have_button(I18n.t("sign_out_of_govuk_one_login")) do |button|
+      expect(button).to match_css ".govuk-button--secondary"
+      expect(button.ancestor("form")[:action]).to eq omniauth_logout_path
+    end
   end
 
   it "does not have a back link" do
