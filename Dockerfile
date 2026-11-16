@@ -40,9 +40,9 @@ ENV RAILS_ENV="${RAILS_ENV:-production}" \
 
 COPY --chown=ruby:ruby . .
 
-# you can't run rails commands like assets:precompile without a secret key set
-# even though the command doesn't use the value itself
-RUN SECRET_KEY_BASE=dummyvalue rails vite:build_all
+# rails commands like vite:build_all load the app, which won't boot without the settings it requires to run the
+# server, so set dummy values for those even though the command doesn't use them
+RUN SECRET_KEY_BASE=dummyvalue SETTINGS__INCOMPLETE_SUBMISSIONS__EMAIL_HMAC_KEY=dummyvalue rails vite:build_all
 
 # Remove devDependencies once assets have been built
 RUN npm ci --ignore-scripts --omit=dev

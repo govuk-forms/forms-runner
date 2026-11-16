@@ -29,7 +29,8 @@ locals {
     { name = "SETTINGS__FORMS_ADMIN__BASE_URL", value = "https://${local.admin_app_hostname}" },
     { name = "SETTINGS__FORMS_API__BASE_URL", value = "http://localhost:3000" },
     { name = "SETTINGS__FORMS_ENV", value = "review" },
-    { name = "SETTINGS__FEATURES__FILLER_ANSWER_EMAIL_ENABLED", value = "true" }
+    { name = "SETTINGS__FEATURES__FILLER_ANSWER_EMAIL_ENABLED", value = "true" },
+    { name = "SETTINGS__INCOMPLETE_SUBMISSIONS__EMAIL_HMAC_KEY", value = "unsecured_email_hmac_key" }
 
     ##
     # Settings for AWS SES email sending, and S3 CSV submission and file upload
