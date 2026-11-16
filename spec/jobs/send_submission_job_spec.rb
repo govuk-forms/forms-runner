@@ -109,6 +109,17 @@ RSpec.describe SendSubmissionJob, type: :job do
       end
     end
 
+    context "and the delivery does not exist because the transaction creating it has not been committed" do
+      it "retries 5 times then raises the error" do
+        described_class.perform_later(delivery)
+        delivery.destroy!
+
+        assert_performed_jobs 5 do
+          expect { perform_enqueued_jobs }.to raise_error(ActiveJob::DeserializationError)
+        end
+      end
+    end
+
     context "and the error is any other error" do
       before do
         allow(aws_ses_submission_service_spy).to receive(:submit).and_raise(StandardError, "Test error")

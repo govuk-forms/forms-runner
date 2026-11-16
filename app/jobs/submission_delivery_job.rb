@@ -1,6 +1,9 @@
 class SubmissionDeliveryJob < ApplicationJob
   queue_as :submissions
 
+  # Jobs are enqueued before the transaction creating the delivery commits
+  retry_on ActiveJob::DeserializationError, wait: :polynomially_longer, attempts: 5
+
 private
 
   def record_submission_sent!

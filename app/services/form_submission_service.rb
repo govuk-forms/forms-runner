@@ -32,16 +32,17 @@ class FormSubmissionService
     report_missing_submission_uuid if submission.submission_uuid.blank?
 
     begin
-      submission.save!
+      Submission.transaction(requires_new: true) do
+        submission.save!
+        enqueue_deliveries(submission)
+        delete_saved_progress
+      end
     rescue ActiveRecord::RecordNotUnique
       existing_submission = find_identical_submission(submission)
       raise if existing_submission.nil?
 
       return handle_duplicate_submission(existing_submission, submission)
     end
-
-    enqueue_deliveries(submission)
-    delete_saved_progress
 
     Metrics.record_submission(form_id: form.id, form_name: form.name, mode:)
 
@@ -84,16 +85,16 @@ private
     raise StandardError, "Form id(#{form.id}) has no completed steps i.e questions/answers to submit" if current_context.completed_steps.blank?
   end
 
-  def enqueue_deliveries(submission)
-    begin
-      delivery_configurations = Api::DeliveryConfigurationResource.from_form(form.id, draft: mode.preview_draft?).filter { |c| c.delivery_schedule == "immediate" }
+  def immediate_delivery_configurations
+    delivery_configurations = Api::DeliveryConfigurationResource.from_form(form.id, draft: mode.preview_draft?).filter { |c| c.delivery_schedule == "immediate" }
 
-      raise StandardError, "Form id(#{form.id}) has no immediate delivery configurations" if delivery_configurations.blank? && mode.live?
-    rescue StandardError => e
-      submission.destroy!
-      raise e
-    end
-    delivery_configurations.each { |c| enqueue_delivery(c, submission) }
+    raise StandardError, "Form id(#{form.id}) has no immediate delivery configurations" if delivery_configurations.blank? && mode.live?
+
+    delivery_configurations
+  end
+
+  def enqueue_deliveries(submission)
+    immediate_delivery_configurations.each { |c| enqueue_delivery(c, submission) }
   end
 
   def enqueue_delivery(delivery_configuration, submission)
@@ -168,10 +169,9 @@ private
 
       message_suffix = " Error: #{job.enqueue_error&.message}" if job.enqueue_error
 
-      # If the first or only delivery job fails to enqueue, delete the submission and raise an error so the user sees an
-      # error and can retry
+      # If the first or only delivery job fails to enqueue, raise an error to roll back the transaction that saved the
+      # submission, so the user sees an error and can retry
       if submission.deliveries.reload.one?
-        submission.destroy!
         raise StandardError, "Failed to enqueue delivery for method #{delivery.delivery_method} for submission with reference #{submission_reference}. The submission was deleted, so the user can retry.#{message_suffix}"
       else
         delivery.update!(

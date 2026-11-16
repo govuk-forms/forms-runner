@@ -164,6 +164,19 @@ RSpec.describe FormSubmissionService, :capture_logging do
           expect(IncompleteSubmission.exists?(saved_progress.id)).to be true
         end
       end
+
+      context "and deleting the saved progress fails" do
+        before do
+          allow(IncompleteSubmission).to receive(:find_by).and_raise(ActiveRecord::ConnectionFailed)
+        end
+
+        it "does not save the submission or its deliveries" do
+          expect { service.submit }
+            .to raise_error(ActiveRecord::ConnectionFailed)
+            .and(not_change(Submission, :count))
+            .and(not_change(Delivery, :count))
+        end
+      end
     end
 
     it "stores the submission uuid from the session on the submission" do
@@ -215,6 +228,19 @@ RSpec.describe FormSubmissionService, :capture_logging do
         service.submit
 
         expect(enqueued_jobs.map { |job| job["job_class"] }).to include("SendSubmissionJob")
+      end
+    end
+
+    context "when enqueuing a delivery raises an unexpected error" do
+      before do
+        allow(SendSubmissionJob).to receive(:perform_later).and_raise(StandardError, "Unexpected error")
+      end
+
+      it "does not save the submission or its deliveries" do
+        expect { service.submit }
+          .to raise_error(StandardError, "Unexpected error")
+          .and(not_change(Submission, :count))
+          .and(not_change(Delivery, :count))
       end
     end
 
@@ -378,7 +404,7 @@ RSpec.describe FormSubmissionService, :capture_logging do
             expect { service.submit }.to raise_error(StandardError)
           end
 
-          it "deletes the submission and raises the original error" do
+          it "does not save the submission and raises the original error" do
             expect { service.submit }
               .to not_change(Submission, :count)
                     .and not_change(Delivery, :count)
@@ -388,8 +414,6 @@ RSpec.describe FormSubmissionService, :capture_logging do
 
         context "when the job fails to enqueue" do
           let(:enqueue_error) { nil }
-
-          define_negated_matcher :not_change, :change
 
           before do
             allow(SendS3SubmissionJob).to receive(:perform_later).and_yield(instance_double(SendS3SubmissionJob, successfully_enqueued?: false, enqueue_error:))
@@ -485,8 +509,6 @@ RSpec.describe FormSubmissionService, :capture_logging do
 
         context "when the job fails to enqueue" do
           let(:enqueue_error) { nil }
-
-          define_negated_matcher :not_change, :change
 
           before do
             allow(SendSubmissionJob).to receive(:perform_later).and_yield(instance_double(SendSubmissionJob, successfully_enqueued?: false, enqueue_error:))
