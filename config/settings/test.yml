@@ -20,3 +20,6 @@ file_upload:
 
 govuk_one_login:
   domain: example.com/one-login-mock
+
+incomplete_submissions:
+  email_hmac_key: test_email_hmac_key

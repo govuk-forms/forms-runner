@@ -64,6 +64,36 @@ RSpec.describe IncompleteSubmission, type: :model do
     end
   end
 
+  describe ".hash_email" do
+    it "returns an HMAC-SHA256 of the email address using the key from settings" do
+      expected = OpenSSL::HMAC.hexdigest("SHA256", Settings.incomplete_submissions.email_hmac_key, "test@example.com")
+      expect(described_class.hash_email("test@example.com")).to eq expected
+    end
+
+    it "normalises the case and whitespace of the email address" do
+      expect(described_class.hash_email(" Test@Example.COM ")).to eq described_class.hash_email("test@example.com")
+    end
+
+    it "returns different hashes for different email addresses" do
+      expect(described_class.hash_email("a@example.com")).not_to eq described_class.hash_email("b@example.com")
+    end
+
+    it "returns a different hash when the key is different" do
+      original = described_class.hash_email("test@example.com")
+      allow(Settings.incomplete_submissions).to receive(:email_hmac_key).and_return("another-key")
+
+      expect(described_class.hash_email("test@example.com")).not_to eq original
+    end
+  end
+
+  describe "#email=" do
+    it "sets the email_hash rather than storing the email address" do
+      incomplete_submission.email = "test@example.com"
+
+      expect(incomplete_submission.email_hash).to eq described_class.hash_email("test@example.com")
+    end
+  end
+
   describe "database constraints" do
     it "rejects a duplicate submission_uuid" do
       described_class.create!(user_id: "user-1", form_id: 1, mode: "form", submission_uuid: "abc-123")
