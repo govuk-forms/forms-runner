@@ -146,17 +146,30 @@ RSpec.describe "submissions.rake", type: :task do
       context "with a form ID with bounced deliveries" do
         it "logs submissions that are being retried" do
           allow(Rails.logger).to receive(:info)
-          expect(Rails.logger).to receive(:info).with("Retrying submission with reference #{bounced_submission.reference} for form with ID: #{form_id}")
+          bounced_immediate_delivery = bounced_submission.deliveries.immediate.sole
+          expect(Rails.logger).to receive(:info).with("Retrying delivery with delivery_id: #{bounced_immediate_delivery.id} for submission with reference #{bounced_submission.reference} for form with ID: #{form_id}")
           expect(Rails.logger).to receive(:info).with("Retrying daily batch delivery with delivery_id: #{bounced_daily_delivery.id} for date: #{bounced_daily_delivery.batch_begin_at.to_date} for form with ID: #{form_id}")
           expect(Rails.logger).to receive(:info).with("Retrying weekly batch delivery with delivery_id: #{bounced_weekly_delivery.id} for week starting: #{bounced_weekly_delivery.batch_begin_at.to_date} for form with ID: #{form_id}")
 
           task.invoke(*valid_args)
         end
 
-        it "enqueues bounced submissions for retrying" do
+        it "enqueues bounced immediate deliveries for retrying" do
+          bounced_immediate_delivery = bounced_submission.deliveries.immediate.sole
+
           expect {
             task.invoke(*valid_args)
-          }.to have_enqueued_job.with(bounced_submission)
+          }.to have_enqueued_job(SendSubmissionJob).with(bounced_immediate_delivery)
+        end
+
+        context "when the failed immediate delivery is to S3" do
+          let!(:failed_s3_delivery) { create :delivery, :failed, delivery_method: "s3", submissions: [bounced_submission] }
+
+          it "enqueues an S3 submission job for retrying" do
+            expect {
+              task.invoke(*valid_args)
+            }.to have_enqueued_job(SendS3SubmissionJob).with(failed_s3_delivery)
+          end
         end
 
         it "enqueues bounced daily deliveries for retrying" do
@@ -168,7 +181,7 @@ RSpec.describe "submissions.rake", type: :task do
         it "does not enqueue pending submissions for retrying" do
           expect {
             task.invoke(*valid_args)
-          }.not_to have_enqueued_job.with(pending_submission)
+          }.not_to have_enqueued_job.with(pending_submission.deliveries.sole)
         end
       end
 
@@ -472,21 +485,39 @@ RSpec.describe "submissions.rake", type: :task do
     context "with valid arguments" do
       let(:valid_args) { [form_id, start_time, end_time, dry_run] }
 
-      it "enqueues matching submissions for re-delivery" do
+      it "enqueues the immediate deliveries of matching submissions for re-delivery" do
         expect {
           task.invoke(*valid_args)
-        }.to have_enqueued_job(SendSubmissionJob).with(early_matching_submission)
-                                                 .and have_enqueued_job(SendSubmissionJob).with(late_matching_submission)
+        }.to have_enqueued_job(SendSubmissionJob).with(early_matching_submission.deliveries.sole)
+                                                 .and have_enqueued_job(SendSubmissionJob).with(late_matching_submission.deliveries.sole)
       end
 
       it "does not enqueue non-matching submissions" do
         expect {
           task.invoke(*valid_args)
-        }.not_to have_enqueued_job(SendSubmissionJob).with(non_matching_submission_different_form)
+        }.not_to have_enqueued_job(SendSubmissionJob).with(non_matching_submission_different_form.deliveries.sole)
 
         expect {
           task.invoke(*valid_args)
-        }.not_to have_enqueued_job(SendSubmissionJob).with(non_matching_submission_different_time)
+        }.not_to have_enqueued_job(SendSubmissionJob).with(non_matching_submission_different_time.deliveries.sole)
+      end
+
+      context "when a matching submission has an S3 delivery" do
+        let!(:s3_delivery) { create :delivery, delivery_method: "s3", submissions: [early_matching_submission] }
+
+        it "does not enqueue a job for the S3 delivery" do
+          expect {
+            task.invoke(*valid_args)
+          }.not_to have_enqueued_job.with(s3_delivery)
+        end
+
+        it "still enqueues a job for the email delivery" do
+          email_delivery = early_matching_submission.deliveries.email.sole
+
+          expect {
+            task.invoke(*valid_args)
+          }.to have_enqueued_job(SendSubmissionJob).with(email_delivery)
+        end
       end
 
       context "when dry_run is true" do

@@ -123,10 +123,10 @@ namespace :submissions do
     Rails.logger.info "#{bounced_deliveries.length} deliveries to retry for form with ID: #{form_id}"
 
     bounced_deliveries.each do |delivery|
-      submission = delivery.submissions.first
       if delivery.immediate?
-        Rails.logger.info "Retrying submission with reference #{submission.reference} for form with ID: #{form_id}"
-        SendSubmissionJob.perform_later(submission)
+        submission = delivery.submissions.first
+        Rails.logger.info "Retrying delivery with delivery_id: #{delivery.id} for submission with reference #{submission.reference} for form with ID: #{form_id}"
+        immediate_delivery_job_class(delivery).perform_later(delivery)
       elsif delivery.daily?
         Rails.logger.info "Retrying daily batch delivery with delivery_id: #{delivery.id} for date: #{delivery.batch_begin_at.to_date} for form with ID: #{form_id}"
         SendSubmissionBatchJob.perform_later(delivery:)
@@ -242,8 +242,10 @@ namespace :submissions do
         if dry_run
           Rails.logger.info "Would re-deliver submission with reference #{submission.reference}"
         else
-          Rails.logger.info "Re-delivering submission with reference #{submission.reference}"
-          SendSubmissionJob.perform_later(submission)
+          Rails.logger.info "Re-delivering submission email for submission with reference #{submission.reference}"
+          submission.deliveries.immediate.email.each do |delivery|
+            SendSubmissionJob.perform_later(delivery)
+          end
         end
       end
     else
@@ -327,4 +329,8 @@ namespace :submissions do
       end
     end
   end
+end
+
+def immediate_delivery_job_class(delivery)
+  delivery.s3? ? SendS3SubmissionJob : SendSubmissionJob
 end
