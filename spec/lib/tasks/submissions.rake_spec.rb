@@ -89,9 +89,9 @@ RSpec.describe "submissions.rake", type: :task do
     end
   end
 
-  describe "submissions:list_bounced_submissions_for_form" do
+  describe "submissions:list_failed_submissions_for_form" do
     subject(:task) do
-      Rake::Task["submissions:list_bounced_submissions_for_form"]
+      Rake::Task["submissions:list_failed_submissions_for_form"]
     end
 
     let(:form_id) { 42 }
@@ -108,18 +108,18 @@ RSpec.describe "submissions.rake", type: :task do
     end
 
     it "logs the bounced submissions" do
-      expect(Rails.logger).to receive(:info).with("Found 4 bounced submission deliveries for form with ID #{form_id}")
-      expect(Rails.logger).to receive(:info).with "Immediate delivery - submission reference: #{bounced_submission.reference}, created_at: #{bounced_submission.created_at}, last_attempt_at: #{bounced_submission.deliveries.first.last_attempt_at}"
-      expect(Rails.logger).to receive(:info).with "Immediate delivery - submission reference: #{another_bounced_submission.reference}, created_at: #{another_bounced_submission.created_at}, last_attempt_at: #{another_bounced_submission.deliveries.first.last_attempt_at}"
+      expect(Rails.logger).to receive(:info).with("Found 4 failed submission deliveries for form with ID #{form_id}")
+      expect(Rails.logger).to receive(:info).with "Immediate delivery - delivery method: email, submission reference: #{bounced_submission.reference}, created_at: #{bounced_submission.created_at}, last_attempt_at: #{bounced_submission.deliveries.first.last_attempt_at}"
+      expect(Rails.logger).to receive(:info).with "Immediate delivery - delivery method: email, submission reference: #{another_bounced_submission.reference}, created_at: #{another_bounced_submission.created_at}, last_attempt_at: #{another_bounced_submission.deliveries.first.last_attempt_at}"
       expect(Rails.logger).to receive(:info).with "Daily batch delivery - delivery_reference: #{bounced_daily_delivery.delivery_reference}, created_at: #{bounced_daily_delivery.created_at}, last_attempt_at: #{bounced_daily_delivery.last_attempt_at}"
       expect(Rails.logger).to receive(:info).with "Weekly batch delivery - delivery_reference: #{bounced_weekly_delivery.delivery_reference}, created_at: #{bounced_weekly_delivery.created_at}, last_attempt_at: #{bounced_weekly_delivery.last_attempt_at}"
       task.invoke(form_id)
     end
   end
 
-  describe "submissions:retry_bounced_deliveries" do
+  describe "submissions:retry_failed_deliveries" do
     subject(:task) do
-      Rake::Task["submissions:retry_bounced_deliveries"]
+      Rake::Task["submissions:retry_failed_deliveries"]
     end
 
     let(:form_id) { 1 }
@@ -203,7 +203,7 @@ RSpec.describe "submissions.rake", type: :task do
         expect {
           task.invoke(*invalid_args)
         }.to raise_error(SystemExit)
-               .and output("usage: rake submissions:retry_bounced_deliveries[<form_id>]\n").to_stderr
+               .and output("usage: rake submissions:retry_failed_deliveries[<form_id>]\n").to_stderr
       end
     end
   end

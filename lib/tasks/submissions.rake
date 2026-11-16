@@ -5,18 +5,18 @@ namespace :submissions do
     Rails.logger.info "#{Delivery.failed.count} failed deliveries"
   end
 
-  desc "List all bounced submission deliveries for the given form ID"
-  task :list_bounced_submissions_for_form, %i[form_id] => :environment do |_t, args|
+  desc "List all failed submission deliveries for the given form ID"
+  task :list_failed_submissions_for_form, %i[form_id] => :environment do |_t, args|
     form_id = args[:form_id]
 
-    usage_message = "usage: rake submissions:list_bounced_submissions_for_form[<form_id>]".freeze
+    usage_message = "usage: rake submissions:list_failed_submissions_for_form[<form_id>]".freeze
     abort usage_message if form_id.blank?
 
     deliveries = Delivery.failed.joins(:submissions).where(submissions: { form_id: form_id }).distinct
-    Rails.logger.info "Found #{deliveries.length} bounced submission deliveries for form with ID #{form_id}"
+    Rails.logger.info "Found #{deliveries.length} failed submission deliveries for form with ID #{form_id}"
     deliveries.immediate.each do |delivery|
       submission = delivery.submissions.first
-      Rails.logger.info "Immediate delivery - submission reference: #{submission.reference}, created_at: #{submission.created_at}, last_attempt_at: #{delivery.last_attempt_at}"
+      Rails.logger.info "Immediate delivery - delivery method: #{delivery.delivery_method}, submission reference: #{submission.reference}, created_at: #{submission.created_at}, last_attempt_at: #{delivery.last_attempt_at}"
     end
     deliveries.daily.each do |delivery|
       Rails.logger.info "Daily batch delivery - delivery_reference: #{delivery.delivery_reference}, created_at: #{delivery.created_at}, last_attempt_at: #{delivery.last_attempt_at}"
@@ -111,18 +111,18 @@ namespace :submissions do
     end
   end
 
-  desc "Retry bounced deliveries"
-  task :retry_bounced_deliveries, %i[form_id] => :environment do |_, args|
+  desc "Retry failed deliveries"
+  task :retry_failed_deliveries, %i[form_id] => :environment do |_, args|
     form_id = args[:form_id]
 
-    usage_message = "usage: rake submissions:retry_bounced_deliveries[<form_id>]".freeze
+    usage_message = "usage: rake submissions:retry_failed_deliveries[<form_id>]".freeze
     abort usage_message if form_id.blank?
 
-    bounced_deliveries = Delivery.failed.joins(:submissions).where(submissions: { form_id: form_id }).distinct
+    failed_deliveries = Delivery.failed.joins(:submissions).where(submissions: { form_id: form_id }).distinct
 
-    Rails.logger.info "#{bounced_deliveries.length} deliveries to retry for form with ID: #{form_id}"
+    Rails.logger.info "#{failed_deliveries.length} deliveries to retry for form with ID: #{form_id}"
 
-    bounced_deliveries.each do |delivery|
+    failed_deliveries.each do |delivery|
       if delivery.immediate?
         submission = delivery.submissions.first
         Rails.logger.info "Retrying delivery with delivery_id: #{delivery.id} for submission with reference #{submission.reference} for form with ID: #{form_id}"
