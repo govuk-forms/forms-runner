@@ -14,6 +14,7 @@ module Flow
     delegate :clear_stored_answer, :clear, :form_submitted?, :load_answers, :add_locale, :starting_new_form?, :answers, to: :answer_store
     delegate :generate_submission_reference,
              :get_submission_reference,
+             :set_submission_reference,
              :generate_submission_uuid,
              :get_submission_uuid,
              :set_submission_uuid,

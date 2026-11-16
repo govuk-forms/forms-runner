@@ -171,34 +171,90 @@ RSpec.describe FormSubmissionService, :capture_logging do
       expect(Submission.last.submission_uuid).to eq submission_uuid
     end
 
-    context "when the submission_uuid is already in use by another submission" do
-      let(:new_submission_uuid) { SecureRandom.uuid }
+    context "when a submission with the same submission_uuid already exists" do
+      let(:existing_reference) { "EXISTING" }
+      let(:existing_answers) { answers }
+      let(:existing_form_id) { form.id }
+      let(:existing_mode) { mode.to_s }
+      let!(:existing_submission) do
+        create(:submission, submission_uuid:, reference: existing_reference, form_id: existing_form_id,
+                            mode: existing_mode, answers: existing_answers)
+      end
 
       before do
-        create(:submission, submission_uuid:)
-        allow(current_context).to receive(:generate_submission_uuid) do
-          allow(current_context).to receive(:get_submission_uuid).and_return(new_submission_uuid)
-          new_submission_uuid
+        allow(current_context).to receive(:set_submission_reference)
+      end
+
+      context "and it has the same answers" do
+        it "does not create another submission" do
+          expect { service.submit }.not_to change(Submission, :count)
+        end
+
+        it "does not enqueue any jobs" do
+          service.submit
+
+          expect(enqueued_jobs).to be_empty
+        end
+
+        it "does not record a submission metric" do
+          allow(Metrics).to receive(:record_submission)
+
+          service.submit
+
+          expect(Metrics).not_to have_received(:record_submission)
+        end
+
+        it "stores the reference of the existing submission in the context" do
+          service.submit
+
+          expect(current_context).to have_received(:set_submission_reference).with(existing_reference)
+        end
+
+        it "logs that the duplicate submission was ignored" do
+          service.submit
+
+          expect(log_lines).to include(
+            hash_including(
+              "message" => "Ignored duplicate submission request because a submission with the same submission_uuid and answers already exists",
+              "duplicate_submission_reference" => reference,
+            ),
+          )
+        end
+
+        it "sets the existing submission reference in the logging context" do
+          service.submit
+
+          expect(CurrentRequestLoggingAttributes.submission_reference).to eq existing_reference
+        end
+
+        it "does not change the existing submission" do
+          expect { service.submit }.not_to(change { existing_submission.reload.attributes })
         end
       end
 
-      it "regenerates the submission_uuid and creates the submission with it" do
-        expect { service.submit }.to change(Submission, :count).by(1)
+      context "and it has different answers" do
+        let(:existing_answers) { { "1" => { selection: "Option 2" } } }
 
-        expect(current_context).to have_received(:generate_submission_uuid).once
-        expect(Submission.last.submission_uuid).to eq new_submission_uuid
+        it "raises the error" do
+          expect { service.submit }.to raise_error(ActiveRecord::RecordNotUnique)
+          expect(current_context).not_to have_received(:set_submission_reference)
+        end
       end
 
-      it "logs that the submission_uuid was regenerated" do
-        service.submit
+      context "and it is for a different form" do
+        let(:existing_form_id) { 2 }
 
-        expect(log_lines).to include(
-          hash_including(
-            "level" => "WARN",
-            "message" => "Regenerated submission_uuid because it was already in use for another submission",
-            "previous_submission_uuid" => submission_uuid,
-          ),
-        )
+        it "raises the error" do
+          expect { service.submit }.to raise_error(ActiveRecord::RecordNotUnique)
+        end
+      end
+
+      context "and it is for a different mode" do
+        let(:existing_mode) { "preview-draft" }
+
+        it "raises the error" do
+          expect { service.submit }.to raise_error(ActiveRecord::RecordNotUnique)
+        end
       end
     end
 
