@@ -89,9 +89,9 @@ RSpec.describe "submissions.rake", type: :task do
     end
   end
 
-  describe "submissions:list_bounced_submissions_for_form" do
+  describe "submissions:list_failed_submissions_for_form" do
     subject(:task) do
-      Rake::Task["submissions:list_bounced_submissions_for_form"]
+      Rake::Task["submissions:list_failed_submissions_for_form"]
     end
 
     let(:form_id) { 42 }
@@ -108,18 +108,18 @@ RSpec.describe "submissions.rake", type: :task do
     end
 
     it "logs the bounced submissions" do
-      expect(Rails.logger).to receive(:info).with("Found 4 bounced submission deliveries for form with ID #{form_id}")
-      expect(Rails.logger).to receive(:info).with "Immediate delivery - submission reference: #{bounced_submission.reference}, created_at: #{bounced_submission.created_at}, last_attempt_at: #{bounced_submission.deliveries.first.last_attempt_at}"
-      expect(Rails.logger).to receive(:info).with "Immediate delivery - submission reference: #{another_bounced_submission.reference}, created_at: #{another_bounced_submission.created_at}, last_attempt_at: #{another_bounced_submission.deliveries.first.last_attempt_at}"
+      expect(Rails.logger).to receive(:info).with("Found 4 failed submission deliveries for form with ID #{form_id}")
+      expect(Rails.logger).to receive(:info).with "Immediate delivery - delivery method: email, submission reference: #{bounced_submission.reference}, created_at: #{bounced_submission.created_at}, last_attempt_at: #{bounced_submission.deliveries.first.last_attempt_at}"
+      expect(Rails.logger).to receive(:info).with "Immediate delivery - delivery method: email, submission reference: #{another_bounced_submission.reference}, created_at: #{another_bounced_submission.created_at}, last_attempt_at: #{another_bounced_submission.deliveries.first.last_attempt_at}"
       expect(Rails.logger).to receive(:info).with "Daily batch delivery - delivery_reference: #{bounced_daily_delivery.delivery_reference}, created_at: #{bounced_daily_delivery.created_at}, last_attempt_at: #{bounced_daily_delivery.last_attempt_at}"
       expect(Rails.logger).to receive(:info).with "Weekly batch delivery - delivery_reference: #{bounced_weekly_delivery.delivery_reference}, created_at: #{bounced_weekly_delivery.created_at}, last_attempt_at: #{bounced_weekly_delivery.last_attempt_at}"
       task.invoke(form_id)
     end
   end
 
-  describe "submissions:retry_bounced_deliveries" do
+  describe "submissions:retry_failed_deliveries" do
     subject(:task) do
-      Rake::Task["submissions:retry_bounced_deliveries"]
+      Rake::Task["submissions:retry_failed_deliveries"]
     end
 
     let(:form_id) { 1 }
@@ -146,17 +146,30 @@ RSpec.describe "submissions.rake", type: :task do
       context "with a form ID with bounced deliveries" do
         it "logs submissions that are being retried" do
           allow(Rails.logger).to receive(:info)
-          expect(Rails.logger).to receive(:info).with("Retrying submission with reference #{bounced_submission.reference} for form with ID: #{form_id}")
+          bounced_immediate_delivery = bounced_submission.deliveries.immediate.sole
+          expect(Rails.logger).to receive(:info).with("Retrying delivery with delivery_id: #{bounced_immediate_delivery.id} for submission with reference #{bounced_submission.reference} for form with ID: #{form_id}")
           expect(Rails.logger).to receive(:info).with("Retrying daily batch delivery with delivery_id: #{bounced_daily_delivery.id} for date: #{bounced_daily_delivery.batch_begin_at.to_date} for form with ID: #{form_id}")
           expect(Rails.logger).to receive(:info).with("Retrying weekly batch delivery with delivery_id: #{bounced_weekly_delivery.id} for week starting: #{bounced_weekly_delivery.batch_begin_at.to_date} for form with ID: #{form_id}")
 
           task.invoke(*valid_args)
         end
 
-        it "enqueues bounced submissions for retrying" do
+        it "enqueues bounced immediate deliveries for retrying" do
+          bounced_immediate_delivery = bounced_submission.deliveries.immediate.sole
+
           expect {
             task.invoke(*valid_args)
-          }.to have_enqueued_job.with(bounced_submission)
+          }.to have_enqueued_job(SendSubmissionJob).with(bounced_immediate_delivery)
+        end
+
+        context "when the failed immediate delivery is to S3" do
+          let!(:failed_s3_delivery) { create :delivery, :failed, delivery_method: "s3", submissions: [bounced_submission] }
+
+          it "enqueues an S3 submission job for retrying" do
+            expect {
+              task.invoke(*valid_args)
+            }.to have_enqueued_job(SendS3SubmissionJob).with(failed_s3_delivery)
+          end
         end
 
         it "enqueues bounced daily deliveries for retrying" do
@@ -168,7 +181,7 @@ RSpec.describe "submissions.rake", type: :task do
         it "does not enqueue pending submissions for retrying" do
           expect {
             task.invoke(*valid_args)
-          }.not_to have_enqueued_job.with(pending_submission)
+          }.not_to have_enqueued_job.with(pending_submission.deliveries.sole)
         end
       end
 
@@ -190,7 +203,7 @@ RSpec.describe "submissions.rake", type: :task do
         expect {
           task.invoke(*invalid_args)
         }.to raise_error(SystemExit)
-               .and output("usage: rake submissions:retry_bounced_deliveries[<form_id>]\n").to_stderr
+               .and output("usage: rake submissions:retry_failed_deliveries[<form_id>]\n").to_stderr
       end
     end
   end
@@ -472,21 +485,39 @@ RSpec.describe "submissions.rake", type: :task do
     context "with valid arguments" do
       let(:valid_args) { [form_id, start_time, end_time, dry_run] }
 
-      it "enqueues matching submissions for re-delivery" do
+      it "enqueues the immediate deliveries of matching submissions for re-delivery" do
         expect {
           task.invoke(*valid_args)
-        }.to have_enqueued_job(SendSubmissionJob).with(early_matching_submission)
-                                                 .and have_enqueued_job(SendSubmissionJob).with(late_matching_submission)
+        }.to have_enqueued_job(SendSubmissionJob).with(early_matching_submission.deliveries.sole)
+                                                 .and have_enqueued_job(SendSubmissionJob).with(late_matching_submission.deliveries.sole)
       end
 
       it "does not enqueue non-matching submissions" do
         expect {
           task.invoke(*valid_args)
-        }.not_to have_enqueued_job(SendSubmissionJob).with(non_matching_submission_different_form)
+        }.not_to have_enqueued_job(SendSubmissionJob).with(non_matching_submission_different_form.deliveries.sole)
 
         expect {
           task.invoke(*valid_args)
-        }.not_to have_enqueued_job(SendSubmissionJob).with(non_matching_submission_different_time)
+        }.not_to have_enqueued_job(SendSubmissionJob).with(non_matching_submission_different_time.deliveries.sole)
+      end
+
+      context "when a matching submission has an S3 delivery" do
+        let!(:s3_delivery) { create :delivery, delivery_method: "s3", submissions: [early_matching_submission] }
+
+        it "does not enqueue a job for the S3 delivery" do
+          expect {
+            task.invoke(*valid_args)
+          }.not_to have_enqueued_job.with(s3_delivery)
+        end
+
+        it "still enqueues a job for the email delivery" do
+          email_delivery = early_matching_submission.deliveries.email.sole
+
+          expect {
+            task.invoke(*valid_args)
+          }.to have_enqueued_job(SendSubmissionJob).with(email_delivery)
+        end
       end
 
       context "when dry_run is true" do
