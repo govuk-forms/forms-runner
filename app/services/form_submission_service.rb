@@ -29,6 +29,8 @@ class FormSubmissionService
     current_context.journey.completed_file_upload_questions.each(&:extend_life)
 
     submission = build_submission
+    report_missing_submission_uuid if submission.submission_uuid.blank?
+
     begin
       submission.save!
     rescue ActiveRecord::RecordNotUnique
@@ -129,6 +131,14 @@ private
       submission_locale: current_context.submission_locale,
       created_at: timestamp,
     )
+  end
+
+  # We still save the submission so the user isn't affected. Once we're confident this never happens we can require
+  # a submission_uuid instead.
+  def report_missing_submission_uuid
+    message = "Attempted to save a submission without a submission_uuid"
+    Sentry.capture_message(message, extra: { submission_reference: })
+    Rails.logger.error(message)
   end
 
   def find_identical_submission(submission)

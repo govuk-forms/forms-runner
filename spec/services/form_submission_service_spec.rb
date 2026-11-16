@@ -171,6 +171,53 @@ RSpec.describe FormSubmissionService, :capture_logging do
       expect(Submission.last.submission_uuid).to eq submission_uuid
     end
 
+    it "does not send an event to Sentry" do
+      allow(Sentry).to receive(:capture_message)
+
+      service.submit
+
+      expect(Sentry).not_to have_received(:capture_message).with("Attempted to save a submission without a submission_uuid", anything)
+    end
+
+    context "when there is no submission_uuid in the session" do
+      let(:submission_uuid) { nil }
+
+      before do
+        allow(Sentry).to receive(:capture_message)
+      end
+
+      it "sends an error to Sentry including the submission reference" do
+        service.submit
+
+        expect(Sentry).to have_received(:capture_message).with("Attempted to save a submission without a submission_uuid", extra: {
+          submission_reference: reference,
+        })
+      end
+
+      it "logs an error" do
+        service.submit
+
+        expect(log_lines).to include(
+          hash_including(
+            "level" => "ERROR",
+            "message" => "Attempted to save a submission without a submission_uuid",
+          ),
+        )
+      end
+
+      it "still creates the submission" do
+        expect { service.submit }.to change(Submission, :count).by(1)
+
+        expect(Submission.last.submission_uuid).to be_nil
+      end
+
+      it "still enqueues the delivery" do
+        service.submit
+
+        expect(enqueued_jobs.map { |job| job["job_class"] }).to include("SendSubmissionJob")
+      end
+    end
+
     context "when a submission with the same submission_uuid already exists" do
       let(:existing_reference) { "EXISTING" }
       let(:existing_answers) { answers }
