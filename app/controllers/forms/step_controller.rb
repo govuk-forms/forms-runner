@@ -137,6 +137,15 @@ module Forms
     end
 
     def clear_answer_for_save_and_exit(page_params)
+      if @step.repeatable?
+        return if @step.answer_index > @step.questions.length
+
+        if @step.questions.length > 1
+          @step.remove_answer(@step.answer_index)
+          return current_context.save_step(@step)
+        end
+      end
+
       if @step.question.is_optional? && @step.question.answered?
         @step.assign_question_attributes(page_params)
         current_context.save_step(@step, locale:)

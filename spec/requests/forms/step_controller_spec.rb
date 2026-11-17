@@ -1233,13 +1233,14 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
       end
 
       context "when an existing answer is cleared" do
+        let(:first_question_saved_answer) { { "text" => "old answer" } }
         let(:second_question_saved_answer) { { "text" => "second answer" } }
 
         let(:store) do
           {
             answers: {
               form_data.form_id.to_s => {
-                first_step_id.to_s => { "text" => "old answer" },
+                first_step_id.to_s => first_question_saved_answer,
                 second_step_in_form.id.to_s => second_question_saved_answer,
               },
             },
@@ -1293,6 +1294,62 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
 
           it "does not change answers to other questions" do
             expect(store[:answers][form_data.form_id.to_s][second_step_in_form.id.to_s]).to eq(second_question_saved_answer)
+          end
+        end
+
+        context "when the question is repeatable" do
+          let(:first_step_in_form) do
+            build :question_step, :with_text_settings, :with_repeatable, id: first_step_id, next_step_id: 2, is_optional: false
+          end
+
+          let(:first_question_saved_answer) { [{ "text" => "first" }, { "text" => "second" }] }
+
+          context "when one of the answers is cleared" do
+            before do
+              post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id, answer_index: 1), params: { question: { text: "" }, save_and_exit: "true" }
+            end
+
+            it "removes only the cleared answer" do
+              expect(store[:answers][form_data.form_id.to_s][first_step_id.to_s]).to eq([{ "text" => "second" }])
+            end
+          end
+
+          context "when a new answer is left blank" do
+            before do
+              post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id, answer_index: 3), params: { question: { text: "" }, save_and_exit: "true" }
+            end
+
+            it "keeps the existing answers" do
+              expect(store[:answers][form_data.form_id.to_s][first_step_id.to_s]).to eq(first_question_saved_answer)
+            end
+          end
+
+          context "when the only answer is cleared" do
+            let(:first_question_saved_answer) { [{ "text" => "first" }] }
+
+            before do
+              post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id, answer_index: 1), params: { question: { text: "" }, save_and_exit: "true" }
+            end
+
+            it "removes the stored answer" do
+              expect(store[:answers][form_data.form_id.to_s]).not_to have_key(first_step_id.to_s)
+            end
+          end
+
+          context "when the only answer to an optional question is cleared" do
+            let(:first_step_in_form) do
+              build :question_step, :with_text_settings, :with_repeatable, id: first_step_id, next_step_id: 2, is_optional: true
+            end
+
+            let(:first_question_saved_answer) { [{ "text" => "first" }] }
+
+            before do
+              post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id, answer_index: 1), params: { question: { text: "" }, save_and_exit: "true" }
+            end
+
+            it "saves a blank answer" do
+              expect(store[:answers][form_data.form_id.to_s][first_step_id.to_s]).to eq([{ "text" => "" }])
+            end
           end
         end
       end
