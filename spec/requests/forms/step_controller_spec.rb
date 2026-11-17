@@ -1186,6 +1186,85 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
         end
       end
 
+      context "when no answer is given to an optional question that has not been answered before" do
+        let(:first_step_in_form) do
+          build :question_step, :with_text_settings, id: first_step_id, next_step_id: 2, is_optional: true
+        end
+
+        before do
+          post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { text: "" }, save_and_exit: "true" }
+        end
+
+        it "does not save an answer" do
+          expect(session[:answers]&.dig("2", "1")).to be_nil
+        end
+      end
+
+      context "when an existing answer is cleared" do
+        let(:second_question_saved_answer) { { "text" => "second answer" } }
+
+        let(:store) do
+          {
+            answers: {
+              form_data.form_id.to_s => {
+                first_step_id.to_s => { "text" => "old answer" },
+                second_step_in_form.id.to_s => second_question_saved_answer,
+              },
+            },
+          }
+        end
+
+        before do
+          allow(Flow::Context).to receive(:new).and_wrap_original do |original_method, *args|
+            original_method.call(form: args[0][:form], form_document: args[0][:form_document], store:)
+          end
+        end
+
+        context "when the question is optional" do
+          let(:first_step_in_form) do
+            build :question_step, :with_text_settings, id: first_step_id, next_step_id: 2, is_optional: true
+          end
+
+          before do
+            post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { text: "" }, save_and_exit: "true" }
+          end
+
+          it "redirects to the save progress page" do
+            expect(response).to redirect_to(save_progress_path(2, form_data.form_slug, mode:))
+          end
+
+          it "saves a blank answer" do
+            expect(store[:answers][form_data.form_id.to_s][first_step_id.to_s]).to eq({ "text" => "" })
+          end
+
+          it "does not change answers to other questions" do
+            expect(store[:answers][form_data.form_id.to_s][second_step_in_form.id.to_s]).to eq(second_question_saved_answer)
+          end
+        end
+
+        context "when the question is required" do
+          let(:first_step_in_form) do
+            build :question_step, :with_text_settings, id: first_step_id, next_step_id: 2, is_optional: false
+          end
+
+          before do
+            post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { text: "" }, save_and_exit: "true" }
+          end
+
+          it "redirects to the save progress page" do
+            expect(response).to redirect_to(save_progress_path(2, form_data.form_slug, mode:))
+          end
+
+          it "removes the existing answer" do
+            expect(store[:answers][form_data.form_id.to_s]).not_to have_key(first_step_id.to_s)
+          end
+
+          it "does not change answers to other questions" do
+            expect(store[:answers][form_data.form_id.to_s][second_step_in_form.id.to_s]).to eq(second_question_saved_answer)
+          end
+        end
+      end
+
       context "when the answer is invalid" do
         let(:first_step_in_form) do
           build :question_step, id: first_step_id, next_step_id: 2, answer_type: "email", is_optional: false

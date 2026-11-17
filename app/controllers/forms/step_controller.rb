@@ -97,7 +97,10 @@ module Forms
 
     def perform_save
       page_params = params.fetch(:question, {}).permit(*@step.params)
-      return redirect_to save_progress_path(@form.id, @form.form_slug) if save_and_exit? && no_answer_given?(page_params)
+      if save_and_exit? && no_answer_given?(page_params)
+        clear_answer_for_save_and_exit(page_params)
+        return redirect_to save_progress_path(@form.id, @form.form_slug)
+      end
 
       @step.assign_question_attributes(page_params)
 
@@ -130,6 +133,15 @@ module Forms
 
     def no_answer_given?(page_params)
       page_params.to_h.values.flatten.all?(&:blank?)
+    end
+
+    def clear_answer_for_save_and_exit(page_params)
+      if @step.question.is_optional? && @step.question.answered?
+        @step.assign_question_attributes(page_params)
+        current_context.save_step(@step, locale:)
+      else
+        current_context.clear_stored_answer(@step)
+      end
     end
 
     def redirect_post_save
