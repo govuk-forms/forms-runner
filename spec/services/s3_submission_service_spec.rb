@@ -40,7 +40,6 @@ RSpec.describe S3SubmissionService do
     let(:mock_credentials) { { foo: "bar" } }
     let(:mock_sts_client) { Aws::STS::Client.new(stub_responses: true) }
     let(:mock_s3_client) { Aws::S3::Client.new(stub_responses: true) }
-    let(:mock_file_upload_s3_service) { instance_double(Question::FileUploadS3Service) }
     let(:role_arn) { "arn:aws:iam::11111111111:role/test-role" }
 
     context "when the form is configured correctly with S3 bucket details" do
@@ -48,8 +47,6 @@ RSpec.describe S3SubmissionService do
         allow(Aws::AssumeRoleCredentials).to receive(:new).and_return(mock_credentials)
         allow(Aws::STS::Client).to receive(:new).and_return(mock_sts_client)
         allow(Aws::S3::Client).to receive(:new).and_return(mock_s3_client)
-        allow(Question::FileUploadS3Service).to receive(:new).and_return(mock_file_upload_s3_service)
-        allow(mock_file_upload_s3_service).to receive(:delete_from_s3)
         allow(Settings.aws).to receive_messages(s3_submission_iam_role_arn: role_arn, file_upload_s3_bucket_name: file_upload_bucket)
         allow(CloudWatchService).to receive(:record_submission_delivery_latency_metric)
       end
@@ -198,10 +195,8 @@ RSpec.describe S3SubmissionService do
           service.submit
         end
 
-        it "deletes the file objects from the file upload S3 bucket" do
-          expect(mock_file_upload_s3_service).to receive(:delete_from_s3).with(first_file_upload_question.uploaded_file_key)
-          expect(mock_file_upload_s3_service).to receive(:delete_from_s3).with(second_file_upload_question.uploaded_file_key)
-
+        it "retains the file objects in the file upload S3 bucket" do
+          expect(mock_s3_client).not_to receive(:delete_object)
           service.submit
         end
       end
