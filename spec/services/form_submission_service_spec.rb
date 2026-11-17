@@ -164,6 +164,19 @@ RSpec.describe FormSubmissionService, :capture_logging do
           expect(IncompleteSubmission.exists?(saved_progress.id)).to be true
         end
       end
+
+      context "and deleting the saved progress fails" do
+        before do
+          allow(IncompleteSubmission).to receive(:find_by).and_raise(ActiveRecord::ConnectionFailed)
+        end
+
+        it "does not save the submission or its deliveries" do
+          expect { service.submit }
+            .to raise_error(ActiveRecord::ConnectionFailed)
+            .and(not_change(Submission, :count))
+            .and(not_change(Delivery, :count))
+        end
+      end
     end
 
     it "stores the submission uuid from the session on the submission" do
@@ -171,34 +184,150 @@ RSpec.describe FormSubmissionService, :capture_logging do
       expect(Submission.last.submission_uuid).to eq submission_uuid
     end
 
-    context "when the submission_uuid is already in use by another submission" do
-      let(:new_submission_uuid) { SecureRandom.uuid }
+    it "does not send an event to Sentry" do
+      allow(Sentry).to receive(:capture_message)
+
+      service.submit
+
+      expect(Sentry).not_to have_received(:capture_message).with("Attempted to save a submission without a submission_uuid", anything)
+    end
+
+    context "when there is no submission_uuid in the session" do
+      let(:submission_uuid) { nil }
 
       before do
-        create(:submission, submission_uuid:)
-        allow(current_context).to receive(:generate_submission_uuid) do
-          allow(current_context).to receive(:get_submission_uuid).and_return(new_submission_uuid)
-          new_submission_uuid
-        end
+        allow(Sentry).to receive(:capture_message)
       end
 
-      it "regenerates the submission_uuid and creates the submission with it" do
-        expect { service.submit }.to change(Submission, :count).by(1)
+      it "sends an error to Sentry including the submission reference" do
+        service.submit
 
-        expect(current_context).to have_received(:generate_submission_uuid).once
-        expect(Submission.last.submission_uuid).to eq new_submission_uuid
+        expect(Sentry).to have_received(:capture_message).with("Attempted to save a submission without a submission_uuid", extra: {
+          submission_reference: reference,
+        })
       end
 
-      it "logs that the submission_uuid was regenerated" do
+      it "logs an error" do
         service.submit
 
         expect(log_lines).to include(
           hash_including(
-            "level" => "WARN",
-            "message" => "Regenerated submission_uuid because it was already in use for another submission",
-            "previous_submission_uuid" => submission_uuid,
+            "level" => "ERROR",
+            "message" => "Attempted to save a submission without a submission_uuid",
           ),
         )
+      end
+
+      it "still creates the submission" do
+        expect { service.submit }.to change(Submission, :count).by(1)
+
+        expect(Submission.last.submission_uuid).to be_nil
+      end
+
+      it "still enqueues the delivery" do
+        service.submit
+
+        expect(enqueued_jobs.map { |job| job["job_class"] }).to include("SendSubmissionJob")
+      end
+    end
+
+    context "when enqueuing a delivery raises an unexpected error" do
+      before do
+        allow(SendSubmissionJob).to receive(:perform_later).and_raise(StandardError, "Unexpected error")
+      end
+
+      it "does not save the submission or its deliveries" do
+        expect { service.submit }
+          .to raise_error(StandardError, "Unexpected error")
+          .and(not_change(Submission, :count))
+          .and(not_change(Delivery, :count))
+      end
+    end
+
+    context "when a submission with the same submission_uuid already exists" do
+      let(:existing_reference) { "EXISTING" }
+      let(:existing_answers) { answers }
+      let(:existing_form_id) { form.id }
+      let(:existing_mode) { mode.to_s }
+      let!(:existing_submission) do
+        create(:submission, submission_uuid:, reference: existing_reference, form_id: existing_form_id,
+                            mode: existing_mode, answers: existing_answers)
+      end
+
+      before do
+        allow(current_context).to receive(:set_submission_reference)
+      end
+
+      context "and it has the same answers" do
+        it "does not create another submission" do
+          expect { service.submit }.not_to change(Submission, :count)
+        end
+
+        it "does not enqueue any jobs" do
+          service.submit
+
+          expect(enqueued_jobs).to be_empty
+        end
+
+        it "does not record a submission metric" do
+          allow(Metrics).to receive(:record_submission)
+
+          service.submit
+
+          expect(Metrics).not_to have_received(:record_submission)
+        end
+
+        it "stores the reference of the existing submission in the context" do
+          service.submit
+
+          expect(current_context).to have_received(:set_submission_reference).with(existing_reference)
+        end
+
+        it "logs that the duplicate submission was ignored" do
+          service.submit
+
+          expect(log_lines).to include(
+            hash_including(
+              "message" => "Ignored duplicate submission request because a submission with the same submission_uuid and answers already exists",
+              "duplicate_submission_reference" => reference,
+            ),
+          )
+        end
+
+        it "sets the existing submission reference in the logging context" do
+          service.submit
+
+          expect(CurrentRequestLoggingAttributes.submission_reference).to eq existing_reference
+        end
+
+        it "does not change the existing submission" do
+          expect { service.submit }.not_to(change { existing_submission.reload.attributes })
+        end
+      end
+
+      context "and it has different answers" do
+        let(:existing_answers) { { "1" => { selection: "Option 2" } } }
+
+        it "raises the error" do
+          expect { service.submit }.to raise_error(ActiveRecord::RecordNotUnique)
+          expect(current_context).not_to have_received(:set_submission_reference)
+        end
+      end
+
+      context "and it is for a different form" do
+        let(:existing_form_id) { 2 }
+
+        it "raises the error" do
+          expect { service.submit }.to raise_error(ActiveRecord::RecordNotUnique)
+        end
+      end
+
+      context "and it is for a different mode" do
+        let(:existing_mode) { "preview-draft" }
+
+        it "raises the error" do
+          expect { service.submit }.to raise_error(ActiveRecord::RecordNotUnique)
+        end
       end
     end
 
@@ -275,7 +404,7 @@ RSpec.describe FormSubmissionService, :capture_logging do
             expect { service.submit }.to raise_error(StandardError)
           end
 
-          it "deletes the submission and raises the original error" do
+          it "does not save the submission and raises the original error" do
             expect { service.submit }
               .to not_change(Submission, :count)
                     .and not_change(Delivery, :count)
@@ -285,8 +414,6 @@ RSpec.describe FormSubmissionService, :capture_logging do
 
         context "when the job fails to enqueue" do
           let(:enqueue_error) { nil }
-
-          define_negated_matcher :not_change, :change
 
           before do
             allow(SendS3SubmissionJob).to receive(:perform_later).and_yield(instance_double(SendS3SubmissionJob, successfully_enqueued?: false, enqueue_error:))
@@ -382,8 +509,6 @@ RSpec.describe FormSubmissionService, :capture_logging do
 
         context "when the job fails to enqueue" do
           let(:enqueue_error) { nil }
-
-          define_negated_matcher :not_change, :change
 
           before do
             allow(SendSubmissionJob).to receive(:perform_later).and_yield(instance_double(SendSubmissionJob, successfully_enqueued?: false, enqueue_error:))

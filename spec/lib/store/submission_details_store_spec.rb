@@ -33,6 +33,38 @@ RSpec.describe Store::SubmissionDetailsStore do
     end
   end
 
+  describe "#set_submission_reference" do
+    it "replaces the stored submission reference" do
+      submission_details_store.generate_submission_reference
+
+      submission_details_store.set_submission_reference("EXISTING")
+
+      expect(submission_details_store.get_submission_reference).to eq("EXISTING")
+    end
+
+    it "stores the submission reference when there are no submission details for the form" do
+      submission_details_store.set_submission_reference("EXISTING")
+
+      expect(submission_details_store.get_submission_reference).to eq("EXISTING")
+    end
+
+    it "keeps the other submission details" do
+      submission_details_store.save_requested_email_confirmation(requested_email_confirmation)
+
+      submission_details_store.set_submission_reference("EXISTING")
+
+      expect(submission_details_store.requested_email_confirmation?).to eq(requested_email_confirmation)
+    end
+
+    it "does not change the submission reference for other forms" do
+      other_form_submission_details_store.set_submission_reference("OTHER")
+
+      submission_details_store.set_submission_reference("EXISTING")
+
+      expect(other_form_submission_details_store.get_submission_reference).to eq("OTHER")
+    end
+  end
+
   describe "#set_submission_uuid" do
     it "stores the given submission uuid" do
       submission_details_store.set_submission_uuid("saved-uuid")

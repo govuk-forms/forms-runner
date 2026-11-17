@@ -27,9 +27,22 @@ class FormSubmissionService
     validate_confirmation_email_address if requested_confirmation?
 
     current_context.journey.completed_file_upload_questions.each(&:extend_life)
-    submission = create_submission_record
-    enqueue_deliveries(submission)
-    delete_saved_progress
+
+    submission = build_submission
+    report_missing_submission_uuid if submission.submission_uuid.blank?
+
+    begin
+      Submission.transaction(requires_new: true) do
+        submission.save!
+        enqueue_deliveries(submission)
+        delete_saved_progress
+      end
+    rescue ActiveRecord::RecordNotUnique
+      existing_submission = find_identical_submission(submission)
+      raise if existing_submission.nil?
+
+      return handle_duplicate_submission(existing_submission, submission)
+    end
 
     Metrics.record_submission(form_id: form.id, form_name: form.name, mode:)
 
@@ -72,16 +85,16 @@ private
     raise StandardError, "Form id(#{form.id}) has no completed steps i.e questions/answers to submit" if current_context.completed_steps.blank?
   end
 
-  def enqueue_deliveries(submission)
-    begin
-      delivery_configurations = Api::DeliveryConfigurationResource.from_form(form.id, draft: mode.preview_draft?).filter { |c| c.delivery_schedule == "immediate" }
+  def immediate_delivery_configurations
+    delivery_configurations = Api::DeliveryConfigurationResource.from_form(form.id, draft: mode.preview_draft?).filter { |c| c.delivery_schedule == "immediate" }
 
-      raise StandardError, "Form id(#{form.id}) has no immediate delivery configurations" if delivery_configurations.blank? && mode.live?
-    rescue StandardError => e
-      submission.destroy!
-      raise e
-    end
-    delivery_configurations.each { |c| enqueue_delivery(c, submission) }
+    raise StandardError, "Form id(#{form.id}) has no immediate delivery configurations" if delivery_configurations.blank? && mode.live?
+
+    delivery_configurations
+  end
+
+  def enqueue_deliveries(submission)
+    immediate_delivery_configurations.each { |c| enqueue_delivery(c, submission) }
   end
 
   def enqueue_delivery(delivery_configuration, submission)
@@ -106,8 +119,8 @@ private
     end
   end
 
-  def create_submission_record
-    submission = Submission.new(
+  def build_submission
+    Submission.new(
       reference: submission_reference,
       submission_uuid: current_context.get_submission_uuid,
       form_id: form.id,
@@ -119,31 +132,35 @@ private
       submission_locale: current_context.submission_locale,
       created_at: timestamp,
     )
-
-    save_with_unique_submission_uuid(submission)
-    submission
   end
 
-  # This is a temporary fix while we investigate why a new submission_uuid isn't always generated after a user
-  # submits and then starts a new form.
-  def save_with_unique_submission_uuid(submission)
-    submission.save!
-  rescue ActiveRecord::RecordNotUnique => e
-    raise unless e.message.include?("submission_uuid")
-
-    submission.submission_uuid = regenerate_submission_uuid
-    submission.save!
+  # We still save the submission so the user isn't affected. Once we're confident this never happens we can require
+  # a submission_uuid instead.
+  def report_missing_submission_uuid
+    message = "Attempted to save a submission without a submission_uuid"
+    Sentry.capture_message(message, extra: { submission_reference: })
+    Rails.logger.error(message)
   end
 
-  def regenerate_submission_uuid
-    previous_submission_uuid = current_context.get_submission_uuid
-    new_submission_uuid = current_context.generate_submission_uuid
+  def find_identical_submission(submission)
+    existing_submission = Submission.find_by(submission_uuid: submission.submission_uuid)
+    return if existing_submission.nil?
 
-    CurrentRequestLoggingAttributes.submission_uuid = new_submission_uuid
-    Rails.logger.warn("Regenerated submission_uuid because it was already in use for another submission",
-                      { previous_submission_uuid: })
+    identical = existing_submission.form_id == submission.form_id &&
+      existing_submission.mode == submission.mode &&
+      existing_submission.answers.as_json == submission.answers.as_json
 
-    new_submission_uuid
+    existing_submission if identical
+  end
+
+  def handle_duplicate_submission(existing_submission, submission)
+    @submission_reference = existing_submission.reference
+    current_context.set_submission_reference(submission_reference)
+    CurrentRequestLoggingAttributes.submission_reference = submission_reference
+
+    Rails.logger.info("Ignored duplicate submission request because a submission with the same submission_uuid and answers already exists",
+                      { duplicate_submission_reference: submission.reference })
+    nil
   end
 
   def enqueue_deliver_submission_job(job_class, submission, delivery)
@@ -152,10 +169,9 @@ private
 
       message_suffix = " Error: #{job.enqueue_error&.message}" if job.enqueue_error
 
-      # If the first or only delivery job fails to enqueue, delete the submission and raise an error so the user sees an
-      # error and can retry
+      # If the first or only delivery job fails to enqueue, raise an error to roll back the transaction that saved the
+      # submission, so the user sees an error and can retry
       if submission.deliveries.reload.one?
-        submission.destroy!
         raise StandardError, "Failed to enqueue delivery for method #{delivery.delivery_method} for submission with reference #{submission_reference}. The submission was deleted, so the user can retry.#{message_suffix}"
       else
         delivery.update!(

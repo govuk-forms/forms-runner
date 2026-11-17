@@ -18,6 +18,11 @@ module Store
       @store[CONFIRMATION_KEY][@form_key][SUBMISSION_REFERENCE_KEY.to_s] = ReferenceNumberService.generate
     end
 
+    def set_submission_reference(reference)
+      @store[CONFIRMATION_KEY][@form_key] ||= {}
+      @store[CONFIRMATION_KEY][@form_key][SUBMISSION_REFERENCE_KEY.to_s] = reference
+    end
+
     def generate_submission_uuid
       @store[CONFIRMATION_KEY][@form_key] ||= {}
       @store[CONFIRMATION_KEY][@form_key][SUBMISSION_UUID_KEY.to_s] = SecureRandom.uuid
