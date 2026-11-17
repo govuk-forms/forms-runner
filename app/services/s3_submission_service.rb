@@ -28,8 +28,6 @@ class S3SubmissionService
 
     upload_submission_to_s3(submission_content, key)
 
-    delete_uploaded_files_from_our_bucket
-
     key
   end
 
@@ -67,10 +65,6 @@ private
       source_key:,
       target_key:,
     })
-  end
-
-  def delete_uploaded_files_from_our_bucket
-    @journey.completed_file_upload_questions.each(&:delete_from_s3)
   end
 
   def upload_submission_to_s3(submission_content, key)
