@@ -35,6 +35,21 @@ RSpec.describe "incomplete_submissions.rake", type: :task do
     it "does not output the answers" do
       expect { task.invoke(email) }.not_to output(a_string_including(secret_answer)).to_stdout
     end
+
+    context "with the task logging wrapper loaded", :capture_logging do
+      before do
+        allow(Rake.application).to receive(:top_level_tasks).and_return(["incomplete_submissions:list_for_email[#{email}]"])
+        allow(TOPLEVEL_BINDING.receiver).to receive(:at_exit)
+        load Rails.root.join("lib/tasks/logging.rake")
+        Rake::Task["environment"].invoke
+      end
+
+      it "does not log the email address" do
+        expect { task.invoke(email) }.to output(a_string_including("Found 1 incomplete submissions")).to_stdout
+        expect(log_output.string).to include("Task started").and include("[FILTERED]")
+        expect(log_output.string).not_to include(email)
+      end
+    end
   end
 
   describe "incomplete_submissions:delete_by_submission_uuid" do
