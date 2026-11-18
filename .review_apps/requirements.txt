@@ -1,3 +1,7 @@
 # This is here exclusively to inform the version of Checkov we use.
 # We do not write anything in Python.
 checkov==3.2.369
+
+# Checkov started segfaulting in CI when regex 2026.11.18 was released.
+# Remove this pin once a fixed version of regex is available.
+regex<2026.11.18
