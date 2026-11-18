@@ -1,6 +1,6 @@
 module Forms
   class SaveProgressController < BaseController
-    before_action :redirect_if_save_and_return_disabled
+    before_action :redirect_if_save_and_return_disabled, except: %i[sign_out save_progress_and_sign_out]
 
     def new
       unless auth_service.logged_in?
@@ -59,6 +59,43 @@ module Forms
 
       @one_login_email = auth_service.email
       @deletion_date = (saved.updated_at + 30.days).strftime("%-d %B %Y")
+    end
+
+    def sign_out
+      return head :unauthorized unless auth_service.logged_in?
+
+      return redirect_to omniauth_logout_path(mode: nil), status: 307 unless current_context.form.save_and_return_enabled?
+
+      saved = find_saved_progress
+      return redirect_to omniauth_logout_path(mode: nil), status: 307 unless saved
+
+      @already_saved_input ||= AlreadySavedSignOutInput.new
+      @last_saved_date = saved.updated_at.strftime("%-d %B %Y")
+      @last_saved_time = saved.updated_at.strftime("%l:%M%P").strip
+
+      render :already_saved_sign_out
+    end
+
+    def save_progress_and_sign_out
+      return head :unauthorized unless auth_service.logged_in?
+
+      return redirect_to omniauth_logout_path(mode: nil), status: 307 unless current_context.form.save_and_return_enabled?
+
+      already_saved_input_params = params.fetch(:already_saved_sign_out_input, ActionController::Parameters.new).permit(:already_saved)
+      @already_saved_input = AlreadySavedSignOutInput.new(already_saved_input_params)
+
+      unless @already_saved_input.valid?
+        saved = find_saved_progress
+        @last_saved_date = saved.updated_at.strftime("%-d %B %Y")
+        @last_saved_time = saved.updated_at.strftime("%l:%M%P").strip
+        return render :already_saved_sign_out, status: :unprocessable_content
+      end
+
+      return redirect_to(form_step_path(current_context.form.id, current_context.form.form_slug, current_context.next_step_slug)) if @already_saved_input.keep_saved?
+
+      return redirect_to omniauth_logout_path(mode: nil), status: 307 if @already_saved_input.sign_out_without_saving?
+
+      save_progress_and_redirect
     end
 
   private

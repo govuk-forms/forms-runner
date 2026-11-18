@@ -3,9 +3,11 @@ class AlreadySavedInput
 
   attr_accessor :already_saved
 
-  OPTIONS = %w[overwrite keep_saved].freeze
+  validates :already_saved, presence: true, inclusion: { in: :options }
 
-  validates :already_saved, presence: true, inclusion: { in: OPTIONS }
+  def options
+    %w[overwrite keep_saved].freeze
+  end
 
   def overwrite?
     already_saved == "overwrite"

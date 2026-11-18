@@ -34,12 +34,14 @@ module FormHeaderComponent
           homepage_url = @mode.preview? ? Settings.forms_admin.base_url : GOVUK_BASE_URL
 
           if @auth_service&.logged_in?
+            sign_out_path = @current_context.form.save_and_return_enabled? ? form_sign_out_path : omniauth_logout_path
+
             tag.header do
               safe_join([
                 render(GovukOneLogin::ServiceHeaderComponent::View.new(
                          homepage_url:,
                          one_login_url: GovukOneLogin.home_url,
-                         sign_out_form_action: omniauth_logout_path,
+                         sign_out_form_action: sign_out_path,
                        )),
                 govuk_service_navigation(**service_navigation_options),
               ], "\n")

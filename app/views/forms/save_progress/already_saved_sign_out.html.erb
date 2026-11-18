@@ -1,0 +1,23 @@
+<% set_page_title(form_title(form_name: @current_context.form.name, page_name: t('.title'), mode: @mode)) %>
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    <%= form_with(model: @already_saved_input, url: save_progress_and_sign_out_path(@form.id, @form.form_slug), method: :post) do |f| %>
+      <% if @already_saved_input.errors.any? %>
+        <%= f.govuk_error_summary(t('error_summary_title')) %>
+      <% end %>
+
+      <h1 class="govuk-heading-l"><%= t('.title') %></h1>
+
+      <%= t('.body_html', date: @last_saved_date, time: @last_saved_time) %>
+      <%= f.govuk_radio_buttons_fieldset :already_saved, legend: { text: t('.legend'), tag: 'h2', size: 'm' } do %>
+        <%= f.govuk_radio_button :already_saved, 'overwrite', label: { text: t('.overwrite') } %>
+        <%= f.govuk_radio_button :already_saved, 'keep_saved', label: { text: t('.keep_saved') } %>
+        <%= f.govuk_radio_divider I18n.t('question/selection.divider') %>
+        <%= f.govuk_radio_button :already_saved, 'sign_out_without_saving', label: { text: t('.sign_out_without_saving') } %>
+      <% end %>
+
+      <%= f.govuk_submit t('continue') %>
+    <% end %>
+  </div>
+</div>

@@ -48,6 +48,8 @@ Rails.application.routes.draw do
       post "/save-your-progress" => "forms/save_progress#create", as: :create_save_progress
       post "/save-your-progress/overwrite" => "forms/save_progress#overwrite", as: :overwrite_saved_progress
       get "/progress-saved" => "forms/save_progress#show", as: :progress_saved
+      post "/sign-out" => "forms/save_progress#sign_out", as: :form_sign_out
+      post "/save-your-progress/sign-out" => "forms/save_progress#save_progress_and_sign_out", as: :save_progress_and_sign_out
       get "/submitted" => "forms/submitted#submitted", as: :form_submitted
       get "/privacy" => "forms/privacy_page#show", as: :form_privacy
       get "/accessibility-statement" => "forms/branded_accessibility_statement#show", as: :form_branded_accessibility_statement
