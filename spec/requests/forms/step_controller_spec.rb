@@ -5,6 +5,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
   let(:timestamp_of_request) { Time.utc(2022, 12, 14, 10, 0o0, 0o0) }
 
   let(:send_copy_of_answers) { "enabled" }
+  let(:save_and_return) { "disabled" }
   let(:form_data) do
     build(:form_document, :with_support,
           form_id: 2,
@@ -14,6 +15,7 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
           declaration_markdown: "agree to the declaration",
           available_languages:,
           send_copy_of_answers:,
+          save_and_return:,
           steps: steps_data)
   end
 
@@ -1035,6 +1037,19 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
             expect(response).to redirect_to selection_none_of_the_above_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id)
           end
 
+          context "when the save and exit button is used" do
+            let(:save_and_return) { "enabled" }
+            let(:params) { { question: { selection: Question::Selection::NONE_OF_THE_ABOVE_VALUE }, save_and_exit: "true" } }
+
+            it "redirects to the save progress page" do
+              expect(response).to redirect_to(save_progress_path(2, form_data.form_slug, mode:))
+            end
+
+            it "saves the answer" do
+              expect(session[:answers]["2"]["1"]).to include("selection" => Question::Selection::NONE_OF_THE_ABOVE_VALUE)
+            end
+          end
+
           it "does not log a page save event" do
             expect(EventLogger).not_to have_received(:log_page_event)
           end
@@ -1136,6 +1151,231 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
       it "redirects to the next step in the form when any other answer given" do
         post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id, params: { question: { selection: "Option 2" }, changing_existing_answer: false })
         expect(response).to redirect_to form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: 2)
+      end
+
+      context "when the save and exit button is used" do
+        let(:save_and_return) { "enabled" }
+
+        it "redirects to the exit page when exit page answer given" do
+          post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { selection: "Option 1" }, save_and_exit: "true" }
+          expect(response).to redirect_to exit_page_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id, exit_page_id: exit_page.id)
+        end
+
+        it "redirects to the save progress page when any other answer given" do
+          post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { selection: "Option 2" }, save_and_exit: "true" }
+          expect(response).to redirect_to(save_progress_path(2, form_data.form_slug, mode:))
+        end
+      end
+
+      context "when none of the above routes to an exit page on a question with a follow-up question on a separate page" do
+        let(:save_and_return) { "enabled" }
+        let(:first_step_in_form) do
+          build(:selection_question_step,
+                :with_none_of_the_above_question,
+                id: 1,
+                next_step_id: 2,
+                selection_options: 31.times.map { |i| { name: "Option #{i}", value: "Option #{i}" } },
+                exit_pages: [exit_page],
+                routing_conditions: [build(:condition_resource, :with_exit_page, exit_page:, routing_page_id: 1, check_page_id: 1, answer_value: Question::Selection::NONE_OF_THE_ABOVE_VALUE)])
+        end
+
+        it "redirects to the save progress page when the save and exit button is used" do
+          post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { selection: Question::Selection::NONE_OF_THE_ABOVE_VALUE }, save_and_exit: "true" }
+          expect(response).to redirect_to(save_progress_path(2, form_data.form_slug, mode:))
+        end
+      end
+    end
+
+    context "when the save and exit button is used" do
+      let(:save_and_return) { "enabled" }
+
+      it "redirects to the save progress page" do
+        post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { text: "answer text" }, save_and_exit: "true" }
+        expect(response).to redirect_to(save_progress_path(2, form_data.form_slug, mode:))
+      end
+
+      it "saves the answer" do
+        post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { text: "answer text" }, save_and_exit: "true" }
+        expect(session[:answers]["2"]["1"]).to eq({ "text" => "answer text" })
+      end
+
+      it "logs the page save event" do
+        expect(EventLogger).to receive(:log_page_event).with("first_page_save", first_step_in_form.data.question_text, nil)
+        post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { text: "answer text" }, save_and_exit: "true" }
+      end
+
+      context "when no answer is given" do
+        before do
+          post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { text: "" }, save_and_exit: "true" }
+        end
+
+        it "redirects to the save progress page without validating the answer" do
+          expect(response).to redirect_to(save_progress_path(2, form_data.form_slug, mode:))
+        end
+
+        it "does not save an answer" do
+          expect(session[:answers]&.dig("2", "1")).to be_nil
+        end
+      end
+
+      context "when no answer is given to an optional question that has not been answered before" do
+        let(:first_step_in_form) do
+          build :question_step, :with_text_settings, id: first_step_id, next_step_id: 2, is_optional: true
+        end
+
+        before do
+          post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { text: "" }, save_and_exit: "true" }
+        end
+
+        it "does not save an answer" do
+          expect(session[:answers]&.dig("2", "1")).to be_nil
+        end
+      end
+
+      context "when an existing answer is cleared" do
+        let(:first_question_saved_answer) { { "text" => "old answer" } }
+        let(:second_question_saved_answer) { { "text" => "second answer" } }
+
+        let(:store) do
+          {
+            answers: {
+              form_data.form_id.to_s => {
+                first_step_id.to_s => first_question_saved_answer,
+                second_step_in_form.id.to_s => second_question_saved_answer,
+              },
+            },
+          }
+        end
+
+        before do
+          allow(Flow::Context).to receive(:new).and_wrap_original do |original_method, *args|
+            original_method.call(form: args[0][:form], form_document: args[0][:form_document], store:)
+          end
+        end
+
+        context "when the question is optional" do
+          let(:first_step_in_form) do
+            build :question_step, :with_text_settings, id: first_step_id, next_step_id: 2, is_optional: true
+          end
+
+          before do
+            post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { text: "" }, save_and_exit: "true" }
+          end
+
+          it "redirects to the save progress page" do
+            expect(response).to redirect_to(save_progress_path(2, form_data.form_slug, mode:))
+          end
+
+          it "saves a blank answer" do
+            expect(store[:answers][form_data.form_id.to_s][first_step_id.to_s]).to eq({ "text" => "" })
+          end
+
+          it "does not change answers to other questions" do
+            expect(store[:answers][form_data.form_id.to_s][second_step_in_form.id.to_s]).to eq(second_question_saved_answer)
+          end
+        end
+
+        context "when the question is required" do
+          let(:first_step_in_form) do
+            build :question_step, :with_text_settings, id: first_step_id, next_step_id: 2, is_optional: false
+          end
+
+          before do
+            post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { text: "" }, save_and_exit: "true" }
+          end
+
+          it "redirects to the save progress page" do
+            expect(response).to redirect_to(save_progress_path(2, form_data.form_slug, mode:))
+          end
+
+          it "removes the existing answer" do
+            expect(store[:answers][form_data.form_id.to_s]).not_to have_key(first_step_id.to_s)
+          end
+
+          it "does not change answers to other questions" do
+            expect(store[:answers][form_data.form_id.to_s][second_step_in_form.id.to_s]).to eq(second_question_saved_answer)
+          end
+        end
+
+        context "when the question is repeatable" do
+          let(:first_step_in_form) do
+            build :question_step, :with_text_settings, :with_repeatable, id: first_step_id, next_step_id: 2, is_optional: false
+          end
+
+          let(:first_question_saved_answer) { [{ "text" => "first" }, { "text" => "second" }] }
+
+          context "when one of the answers is cleared" do
+            before do
+              post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id, answer_index: 1), params: { question: { text: "" }, save_and_exit: "true" }
+            end
+
+            it "removes only the cleared answer" do
+              expect(store[:answers][form_data.form_id.to_s][first_step_id.to_s]).to eq([{ "text" => "second" }])
+            end
+          end
+
+          context "when a new answer is left blank" do
+            before do
+              post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id, answer_index: 3), params: { question: { text: "" }, save_and_exit: "true" }
+            end
+
+            it "keeps the existing answers" do
+              expect(store[:answers][form_data.form_id.to_s][first_step_id.to_s]).to eq(first_question_saved_answer)
+            end
+          end
+
+          context "when the only answer is cleared" do
+            let(:first_question_saved_answer) { [{ "text" => "first" }] }
+
+            before do
+              post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id, answer_index: 1), params: { question: { text: "" }, save_and_exit: "true" }
+            end
+
+            it "removes the stored answer" do
+              expect(store[:answers][form_data.form_id.to_s]).not_to have_key(first_step_id.to_s)
+            end
+          end
+
+          context "when the only answer to an optional question is cleared" do
+            let(:first_step_in_form) do
+              build :question_step, :with_text_settings, :with_repeatable, id: first_step_id, next_step_id: 2, is_optional: true
+            end
+
+            let(:first_question_saved_answer) { [{ "text" => "first" }] }
+
+            before do
+              post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id, answer_index: 1), params: { question: { text: "" }, save_and_exit: "true" }
+            end
+
+            it "saves a blank answer" do
+              expect(store[:answers][form_data.form_id.to_s][first_step_id.to_s]).to eq([{ "text" => "" }])
+            end
+          end
+        end
+      end
+
+      context "when the answer is invalid" do
+        let(:first_step_in_form) do
+          build :question_step, id: first_step_id, next_step_id: 2, answer_type: "email", is_optional: false
+        end
+
+        before do
+          post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { email: "not an email address" }, save_and_exit: "true" }
+        end
+
+        it "renders the show page template with errors" do
+          expect(response).to render_template("forms/step/show")
+          expect(response).to have_http_status(:unprocessable_content)
+        end
+      end
+
+      context "when save and return is disabled on the form" do
+        let(:save_and_return) { "disabled" }
+
+        it "redirects to the next page" do
+          post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { text: "answer text" }, save_and_exit: "true" }
+          expect(response).to redirect_to(form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: 2))
+        end
       end
     end
   end

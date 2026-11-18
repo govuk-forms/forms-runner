@@ -97,6 +97,11 @@ module Forms
 
     def perform_save
       page_params = params.fetch(:question, {}).permit(*@step.params)
+      if save_and_exit? && no_answer_given?(page_params)
+        clear_answer_for_save_and_exit(page_params)
+        return redirect_to save_progress_path(@form.id, @form.form_slug)
+      end
+
       @step.assign_question_attributes(page_params)
 
       starting_new_submission = current_context.starting_new_form?
@@ -107,16 +112,45 @@ module Forms
 
         # Redirect before logging when the question has multiple pages so that we don't send multiple form started
         # metrics to CloudWatch if this is the first question.
-        return redirect_to selection_none_of_the_above_page if redirect_to_none_of_the_above_page?
+        return redirect_to selection_none_of_the_above_page if redirect_to_none_of_the_above_page? && !save_and_exit?
 
         unless mode.preview?
           LogEventService.new(current_context, @step, request, changing_existing_answer, page_params).log_page_save
         end
 
+        # An exit page can't be shown until a none of the above follow-up question is answered
+        return redirect_to save_progress_path(@form.id, @form.form_slug) if save_and_exit? && (redirect_to_none_of_the_above_page? || !@step.exit_page_condition_matches?)
+
         redirect_post_save
       else
         setup_instance_vars_for_view
         render :show, status: :unprocessable_content
+      end
+    end
+
+    def save_and_exit?
+      @form.save_and_return_enabled? && params[:save_and_exit].present?
+    end
+
+    def no_answer_given?(page_params)
+      page_params.to_h.values.flatten.all?(&:blank?)
+    end
+
+    def clear_answer_for_save_and_exit(page_params)
+      if @step.repeatable?
+        return if @step.answer_index > @step.questions.length
+
+        if @step.questions.length > 1
+          @step.remove_answer(@step.answer_index)
+          return current_context.save_step(@step)
+        end
+      end
+
+      if @step.question.is_optional? && @step.question.answered?
+        @step.assign_question_attributes(page_params)
+        current_context.save_step(@step, locale:)
+      else
+        current_context.clear_stored_answer(@step)
       end
     end
 
