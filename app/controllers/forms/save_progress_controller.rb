@@ -50,7 +50,7 @@ module Forms
         return render_already_saved(find_saved_progress, status: :unprocessable_content)
       end
 
-      return redirect_to(form_step_path(current_context.form.id, current_context.form.form_slug, current_context.next_step_slug)) if @already_saved_input.keep_saved?
+      return redirect_to(continue_path) if @already_saved_input.keep_saved?
 
       save_progress_and_redirect
     end

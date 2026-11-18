@@ -307,8 +307,30 @@ RSpec.describe Forms::SaveProgressController, type: :request do
         expect(incomplete_submission.answers).to eq("1" => { "text" => "previous answer" })
       end
 
-      it "returns the user to the form" do
-        expect(response).to redirect_to(form_step_path(form.form_id, form.form_slug, CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG, mode:))
+      it "returns the user to the page after the last answered question" do
+        expect(response).to redirect_to(check_your_answers_path(form_id: form.form_id, form_slug: form.form_slug, mode:))
+      end
+
+      context "when no questions have been answered" do
+        let(:answers) { {} }
+
+        it "returns the user to the first question" do
+          expect(response).to redirect_to(form_step_path(form.form_id, form.form_slug, 1, mode:))
+        end
+      end
+
+      context "when the last answered question is repeatable" do
+        let(:steps) do
+          [
+            build(:question_step, :with_text_settings, :with_repeatable, id: 1, next_step_id: 2),
+            build(:question_step, :with_text_settings, id: 2),
+          ]
+        end
+        let(:answers) { { "1" => [{ "text" => "answer 1" }] } }
+
+        it "returns the user to the add another answer page" do
+          expect(response).to redirect_to(add_another_answer_path(form_id: form.form_id, form_slug: form.form_slug, step_slug: 1, mode:))
+        end
       end
     end
 
