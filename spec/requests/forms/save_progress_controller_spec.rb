@@ -49,6 +49,10 @@ RSpec.describe Forms::SaveProgressController, type: :request do
     end
   end
 
+  def back_link_href
+    Capybara.string(response.body).find("a.govuk-back-link")[:href]
+  end
+
   describe "GET #new" do
     context "when save and return is disabled on the form" do
       let(:form) do
@@ -91,6 +95,40 @@ RSpec.describe Forms::SaveProgressController, type: :request do
           "return_to" => "save_and_return",
         })
       end
+
+      it "has a back link to the next page in the form" do
+        expect(back_link_href).to eq check_your_answers_path(form_id: form.form_id, form_slug: form.form_slug, mode:)
+      end
+
+      context "when the next question has not been answered yet" do
+        let(:answers) { { "1" => { "text" => "answer 1" } } }
+
+        it "has a back link to the unanswered question" do
+          expect(back_link_href).to eq form_step_path(form.form_id, form.form_slug, 2, mode:)
+        end
+      end
+
+      context "when no questions have been answered" do
+        let(:answers) { {} }
+
+        it "has a back link to the first question" do
+          expect(back_link_href).to eq form_step_path(form.form_id, form.form_slug, 1, mode:)
+        end
+      end
+
+      context "when the last answered question is repeatable" do
+        let(:steps) do
+          [
+            build(:question_step, :with_text_settings, :with_repeatable, id: 1, next_step_id: 2),
+            build(:question_step, :with_text_settings, id: 2),
+          ]
+        end
+        let(:answers) { { "1" => [{ "text" => "answer 1" }] } }
+
+        it "has a back link to the add another answer page" do
+          expect(back_link_href).to eq add_another_answer_path(form_id: form.form_id, form_slug: form.form_slug, step_slug: 1, mode:)
+        end
+      end
     end
 
     context "when the user is signed in to GOV.UK One Login" do
@@ -107,6 +145,10 @@ RSpec.describe Forms::SaveProgressController, type: :request do
 
       before do
         get save_progress_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
+      end
+
+      it "has a back link to the next page in the form" do
+        expect(back_link_href).to eq check_your_answers_path(form_id: form.form_id, form_slug: form.form_slug, mode:)
       end
 
       it "returns http success" do
@@ -132,6 +174,10 @@ RSpec.describe Forms::SaveProgressController, type: :request do
 
         it "shows when the answers were last saved" do
           expect(response.body).to include("You last saved this form at 12:32pm on 6 May 2026.")
+        end
+
+        it "has a back link to the next page in the form" do
+          expect(back_link_href).to eq check_your_answers_path(form_id: form.form_id, form_slug: form.form_slug, mode:)
         end
       end
 
@@ -307,8 +353,45 @@ RSpec.describe Forms::SaveProgressController, type: :request do
         expect(incomplete_submission.answers).to eq("1" => { "text" => "previous answer" })
       end
 
-      it "returns the user to the form" do
-        expect(response).to redirect_to(form_step_path(form.form_id, form.form_slug, CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG, mode:))
+      it "returns the user to the page after the last answered question" do
+        expect(response).to redirect_to(check_your_answers_path(form_id: form.form_id, form_slug: form.form_slug, mode:))
+      end
+
+      context "when no questions have been answered" do
+        let(:answers) { {} }
+
+        it "returns the user to the first question" do
+          expect(response).to redirect_to(form_step_path(form.form_id, form.form_slug, 1, mode:))
+        end
+      end
+
+      context "when the last answered question is repeatable" do
+        let(:steps) do
+          [
+            build(:question_step, :with_text_settings, :with_repeatable, id: 1, next_step_id: 2),
+            build(:question_step, :with_text_settings, id: 2),
+          ]
+        end
+        let(:answers) { { "1" => [{ "text" => "answer 1" }] } }
+
+        it "returns the user to the add another answer page" do
+          expect(response).to redirect_to(add_another_answer_path(form_id: form.form_id, form_slug: form.form_slug, step_slug: 1, mode:))
+        end
+      end
+
+      context "when the last answered question routes to an exit page" do
+        let(:exit_page) { build(:exit_page) }
+        let(:steps) do
+          [
+            build(:selection_question_step, :with_exit_page, id: 1, next_step_id: 2, exit_page:),
+            build(:question_step, :with_text_settings, id: 2),
+          ]
+        end
+        let(:answers) { { "1" => { "selection" => "Option 1" } } }
+
+        it "returns the user to the exit page" do
+          expect(response).to redirect_to(exit_page_path(form_id: form.form_id, form_slug: form.form_slug, step_slug: 1, exit_page_id: exit_page.id, mode:))
+        end
       end
     end
 
@@ -449,6 +532,33 @@ RSpec.describe Forms::SaveProgressController, type: :request do
 
       it "shows the date the saved form will be deleted, 30 days after it was last saved" do
         expect(response.body).to include("We’ll delete your saved form on 13 November 2026.")
+      end
+
+      it "has a button to continue to the page after the last answered question" do
+        expect(response.body).to include(%(href="#{check_your_answers_path(form_id: form.form_id, form_slug: form.form_slug, mode:)}"))
+      end
+
+      context "when no questions have been answered" do
+        let(:answers) { {} }
+
+        it "has a button to continue to the first question" do
+          expect(response.body).to include(%(href="#{form_step_path(form.form_id, form.form_slug, 1, mode:)}"))
+        end
+      end
+
+      context "when the last answered question routes to an exit page" do
+        let(:exit_page) { build(:exit_page) }
+        let(:steps) do
+          [
+            build(:selection_question_step, :with_exit_page, id: 1, next_step_id: 2, exit_page:),
+            build(:question_step, :with_text_settings, id: 2),
+          ]
+        end
+        let(:answers) { { "1" => { "selection" => "Option 1" } } }
+
+        it "has a button to continue to the exit page" do
+          expect(response.body).to include(%(href="#{exit_page_path(form_id: form.form_id, form_slug: form.form_slug, step_slug: 1, exit_page_id: exit_page.id, mode:)}"))
+        end
       end
     end
 

@@ -1,8 +1,12 @@
 module Forms
   class SaveProgressController < BaseController
+    include NextStepPaths
+
     before_action :redirect_if_save_and_return_disabled
 
     def new
+      @back_link = continue_path
+
       unless auth_service.logged_in?
         auth_service.store_return_params(
           form: current_context.form,
@@ -48,7 +52,7 @@ module Forms
         return render_already_saved(find_saved_progress, status: :unprocessable_content)
       end
 
-      return redirect_to(form_step_path(current_context.form.id, current_context.form.form_slug, current_context.next_step_slug)) if @already_saved_input.keep_saved?
+      return redirect_to(continue_path) if @already_saved_input.keep_saved?
 
       save_progress_and_redirect
     end
@@ -59,11 +63,20 @@ module Forms
 
       @one_login_email = auth_service.email
       @deletion_date = (saved.updated_at + 30.days).strftime("%-d %B %Y")
+      @continue_path = continue_path
     end
 
   private
 
+    def continue_path
+      last_completed_step = current_context.completed_steps.last
+      return form_step_path(@form.id, @form.form_slug, current_context.next_step_slug) if last_completed_step.nil?
+
+      next_step_path(last_completed_step)
+    end
+
     def render_already_saved(saved, status: :ok)
+      @back_link = continue_path
       @already_saved_input ||= AlreadySavedInput.new
       @last_saved_date = saved.updated_at.strftime("%-d %B %Y")
       @last_saved_time = saved.updated_at.strftime("%l:%M%P").strip

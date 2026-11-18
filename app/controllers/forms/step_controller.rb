@@ -1,5 +1,7 @@
 module Forms
   class StepController < BaseController
+    include NextStepPaths
+
     before_action :prepare_step
     before_action :clear_stale_submission_details, only: :show
     before_action :set_request_logging_attributes, :changing_existing_answer, :check_goto_page_routing_error
@@ -157,10 +159,7 @@ module Forms
     def redirect_post_save
       return redirect_to review_file_page, success: t("banner.success.file_uploaded") if @step.answered_file_question?
 
-      if @step.exit_page_condition_matches?
-        @condition = @step.matching_condition
-        return redirect_to exit_page_path(form_id: @form.id, form_slug: @form.form_slug, step_slug: @step.id, exit_page_id: @condition.exit_page_id)
-      end
+      return redirect_to exit_page_path_for(@step) if @step.exit_page_condition_matches?
 
       redirect_to next_page
     end
@@ -188,15 +187,7 @@ module Forms
         return next_step_changing
       end
 
-      next_step_path
-    end
-
-    def next_step_path
-      if should_show_add_another?(@step)
-        return add_another_answer_path(form_id: @form.id, form_slug: @form.form_slug, step_slug: @step.id)
-      end
-
-      next_step_in_form_path
+      next_step_path(@step)
     end
 
     def next_step_changing
@@ -205,26 +196,6 @@ module Forms
       end
 
       check_answers_path
-    end
-
-    def next_step_in_form_path
-      if @step.next_step_slug_after_routing == CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG
-        if @form.copy_of_answers_enabled?
-          copy_of_answers_path(form_id: @form.id, form_slug: @form.form_slug)
-        else
-          check_answers_path
-        end
-      else
-        form_step_path(@form.id, @form.form_slug, @step.next_step_slug_after_routing)
-      end
-    end
-
-    def check_answers_path
-      check_your_answers_path(form_id: current_context.form.id, form_slug: current_context.form.form_slug)
-    end
-
-    def should_show_add_another?(step)
-      step.repeatable? && !step.skipped?
     end
 
     def check_goto_page_routing_error

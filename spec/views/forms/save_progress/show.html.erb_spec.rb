@@ -4,20 +4,18 @@ describe "forms/save_progress/show.html.erb" do
   let(:form) { build :form, save_and_return: "enabled" }
   let(:one_login_email) { "test@example.com" }
   let(:deletion_date) { "13/11/2026" }
-  let(:form_url) { "http://www.example.com/form/#{form.id}/#{form.form_slug}/continue-saved-form" }
   let(:mode) { OpenStruct.new(preview_draft?: false, preview_archived?: false, preview_live?: false) }
-  let(:next_step_slug) { "2" }
-  let(:next_step_path) { "/form/#{form.id}/#{form.form_slug}/#{next_step_slug}" }
+  let(:continue_path) { "/form/#{form.id}/#{form.form_slug}/2" }
+  let(:logged_in) { true }
 
   before do
-    assign(:current_context, OpenStruct.new(form:, next_step_slug:))
+    assign(:current_context, OpenStruct.new(form:))
     assign(:form, form)
     assign(:mode, mode)
     assign(:one_login_email, one_login_email)
     assign(:deletion_date, deletion_date)
-
-    allow(view).to receive(:continue_saved_form_url).with(form.id, form.form_slug).and_return(form_url)
-    allow(view).to receive(:form_step_path).with(form.id, form.form_slug, next_step_slug).and_return(next_step_path)
+    assign(:continue_path, continue_path)
+    assign(:auth_service, instance_double(AuthService, logged_in?: logged_in))
 
     render
   end
@@ -26,24 +24,35 @@ describe "forms/save_progress/show.html.erb" do
     expect(view.content_for(:title)).to eq "#{I18n.t('forms.save_progress.show.title')} - #{form.name}"
   end
 
-  it "has a success notification banner with the heading" do
-    expect(rendered).to have_css(".govuk-notification-banner--success", text: I18n.t("forms.save_progress.show.title"))
+  it "has the heading" do
+    expect(rendered).to have_css("h1", text: I18n.t("forms.save_progress.show.title"))
   end
 
   it "has the body text" do
-    expect(rendered).to include(I18n.t("forms.save_progress.show.body_html", email: one_login_email, deletion_date:, form_url:))
+    expect(rendered).to include(I18n.t("forms.save_progress.show.body_html", email: one_login_email, deletion_date:))
   end
 
   it "has the deletion date" do
     expect(rendered).to include("We’ll delete your saved form on #{deletion_date}.")
   end
 
-  it "has a link to continue filling in the form" do
-    expect(rendered).to have_link(form_url, href: form_url)
+  it "has a button to continue filling the form" do
+    expect(rendered).to have_link(I18n.t("forms.save_progress.show.continue_button"), href: continue_path, class: "govuk-button")
   end
 
-  it "has a link to sign out of GOV.UK One Login" do
-    expect(rendered).to have_link(I18n.t("forms.save_progress.show.sign_out_link"))
+  it "has a button to sign out of GOV.UK One Login" do
+    expect(rendered).to have_button(I18n.t("sign_out_of_govuk_one_login")) do |button|
+      expect(button).to match_css ".govuk-button--secondary"
+      expect(button.ancestor("form")[:action]).to eq omniauth_logout_path
+    end
+  end
+
+  context "when the user is not logged in" do
+    let(:logged_in) { false }
+
+    it "does not have a button to sign out of GOV.UK One Login" do
+      expect(rendered).not_to have_button(I18n.t("sign_out_of_govuk_one_login"))
+    end
   end
 
   it "does not have a back link" do
