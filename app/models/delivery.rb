@@ -5,6 +5,7 @@ class Delivery < ApplicationRecord
   scope :pending, -> { where(delivered_at: nil, failed_at: nil) }
   scope :delivered, -> { where.not(delivered_at: nil).where(failed_at: nil).or(where("#{table_name}.delivered_at > failed_at")) }
   scope :failed, -> { where.not(failed_at: nil).where(delivered_at: nil).or(where("#{table_name}.delivered_at <= failed_at")) }
+  scope :undelivered, -> { where(delivered_at: nil).or(where("#{table_name}.delivered_at <= failed_at")) }
 
   scope :bounced_on_day, lambda { |date|
     range = date.in_time_zone(TimeZoneUtils.submission_time_zone).all_day
