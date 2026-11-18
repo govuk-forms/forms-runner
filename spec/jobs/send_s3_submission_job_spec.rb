@@ -68,6 +68,17 @@ RSpec.describe SendS3SubmissionJob, type: :job do
       end
     end
 
+    it "marks the delivery as delivered" do
+      freeze_time do
+        perform_enqueued_jobs do
+          described_class.perform_later(delivery)
+        end
+
+        expect(delivery.reload.delivered_at).to eq(Time.zone.now)
+        expect(delivery).to be_delivered
+      end
+    end
+
     context "when the delivery is being retried" do
       let(:submission) do
         create(:submission, form_document:).tap do |submission|
@@ -95,7 +106,7 @@ RSpec.describe SendS3SubmissionJob, type: :job do
           updated_delivery = delivery.reload
           expect(updated_delivery.delivery_reference).to eq(delivery_reference)
           expect(updated_delivery.last_attempt_at).to eq(Time.zone.now)
-          expect(updated_delivery.delivered_at).to be_nil
+          expect(updated_delivery.delivered_at).to eq(Time.zone.now)
           expect(updated_delivery.failed_at).to be_nil
           expect(updated_delivery.failure_reason).to be_nil
         end
@@ -110,6 +121,12 @@ RSpec.describe SendS3SubmissionJob, type: :job do
 
     it "raises an error" do
       expect { described_class.new.perform(delivery) }.to raise_error(StandardError, "Test error")
+    end
+
+    it "does not mark the delivery as delivered" do
+      expect { described_class.new.perform(delivery) }.to raise_error(StandardError)
+      expect(delivery.reload.delivered_at).to be_nil
+      expect(delivery).to be_pending
     end
 
     it "sends cloudwatch metric for failure" do
