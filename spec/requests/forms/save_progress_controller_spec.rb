@@ -332,6 +332,21 @@ RSpec.describe Forms::SaveProgressController, type: :request do
           expect(response).to redirect_to(add_another_answer_path(form_id: form.form_id, form_slug: form.form_slug, step_slug: 1, mode:))
         end
       end
+
+      context "when the last answered question routes to an exit page" do
+        let(:exit_page) { build(:exit_page) }
+        let(:steps) do
+          [
+            build(:selection_question_step, :with_exit_page, id: 1, next_step_id: 2, exit_page:),
+            build(:question_step, :with_text_settings, id: 2),
+          ]
+        end
+        let(:answers) { { "1" => { "selection" => "Option 1" } } }
+
+        it "returns the user to the exit page" do
+          expect(response).to redirect_to(exit_page_path(form_id: form.form_id, form_slug: form.form_slug, step_slug: 1, exit_page_id: exit_page.id, mode:))
+        end
+      end
     end
 
     context "when the user does not choose an option" do
@@ -482,6 +497,21 @@ RSpec.describe Forms::SaveProgressController, type: :request do
 
         it "has a button to continue to the first question" do
           expect(response.body).to include(%(href="#{form_step_path(form.form_id, form.form_slug, 1, mode:)}"))
+        end
+      end
+
+      context "when the last answered question routes to an exit page" do
+        let(:exit_page) { build(:exit_page) }
+        let(:steps) do
+          [
+            build(:selection_question_step, :with_exit_page, id: 1, next_step_id: 2, exit_page:),
+            build(:question_step, :with_text_settings, id: 2),
+          ]
+        end
+        let(:answers) { { "1" => { "selection" => "Option 1" } } }
+
+        it "has a button to continue to the exit page" do
+          expect(response.body).to include(%(href="#{exit_page_path(form_id: form.form_id, form_slug: form.form_slug, step_slug: 1, exit_page_id: exit_page.id, mode:)}"))
         end
       end
     end

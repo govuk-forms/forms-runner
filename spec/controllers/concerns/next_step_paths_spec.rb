@@ -26,7 +26,9 @@ RSpec.describe NextStepPaths do
   let(:form) { instance_double(Form, id: 1, form_slug: "form-slug", copy_of_answers_enabled?: copy_of_answers_enabled) }
   let(:copy_of_answers_enabled) { false }
 
-  let(:step) { instance_double(Step, id: "1", repeatable?: repeatable, skipped?: skipped, next_step_slug_after_routing:) }
+  let(:step) { instance_double(Step, id: "1", repeatable?: repeatable, skipped?: skipped, next_step_slug_after_routing:, exit_page_condition_matches?: exit_page_condition_matches, matching_condition:) }
+  let(:exit_page_condition_matches) { false }
+  let(:matching_condition) { nil }
   let(:repeatable) { false }
   let(:skipped) { false }
   let(:next_step_slug_after_routing) { "2" }
@@ -41,6 +43,16 @@ RSpec.describe NextStepPaths do
 
       it "returns the path to the step routed to" do
         expect(controller.next_step_path(step)).to eq "/form/1/form-slug/5"
+      end
+    end
+
+    context "when the answer routes to an exit page" do
+      let(:exit_page_condition_matches) { true }
+      let(:matching_condition) { instance_double(Condition, exit_page_id: "5") }
+      let(:next_step_slug_after_routing) { nil }
+
+      it "returns the path to the exit page" do
+        expect(controller.next_step_path(step)).to eq "/form/1/form-slug/1/exit/5"
       end
     end
 

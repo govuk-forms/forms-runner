@@ -159,10 +159,7 @@ module Forms
     def redirect_post_save
       return redirect_to review_file_page, success: t("banner.success.file_uploaded") if @step.answered_file_question?
 
-      if @step.exit_page_condition_matches?
-        @condition = @step.matching_condition
-        return redirect_to exit_page_path(form_id: @form.id, form_slug: @form.form_slug, step_slug: @step.id, exit_page_id: @condition.exit_page_id)
-      end
+      return redirect_to exit_page_path_for(@step) if @step.exit_page_condition_matches?
 
       redirect_to next_page
     end
