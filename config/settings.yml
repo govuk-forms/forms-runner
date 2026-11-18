@@ -67,6 +67,9 @@ submissions:
 
 incomplete_submissions:
   maximum_retention_seconds: 2592000 # 30 days
+  # Secret key used to hash the user's email address so we can find their incomplete submissions. Must be set in every
+  # environment. Changing it means existing incomplete submissions can no longer be found by email address.
+  email_hmac_key:
 
 maintenance_mode:
   # When set to true, All pages will render 'Maintenance mode' message

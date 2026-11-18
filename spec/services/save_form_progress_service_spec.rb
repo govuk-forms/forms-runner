@@ -30,6 +30,7 @@ RSpec.describe SaveFormProgressService do
         locale: "cy",
         mode: "preview-draft",
         submission_uuid: submission_uuid,
+        email_hash: IncompleteSubmission.hash_email(email),
       )
     end
 

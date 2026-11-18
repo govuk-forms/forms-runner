@@ -24,3 +24,4 @@ submissions:
 
 incomplete_submissions:
   maximum_retention_seconds: 300
+  email_hmac_key: development_email_hmac_key
