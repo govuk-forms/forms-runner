@@ -1,7 +1,7 @@
 <% set_page_title(form_title(form_name: @current_context.form.name, page_name: t('.title'), mode: @mode, error: @already_saved_input.errors.any?)) %>
 
 <% content_for :back_link do %>
-    <%= link_to t("forms.back"), form_step_path(@form.id, @form.form_slug, @current_context.next_step_slug), class: "govuk-back-link" %>
+    <%= link_to t("forms.back"), @back_link, class: "govuk-back-link" %>
 <% end %>
 
 <div class="govuk-grid-row">

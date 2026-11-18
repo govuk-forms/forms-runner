@@ -49,6 +49,10 @@ RSpec.describe Forms::SaveProgressController, type: :request do
     end
   end
 
+  def back_link_href
+    Capybara.string(response.body).find("a.govuk-back-link")[:href]
+  end
+
   describe "GET #new" do
     context "when save and return is disabled on the form" do
       let(:form) do
@@ -91,6 +95,40 @@ RSpec.describe Forms::SaveProgressController, type: :request do
           "return_to" => "save_and_return",
         })
       end
+
+      it "has a back link to the next page in the form" do
+        expect(back_link_href).to eq check_your_answers_path(form_id: form.form_id, form_slug: form.form_slug, mode:)
+      end
+
+      context "when the next question has not been answered yet" do
+        let(:answers) { { "1" => { "text" => "answer 1" } } }
+
+        it "has a back link to the unanswered question" do
+          expect(back_link_href).to eq form_step_path(form.form_id, form.form_slug, 2, mode:)
+        end
+      end
+
+      context "when no questions have been answered" do
+        let(:answers) { {} }
+
+        it "has a back link to the first question" do
+          expect(back_link_href).to eq form_step_path(form.form_id, form.form_slug, 1, mode:)
+        end
+      end
+
+      context "when the last answered question is repeatable" do
+        let(:steps) do
+          [
+            build(:question_step, :with_text_settings, :with_repeatable, id: 1, next_step_id: 2),
+            build(:question_step, :with_text_settings, id: 2),
+          ]
+        end
+        let(:answers) { { "1" => [{ "text" => "answer 1" }] } }
+
+        it "has a back link to the add another answer page" do
+          expect(back_link_href).to eq add_another_answer_path(form_id: form.form_id, form_slug: form.form_slug, step_slug: 1, mode:)
+        end
+      end
     end
 
     context "when the user is signed in to GOV.UK One Login" do
@@ -107,6 +145,10 @@ RSpec.describe Forms::SaveProgressController, type: :request do
 
       before do
         get save_progress_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
+      end
+
+      it "has a back link to the next page in the form" do
+        expect(back_link_href).to eq check_your_answers_path(form_id: form.form_id, form_slug: form.form_slug, mode:)
       end
 
       it "returns http success" do
@@ -132,6 +174,10 @@ RSpec.describe Forms::SaveProgressController, type: :request do
 
         it "shows when the answers were last saved" do
           expect(response.body).to include("You last saved this form at 12:32pm on 6 May 2026.")
+        end
+
+        it "has a back link to the next page in the form" do
+          expect(back_link_href).to eq check_your_answers_path(form_id: form.form_id, form_slug: form.form_slug, mode:)
         end
       end
 

@@ -6,13 +6,13 @@ describe "forms/save_progress/new.html.erb" do
   let(:one_login_email) { nil }
 
   before do
-    assign(:current_context, OpenStruct.new(form:, next_step_slug: "2"))
+    assign(:current_context, OpenStruct.new(form:))
     assign(:form, form)
     assign(:mode, mode)
     assign(:one_login_email, one_login_email)
+    assign(:back_link, "/previous-step")
 
     without_partial_double_verification do
-      allow(view).to receive(:form_step_path).with(form.id, form.form_slug, "2").and_return("/previous-step")
       allow(view).to receive(:save_progress_path).with(form.id, form.form_slug).and_return("/save-your-progress")
     end
 

@@ -5,6 +5,8 @@ module Forms
     before_action :redirect_if_save_and_return_disabled
 
     def new
+      @back_link = continue_path
+
       unless auth_service.logged_in?
         auth_service.store_return_params(
           form: current_context.form,
@@ -74,6 +76,7 @@ module Forms
     end
 
     def render_already_saved(saved, status: :ok)
+      @back_link = continue_path
       @already_saved_input ||= AlreadySavedInput.new
       @last_saved_date = saved.updated_at.strftime("%-d %B %Y")
       @last_saved_time = saved.updated_at.strftime("%l:%M%P").strip
