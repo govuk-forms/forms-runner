@@ -86,6 +86,7 @@ feature "Save form progress", type: :feature do
 
   def then_i_see_the_confirmation_page
     expect(page.find("h1")).to have_text "Your progress has been saved"
+    expect(page).to have_link "Continue filling the form"
     expect(page).to have_button "Sign out of GOV.UK One Login"
   end
 

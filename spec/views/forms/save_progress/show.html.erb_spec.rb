@@ -36,8 +36,8 @@ describe "forms/save_progress/show.html.erb" do
     expect(rendered).to include("We’ll delete your saved form on #{deletion_date}.")
   end
 
-  it "has a link to continue filling in the form" do
-    expect(rendered).to have_link(form_url, href: form_url)
+  it "has a button to continue filling the form" do
+    expect(rendered).to have_link(I18n.t("forms.save_progress.show.continue_button"), href: continue_path, class: "govuk-button")
   end
 
   it "has a button to sign out of GOV.UK One Login" do

@@ -450,6 +450,18 @@ RSpec.describe Forms::SaveProgressController, type: :request do
       it "shows the date the saved form will be deleted, 30 days after it was last saved" do
         expect(response.body).to include("We’ll delete your saved form on 13 November 2026.")
       end
+
+      it "has a button to continue to the page after the last answered question" do
+        expect(response.body).to include(%(href="#{check_your_answers_path(form_id: form.form_id, form_slug: form.form_slug, mode:)}"))
+      end
+
+      context "when no questions have been answered" do
+        let(:answers) { {} }
+
+        it "has a button to continue to the first question" do
+          expect(response.body).to include(%(href="#{form_step_path(form.form_id, form.form_slug, 1, mode:)}"))
+        end
+      end
     end
 
     context "when the user does not have saved answers for the form" do
