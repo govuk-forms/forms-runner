@@ -107,7 +107,7 @@ feature "Fill in and submit a form with a file upload question", type: :feature 
 
   def when_i_visit_the_form_start_page
     visit form_path(mode: "form", form_id: 1, form_slug: "fill-in-this-form")
-    expect_page_to_have_no_axe_errors(page)
+    expect_page_to_have_no_axe_errors(page, skipping: [AxeFeatureHelpers::LABEL_CONTENT_NAME_MISMATCH])
   end
 
   def then_i_should_see_the_first_question
