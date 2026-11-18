@@ -18,6 +18,27 @@ module Metrics
       Sentry.capture_exception(e)
     end
 
+    def record_submissions_without_immediate_delivery(count, mode:)
+      submissions_without_immediate_delivery_gauge.record(
+        count,
+        attributes: { "form.submission.mode" => mode.to_s },
+      )
+    rescue StandardError => e
+      Sentry.capture_exception(e)
+    end
+
+    def record_oldest_undelivered_delivery_age(age_seconds, mode:, delivery_method:)
+      oldest_undelivered_delivery_age_gauge.record(
+        age_seconds,
+        attributes: {
+          "form.submission.mode" => mode.to_s,
+          "form.submission.delivery.method" => delivery_method,
+        },
+      )
+    rescue StandardError => e
+      Sentry.capture_exception(e)
+    end
+
   private
 
     def mode_label(form_name:, mode:)
@@ -35,6 +56,22 @@ module Metrics
         "form.submission.created",
         unit: "{submission}",
         description: "The number of form submissions queued for delivery",
+      )
+    end
+
+    def submissions_without_immediate_delivery_gauge
+      @submissions_without_immediate_delivery_gauge ||= meter.create_gauge(
+        "form.submission.without_immediate_delivery.count",
+        unit: "{submission}",
+        description: "The number of submissions that have no immediate delivery",
+      )
+    end
+
+    def oldest_undelivered_delivery_age_gauge
+      @oldest_undelivered_delivery_age_gauge ||= meter.create_gauge(
+        "form.submission.delivery.oldest_undelivered.age",
+        unit: "s",
+        description: "The time since the submission was created for the oldest immediate delivery that has not been delivered",
       )
     end
 

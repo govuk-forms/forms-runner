@@ -129,6 +129,73 @@ describe Metrics do
     end
   end
 
+  describe ".record_submissions_without_immediate_delivery" do
+    it "records the count with the mode" do
+      described_class.record_submissions_without_immediate_delivery(3, mode: "form")
+
+      expect(exported_metric("form.submission.without_immediate_delivery.count")).to have_attributes(
+        unit: "{submission}",
+        data_points: contain_exactly(
+          have_attributes(value: 3, attributes: { "form.submission.mode" => "form" }),
+        ),
+      )
+    end
+
+    context "when recording the metric raises an error" do
+      let(:error) { StandardError.new("metrics unavailable") }
+
+      before do
+        allow(described_class).to receive(:submissions_without_immediate_delivery_gauge).and_raise(error)
+      end
+
+      it "captures the exception in Sentry and does not raise" do
+        expect(Sentry).to receive(:capture_exception).with(error)
+
+        expect { described_class.record_submissions_without_immediate_delivery(3, mode: "form") }.not_to raise_error
+      end
+    end
+  end
+
+  describe ".record_oldest_undelivered_delivery_age" do
+    it "records the age with the mode and delivery method" do
+      described_class.record_oldest_undelivered_delivery_age(3600, mode: "form", delivery_method: "email")
+
+      expect(exported_metric("form.submission.delivery.oldest_undelivered.age")).to have_attributes(
+        unit: "s",
+        data_points: contain_exactly(
+          have_attributes(
+            value: 3600,
+            attributes: {
+              "form.submission.mode" => "form",
+              "form.submission.delivery.method" => "email",
+            },
+          ),
+        ),
+      )
+    end
+
+    context "when recording the metric raises an error" do
+      let(:error) { StandardError.new("metrics unavailable") }
+
+      before do
+        allow(described_class).to receive(:oldest_undelivered_delivery_age_gauge).and_raise(error)
+      end
+
+      it "captures the exception in Sentry and does not raise" do
+        expect(Sentry).to receive(:capture_exception).with(error)
+
+        expect {
+          described_class.record_oldest_undelivered_delivery_age(3600, mode: "form", delivery_method: "email")
+        }.not_to raise_error
+      end
+    end
+  end
+
+  def exported_metric(name)
+    metric_exporter.pull
+    metric_exporter.metric_snapshots.find { |snapshot| snapshot.name == name }
+  end
+
   def exported_data_points
     metric_exporter.pull
     metric_exporter.metric_snapshots.flat_map(&:data_points)
@@ -137,5 +204,7 @@ describe Metrics do
   def reset_memoized_instruments
     described_class.instance_variable_set(:@meter, nil)
     described_class.instance_variable_set(:@submission_counter, nil)
+    described_class.instance_variable_set(:@submissions_without_immediate_delivery_gauge, nil)
+    described_class.instance_variable_set(:@oldest_undelivered_delivery_age_gauge, nil)
   end
 end
