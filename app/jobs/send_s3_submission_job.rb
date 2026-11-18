@@ -7,7 +7,7 @@ class SendS3SubmissionJob < SubmissionDeliveryJob
 
     key = S3SubmissionService.new(submission:, delivery:).submit
 
-    delivery.update!(delivery_reference: key)
+    delivery.update!(delivery_reference: key, delivered_at: Time.zone.now)
     record_submission_sent!
   rescue StandardError
     CloudWatchService.record_job_failure_metric(self.class.name)
