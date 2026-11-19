@@ -79,6 +79,25 @@ RSpec.describe Forms::ExitPagesController, type: :request do
       expect(assigns(:exit_page)).to eq ExitPage.from_form_document(exit_page)
     end
 
+    context "when none of the above routes to the exit page and the follow-up question has not been answered" do
+      let(:exit_pages) { [build(:exit_page)] }
+      let(:answer) { Question::Selection::NONE_OF_THE_ABOVE_VALUE }
+      let(:step) do
+        build(:selection_question_step,
+              :with_none_of_the_above_question,
+              id: 2,
+              next_step_id: 3,
+              exit_pages:,
+              routing_conditions: [build(:condition_resource, :with_exit_page, exit_page:, answer_value: Question::Selection::NONE_OF_THE_ABOVE_VALUE)])
+      end
+
+      it "renders the exit page" do
+        get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step.id, exit_page_id: exit_page.id)
+        expect(response).to render_template(:show)
+        expect(assigns(:exit_page)).to eq ExitPage.from_form_document(exit_page)
+      end
+    end
+
     it "logs the exit page id", :capture_logging do
       get exit_page_path(mode: "form", form_id: form.form_id, form_slug: form.form_slug, step_slug: step_with_exit_pages.id, exit_page_id: exit_page.id)
       expect(log_lines.last["exit_page_id"]).to eq exit_page.id.to_s

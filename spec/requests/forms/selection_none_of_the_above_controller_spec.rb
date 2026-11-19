@@ -24,9 +24,12 @@ RSpec.describe Forms::SelectionNoneOfTheAboveController, type: :request do
 
   let(:steps_data) { [text_question_step, selection_question_step, final_step] }
 
+  let(:save_and_return) { "disabled" }
+
   let(:form_data) do
     build(:form_document, :with_support,
           form_id: 2,
+          save_and_return:,
           start_page: text_question_step.id,
           privacy_policy_url: "http://www.example.gov.uk/privacy_policy",
           what_happens_next_markdown: "Good things come to those that wait",
@@ -116,6 +119,18 @@ RSpec.describe Forms::SelectionNoneOfTheAboveController, type: :request do
             expect(assigns(:question_edit_link)).to eq("#{Settings.forms_admin.base_url}/forms/#{form_data.form_id}/pages-by-external-id/#{step_slug}/edit-question")
           end
 
+          it "does not show the save and exit button" do
+            expect(response.body).not_to include(I18n.t("save_progress.save_and_exit"))
+          end
+
+          context "when save and return is enabled" do
+            let(:save_and_return) { "enabled" }
+
+            it "shows the save and exit button" do
+              expect(response.body).to include(I18n.t("save_progress.save_and_exit"))
+            end
+          end
+
           context "when changing an existing answer" do
             let(:changing_existing_answer) { true }
 
@@ -176,6 +191,85 @@ RSpec.describe Forms::SelectionNoneOfTheAboveController, type: :request do
       it "renders the show template with a 422 status" do
         expect(response).to have_http_status(:unprocessable_content)
         expect(response).to render_template("forms/selection_none_of_the_above/show")
+      end
+    end
+
+    context "when the save and exit button is used" do
+      let(:save_and_return) { "enabled" }
+      let(:store) do
+        {
+          answers: {
+            form_data.form_id.to_s => {
+              text_question_step.id.to_s => { "text" => "answer" },
+              selection_question_step.id.to_s => { "selection" => Question::Selection::NONE_OF_THE_ABOVE_VALUE },
+            },
+          },
+        }
+      end
+
+      before do
+        post post_path, params: { question: { none_of_the_above_answer: }, save_and_exit: "true" }
+      end
+
+      context "when an answer is given" do
+        let(:none_of_the_above_answer) { "Custom answer" }
+
+        it "redirects to the save progress page" do
+          expect(response).to redirect_to(save_progress_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug))
+        end
+
+        it "saves the answer" do
+          expect(store[:answers][form_data.form_id.to_s][selection_question_step.id.to_s]).to include(
+            "selection" => Question::Selection::NONE_OF_THE_ABOVE_VALUE,
+            "none_of_the_above_answer" => "Custom answer",
+          )
+        end
+      end
+
+      context "when an invalid answer is given" do
+        let(:none_of_the_above_answer) { "a" * 500 }
+
+        it "renders the show template with a 422 status" do
+          expect(response).to have_http_status(:unprocessable_content)
+          expect(response).to render_template("forms/selection_none_of_the_above/show")
+        end
+      end
+
+      context "when no answer is given" do
+        let(:none_of_the_above_answer) { "" }
+
+        it "redirects to the save progress page without validating the answer" do
+          expect(response).to redirect_to(save_progress_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug))
+        end
+
+        it "removes the stored answer" do
+          expect(store[:answers][form_data.form_id.to_s]).not_to have_key(selection_question_step.id.to_s)
+        end
+      end
+
+      context "when a previous answer is cleared" do
+        let(:store) do
+          {
+            answers: {
+              form_data.form_id.to_s => {
+                text_question_step.id.to_s => { "text" => "answer" },
+                selection_question_step.id.to_s => {
+                  "selection" => Question::Selection::NONE_OF_THE_ABOVE_VALUE,
+                  "none_of_the_above_answer" => "Previous answer",
+                },
+              },
+            },
+          }
+        end
+        let(:none_of_the_above_answer) { "" }
+
+        it "redirects to the save progress page" do
+          expect(response).to redirect_to(save_progress_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug))
+        end
+
+        it "removes the stored answer" do
+          expect(store[:answers][form_data.form_id.to_s]).not_to have_key(selection_question_step.id.to_s)
+        end
       end
     end
   end

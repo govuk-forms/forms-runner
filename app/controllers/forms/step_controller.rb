@@ -120,8 +120,7 @@ module Forms
           LogEventService.new(current_context, @step, request, changing_existing_answer, page_params).log_page_save
         end
 
-        # An exit page can't be shown until a none of the above follow-up question is answered
-        return redirect_to save_progress_path(@form.id, @form.form_slug) if save_and_exit? && (redirect_to_none_of_the_above_page? || !@step.exit_page_condition_matches?)
+        return redirect_to save_progress_path(@form.id, @form.form_slug) if save_and_exit? && !@step.exit_page_condition_matches?
 
         redirect_post_save
       else
@@ -170,8 +169,9 @@ module Forms
       end
     end
 
+    # The follow-up answer isn't needed if the user is being sent to an exit page
     def redirect_to_none_of_the_above_page?
-      @step.autocomplete_selection_question? && @step.question.show_none_of_the_above_question?
+      @step.autocomplete_selection_question? && @step.question.show_none_of_the_above_question? && !@step.exit_page_condition_matches?
     end
 
     def review_file_page

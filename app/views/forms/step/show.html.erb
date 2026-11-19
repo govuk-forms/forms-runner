@@ -18,15 +18,7 @@
       <% view_component = Object.const_get("#{@step.question.class.name}Component::View") %>
       <%= render view_component.new(form_builder: form, question: @step.question, mode: @mode) %>
 
-      <% if @current_context.form.save_and_return_enabled? %>
-        <div class="govuk-button-group">
-          <%= form.govuk_submit(t("continue")) %>
-          <%= form.govuk_submit t("save_progress.save_and_exit"), secondary: true, name: "save_and_exit", value: "true" %>
-        </div>
-      <% else %>
-        <%= form.govuk_submit(t("continue")) %>
-      <% end %>
-
+      <%= render "forms/page_submit_buttons", form_builder: form %>
     <% end %>
 
     <% if @step.question.instance_of? Question::File %>

@@ -174,6 +174,33 @@ RSpec.describe Flow::Journey do
         end
       end
 
+      context "when none of the above is selected and the follow-up question has not been answered" do
+        let(:first_step) do
+          build :selection_question_step,
+                :with_none_of_the_above_question,
+                id: first_step_id,
+                next_step_id: second_step_id,
+                routing_conditions:
+        end
+        let(:store) { { answers: { form_id.to_s => { first_step_id => { selection: Question::Selection::NONE_OF_THE_ABOVE_VALUE } } } } }
+
+        context "and none of the above does not route to an exit page" do
+          let(:routing_conditions) { [] }
+
+          it "does not include the step" do
+            expect(journey.completed_steps).to eq []
+          end
+        end
+
+        context "and none of the above routes to an exit page" do
+          let(:routing_conditions) { [build(:condition_resource, :with_exit_page, routing_page_id: first_step_id, check_page_id: first_step_id, answer_value: Question::Selection::NONE_OF_THE_ABOVE_VALUE)] }
+
+          it "includes the step" do
+            expect(journey.completed_steps).to eq [first_step_in_journey]
+          end
+        end
+      end
+
       context "when the answer store has data that does not match the type expected by the question" do
         let(:store) { { answers: { form_id.to_s => { first_step_id => { selection: "Option 2" }, second_step_id => { text: "Example text" }, third_step_id => { selection: "Option 1" } } } } }
 

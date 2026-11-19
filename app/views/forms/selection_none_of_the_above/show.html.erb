@@ -20,7 +20,7 @@
                                           size: "l",
                                         } %>
 
-      <%= f.govuk_submit(t("continue")) %>
+      <%= render "forms/page_submit_buttons", form_builder: f %>
     <% end %>
 
     <%= render SupportDetailsComponent::View.new(@support_details) %>

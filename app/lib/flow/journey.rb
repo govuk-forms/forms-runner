@@ -76,8 +76,9 @@ module Flow
   private
 
     def step_is_completed?(step)
-      # A step has been completed if it is a question that has been answered.
-      step.question.answered?
+      # A step has been completed if it is a question that has been answered. A "None of the above" answer that
+      # routes to an exit page is complete without its follow-up answer, as the user won't be asked for it.
+      step.question.answered? || step.exit_page_condition_matches?
     end
 
     def generate_completed_steps
