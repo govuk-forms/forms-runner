@@ -128,7 +128,7 @@ RSpec.describe Users::OmniauthController, type: :request do
           "last_form_slug" => form_slug,
           "last_mode" => mode,
           "last_locale" => locale,
-          "return_to" => "save_and_return",
+          "return_to" => "save_progress",
         }
       end
 
@@ -270,7 +270,7 @@ RSpec.describe Users::OmniauthController, type: :request do
       end
 
       context "and the user was signing in to save their progress" do
-        let(:return_to) { "save_and_return" }
+        let(:return_to) { "save_progress" }
 
         it "links back to the save progress page so they can try signing in again" do
           expect(response).to render_template("errors/auth_error")

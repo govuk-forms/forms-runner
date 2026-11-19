@@ -15,7 +15,7 @@ module Store
 
     RETURN_TO_VALUES = {
       copy_of_answers: "copy_of_answers",
-      save_and_return: "save_and_return",
+      save_progress: "save_progress",
       continue_saved_form: "continue_saved_form",
       signed_out: "signed_out",
     }.freeze

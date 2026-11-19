@@ -92,7 +92,7 @@ RSpec.describe Forms::SaveProgressController, type: :request do
           "last_form_slug" => form.form_slug,
           "last_mode" => mode.to_s,
           "last_locale" => nil,
-          "return_to" => "save_and_return",
+          "return_to" => "save_progress",
         })
       end
 
@@ -267,7 +267,7 @@ RSpec.describe Forms::SaveProgressController, type: :request do
 
       context "when the save progress flow has been started" do
         let(:auth_session) do
-          super().merge(return_from_one_login: { return_to: "save_and_return" })
+          super().merge(return_from_one_login: { return_to: "save_progress" })
         end
 
         context "when the user does not have saved answers for the form" do
