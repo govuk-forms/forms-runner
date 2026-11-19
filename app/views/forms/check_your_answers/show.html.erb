@@ -64,7 +64,16 @@
         <%= HtmlMarkdownSanitizer.new.render_scrubbed_markdown(@current_context.form.declaration_markdown) %>
       <% end %>
 
-      <%= form.govuk_submit(declaration_present ? t('form.check_your_answers.agree_and_submit') : t('form.check_your_answers.submit')) %>
+      <% submit_button_text = declaration_present ? t('form.check_your_answers.agree_and_submit') : t('form.check_your_answers.submit') %>
+
+      <% if @current_context.form.save_and_return_enabled? %>
+        <div class="govuk-button-group">
+          <%= form.govuk_submit(submit_button_text) %>
+          <%= govuk_button_link_to t("save_progress.save_and_exit"), save_progress_path(@current_context.form.id, @current_context.form.form_slug), secondary: true %>
+        </div>
+      <% else %>
+        <%= form.govuk_submit(submit_button_text) %>
+      <% end %>
     </div>
   </div>
 

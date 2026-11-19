@@ -1,7 +1,8 @@
 require "rails_helper"
 
 describe "forms/check_your_answers/show.html.erb" do
-  let(:form) { build :form, :with_support, declaration_text:, declaration_markdown: }
+  let(:form) { build :form, :with_support, declaration_text:, declaration_markdown:, save_and_return: }
+  let(:save_and_return) { "disabled" }
   let(:support_details) { OpenStruct.new(email: form.support_email) }
   let(:context) { OpenStruct.new(form:) }
   let(:full_width) { false }
@@ -21,7 +22,28 @@ describe "forms/check_your_answers/show.html.erb" do
     assign(:steps, steps)
     assign(:form, form)
     assign(:support_details, support_details)
+
+    without_partial_double_verification do
+      allow(view).to receive(:save_progress_path).and_return("/save-your-progress")
+    end
+
     render template: "forms/check_your_answers/show", locals: { email_confirmation_input:, copy_of_answers_enabled:, will_send_copy_of_answers: }
+  end
+
+  it "does not display the save and exit button" do
+    expect(rendered).not_to have_link(I18n.t("save_progress.save_and_exit"))
+  end
+
+  context "when save and return is enabled on the form" do
+    let(:save_and_return) { "enabled" }
+
+    it "displays the submit button" do
+      expect(rendered).to have_button(I18n.t("form.check_your_answers.submit"))
+    end
+
+    it "displays the save and exit button" do
+      expect(rendered).to have_css(".govuk-button-group a.govuk-button.govuk-button--secondary[href='/save-your-progress']", text: I18n.t("save_progress.save_and_exit"))
+    end
   end
 
   context "when the form does not have a declaration" do
