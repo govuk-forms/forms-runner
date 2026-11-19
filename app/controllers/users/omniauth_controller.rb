@@ -24,7 +24,7 @@ module Users
 
       form_path_params = auth_service.form_path_params
       CurrentRequestLoggingAttributes.form_id = form_path_params[:form_id]
-      EventLogger.log({ event: "logged_in_with_one_login" })
+      EventLogger.log({ event: "logged_in_with_one_login", sign_in_journey: auth_service.return_to })
 
       redirect_after_sign_in
     rescue Store::ReturnFromOneLoginStore::MissingReturnParamsError => e

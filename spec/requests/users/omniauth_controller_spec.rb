@@ -41,15 +41,16 @@ RSpec.describe Users::OmniauthController, type: :request do
     end
 
     context "when the return from One Login params are in the session" do
-      before do
-        return_store = instance_double(Store::ReturnFromOneLoginStore, form_id:)
-        allow(Store::ReturnFromOneLoginStore).to receive(:new).and_return(return_store)
+      let(:store) do
+        {
+          "return_from_one_login" => return_from_one_login_session,
+        }.with_indifferent_access
       end
 
-      it "logs the form_id" do
+      it "logs the form_id and sign_in_journey" do
         post "/auth/govuk_one_login"
 
-        expect(redirect_log_line).to include("form_id" => form_id)
+        expect(redirect_log_line).to include("form_id" => form_id, "sign_in_journey" => return_to)
       end
     end
 
@@ -99,9 +100,9 @@ RSpec.describe Users::OmniauthController, type: :request do
         expect(response).to redirect_to(check_your_answers_path(form_id:, form_slug:, mode:, locale:))
       end
 
-      it "logs the logged_in_with_one_login event with the form_id" do
+      it "logs the logged_in_with_one_login event with the form_id and sign_in_journey" do
         log_line = log_lines.find { |line| line["event"] == "logged_in_with_one_login" }
-        expect(log_line).to include("form_id" => form_id)
+        expect(log_line).to include("form_id" => form_id, "sign_in_journey" => return_to)
       end
 
       it "stores the user's email address on the session" do
