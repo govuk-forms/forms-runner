@@ -10,6 +10,12 @@ module Forms
 
     def save
       page_params = params.fetch(:question, {}).permit(*@step.params)
+
+      if save_and_exit? && no_answer_given?(page_params)
+        current_context.clear_stored_answer(@step)
+        return redirect_to save_progress_path(@form.id, @form.form_slug)
+      end
+
       @step.question.with_none_of_the_above_selected
       @step.assign_question_attributes(page_params)
 
@@ -17,6 +23,8 @@ module Forms
         unless mode.preview?
           LogEventService.new(current_context, @step, request, changing_existing_answer, page_params).log_page_save
         end
+
+        return redirect_to save_progress_path(@form.id, @form.form_slug) if save_and_exit?
 
         redirect_to next_page
       else
