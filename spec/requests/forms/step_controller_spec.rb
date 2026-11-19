@@ -1179,9 +1179,21 @@ RSpec.describe Forms::StepController, :capture_logging, type: :request do
                 routing_conditions: [build(:condition_resource, :with_exit_page, exit_page:, routing_page_id: 1, check_page_id: 1, answer_value: Question::Selection::NONE_OF_THE_ABOVE_VALUE)])
         end
 
-        it "redirects to the save progress page when the save and exit button is used" do
+        let(:exit_page_url) { exit_page_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id, exit_page_id: exit_page.id) }
+
+        it "redirects to the exit page without asking the follow-up question" do
+          post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { selection: Question::Selection::NONE_OF_THE_ABOVE_VALUE } }
+          expect(response).to redirect_to(exit_page_url)
+        end
+
+        it "redirects to the exit page when changing an existing answer" do
+          post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { selection: Question::Selection::NONE_OF_THE_ABOVE_VALUE }, changing_existing_answer: true }
+          expect(response).to redirect_to(exit_page_url)
+        end
+
+        it "redirects to the exit page when the save and exit button is used" do
           post save_form_step_path(mode:, form_id: 2, form_slug: form_data.form_slug, step_slug: first_step_id), params: { question: { selection: Question::Selection::NONE_OF_THE_ABOVE_VALUE }, save_and_exit: "true" }
-          expect(response).to redirect_to(save_progress_path(2, form_data.form_slug, mode:))
+          expect(response).to redirect_to(exit_page_url)
         end
       end
     end
