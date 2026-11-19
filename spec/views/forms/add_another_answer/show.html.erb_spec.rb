@@ -29,6 +29,26 @@ describe "forms/add_another_answer/show.html.erb" do
     render
   end
 
+  it "does not display the save and exit button" do
+    expect(rendered).not_to have_button(I18n.t("save_progress.save_and_exit"))
+  end
+
+  context "when save and return is enabled on the form" do
+    let(:form) { build :form, save_and_return: "enabled" }
+
+    it "displays the save and exit button as a secondary submit button" do
+      expect(rendered).to have_css("form[action='/add_another_answer'] button.govuk-button--secondary[type=submit][name=save_and_exit][value=true]", text: I18n.t("save_progress.save_and_exit"))
+    end
+
+    context "when the maximum number of answers have been added" do
+      let(:max_answers) { true }
+
+      it "displays the save and exit button as a secondary submit button" do
+        expect(rendered).to have_css("form[action='/add_another_answer'] button.govuk-button--secondary[type=submit][name=save_and_exit][value=true]", text: I18n.t("save_progress.save_and_exit"))
+      end
+    end
+  end
+
   it "has the correct page title" do
     expect(view.content_for(:title)).to eq "Add or remove answer to Question text - #{form.name}"
   end

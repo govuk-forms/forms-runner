@@ -2,8 +2,10 @@ require "rails_helper"
 
 RSpec.describe Forms::AddAnotherAnswerController, type: :request do
   let(:form) do
-    build(:form_document, :with_support, form_id: 2, start_page: 1, steps:, available_languages:)
+    build(:form_document, :with_support, form_id: 2, start_page: 1, steps:, available_languages:, save_and_return:)
   end
+
+  let(:save_and_return) { "disabled" }
 
   let(:steps) { [previous_step_in_form, repeatable_step, next_step_in_form] }
 
@@ -176,6 +178,15 @@ RSpec.describe Forms::AddAnotherAnswerController, type: :request do
 
       it "assigns @back_link" do
         expect(assigns(:back_link)).to eq(form_step_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug, step_slug: previous_step_in_form.id))
+      end
+    end
+
+    context "when the save and exit button is used" do
+      let(:save_and_return) { "enabled" }
+      let(:params) { { add_another_answer_input: { add_another_answer: "" }, save_and_exit: "true" } }
+
+      it "redirects to the save progress page without validating the answer" do
+        expect(response).to redirect_to(save_progress_path(mode: "preview-draft", form_id: form.form_id, form_slug: form.form_slug))
       end
     end
 
