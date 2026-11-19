@@ -134,6 +134,7 @@ describe Metrics do
       described_class.record_submissions_without_immediate_delivery(3, mode: "form")
 
       expect(exported_metric("form.submission.without_immediate_delivery.count")).to have_attributes(
+        instrumentation_scope: have_attributes(name: Metrics::SINGLE_WRITER_METER_NAME),
         unit: "{submission}",
         data_points: contain_exactly(
           have_attributes(value: 3, attributes: { "form.submission.mode" => "form" }),
@@ -161,6 +162,7 @@ describe Metrics do
       described_class.record_oldest_undelivered_delivery_age(3600, mode: "form", delivery_method: "email")
 
       expect(exported_metric("form.submission.delivery.oldest_undelivered.age")).to have_attributes(
+        instrumentation_scope: have_attributes(name: Metrics::SINGLE_WRITER_METER_NAME),
         unit: "s",
         data_points: contain_exactly(
           have_attributes(
@@ -203,6 +205,7 @@ describe Metrics do
 
   def reset_memoized_instruments
     described_class.instance_variable_set(:@meter, nil)
+    described_class.instance_variable_set(:@single_writer_meter, nil)
     described_class.instance_variable_set(:@submission_counter, nil)
     described_class.instance_variable_set(:@submissions_without_immediate_delivery_gauge, nil)
     described_class.instance_variable_set(:@oldest_undelivered_delivery_age_gauge, nil)
