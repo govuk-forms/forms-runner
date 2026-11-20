@@ -34,6 +34,14 @@ RSpec.describe SaveFormProgressService do
       )
     end
 
+    it "logs the incomplete submission saved event" do
+      allow(EventLogger).to receive(:log_form_event)
+
+      service.save!
+
+      expect(EventLogger).to have_received(:log_form_event).with("incomplete_submission_saved").once
+    end
+
     it "enqueues the progress saved email for the saved answer" do
       allow(SendProgressSavedEmailJob).to receive(:perform_later)
 
