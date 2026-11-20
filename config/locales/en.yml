@@ -90,7 +90,7 @@ en:
         already_saved_input:
           attributes:
             already_saved:
-              blank: Select whether you want to replace the saved version of the form
+              blank: Select ‘Yes’ if you want to replace the saved version of the form
         copy_of_answers_input:
           attributes:
             copy_of_answers:
@@ -207,7 +207,7 @@ en:
         resume_options_input:
           attributes:
             resume_options:
-              blank: Select whether you want to start a new form or continue filling in a saved form
+              blank: Select if you want to start a new form or continue filling in a saved form
   autocomplete:
     assistive_hint: When autocomplete results are available use up and down arrows to review and enter to select.  Touch device users, explore by touch or with swipe gestures.
     no_results: No results found
@@ -413,7 +413,13 @@ en:
         continue_to_one_login_button: Continue to GOV.UK One Login
         title: Sign in to your GOV.UK One Login
       not_found:
-        body_html: <p class="govuk-body">This could be because:</p><ul class="govuk-list govuk-list--bullet"><li>you did not save your progress for this form</li><li>you used a different GOV.UK One Login to save the form</li><li>it has been more than 30 days since you saved the form (we delete saved forms after 30 days)</li></ul>
+        body_html: |
+          <p class="govuk-body">This could be because:</p>
+          <ul class="govuk-list govuk-list--bullet">
+            <li>you saved your progress using a different GOV.UK One Login</li>
+            <li>it has been more than 30 days since you saved the form</li>
+            <li>you did not save your progress for this form</li>
+          </ul>
         start_new_form_button: Start a new form
         title: We could not find your saved form
     continue_to_one_login:
