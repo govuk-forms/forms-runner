@@ -16,6 +16,8 @@ module Forms
     end
 
     def save
+      return redirect_to save_progress_path(@form.id, @form.form_slug) if save_and_exit?
+
       @add_another_answer_input = AddAnotherAnswerInput.new(add_another_input_params.merge(max_answers: @step.max_answers?))
 
       if @add_another_answer_input.invalid?

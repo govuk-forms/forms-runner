@@ -4,12 +4,15 @@ RSpec.describe Forms::ReviewFileController, type: :request do
   let(:form_data) do
     build(:form_document, :with_support, :live,
           form_id: 1,
+          save_and_return:,
           start_page: 1,
           privacy_policy_url: "http://www.example.gov.uk/privacy_policy",
           what_happens_next_markdown: "Good things come to those that wait",
           declaration_markdown: "agree to the declaration",
           steps: steps_data)
   end
+
+  let(:save_and_return) { "disabled" }
 
   let(:previous_step_in_form) { build :question_step, :with_text_settings, id: 1, next_step_id: 2 }
 
@@ -108,8 +111,20 @@ RSpec.describe Forms::ReviewFileController, type: :request do
   end
 
   describe "#continue" do
+    let(:params) { {} }
+
     before do
-      post review_file_continue_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug, step_slug:, changing_existing_answer:)
+      post review_file_continue_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug, step_slug:, changing_existing_answer:), params:
+    end
+
+    context "when the save and exit button is used" do
+      let(:step_slug) { file_upload_step.id.to_s }
+      let(:save_and_return) { "enabled" }
+      let(:params) { { save_and_exit: "true" } }
+
+      it "redirects to the save progress page" do
+        expect(response).to redirect_to(save_progress_path(mode:, form_id: form_data.form_id, form_slug: form_data.form_slug))
+      end
     end
 
     context "when the question is a file upload question" do

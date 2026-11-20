@@ -26,6 +26,18 @@ describe "forms/review_file/show.html.erb" do
     render
   end
 
+  it "does not display the save and exit button" do
+    expect(rendered).not_to have_button(I18n.t("save_progress.save_and_exit"))
+  end
+
+  context "when save and return is enabled on the form" do
+    let(:form) { build :form, :with_support, save_and_return: "enabled" }
+
+    it "displays the save and exit button as a secondary submit button" do
+      expect(rendered).to have_css("form[action='#{continue_url}'] button.govuk-button--secondary[type=submit][name=save_and_exit][value=true]", text: I18n.t("save_progress.save_and_exit"))
+    end
+  end
+
   it "has a back link" do
     expect(view.content_for(:back_link)).to have_link("Back", href: "/back")
   end

@@ -23,13 +23,13 @@
           legend: { text: t('.radios_legend'), size: 'm' },
           inline: true %>
 
-        <%= f.govuk_submit(t("continue")) %>
+        <%= render "forms/page_submit_buttons", form_builder: f %>
       <% else %>
         <div class="govuk-inset-text">
           <%= t('.max_answers', max_answers: RepeatableStep::MAX_ANSWERS) %>
         </div>
         <%= f.hidden_field :add_another_answer, value: "no" %>
-        <%= f.govuk_submit(t("continue")) %>
+        <%= render "forms/page_submit_buttons", form_builder: f %>
       <% end %>
     </div>
   </div>

@@ -9,6 +9,8 @@ module Forms
     end
 
     def continue
+      return redirect_to save_progress_path(@form.id, @form.form_slug) if save_and_exit?
+
       redirect_to next_page
     end
   end

@@ -11,7 +11,7 @@
     <%= render Question::FileReviewComponent::View.new(question: @step.question, mode: @mode, remove_file_confirmation_url: @remove_file_confirmation_url ) %>
 
     <%= form_with model: @step.question, url: @continue_url, scope: :question, method: :post do |form| %>
-      <%= form.govuk_submit(t("continue")) %>
+      <%= render "forms/page_submit_buttons", form_builder: form %>
     <% end %>
 
     <%= render SupportDetailsComponent::View.new(@support_details) %>
