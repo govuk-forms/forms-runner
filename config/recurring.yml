@@ -8,6 +8,9 @@ production:
   queue_metrics_job:
     class: QueueMetricsJob
     schedule: every minute
+  delivery_metrics_job:
+    class: DeliveryMetricsJob
+    schedule: every 5 minutes
   receive_submission_bounces_and_complaints_job:
     class: ReceiveSubmissionBouncesAndComplaintsJob
     schedule: every 10 minutes
@@ -36,6 +39,9 @@ development:
   queue_metrics_job:
     class: QueueMetricsJob
     schedule: every minute
+  delivery_metrics_job:
+    class: DeliveryMetricsJob
+    schedule: every 5 minutes
   receive_submission_bounces_and_complaints_job:
     class: ReceiveSubmissionBouncesAndComplaintsJob
     schedule: every minute

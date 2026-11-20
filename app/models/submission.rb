@@ -18,6 +18,16 @@ class Submission < ApplicationRecord
     where(created_at: range)
   }
 
+  # Uses NOT EXISTS rather than NOT IN, because once the subquery is too big to hash in memory, Postgres checks NOT IN
+  # by scanning the whole subquery for every submission
+  scope :without_immediate_delivery, lambda {
+    where.not(
+      Delivery.immediate.joins(:submission_deliveries)
+        .where("submission_deliveries.submission_id = submissions.id")
+        .arel.exists,
+    )
+  }
+
   scope :ordered_by_form_version_and_date, lambda {
     order(Arel.sql("(form_document->>'updated_at')::timestamptz ASC, created_at ASC"))
   }

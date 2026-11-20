@@ -145,6 +145,23 @@ RSpec.describe Submission, type: :model do
       end
     end
 
+    describe ".without_immediate_delivery" do
+      let!(:submission_without_deliveries) { create :submission }
+      let!(:submission_with_batch_delivery_only) { create(:delivery, :daily_scheduled_delivery, submissions_count: 1).submissions.first }
+
+      before do
+        create(:delivery, :immediate)
+        create(:delivery, :immediate, :failed)
+      end
+
+      it "returns submissions that have no immediate delivery" do
+        expect(described_class.without_immediate_delivery).to contain_exactly(
+          submission_without_deliveries,
+          submission_with_batch_delivery_only,
+        )
+      end
+    end
+
     describe ".ordered_by_form_version_and_date" do
       let(:first_form_version) { build :form_document, updated_at: Time.utc(2022, 6, 1, 12, 0, 0) }
       let(:second_form_version) { build :form_document, updated_at: Time.utc(2022, 12, 1, 12, 0, 0) }

@@ -84,6 +84,12 @@ RSpec.describe Delivery, type: :model do
       end
     end
 
+    describe ".undelivered" do
+      it "returns deliveries that are pending or have failed" do
+        expect(described_class.undelivered).to contain_exactly(pending_delivery, failed_delivery, failed_after_delivery)
+      end
+    end
+
     describe ".bounced_on_day" do
       context "when the date is around the start of BST" do
         # London local date 2025-03-29 => UTC 2025-03-29 00:00:00..2025-03-29 23:59:59
