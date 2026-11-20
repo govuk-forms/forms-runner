@@ -21,9 +21,11 @@ class Submission < ApplicationRecord
   # Uses NOT EXISTS rather than NOT IN, because once the subquery is too big to hash in memory, Postgres checks NOT IN
   # by scanning the whole subquery for every submission
   scope :without_immediate_delivery, lambda {
-    immediate_deliveries = SubmissionDelivery.joins(:delivery).merge(Delivery.immediate)
-      .where(SubmissionDelivery.arel_table[:submission_id].eq(arel_table[:id]))
-    where.not(immediate_deliveries.arel.exists)
+    where.not(
+      Delivery.immediate.joins(:submission_deliveries)
+        .where("submission_deliveries.submission_id = submissions.id")
+        .arel.exists,
+    )
   }
 
   scope :ordered_by_form_version_and_date, lambda {
