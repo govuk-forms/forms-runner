@@ -3,7 +3,7 @@ require "rails_helper"
 describe "forms/save_progress/show.html.erb" do
   let(:form) { build :form, save_and_return: "enabled" }
   let(:one_login_email) { "test@example.com" }
-  let(:deletion_date) { "13/11/2026" }
+  let(:deletion_date) { Time.zone.local(2026, 11, 13, 10, 30) }
   let(:mode) { OpenStruct.new(preview_draft?: false, preview_archived?: false, preview_live?: false) }
   let(:continue_path) { "/form/#{form.id}/#{form.form_slug}/2" }
   let(:logged_in) { true }
@@ -29,11 +29,11 @@ describe "forms/save_progress/show.html.erb" do
   end
 
   it "has the body text" do
-    expect(rendered).to include(I18n.t("forms.save_progress.show.body_html", email: one_login_email, deletion_date:))
+    expect(rendered).to include(I18n.t("forms.save_progress.show.body_html", email: one_login_email, deletion_date: "13 November 2026"))
   end
 
   it "has the deletion date" do
-    expect(rendered).to include("We’ll delete your saved form on #{deletion_date}.")
+    expect(rendered).to include("We’ll delete your saved form on 13 November 2026.")
   end
 
   it "has a button to continue filling the form" do

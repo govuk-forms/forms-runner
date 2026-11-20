@@ -62,7 +62,7 @@ module Forms
       return redirect_to(save_progress_path(current_context.form.id, current_context.form.form_slug)) unless saved
 
       @one_login_email = auth_service.email
-      @deletion_date = (saved.updated_at + 30.days).strftime("%-d %B %Y")
+      @deletion_date = saved.updated_at + 30.days
       @continue_path = continue_path
     end
 
@@ -78,8 +78,7 @@ module Forms
     def render_already_saved(saved, status: :ok)
       @back_link = continue_path
       @already_saved_input ||= AlreadySavedInput.new
-      @last_saved_date = saved.updated_at.strftime("%-d %B %Y")
-      @last_saved_time = saved.updated_at.strftime("%l:%M%P").strip
+      @last_saved_at = saved.updated_at
       render :already_saved, status:
     end
 

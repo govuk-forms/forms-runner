@@ -1,7 +1,9 @@
 class SubmissionBatchMailer < ApplicationMailer
+  include DateTimeFormatHelper
+
   def daily_submission_batch_email(form:, date:, mode:, files:)
     @form_name = form.name
-    @date = date.strftime("%-d %B %Y")
+    @date = format_date(date)
     @mode = mode
     @filenames = files.keys
     @subject = daily_batch_subject
@@ -18,8 +20,8 @@ class SubmissionBatchMailer < ApplicationMailer
 
   def weekly_submission_batch_email(form:, begin_date:, end_date:, mode:, files:)
     @form_name = form.name
-    @begin_date = begin_date.strftime("%-d %B %Y")
-    @end_date = end_date.strftime("%-d %B %Y")
+    @begin_date = format_date(begin_date)
+    @end_date = format_date(end_date)
     @mode = mode
     @filenames = files.keys
     @subject = weekly_batch_subject
