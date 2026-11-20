@@ -12,7 +12,7 @@ module Forms
           form: current_context.form,
           mode:,
           locale: locale_param,
-          return_to: Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:save_and_return],
+          return_to: Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:save_progress],
         )
         return
       end
@@ -23,7 +23,7 @@ module Forms
     end
 
     def after_sign_in
-      unless auth_service.logged_in? && auth_service.return_to == Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:save_and_return]
+      unless auth_service.logged_in? && auth_service.return_to == Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:save_progress]
         return redirect_to(save_progress_path(current_context.form.id, current_context.form.form_slug))
       end
 

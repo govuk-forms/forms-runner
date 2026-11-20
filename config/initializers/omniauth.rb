@@ -36,13 +36,14 @@ Rails.application.config.middleware.use OmniAuth::Builder do
     CurrentRequestLoggingAttributes.request_id = request.request_id
     CurrentRequestLoggingAttributes.session_id_hash = SessionHasher.new(request).request_to_session_hash
 
+    auth_service = AuthService.new(request.session)
     begin
-      CurrentRequestLoggingAttributes.form_id = Store::ReturnFromOneLoginStore.new(request.session).form_id
+      CurrentRequestLoggingAttributes.form_id = auth_service.return_from_one_login_store.form_id
     rescue Store::ReturnFromOneLoginStore::MissingReturnParamsError
       # continue if the form_id isn't present in the session - this will raise an error later on
     end
 
-    EventLogger.log({ event: "redirect_to_one_login" })
+    EventLogger.log({ event: "redirect_to_one_login", sign_in_journey: auth_service.return_to })
   end
 
   # will call `Users::OmniauthController#failure` if there are any errors during the login process

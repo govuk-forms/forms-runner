@@ -24,7 +24,7 @@ module Users
 
       form_path_params = auth_service.form_path_params
       CurrentRequestLoggingAttributes.form_id = form_path_params[:form_id]
-      EventLogger.log({ event: "logged_in_with_one_login" })
+      EventLogger.log({ event: "logged_in_with_one_login", sign_in_journey: auth_service.return_to })
 
       redirect_after_sign_in
     rescue Store::ReturnFromOneLoginStore::MissingReturnParamsError => e
@@ -69,7 +69,7 @@ module Users
   private
 
     def redirect_after_sign_in
-      if auth_service.return_to == Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:save_and_return]
+      if auth_service.return_to == Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:save_progress]
         redirect_to save_progress_after_sign_in_path(**auth_service.form_path_params)
       elsif auth_service.return_to == Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:continue_saved_form]
         redirect_to continue_saved_form_signed_in_path(**auth_service.form_path_params)
@@ -80,7 +80,7 @@ module Users
 
     def auth_error_link_url
       case auth_service.return_to
-      when Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:save_and_return]
+      when Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:save_progress]
         save_progress_path(**auth_service.form_path_params)
       when Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:continue_saved_form]
         continue_saved_form_path(**auth_service.form_path_params)
