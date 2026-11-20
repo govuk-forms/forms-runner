@@ -55,7 +55,8 @@ locals {
     { name = "SETTINGS__FORMS_RUNNER__URL", value = "https://${local.runner_review_app_hostname}" },
     { name = "SETTINGS__AWS__ASSETS_S3_BUCKET_NAME", value = local.assets_bucket_name },
     { name = "ALLOWED_HOST_PATTERNS", value = "localhost:3000" },
-    { name = "SETTINGS__FEATURES__DESCRIBE_NONE_OF_THE_ABOVE_ENABLED", value = "true" }
+    { name = "SETTINGS__FEATURES__DESCRIBE_NONE_OF_THE_ABOVE_ENABLED", value = "true" },
+    { name = "SETTINGS__FEATURES__SAVE_AND_RETURN", value = "true" },
   ]
 }
 
