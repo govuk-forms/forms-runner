@@ -17,6 +17,10 @@ describe "forms/save_progress/show.html.erb" do
     assign(:continue_path, continue_path)
     assign(:auth_service, instance_double(AuthService, logged_in?: logged_in))
 
+    without_partial_double_verification do
+      allow(view).to receive(:sign_out_path).with(form_id: form.id, form_slug: form.form_slug).and_return("/sign-out")
+    end
+
     render
   end
 
@@ -43,7 +47,7 @@ describe "forms/save_progress/show.html.erb" do
   it "has a button to sign out of GOV.UK One Login" do
     expect(rendered).to have_button(I18n.t("sign_out_of_govuk_one_login")) do |button|
       expect(button).to match_css ".govuk-button--secondary"
-      expect(button.ancestor("form")[:action]).to eq omniauth_logout_path
+      expect(button.ancestor("form")[:action]).to eq "/sign-out"
     end
   end
 

@@ -37,6 +37,7 @@ Rails.application.routes.draw do
       get "/copy-of-answers" => "forms/copy_of_answers#show", as: :copy_of_answers
       post "/copy-of-answers" => "forms/copy_of_answers#save", as: :save_copy_of_answers
       get "/continue-to-login" => "forms/continue_to_one_login#show", as: :continue_to_one_login
+      post "/sign-out" => "forms/sign_out#create", as: :sign_out
       get "/#{CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG}" => "forms/check_your_answers#show", as: :check_your_answers
       post "/#{CheckYourAnswersStep::CHECK_YOUR_ANSWERS_STEP_SLUG}" => "forms/check_your_answers#submit_answers", as: :form_submit_answers
       get "what-do-you-want-to-do" => "forms/resume_options#show", as: :resume_options

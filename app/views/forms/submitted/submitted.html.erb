@@ -21,7 +21,7 @@
     <% end %>
 
     <% if @auth_service.logged_in? %>
-      <%= govuk_button_to(t('sign_out_of_govuk_one_login'), omniauth_logout_path, secondary: true) %>
+      <%= govuk_button_to(t('sign_out_of_govuk_one_login'), sign_out_path(form_id: @current_context.form.id, form_slug: @current_context.form.form_slug), secondary: true) %>
     <% end %>
   </div>
 </div>
