@@ -212,7 +212,7 @@ RSpec.describe FormHeaderComponent::View, type: :component do
       render_inline(described_class.new(current_context:, auth_service:, mode:))
 
       expect(page.find("header")).to have_button "Sign out" do |button|
-        expect(button.ancestor("form")[:action]).to eq "/auth/logout"
+        expect(button.ancestor("form")[:action]).to eq "/form/1/test/sign-out"
       end
     end
 

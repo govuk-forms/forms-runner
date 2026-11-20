@@ -14,6 +14,10 @@ describe "forms/submitted/submitted.html.erb" do
     assign(:current_context, OpenStruct.new(form:, get_submission_reference: reference, requested_email_confirmation?: requested_email_confirmation))
     assign(:auth_service, instance_double(AuthService, logged_in?: logged_in))
 
+    without_partial_double_verification do
+      allow(view).to receive(:sign_out_path).with(form_id: form.id, form_slug: form.form_slug).and_return("/sign-out")
+    end
+
     render template: "forms/submitted/submitted", locals: { requested_email_confirmation: }
   end
 
@@ -78,7 +82,7 @@ describe "forms/submitted/submitted.html.erb" do
     it "renders a sign out button" do
       expect(rendered).to have_button(I18n.t("sign_out_of_govuk_one_login")) do |button|
         expect(button).to match_css ".govuk-button--secondary"
-        expect(button.ancestor("form")[:action]).to eq omniauth_logout_path
+        expect(button.ancestor("form")[:action]).to eq "/sign-out"
       end
     end
   end

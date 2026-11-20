@@ -120,6 +120,26 @@ RSpec.describe AuthService do
     end
   end
 
+  describe "#token_present?" do
+    context "when there is a token in the session" do
+      let(:store) do
+        {
+          auth: { token:, authenticated_at: 0 },
+        }.with_indifferent_access
+      end
+
+      it "returns true even if the session has expired" do
+        expect(auth_service.token_present?).to be true
+      end
+    end
+
+    context "when there is no token in the session" do
+      it "returns false" do
+        expect(auth_service.token_present?).to be false
+      end
+    end
+  end
+
   describe "#logout_redirect_uri" do
     let(:store) do
       {

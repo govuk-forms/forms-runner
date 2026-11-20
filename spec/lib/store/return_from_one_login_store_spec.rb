@@ -22,13 +22,13 @@ RSpec.describe Store::ReturnFromOneLoginStore do
       })
     end
 
-    context "when returning to signed out page" do
+    context "when no form is given" do
       let(:return_to) do
         Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:signed_out]
       end
 
       it "does not store the form path params" do
-        return_from_one_login_store.store_return_params(form:, mode:, locale:, return_to:)
+        return_from_one_login_store.store_return_params(locale:, return_to:)
 
         expect(store["return_from_one_login"]).to eq({
           "last_locale" => locale,

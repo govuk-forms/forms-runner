@@ -29,7 +29,7 @@ module Store
       @store[RETURN_FROM_ONE_LOGIN_KEY][RETURN_TO_KEY] = return_to
       @store[RETURN_FROM_ONE_LOGIN_KEY][LAST_LOCALE_KEY] = locale
 
-      return if return_to == RETURN_TO_VALUES[:signed_out]
+      return if form.nil?
 
       @store[RETURN_FROM_ONE_LOGIN_KEY][LAST_FORM_ID_KEY] = form.id
       @store[RETURN_FROM_ONE_LOGIN_KEY][LAST_FORM_SLUG_KEY] = form.form_slug

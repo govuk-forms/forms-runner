@@ -39,7 +39,7 @@ module FormHeaderComponent
                 render(GovukOneLogin::ServiceHeaderComponent::View.new(
                          homepage_url:,
                          one_login_url: GovukOneLogin.home_url,
-                         sign_out_form_action: omniauth_logout_path,
+                         sign_out_form_action: sign_out_path(mode: @mode.to_s, form_id: @current_context.form.id, form_slug: @current_context.form.form_slug),
                        )),
                 govuk_service_navigation(**service_navigation_options),
               ], "\n")

@@ -45,6 +45,10 @@ class AuthService
     Data.define(:sub, :email).new(sub:, email:)
   end
 
+  def token_present?
+    @auth_store.get_token.present?
+  end
+
   def logout_redirect_uri(post_logout_redirect_uri)
     token = @auth_store.get_token
     logout_request = logout_utility.build_request(
