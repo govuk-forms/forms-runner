@@ -90,7 +90,7 @@ cy:
         already_saved_input:
           attributes:
             already_saved:
-              blank: Select whether you want to replace the saved version of the form
+              blank: Dewiswch ‘Ydw’ os ydych chi eisiau disodli’r fersiwn sydd wedi’i harbed
         copy_of_answers_input:
           attributes:
             copy_of_answers:
@@ -207,7 +207,7 @@ cy:
         resume_options_input:
           attributes:
             resume_options:
-              blank: Select whether you want to start a new form or continue filling in a saved form
+              blank: Dewiswch os ydych am ddechrau ffurflen newydd neu barhau i lenwi ffurflen sydd wedi’i harbed
   autocomplete:
     assistive_hint: 'Pan fo canlyniadau awtolenwi ar gael, defnyddiwch y saethau i fyny ac i lawr i adolygu a defnyddiwch ‘enter’ i ddewis. Defnyddwyr dyfeisiau cyffwrdd: chwiliwch drwy gyffwrdd neu sweipio'
     no_results: Dim canlyniadau wedi’u canfod
@@ -409,13 +409,19 @@ cy:
     back: Yn ôl
     continue_saved_form:
       new:
-        body_html: "<p>We use GOV.UK One Login to keep your information secure.</p><p>Sign in to your GOV.UK One Login to continue filling in your saved form.</p>"
-        continue_to_one_login_button: Continue to GOV.UK One Login
-        title: Sign in to your GOV.UK One Login
+        body_html: "<p>Rydym yn defnyddio GOV.UK One Login i gadw eich gwybodaeth yn ddiogel.</p><p>Mewngofnodwch i’ch GOV.UK One Login i barhau i lenwi’ch ffurflen sydd wedi’i harbed.</p>"
+        continue_to_one_login_button: Parhau i GOV.UK One Login
+        title: Mewngofnodi i’ch GOV.UK One Login
       not_found:
-        body_html: <p class="govuk-body">This could be because:</p><ul class="govuk-list govuk-list--bullet"><li>you did not save your progress for this form</li><li>you used a different GOV.UK One Login to save the form</li><li>it has been more than 30 days since you saved the form (we delete saved forms after 30 days)</li></ul>
-        start_new_form_button: Start a new form
-        title: We could not find your saved form
+        body_html: |
+          <p class="govuk-body">Gallai hyn fod oherwydd:</p>
+          <ul class="govuk-list govuk-list--bullet">
+            <li>rydych wedi arbed eich cynnydd gan ddefnyddio GOV.UK One Login gwahanol</li>
+            <li>mae wedi bod yn fwy na 30 diwrnod ers i chi arbed y ffurflen</li>
+            <li>ni wnaethoch arbed eich cynnydd ar gyfer y ffurflen hon</li>
+          </ul>
+        start_new_form_button: Dechrau ffurflen newydd
+        title: Nid ydym wedi gallu ddod o hyd i’ch ffurflen wedi’i harbed
     continue_to_one_login:
       show:
         body_html: "<p>Bydd yr e-bost gyda’ch atebion yn cael ei anfon i’r cyfeiriad e-bost sy’n gysylltiedig â’ch GOV.UK One Login.</p><p>Os ydych angen i’r atebion gael eu hanfon i gyfeiriad e-bost gwahanol - er enghraifft, eich e-bost gwaith - gallwch greu GOV.UK One Login newydd.</p>"
@@ -444,7 +450,7 @@ cy:
         title: Tynnu’ch ffeil
     resume_options:
       show:
-        title: What do you want to do?
+        title: Beth ydych chi eisiau ei wneud?
     review_file:
       show:
         check_file: Gwiriwch y ffeil sydd wedi’i huwchlwytho
@@ -453,20 +459,20 @@ cy:
         your_file: Eich ffeil chi
     save_progress:
       already_saved:
-        body_html: "<p>You last saved this form at %{time} on %{date}.</p>"
-        keep_saved: No, return to the form without saving
-        legend: Do you want to replace the saved version?
-        overwrite: Yes, replace the saved version
-        title: You already have a saved version of this form
+        body_html: "<p>Fe wnaethoch arbed y ffurflen hon ddiwethaf am %{time} ar %{date}.</p>"
+        keep_saved: Na, dychwelyd i’r ffurflen heb arbed
+        legend: Ydych chi eisiau disodli’r fersiwn sydd wedi’i harbed?
+        overwrite: Ydw, disodlwch y fersiwn sydd wedi’i harbed
+        title: Mae gennych fersiwn wedi’i harbed o’r ffurflen hon yn barod
       new:
-        body_html: "<p>We’ll email you a link so you can continue filling in the form when you’re ready.</p><p>We’ll send it to the email address you use to sign in with GOV.UK One Login.</p><p>We’ll delete your saved form after 30 days.</p>"
-        continue_to_one_login_button: Continue to GOV.UK One Login
-        signed_in_body_html: "<p>We’ll email you a link so you can continue filling in the form when you’re ready.</p><p>We’ll send it to the email address you use to sign in with GOV.UK One Login: %{email}.</p><p>We’ll delete your saved form after 30 days.</p>"
-        title: Use GOV.UK One Login to save your progress
+        body_html: "<p>Byddwn yn anfon dolen atoch drwy e-bost fel y gallwch barhau i lenwi’r ffurflen pan fyddwch yn barod.</p><p>Byddwn yn ei anfon i’r cyfeiriad e-bost rydych yn ei ddefnyddio i fewngofnodi gyda GOV.UK One Login.</p><p>Byddwn yn dileu eich ffurflen wedi’i harbed ar ôl 30 diwrnod.</p>"
+        continue_to_one_login_button: Parhau i GOV.UK One Login
+        signed_in_body_html: "<p>Byddwn yn anfon dolen atoch drwy e-bost fel y gallwch barhau i lenwi’r ffurflen pan fyddwch yn barod.</p><p>Byddwn yn ei anfon i’r cyfeiriad e-bost rydych yn ei ddefnyddio i fewngofnodi gyda GOV.UK One Login: %{email}.</p><p>Byddwn yn dileu eich ffurflen wedi’i harbed ar ôl 30 diwrnod.</p>"
+        title: Defnyddio GOV.UK One Login i arbed eich cynnydd
       show:
-        body_html: "<p>We’ve sent a link to %{email} so you can continue filling in the form when you are ready. This is the email address you use to sign in with GOV.UK One Login.</p><p>We’ll delete your saved form on %{deletion_date}.</p>"
-        continue_button: Continue filling the form
-        title: Your progress has been saved
+        body_html: "<p>Rydym wedi anfon dolen i %{email} fel y gallwch barhau i lenwi’r ffurflen pan fyddwch yn barod. Dyma’r cyfeiriad e-bost rydych yn ei ddefnyddio i fewngofnodi gyda GOV.UK One Login.</p><p>Byddwn yn dileu eich ffurflen wedi’i harbed ar %{deletion_date}.</p>"
+        continue_button: Parhau i lenwi’r ffurflen
+        title: Mae eich cynnydd wedi’i arbed
   gov_uk_forms: GOV.UK Forms
   govuk_components:
     govuk_summary_list:
@@ -486,7 +492,7 @@ cy:
         send_confirmation: Byddwn ond yn defnyddio’r cyfeiriad e-bost rydych yn ei ddarparu yma i anfon cadarnhad bod eich ffurflen wedi’i chyflwyno’n llwyddiannus. Ni fydd yn cynnwys copi o’ch atebion.
       resume_options_input:
         options:
-          continue_saved: You’ll need to sign in to your GOV.UK One Login
+          continue_saved: Bydd angen i chi fewngofnodi i’ch GOV.UK One Login
     label:
       add_another_answer_input:
         options:
@@ -507,8 +513,8 @@ cy:
           'yes': Ydw
       resume_options_input:
         options:
-          continue_saved: Continue filling in a saved form
-          start_new: Start a new form
+          continue_saved: Parhau i lenwi ffurflen sydd wedi’i harbed
+          start_new: Dechrau ffurflen newydd
     legend:
       email_confirmation_input:
         send_confirmation: Ydych chi eisiau derbyn e-bost yn cadarnhau bod eich ffurflen wedi’i chyflwyno?
@@ -530,12 +536,12 @@ cy:
     check_before_using: Check that these answers look safe before you use them
     form_name: 'Form name: “%{form_name}”'
     progress_saved:
-      continue_filling: 'Use this link to continue filling in the form: %{link}'
-      deletion_date: We’ll delete your saved form on %{date}.
-      subject: "%{form_name}: your progress has been saved"
-      you_cannot_reply: You cannot reply to this email. Use the contact details below if you need help with your form.
-      you_need_to_sign_in: You’ll need to sign in with GOV.UK One Login.
-      you_saved_progress: 'You saved your progress for the form: %{form_name}'
+      continue_filling: 'Defnyddiwch y ddolen hon i barhau i lenwi’r ffurflen: %{link}'
+      deletion_date: Byddwn yn dileu eich ffurflen wedi’i chadw ar %{date}.
+      subject: "%{form_name}: mae eich cynnydd wedi’i arbed"
+      you_cannot_reply: Ni allwch ymateb i’r e-bost hwn. Defnyddiwch y manylion cyswllt isod os oes angen help gyda’ch ffurflen.
+      you_need_to_sign_in: Bydd angen i chi fewngofnodi gyda GOV.UK One Login.
+      you_saved_progress: 'Rydych wedi arbed eich cynnydd ar gyfer y ffurflen: %{form_name}'
     submission:
       answers_submitted: Answers submitted
       csv_file: 'A CSV file of these answers is attached to this email in a file named: %{filename}'
@@ -741,7 +747,7 @@ cy:
   question/selection:
     divider: neu
   save_progress:
-    save_and_exit: Save and exit
+    save_and_exit: Arbed ac ymadael
   sign_out_of_govuk_one_login: Allgofnodi o GOV.UK One Login
   submission_csv:
     language: Language

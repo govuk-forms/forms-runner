@@ -1,6 +1,7 @@
 class ApplicationMailer < ActionMailer::Base
   helper BrandingHelper
   helper EmailFormatHelper
+  helper DateTimeFormatHelper
 
   layout "mailer"
 

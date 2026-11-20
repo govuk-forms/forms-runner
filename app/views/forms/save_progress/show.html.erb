@@ -4,7 +4,7 @@
   <div class="govuk-grid-column-two-thirds">
     <h1 class="govuk-heading-l"><%= t('.title') %></h1>
 
-    <%= t('.body_html', email: @one_login_email, deletion_date: @deletion_date) %>
+    <%= t('.body_html', email: @one_login_email, deletion_date: format_date(@deletion_date)) %>
 
     <%= govuk_button_link_to t('.continue_button'), @continue_path %>
 

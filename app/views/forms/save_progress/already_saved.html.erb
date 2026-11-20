@@ -12,7 +12,7 @@
       <% end %>
 
       <h1 class="govuk-heading-l"><%= t('.title') %></h1>
-      <%= t('.body_html', date: @last_saved_date, time: @last_saved_time) %>
+      <%= t('.body_html', date: format_date(@last_saved_at), time: format_time(@last_saved_at)) %>
       <%= f.govuk_radio_buttons_fieldset :already_saved, legend: { text: t('.legend'), tag: 'h2', size: 'm' } do %>
         <%= f.govuk_radio_button :already_saved, "overwrite", label: { text: t('.overwrite') } %>
         <%= f.govuk_radio_button :already_saved, "keep_saved", label: { text: t('.keep_saved') } %>
