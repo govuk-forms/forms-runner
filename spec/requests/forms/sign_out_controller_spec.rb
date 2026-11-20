@@ -5,10 +5,11 @@ RSpec.describe Forms::SignOutController do
   let(:steps) { [build(:question_step, :with_text_settings, id: 1)] }
   let(:mode) { "preview-draft" }
   let(:locale) { nil }
-  let(:logged_in) { true }
+  let(:authenticated_at) { Time.current.to_i }
+  let(:auth_session) { { "token" => "id-token", "authenticated_at" => authenticated_at } }
 
   let(:req_headers) { { "Accept" => "application/json" } }
-  let(:store) { {} }
+  let(:store) { { "auth" => auth_session }.compact }
   let(:auth_service) { AuthService.new(store) }
 
   before do
@@ -20,21 +21,38 @@ RSpec.describe Forms::SignOutController do
     allow(Flow::Context).to receive(:new).and_wrap_original do |original_method, *args|
       original_method.call(form: args[0][:form], form_document: args[0][:form_document], store:)
     end
-    allow(auth_service).to receive_messages(
-      logged_in?: logged_in,
-      logout_redirect_uri: "http://example.com/one-login-mock/logout",
-    )
+    allow(auth_service).to receive(:logout_redirect_uri).and_return("http://example.com/one-login-mock/logout")
     allow(AuthService).to receive(:new).and_return auth_service
 
     post sign_out_path(mode:, form_id: form.form_id, form_slug: form.form_slug, locale:)
   end
 
   describe "POST #create" do
-    context "when the user is not logged in" do
-      let(:logged_in) { false }
+    context "when there is no One Login token in the session" do
+      let(:auth_session) { nil }
 
-      it "responds 401 unauthorized" do
-        expect(response).to have_http_status :unauthorized
+      it "redirects to the GOV.UK One Login signed out page" do
+        expect(response).to redirect_to(GovukOneLogin.signed_out_url)
+      end
+
+      it "does not redirect to the GOV.UK One Login logout endpoint" do
+        expect(auth_service).not_to have_received(:logout_redirect_uri)
+      end
+
+      context "when the locale is not the default locale" do
+        let(:locale) { :cy }
+
+        it "redirects to the GOV.UK One Login signed out page in that language" do
+          expect(response).to redirect_to("#{GovukOneLogin.signed_out_url}?lng=cy")
+        end
+      end
+    end
+
+    context "when the One Login session has expired but the token is still in the session" do
+      let(:authenticated_at) { 0 }
+
+      it "redirects to the GOV.UK One Login logout endpoint" do
+        expect(response).to redirect_to("http://example.com/one-login-mock/logout")
       end
     end
 
