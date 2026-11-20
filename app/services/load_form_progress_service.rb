@@ -18,6 +18,8 @@ class LoadFormProgressService
     @current_context.set_submission_uuid(incomplete_submission.submission_uuid)
     CurrentRequestLoggingAttributes.submission_uuid = incomplete_submission.submission_uuid
 
+    EventLogger.log_form_event("incomplete_submission_loaded")
+
     incomplete_submission
   end
 end

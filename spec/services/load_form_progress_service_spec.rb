@@ -38,11 +38,31 @@ RSpec.describe LoadFormProgressService do
 
         expect(current_context.submission_locale).to eq(:cy)
       end
+
+      it "logs the incomplete submission loaded event with the saved submission uuid" do
+        logged_submission_uuid = nil
+        allow(EventLogger).to receive(:log_form_event) do
+          logged_submission_uuid = CurrentRequestLoggingAttributes.submission_uuid
+        end
+
+        service.load!
+
+        expect(EventLogger).to have_received(:log_form_event).with("incomplete_submission_loaded").once
+        expect(logged_submission_uuid).to eq("saved-uuid")
+      end
     end
 
     context "when the user has no saved progress for the form" do
       it "returns nil" do
         expect(service.load!).to be_nil
+      end
+
+      it "does not log an event" do
+        allow(EventLogger).to receive(:log_form_event)
+
+        service.load!
+
+        expect(EventLogger).not_to have_received(:log_form_event)
       end
     end
 

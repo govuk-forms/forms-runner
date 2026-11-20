@@ -19,6 +19,8 @@ class SaveFormProgressService
     incomplete_submission.updated_at = Time.current
     save_with_unique_submission_uuid!(incomplete_submission)
 
+    EventLogger.log_form_event("incomplete_submission_saved")
+
     enqueue_send_email_job(incomplete_submission)
   end
 
