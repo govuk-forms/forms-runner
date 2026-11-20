@@ -24,13 +24,10 @@ module Store
       @store = store
     end
 
-    def store_return_params(return_to:, locale:, form: nil, mode: nil)
+    def store_return_params(return_to:, locale:, form:, mode:)
       @store[RETURN_FROM_ONE_LOGIN_KEY] = {}
       @store[RETURN_FROM_ONE_LOGIN_KEY][RETURN_TO_KEY] = return_to
       @store[RETURN_FROM_ONE_LOGIN_KEY][LAST_LOCALE_KEY] = locale
-
-      return if form.nil?
-
       @store[RETURN_FROM_ONE_LOGIN_KEY][LAST_FORM_ID_KEY] = form.id
       @store[RETURN_FROM_ONE_LOGIN_KEY][LAST_FORM_SLUG_KEY] = form.form_slug
       @store[RETURN_FROM_ONE_LOGIN_KEY][LAST_MODE_KEY] = mode.to_s

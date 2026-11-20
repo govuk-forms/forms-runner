@@ -41,17 +41,6 @@ module Users
       end
     end
 
-    def logout
-      return head :unauthorized unless auth_service.logged_in?
-
-      auth_service.store_return_params(
-        return_to: Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:signed_out],
-        locale: locale_param,
-      )
-
-      redirect_to auth_service.logout_redirect_uri(omniauth_logged_out_url), allow_other_host: true
-    end
-
     def logged_out
       auth_service.clear_auth_session
 
