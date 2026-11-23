@@ -158,6 +158,20 @@ RSpec.describe Question::File, type: :model do
     end
   end
 
+  describe ".uploaded_file_key_from" do
+    it "returns the uploaded file key from a stored answer" do
+      expect(described_class.uploaded_file_key_from({ "uploaded_file_key" => "a-key", "original_filename" => "a.png" })).to eq("a-key")
+    end
+
+    it "returns nil when the stored answer has a blank uploaded file key" do
+      expect(described_class.uploaded_file_key_from({ "original_filename" => "" })).to be_nil
+    end
+
+    it "returns nil when the stored answer is not a hash" do
+      expect(described_class.uploaded_file_key_from([{ "uploaded_file_key" => "a-key" }])).to be_nil
+    end
+  end
+
   describe "#show_answer" do
     let(:original_filename) { Faker::File.file_name(dir: "", directory_separator: "") }
 

@@ -40,6 +40,10 @@ module Question
       "application/vnd.oasis.opendocument.text",
     ].freeze
 
+    def self.uploaded_file_key_from(answer)
+      answer["uploaded_file_key"].presence if answer.is_a?(Hash)
+    end
+
     def show_answer
       original_filename
     end
