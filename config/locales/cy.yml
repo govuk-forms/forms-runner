@@ -659,12 +659,13 @@ cy:
         caption: 'Byddwn ond yn cadw eich data personol am gyn hired ag:'
         list_item_0: mae’r gyfraith yn ei gwneud yn ofynnol i ni
         list_item_1: rydym ei angen at y dibenion a restrir uchod
-      section_1: Mae hyn yn golygu mai dim ond am flwyddyn y byddwn yn cadw eich data personol.
+      section_1: Rydym yn cadw cofnodion system am ddim mwy na blwyddyn.
+      section_2: Rydym yn cadw ymatebion i ffurflen am ddim mwy na 30 diwrnod ar ôl i chi eu harbed neu eu cyflwyno ddiwethaf.
     how_we_protect_data:
       heading: Sut rydym yn diogelu eich data a’i gadw’n ddiogel
       section_0: Rydym wedi ymrwymo i wneud popeth y gallwn i gadw’ch data yn ddiogel. Er mwyn atal mynediad neu ddatgelu anawdurdodedig, rydym wedi rhoi gweithdrefnau technegol a sefydliadol ar waith i ddiogelu’r data rydym yn ei gasglu amdanoch chi – er enghraifft, rydym yn diogelu’ch data gan ddefnyddio lefelau amrywiol o amgryptio. Rydym hefyd yn sicrhau bod gan unrhyw drydydd partïon rydym yn delio â nhw rwymedigaeth i gadw’r holl ddata personol y maent yn ei brosesu ar ein rhan yn ddiogel.
     preamble:
-      section_0: 'Diweddarwyd ddiwethaf: 6 Gorffennaf 2025'
+      section_0: 'Diweddarwyd ddiwethaf: 23 Tachwedd 2026'
       section_1: Crëwyd y ffurflen hon gan ddefnyddio GOV.UK Forms. Mae GOV.UK Forms yn gynnyrch a ddarperir gan Wasanaeth Digidol y Llywodraeth (GDS) sy’n rhan o’r Adran Gwyddoniaeth, Arloesi a Thechnoleg. Mae’n caniatáu i dimau llywodraeth y DU greu ffurflenni ar-lein i gasglu gwybodaeth gan bobl a sefydliadau.
       section_2: Y sefydliad a greodd y ffurflen ar-lein hon gan ddefnyddio GOV.UK Forms yw rheolydd data y data personol y maent yn ei gasglu gan ddefnyddio’r ffurflen, a’r Adran Gwyddoniaeth, Arloesi a Thechnoleg, trwy GDS, yw’r prosesydd data. Rhaid i’r rheolydd data ddweud wrthych am yr hyn maent yn ei wneud gyda’ch data personol - %{privacy_policy_link}.
       section_2_link_text: darllenwch wybodaeth preifatrwydd y rheolydd data ar gyfer y ffurflen hon
@@ -694,7 +695,7 @@ cy:
     title: Preifatrwydd
     using_one_login:
       heading: Defnyddio GOV.UK One Login
-      section_0: Wrth lenwi ffurflen, efallai y gofynnir i chi ddefnyddio GOV.UK One Login i gadarnhau eich manylion. Gallwch ddod o hyd i wybodaeth am sut mae GOV.UK One Login yn defnyddio’ch data yn %{one_login_link}.
+      section_0: Gall rhai ffurflenni ofyn i chi fewngofnodi gyda GOV.UK One Login. Gallwch ddod o hyd i wybodaeth am sut mae GOV.UK One Login yn defnyddio eich data yn %{one_login_link}.
       section_0_link_text: hysbysiad preifatrwydd GOV.UK One Login
     where_data_is_stored:
       heading: Lle mae eich data yn cael ei brosesu a’i gadw
