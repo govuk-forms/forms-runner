@@ -659,12 +659,13 @@ en:
         caption: 'We will only keep your personal data for as long as:'
         list_item_0: the law requires us to
         list_item_1: we need it for the purposes listed above
-      section_1: This means that we will only hold your personal data for one year.
+      section_1: We keep system logs for no longer than one year.
+      section_2: We keep form responses for no longer than 30 days after you last saved or submitted them.
     how_we_protect_data:
       heading: How we protect your data and keep it secure
       section_0: We are committed to doing all that we can to keep your data secure. To prevent unauthorised access or disclosure we have put in place technical and organisational procedures to secure the data we collect about you – for example, we protect your data using varying levels of encryption. We also make sure that any third parties that we deal with have an obligation to keep all personal data they process on our behalf secure.
     preamble:
-      section_0: 'Last updated: 6 July 2026'
+      section_0: 'Last updated: 23 November 2026'
       section_1: This form was created using GOV.UK Forms. GOV.UK Forms is a product provided by the Government Digital Service (GDS) which is part of the Department for Science, Innovation and Technology. It lets UK government teams create online forms to collect information from people and organisations.
       section_2: The organisation that created this online form using GOV.UK Forms is the data controller of personal data they collect using the form, whilst the Department for Science, Innovation and Technology, through GDS, is the data processor. The data controller must tell you about what they are doing with your personal data - %{privacy_policy_link}.
       section_2_link_text: read the data controller’s privacy information for this form
@@ -694,7 +695,7 @@ en:
     title: Privacy
     using_one_login:
       heading: Using GOV.UK One Login
-      section_0: When filling in a form, you may be asked to use GOV.UK One Login to confirm your details. You can find information about how GOV.UK One Login uses your data in the %{one_login_link}.
+      section_0: Some forms may ask you to sign in with GOV.UK One Login. You can find information about how GOV.UK One Login uses your data in the %{one_login_link}.
       section_0_link_text: GOV.UK One Login privacy notice
     where_data_is_stored:
       heading: Where your data is processed and stored
