@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe Forms::SignOutController do
+RSpec.describe Forms::SignOutController, :capture_logging do
   let(:form) { build :form_document, :with_support, steps:, start_page: 1, available_languages: %w[en cy] }
   let(:steps) { [build(:question_step, :with_text_settings, id: 1)] }
   let(:mode) { "preview-draft" }
@@ -65,6 +65,10 @@ RSpec.describe Forms::SignOutController do
         expect(auth_service)
           .to have_received(:logout_redirect_uri)
           .with a_string_starting_with(omniauth_logged_out_url)
+      end
+
+      it "logs the logging_out_of_one_login event with the form_id" do
+        expect(log_lines).to include(a_hash_including("event" => "logging_out_of_one_login", "form_id" => form.form_id.to_s))
       end
 
       it "stores the return from one login params in the session" do

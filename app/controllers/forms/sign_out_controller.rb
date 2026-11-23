@@ -12,6 +12,7 @@ module Forms
         return_to: Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:signed_out],
       )
 
+      EventLogger.log({ event: "logging_out_of_one_login" })
       redirect_to auth_service.logout_redirect_uri(omniauth_logged_out_url), allow_other_host: true
     end
 

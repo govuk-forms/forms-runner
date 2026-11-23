@@ -45,11 +45,14 @@ module Users
       auth_service.clear_auth_session
 
       begin
-        locale = auth_service.return_from_one_login_store.last_locale
+        return_from_one_login_store = auth_service.return_from_one_login_store
+        CurrentRequestLoggingAttributes.form_id = return_from_one_login_store.form_id
+        locale = return_from_one_login_store.last_locale
       rescue Store::ReturnFromOneLoginStore::MissingReturnParamsError => e
         CurrentRequestLoggingAttributes.rescued_exception = [e.class.name, e.message]
       end
 
+      EventLogger.log({ event: "logged_out_of_one_login" })
       redirect_to one_login_signed_out_url(locale), allow_other_host: true
     end
 

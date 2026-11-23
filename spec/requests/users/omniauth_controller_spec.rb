@@ -341,6 +341,10 @@ RSpec.describe Users::OmniauthController, type: :request do
         expect(store).not_to have_key("auth")
       end
 
+      it "logs the logged_out_of_one_login event with the form_id" do
+        expect(log_lines).to include(a_hash_including("event" => "logged_out_of_one_login", "form_id" => form_id))
+      end
+
       it "redirects to the GOV.UK One Login signed out page" do
         expect(response).to redirect_to("https://home.example.com/one-login-mock/signed-out?lng=cy")
       end
@@ -359,6 +363,10 @@ RSpec.describe Users::OmniauthController, type: :request do
 
       it "redirects to the GOV.UK One Login signed out page in the default locale" do
         expect(response).to redirect_to("https://home.example.com/one-login-mock/signed-out")
+      end
+
+      it "logs the logged_out_of_one_login event" do
+        expect(log_lines).to include(a_hash_including("event" => "logged_out_of_one_login"))
       end
 
       it "logs the error" do
