@@ -341,42 +341,15 @@ RSpec.describe Users::OmniauthController, type: :request do
         expect(store).not_to have_key("auth")
       end
 
-      context "when return_to is not set" do
-        let(:return_from_one_login_session) do
-          {
-            "last_form_id" => form_id,
-            "last_form_slug" => form_slug,
-            "last_mode" => mode,
-            "last_locale" => locale,
-          }
-        end
-
-        it "redirects to the form submitted page" do
-          expect(response).to redirect_to(form_submitted_path(form_id:, form_slug:, mode:, locale:))
-        end
+      it "redirects to the GOV.UK One Login signed out page" do
+        expect(response).to redirect_to("https://home.example.com/one-login-mock/signed-out?lng=cy")
       end
 
-      context "when the session says to return to copy of answers" do
-        let(:return_to) { "copy_of_answers" }
+      context "when the locale is nil" do
+        let(:locale) { nil }
 
-        it "redirects to the form submitted page" do
-          expect(response).to redirect_to(form_submitted_path(form_id:, form_slug:, mode:, locale:))
-        end
-      end
-
-      context "when the session says to return to signed out page" do
-        let(:return_to) { "signed_out" }
-
-        it "redirects to the GOV.UK One Login signed out page" do
-          expect(response).to redirect_to("https://home.example.com/one-login-mock/signed-out?lng=cy")
-        end
-
-        context "when the locale is nil" do
-          let(:locale) { nil }
-
-          it "redirects to the GOV.UK One Login signed out page in the default locale" do
-            expect(response).to redirect_to("https://home.example.com/one-login-mock/signed-out")
-          end
+        it "redirects to the GOV.UK One Login signed out page in the default locale" do
+          expect(response).to redirect_to("https://home.example.com/one-login-mock/signed-out")
         end
       end
     end
@@ -384,8 +357,8 @@ RSpec.describe Users::OmniauthController, type: :request do
     context "when the return from one login params are not set on the session" do
       let(:store) { {} }
 
-      it "redirects to the unknown form submitted page" do
-        expect(response).to redirect_to(:unknown_form_submitted)
+      it "redirects to the GOV.UK One Login signed out page in the default locale" do
+        expect(response).to redirect_to("https://home.example.com/one-login-mock/signed-out")
       end
 
       it "logs the error" do

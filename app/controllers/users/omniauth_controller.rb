@@ -44,15 +44,13 @@ module Users
     def logged_out
       auth_service.clear_auth_session
 
-      if auth_service.return_to == Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:signed_out]
-        return redirect_to one_login_signed_out_url, allow_other_host: true
+      begin
+        locale = auth_service.return_from_one_login_store.last_locale
+      rescue Store::ReturnFromOneLoginStore::MissingReturnParamsError => e
+        CurrentRequestLoggingAttributes.rescued_exception = [e.class.name, e.message]
       end
 
-      path_params = auth_service.form_path_params
-      redirect_to form_submitted_path(**path_params)
-    rescue Store::ReturnFromOneLoginStore::MissingReturnParamsError => e
-      CurrentRequestLoggingAttributes.rescued_exception = [e.class.name, e.message]
-      redirect_to :unknown_form_submitted
+      redirect_to one_login_signed_out_url(locale), allow_other_host: true
     end
 
   private
@@ -83,8 +81,7 @@ module Users
       exception.cause&.instance_of?(OmniAuth::GovukOneLogin::CallbackStateMismatchError)
     end
 
-    def one_login_signed_out_url
-      locale = auth_service.return_from_one_login_store.last_locale
+    def one_login_signed_out_url(locale)
       params = locale.present? ? "?lng=#{locale}" : ""
       "#{GovukOneLogin.signed_out_url}#{params}"
     end
