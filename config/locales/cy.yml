@@ -761,7 +761,3 @@ cy:
     link_text: "%{link} (agor mewn tab newydd)"
     online: Ar-lein
     phone: Ffôn
-  unknown_form_submitted:
-    show:
-      email_sent: Rydym wedi anfon e-bost cadarnhau atoch gyda chopi o’ch atebion.
-      title: Mae eich ffurflen wedi’i chyflwyno

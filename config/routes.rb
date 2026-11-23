@@ -3,7 +3,6 @@ Rails.application.routes.draw do
 
   get "/auth/govuk_one_login/callback", to: "users/omniauth#callback", as: :omniauth_callback
   get "/auth/failure", to: "users/omniauth#failure", as: :omniauth_failure
-  post "/auth/logout", to: "users/omniauth#logout", as: :omniauth_logout
   get "/auth/logged-out", to: "users/omniauth#logged_out", as: :omniauth_logged_out
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -126,8 +125,6 @@ Rails.application.routes.draw do
       get "/repeat-submission" => "forms/base#error_repeat_submission", as: :error_repeat_submission, via: :all
     end
   end
-
-  get "/submitted" => "unknown_form_submitted#show", as: :unknown_form_submitted
 
   get "/maintenance" => "errors#maintenance", as: :maintenance_page
   get "/404", to: "errors#not_found", as: :error_404, via: :all
