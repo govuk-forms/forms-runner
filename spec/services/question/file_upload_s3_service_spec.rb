@@ -81,6 +81,42 @@ RSpec.describe Question::FileUploadS3Service do
     end
   end
 
+  describe "#file_exists?" do
+    context "when the file exists in S3" do
+      it "returns true" do
+        expect(service.file_exists?(key)).to be true
+      end
+
+      it "makes a head request for the object" do
+        allow(mock_s3_client).to receive(:head_object).and_call_original
+
+        service.file_exists?(key)
+
+        expect(mock_s3_client).to have_received(:head_object).with({ bucket:, key: })
+      end
+    end
+
+    context "when the file does not exist in S3" do
+      before do
+        mock_s3_client.stub_responses(:head_object, "NotFound")
+      end
+
+      it "returns false" do
+        expect(service.file_exists?(key)).to be false
+      end
+    end
+
+    context "when S3 returns another error" do
+      before do
+        mock_s3_client.stub_responses(:head_object, "Forbidden")
+      end
+
+      it "raises the error" do
+        expect { service.file_exists?(key) }.to raise_error(Aws::S3::Errors::Forbidden)
+      end
+    end
+  end
+
   describe "#delete_from_s3" do
     before do
       allow(mock_s3_client).to receive(:delete_object)
