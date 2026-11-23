@@ -12,7 +12,8 @@ class LoadFormProgressService
     @current_context.clear
     @current_context.clear_submission_details
 
-    @current_context.load_answers(incomplete_submission.answers)
+    answers = answers_without_missing_files(incomplete_submission.answers)
+    @current_context.load_answers(answers)
     @current_context.add_locale(incomplete_submission.locale)
 
     @current_context.set_submission_uuid(incomplete_submission.submission_uuid)
@@ -21,5 +22,27 @@ class LoadFormProgressService
     EventLogger.log_form_event("incomplete_submission_loaded")
 
     incomplete_submission
+  end
+
+private
+
+  def answers_without_missing_files(answers)
+    return answers if answers.blank?
+
+    answers.select do |_page_id, answer|
+      key = Question::File.uploaded_file_key_from(answer)
+      key.nil? || uploaded_file_exists?(key)
+    end
+  end
+
+  def uploaded_file_exists?(key)
+    return true if file_upload_s3_service.file_exists?(key)
+
+    FileUploadLogger.log_s3_operation(key, "Uploaded file for saved answer no longer exists in S3, not loading answer")
+    false
+  end
+
+  def file_upload_s3_service
+    @file_upload_s3_service ||= Question::FileUploadS3Service.new
   end
 end

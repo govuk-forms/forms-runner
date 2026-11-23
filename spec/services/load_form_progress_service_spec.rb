@@ -52,6 +52,51 @@ RSpec.describe LoadFormProgressService do
       end
     end
 
+    context "when the saved answers include uploaded files" do
+      let(:file_upload_s3_service) { instance_double(Question::FileUploadS3Service) }
+      let(:existing_file_answer) { { "uploaded_file_key" => "existing-key", "original_filename" => "a.png" } }
+      let(:missing_file_answer) { { "uploaded_file_key" => "missing-key", "original_filename" => "b.png" } }
+      let(:skipped_optional_file_answer) { { "original_filename" => "" } }
+      let(:text_answer) { { "text" => "a saved answer" } }
+
+      before do
+        allow(Question::FileUploadS3Service).to receive(:new).and_return(file_upload_s3_service)
+        allow(file_upload_s3_service).to receive(:file_exists?).with("existing-key").and_return(true)
+        allow(file_upload_s3_service).to receive(:file_exists?).with("missing-key").and_return(false)
+        allow(FileUploadLogger).to receive(:log_s3_operation)
+
+        create(:incomplete_submission, user_id:, form_id: form.id, answers: {
+          "1" => text_answer,
+          "2" => existing_file_answer,
+          "3" => missing_file_answer,
+          "4" => skipped_optional_file_answer,
+        })
+      end
+
+      it "only loads file upload answers whose file still exists in S3" do
+        service.load!
+
+        expect(current_context.answers).to eq({
+          "1" => text_answer,
+          "2" => existing_file_answer,
+          "4" => skipped_optional_file_answer,
+        })
+      end
+
+      it "only checks S3 for answers with an uploaded file" do
+        service.load!
+
+        expect(file_upload_s3_service).to have_received(:file_exists?).twice
+      end
+
+      it "logs that the missing file's answer was not loaded" do
+        service.load!
+
+        expect(FileUploadLogger).to have_received(:log_s3_operation)
+          .with("missing-key", "Uploaded file for saved answer no longer exists in S3, not loading answer")
+      end
+    end
+
     context "when the user has no saved progress for the form" do
       it "returns nil" do
         expect(service.load!).to be_nil
