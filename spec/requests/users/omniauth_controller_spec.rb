@@ -356,6 +356,18 @@ RSpec.describe Users::OmniauthController, type: :request do
           expect(response).to redirect_to("https://home.example.com/one-login-mock/signed-out")
         end
       end
+
+      context "when the user is signing out to sign in to a different GOV.UK One Login" do
+        let(:return_to) { "sign_in_again_to_save" }
+
+        it "clears the auth details on the session" do
+          expect(store).not_to have_key("auth")
+        end
+
+        it "redirects to the save progress sign in again page" do
+          expect(response).to redirect_to(save_progress_sign_in_again_path(mode:, form_id:, form_slug:, locale:))
+        end
+      end
     end
 
     context "when the return from one login params are not set on the session" do

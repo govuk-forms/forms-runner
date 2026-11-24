@@ -538,8 +538,13 @@ RSpec.describe Forms::SaveProgressController, type: :request do
 
       context "when the user chooses to use a different GOV.UK One Login" do
         let(:continue_with_this_one_login_choice) { "no" }
+        let(:auth_service) { AuthService.new(store) }
 
-        before { post_create }
+        before do
+          allow(AuthService).to receive(:new).and_return(auth_service)
+          allow(auth_service).to receive(:logout_redirect_uri).and_return("http://example.com/one-login-mock/logout")
+          post_create
+        end
 
         it "does not save the answers" do
           expect(IncompleteSubmission.count).to eq 0
@@ -547,6 +552,26 @@ RSpec.describe Forms::SaveProgressController, type: :request do
 
         it "does not send the progress saved email" do
           expect(SendProgressSavedEmailJob).not_to have_received(:perform_later)
+        end
+
+        it "redirects to the GOV.UK One Login logout endpoint" do
+          expect(response).to redirect_to("http://example.com/one-login-mock/logout")
+        end
+
+        it "asks GOV.UK One Login to send the user back to the logged out route" do
+          expect(auth_service)
+            .to have_received(:logout_redirect_uri)
+            .with a_string_starting_with(omniauth_logged_out_url)
+        end
+
+        it "stores the sign in again return params in the session" do
+          expect(store["return_from_one_login"]).to eq({
+            "return_to" => "sign_in_again_to_save",
+            "last_form_id" => form.form_id,
+            "last_form_slug" => form.form_slug,
+            "last_mode" => mode,
+            "last_locale" => nil,
+          })
         end
       end
 

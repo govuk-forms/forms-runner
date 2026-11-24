@@ -40,10 +40,7 @@ module Forms
       @continue_with_one_login_input = ContinueWithOneLoginInput.new(continue_with_one_login_input_params)
       return render_signed_in(status: :unprocessable_content) unless @continue_with_one_login_input.valid?
 
-      unless @continue_with_one_login_input.continue?
-        # TODO: sign the user out of GOV.UK One Login so they can sign in with a different account
-        return
-      end
+      return sign_out_and_sign_in_again unless @continue_with_one_login_input.continue?
 
       saved = find_saved_progress
       return render_already_saved(saved) if saved
@@ -100,6 +97,18 @@ module Forms
         locale: locale_param,
         return_to: Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:save_progress],
       )
+    end
+
+    def sign_out_and_sign_in_again
+      auth_service.store_return_params(
+        form: current_context.form,
+        mode:,
+        locale: locale_param,
+        return_to: Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:sign_in_again_to_save],
+      )
+
+      EventLogger.log({ event: "sign_in_with_different_one_login_to_save" })
+      redirect_to auth_service.logout_redirect_uri(omniauth_logged_out_url), allow_other_host: true
     end
 
     def render_signed_in(status: :ok)
