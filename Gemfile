@@ -6,7 +6,7 @@ ruby file: ".ruby-version"
 gem "rails", "~> 8.1.4"
 
 # Use the Puma web server [https://github.com/puma/puma]
-gem "puma", "~> 8.0.2"
+gem "puma", "~> 8.1.2"
 
 # Use Sentry (https://sentry.io/for/ruby/?platform=sentry.ruby.rails#)
 gem "sentry-rails", "~> 7"
@@ -62,14 +62,14 @@ gem "lograge"
 # For distributed tracing and telemetry
 gem "opentelemetry-exporter-otlp", "~> 0.37.0"
 gem "opentelemetry-exporter-otlp-metrics", "~> 0.15.0"
-gem "opentelemetry-instrumentation-all", "~> 0.100.0"
+gem "opentelemetry-instrumentation-all", "~> 0.101.0"
 gem "opentelemetry-metrics-sdk", "~> 0.22.0"
 gem "opentelemetry-propagator-xray", "~> 0.27.0"
 gem "opentelemetry-sdk", "~> 1.13"
 
 # For AWS interactions
 gem "aws-sdk-cloudwatch"
-gem "aws-sdk-codepipeline", "~> 1.128"
+gem "aws-sdk-codepipeline", "~> 1.131"
 gem "aws-sdk-kms"
 gem "aws-sdk-s3"
 gem "aws-sdk-sesv2"
