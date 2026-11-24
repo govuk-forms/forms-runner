@@ -380,6 +380,74 @@ RSpec.describe Forms::SaveProgressController, type: :request do
     end
   end
 
+  describe "GET #sign_in_again" do
+    def get_sign_in_again
+      get save_progress_sign_in_again_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
+    end
+
+    context "when save and return is disabled on the form" do
+      let(:form) do
+        build(:form_document, :with_support, form_id: 2, start_page: 1, steps:, available_languages:, save_and_return: "disabled")
+      end
+
+      let(:answers) do
+        { "1" => { "text" => "answer 1" } }
+      end
+
+      before { get_sign_in_again }
+
+      it "redirects to the next step in the form" do
+        expect(response).to redirect_to(form_step_path(form.form_id, form.form_slug, 2, mode:))
+      end
+    end
+
+    context "when the user is not signed in to GOV.UK One Login" do
+      before { get_sign_in_again }
+
+      it "returns http success" do
+        expect(response).to have_http_status(:ok)
+      end
+
+      it "renders the sign in again page" do
+        expect(response).to render_template(:new)
+        expect(response.body).to include("Sign in to a different GOV.UK One Login")
+      end
+
+      it "stores the save progress return params for returning from One Login on the session" do
+        expect(store["return_from_one_login"]).to eq({
+          "last_form_id" => form.form_id,
+          "last_form_slug" => form.form_slug,
+          "last_mode" => mode.to_s,
+          "last_locale" => nil,
+          "return_to" => "save_progress",
+        })
+      end
+
+      it "has a back link to the next page in the form" do
+        expect(back_link_href).to eq check_your_answers_path(form_id: form.form_id, form_slug: form.form_slug, mode:)
+      end
+    end
+
+    context "when the user is signed in to GOV.UK One Login" do
+      let(:auth_session) do
+        {
+          auth: {
+            sub: "user-sub-123",
+            email: "test@example.com",
+            token: "a-token",
+            authenticated_at: Time.current.to_i,
+          },
+        }
+      end
+
+      before { get_sign_in_again }
+
+      it "redirects to the save progress page" do
+        expect(response).to redirect_to(save_progress_path(form.form_id, form.form_slug, mode:))
+      end
+    end
+  end
+
   describe "POST #create" do
     let(:continue_with_this_one_login_choice) { "yes" }
 

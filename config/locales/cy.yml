@@ -472,6 +472,7 @@ cy:
       new:
         body_html: "<p>Byddwn yn anfon dolen atoch drwy e-bost fel y gallwch barhau i lenwi’r ffurflen pan fyddwch yn barod.</p><p>Byddwn yn ei anfon i’r cyfeiriad e-bost rydych yn ei ddefnyddio i fewngofnodi gyda GOV.UK One Login.</p><p>Byddwn yn dileu eich ffurflen wedi’i harbed ar ôl 30 diwrnod.</p>"
         continue_to_one_login_button: Parhau i GOV.UK One Login
+        sign_in_again_title: Mewngofnodi i GOV.UK One Login gwahanol
         title: Defnyddio GOV.UK One Login i arbed eich cynnydd
       show:
         body_html: "<p>Rydym wedi anfon dolen i %{email} fel y gallwch barhau i lenwi’r ffurflen pan fyddwch yn barod. Dyma’r cyfeiriad e-bost rydych yn ei ddefnyddio i fewngofnodi gyda GOV.UK One Login.</p><p>Byddwn yn dileu eich ffurflen wedi’i harbed ar %{deletion_date}.</p>"

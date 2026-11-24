@@ -1,4 +1,5 @@
-<% set_page_title(form_title(form_name: @current_context.form.name, page_name: t('.title'), mode: @mode)) %>
+<% title = @sign_in_again ? t('.sign_in_again_title') : t('.title') %>
+<% set_page_title(form_title(form_name: @current_context.form.name, page_name: title, mode: @mode)) %>
 
 <% content_for :back_link do %>
     <%= link_to t("forms.back"), @back_link, class: "govuk-back-link" %>
@@ -6,7 +7,7 @@
 
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
-    <h1 class="govuk-heading-l"><%= t('.title') %></h1>
+    <h1 class="govuk-heading-l"><%= title %></h1>
 
     <%= t('.body_html') %>
 

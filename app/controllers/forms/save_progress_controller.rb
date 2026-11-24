@@ -9,12 +9,16 @@ module Forms
 
       return render_signed_in if auth_service.logged_in?
 
-      auth_service.store_return_params(
-        form: current_context.form,
-        mode:,
-        locale: locale_param,
-        return_to: Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:save_progress],
-      )
+      store_save_progress_return_params
+    end
+
+    def sign_in_again
+      return redirect_to(save_progress_path(current_context.form.id, current_context.form.form_slug)) if auth_service.logged_in?
+
+      @back_link = continue_path
+      @sign_in_again = true
+      store_save_progress_return_params
+      render :new
     end
 
     def after_sign_in
@@ -87,6 +91,15 @@ module Forms
 
     def already_saved_input_params
       params.fetch(:already_saved_input, ActionController::Parameters.new).permit(:already_saved)
+    end
+
+    def store_save_progress_return_params
+      auth_service.store_return_params(
+        form: current_context.form,
+        mode:,
+        locale: locale_param,
+        return_to: Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:save_progress],
+      )
     end
 
     def render_signed_in(status: :ok)
