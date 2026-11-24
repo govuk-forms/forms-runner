@@ -43,6 +43,16 @@ class Question::FileUploadS3Service
     raise
   end
 
+  def file_exists?(key)
+    @s3.head_object({
+      bucket: @bucket,
+      key:,
+    })
+    true
+  rescue Aws::S3::Errors::NotFound
+    false
+  end
+
   def delete_from_s3(key)
     @s3.delete_object({
       bucket: @bucket,
