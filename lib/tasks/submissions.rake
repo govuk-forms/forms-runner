@@ -151,7 +151,7 @@ namespace :submissions do
       next
     end
 
-    unless delivery.failed?
+    unless delivery.failed? && delivery.failure_reason == "bounced"
       Rails.logger.info "Delivery with delivery_reference #{delivery_reference} hasn't bounced"
       next
     end
@@ -187,6 +187,7 @@ namespace :submissions do
     Rails.logger.info "Dry run mode: #{dry_run ? 'enabled' : 'disabled'}"
 
     deliveries = Delivery.failed
+                         .where(failure_reason: "bounced")
                          .joins(:submissions)
                          .where(submissions: { form_id: form_id })
                          .where(created_at: start_time..end_time)

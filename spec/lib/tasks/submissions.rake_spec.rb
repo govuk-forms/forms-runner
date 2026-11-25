@@ -217,7 +217,7 @@ RSpec.describe "submissions.rake", type: :task do
     let(:args) { [delivery_reference] }
     let(:form_id) { 1 }
     let!(:submission) { create :submission, :bounced, form_id:, reference: "submission-reference" }
-    let!(:delivery) { create :delivery, :failed, submissions: [submission], delivery_reference: delivery_reference }
+    let!(:delivery) { create :delivery, :bounced, submissions: [submission], delivery_reference: delivery_reference }
 
     context "with valid arguments" do
       context "when the delivery is bounced" do
@@ -241,7 +241,7 @@ RSpec.describe "submissions.rake", type: :task do
       end
 
       context "when the delivery has both delivered_at and failed_at set and is considered bounced" do
-        let!(:delivery) { create :delivery, :failed_after_delivery, submissions: [submission], delivery_reference: delivery_reference }
+        let!(:delivery) { create :delivery, :bounced_after_delivery, submissions: [submission], delivery_reference: delivery_reference }
 
         it "clears the bounced status and keeps the time SES delivered the email" do
           expect { task.invoke(*args) }.not_to(change { delivery.reload.delivered_at })
@@ -259,6 +259,23 @@ RSpec.describe "submissions.rake", type: :task do
           expect(Rails.logger).to receive(:info).with("No delivery found with delivery_reference non-existent reference")
 
           task.invoke(*args)
+        end
+      end
+
+      context "when the delivery failed for a reason other than a bounce" do
+        let!(:delivery) { create :delivery, :failed, failure_reason: "enqueue_failed", submissions: [submission], delivery_reference: delivery_reference }
+
+        it "logs that the delivery hasn't bounced" do
+          allow(Rails.logger).to receive(:info)
+          expect(Rails.logger).to receive(:info).with("Delivery with delivery_reference #{delivery_reference} hasn't bounced")
+
+          task.invoke(*args)
+        end
+
+        it "does not update the delivery" do
+          expect {
+            task.invoke(*args)
+          }.not_to(change { delivery.reload.attributes })
         end
       end
 
@@ -305,17 +322,17 @@ RSpec.describe "submissions.rake", type: :task do
 
     let!(:early_matching_delivery) do
       submission = create(:submission, form_id:)
-      create :delivery, :failed, submissions: [submission], created_at: Time.parse("2024-01-01T12:00:00Z")
+      create :delivery, :bounced, submissions: [submission], created_at: Time.parse("2024-01-01T12:00:00Z")
     end
 
     let!(:late_matching_delivery) do
       submission = create(:submission, form_id:)
-      create :delivery, :failed, submissions: [submission], created_at: Time.parse("2024-01-01T18:00:00Z")
+      create :delivery, :bounced, submissions: [submission], created_at: Time.parse("2024-01-01T18:00:00Z")
     end
 
     let!(:matching_batch_delivery) do
       submission = create(:submission, form_id:)
-      create :delivery, :failed, :daily_scheduled_delivery, submissions: [submission], created_at: Time.parse("2024-01-01T12:00:00Z")
+      create :delivery, :bounced, :daily_scheduled_delivery, submissions: [submission], created_at: Time.parse("2024-01-01T12:00:00Z")
     end
 
     let!(:not_bounced_delivery) do
@@ -323,14 +340,19 @@ RSpec.describe "submissions.rake", type: :task do
       create :delivery, submissions: [submission], created_at: Time.parse("2024-01-01T12:00:00Z")
     end
 
+    let!(:non_bounce_failed_delivery) do
+      submission = create(:submission, form_id:)
+      create :delivery, :failed, failure_reason: "enqueue_failed", submissions: [submission], created_at: Time.parse("2024-01-01T12:00:00Z")
+    end
+
     let!(:non_matching_delivery_different_form) do
       submission = create(:submission, form_id: other_form_id)
-      create :delivery, :failed, submissions: [submission], created_at: Time.parse("2024-01-01T12:00:00Z")
+      create :delivery, :bounced, submissions: [submission], created_at: Time.parse("2024-01-01T12:00:00Z")
     end
 
     let!(:non_matching_delivery_different_time) do
       submission = create(:submission, form_id:)
-      create :delivery, :failed, submissions: [submission], created_at: Time.parse("2023-12-31T23:59:59Z")
+      create :delivery, :bounced, submissions: [submission], created_at: Time.parse("2023-12-31T23:59:59Z")
     end
 
     context "with valid arguments" do
@@ -356,6 +378,7 @@ RSpec.describe "submissions.rake", type: :task do
         expect {
           task.invoke(*valid_args)
         }.to not_change { not_bounced_delivery.reload.attributes }
+               .and not_change { non_bounce_failed_delivery.reload.attributes }
                .and not_change { non_matching_delivery_different_form.reload.failed_at }
                .and(not_change { non_matching_delivery_different_time.reload.failed_at })
       end
