@@ -45,6 +45,7 @@ Rails.application.routes.draw do
       get "continue-saved-form/signed-in" => "forms/continue_saved_form#signed_in", as: :continue_saved_form_signed_in
       get "/save-your-progress" => "forms/save_progress#new", as: :save_progress
       get "/save-your-progress/after-sign-in" => "forms/save_progress#after_sign_in", as: :save_progress_after_sign_in
+      get "/save-your-progress/sign-in-again" => "forms/save_progress#sign_in_again", as: :save_progress_sign_in_again
       post "/save-your-progress" => "forms/save_progress#create", as: :create_save_progress
       post "/save-your-progress/overwrite" => "forms/save_progress#overwrite", as: :overwrite_saved_progress
       get "/progress-saved" => "forms/save_progress#show", as: :progress_saved

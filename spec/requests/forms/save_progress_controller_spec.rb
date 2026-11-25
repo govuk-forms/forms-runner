@@ -155,9 +155,10 @@ RSpec.describe Forms::SaveProgressController, type: :request do
         expect(response).to have_http_status(:ok)
       end
 
-      it "renders the page with the button to save progress" do
-        expect(response).to render_template(:new)
+      it "renders the page asking whether to continue with the signed in GOV.UK One Login" do
+        expect(response).to render_template(:signed_in)
         expect(response.body).to include("test@example.com")
+        expect(response.body).to include("Do you want to continue with this GOV.UK One Login?")
       end
 
       context "when the user already has saved answers for the form" do
@@ -166,39 +167,13 @@ RSpec.describe Forms::SaveProgressController, type: :request do
                  user_id: "user-sub-123",
                  form_id: form.form_id,
                  answers: { "1" => { "text" => "previous answer" } },
-                 mode:,
-                 updated_at: Time.zone.local(2026, 5, 6, 12, 32))
+                 mode:)
 
           get save_progress_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
         end
 
-        it "shows when the answers were last saved" do
-          expect(response.body).to include("You last saved this form at 12:32pm on 6 May 2026.")
-        end
-
-        it "has a back link to the next page in the form" do
-          expect(back_link_href).to eq check_your_answers_path(form_id: form.form_id, form_slug: form.form_slug, mode:)
-        end
-      end
-
-      context "when the user has saved answers for the form in a different mode" do
-        before do
-          create(:incomplete_submission,
-                 user_id: "user-sub-123",
-                 form_id: form.form_id,
-                 answers: { "1" => { "text" => "previous answer" } },
-                 mode: "preview-live")
-
-          get save_progress_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
-        end
-
-        it "renders the page with the button to save progress" do
-          expect(response).to render_template(:new)
-        end
-
-        it "does not show the already saved page" do
-          expect(response).not_to render_template(:already_saved)
-          expect(response.body).not_to include("You already have a saved version of this form")
+        it "renders the page asking whether to continue with the signed in GOV.UK One Login" do
+          expect(response).to render_template(:signed_in)
         end
       end
     end
@@ -405,10 +380,9 @@ RSpec.describe Forms::SaveProgressController, type: :request do
     end
   end
 
-  describe "POST #create" do
-    before do
-      allow(SendProgressSavedEmailJob).to receive(:perform_later)
-      post create_save_progress_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
+  describe "GET #sign_in_again" do
+    def get_sign_in_again
+      get save_progress_sign_in_again_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
     end
 
     context "when save and return is disabled on the form" do
@@ -419,6 +393,83 @@ RSpec.describe Forms::SaveProgressController, type: :request do
       let(:answers) do
         { "1" => { "text" => "answer 1" } }
       end
+
+      before { get_sign_in_again }
+
+      it "redirects to the next step in the form" do
+        expect(response).to redirect_to(form_step_path(form.form_id, form.form_slug, 2, mode:))
+      end
+    end
+
+    context "when the user is not signed in to GOV.UK One Login" do
+      before { get_sign_in_again }
+
+      it "returns http success" do
+        expect(response).to have_http_status(:ok)
+      end
+
+      it "renders the sign in again page" do
+        expect(response).to render_template(:new)
+        expect(response.body).to include("Sign in to a different GOV.UK One Login")
+      end
+
+      it "stores the save progress return params for returning from One Login on the session" do
+        expect(store["return_from_one_login"]).to eq({
+          "last_form_id" => form.form_id,
+          "last_form_slug" => form.form_slug,
+          "last_mode" => mode.to_s,
+          "last_locale" => nil,
+          "return_to" => "save_progress",
+        })
+      end
+
+      it "has a back link to the next page in the form" do
+        expect(back_link_href).to eq check_your_answers_path(form_id: form.form_id, form_slug: form.form_slug, mode:)
+      end
+    end
+
+    context "when the user is signed in to GOV.UK One Login" do
+      let(:auth_session) do
+        {
+          auth: {
+            sub: "user-sub-123",
+            email: "test@example.com",
+            token: "a-token",
+            authenticated_at: Time.current.to_i,
+          },
+        }
+      end
+
+      before { get_sign_in_again }
+
+      it "redirects to the save progress page" do
+        expect(response).to redirect_to(save_progress_path(form.form_id, form.form_slug, mode:))
+      end
+    end
+  end
+
+  describe "POST #create" do
+    let(:continue_with_this_one_login_choice) { "yes" }
+
+    def post_create
+      post create_save_progress_path(mode:, form_id: form.form_id, form_slug: form.form_slug),
+           params: { continue_with_one_login_input: { continue_with_this_one_login: continue_with_this_one_login_choice } }
+    end
+
+    before do
+      allow(SendProgressSavedEmailJob).to receive(:perform_later)
+    end
+
+    context "when save and return is disabled on the form" do
+      let(:form) do
+        build(:form_document, :with_support, form_id: 2, start_page: 1, steps:, available_languages:, save_and_return: "disabled")
+      end
+
+      let(:answers) do
+        { "1" => { "text" => "answer 1" } }
+      end
+
+      before { post_create }
 
       it "redirects to the next step in the form" do
         expect(response).to redirect_to(form_step_path(form.form_id, form.form_slug, 2, mode:))
@@ -441,27 +492,109 @@ RSpec.describe Forms::SaveProgressController, type: :request do
         }
       end
 
-      it "saves the current answers keyed by the One Login sub" do
-        incomplete_submission = IncompleteSubmission.find_by(user_id: "user-sub-123", form_id: form.form_id)
+      context "when the user chooses to continue with their GOV.UK One Login" do
+        before { post_create }
 
-        expect(incomplete_submission).to be_present
-        expect(incomplete_submission.answers).to eq answers
-        expect(incomplete_submission.mode).to eq mode
+        it "saves the current answers keyed by the One Login sub" do
+          incomplete_submission = IncompleteSubmission.find_by(user_id: "user-sub-123", form_id: form.form_id)
+
+          expect(incomplete_submission).to be_present
+          expect(incomplete_submission.answers).to eq answers
+          expect(incomplete_submission.mode).to eq mode
+        end
+
+        it "sends the progress saved email to the One Login email address" do
+          expect(SendProgressSavedEmailJob).to have_received(:perform_later).with(
+            incomplete_submission: IncompleteSubmission.find_by(user_id: "user-sub-123", form_id: form.form_id),
+            email_address: "test@example.com",
+          )
+        end
+
+        it "redirects to the progress saved confirmation page" do
+          expect(response).to redirect_to(progress_saved_path(form.form_id, form.form_slug, mode:))
+        end
       end
 
-      it "sends the progress saved email to the One Login email address" do
-        expect(SendProgressSavedEmailJob).to have_received(:perform_later).with(
-          incomplete_submission: IncompleteSubmission.find_by(user_id: "user-sub-123", form_id: form.form_id),
-          email_address: "test@example.com",
-        )
+      context "when the user chooses to continue and already has saved answers for the form" do
+        before do
+          create(:incomplete_submission,
+                 user_id: "user-sub-123",
+                 form_id: form.form_id,
+                 answers: { "1" => { "text" => "previous answer" } },
+                 mode:)
+          post_create
+        end
+
+        it "renders the page asking whether to replace the saved answers" do
+          expect(response).to render_template(:already_saved)
+        end
+
+        it "does not overwrite the saved answers" do
+          incomplete_submission = IncompleteSubmission.find_by(user_id: "user-sub-123", form_id: form.form_id)
+
+          expect(incomplete_submission.answers).to eq("1" => { "text" => "previous answer" })
+        end
       end
 
-      it "redirects to the progress saved confirmation page" do
-        expect(response).to redirect_to(progress_saved_path(form.form_id, form.form_slug, mode:))
+      context "when the user chooses to use a different GOV.UK One Login" do
+        let(:continue_with_this_one_login_choice) { "no" }
+        let(:auth_service) { AuthService.new(store) }
+
+        before do
+          allow(AuthService).to receive(:new).and_return(auth_service)
+          allow(auth_service).to receive(:logout_redirect_uri).and_return("http://example.com/one-login-mock/logout")
+          post_create
+        end
+
+        it "does not save the answers" do
+          expect(IncompleteSubmission.count).to eq 0
+        end
+
+        it "does not send the progress saved email" do
+          expect(SendProgressSavedEmailJob).not_to have_received(:perform_later)
+        end
+
+        it "redirects to the GOV.UK One Login logout endpoint" do
+          expect(response).to redirect_to("http://example.com/one-login-mock/logout")
+        end
+
+        it "asks GOV.UK One Login to send the user back to the logged out route" do
+          expect(auth_service)
+            .to have_received(:logout_redirect_uri)
+            .with a_string_starting_with(omniauth_logged_out_url)
+        end
+
+        it "stores the sign in again return params in the session" do
+          expect(store["return_from_one_login"]).to eq({
+            "return_to" => "sign_in_again_to_save",
+            "last_form_id" => form.form_id,
+            "last_form_slug" => form.form_slug,
+            "last_mode" => mode,
+            "last_locale" => nil,
+          })
+        end
+      end
+
+      context "when the user does not choose an option" do
+        let(:continue_with_this_one_login_choice) { nil }
+
+        before { post_create }
+
+        it "renders the page with a validation error" do
+          expect(response).to have_http_status(:unprocessable_content)
+          expect(response).to render_template(:signed_in)
+          expect(response.body).to include(I18n.t("activemodel.errors.models.continue_with_one_login_input.attributes.continue_with_this_one_login.blank"))
+        end
+
+        it "does not save the answers" do
+          expect(IncompleteSubmission.count).to eq 0
+        end
       end
     end
 
     context "when the user is not signed in to GOV.UK One Login" do
+      before { post_create }
+
       it "redirects to the save progress sign-in interstitial" do
         expect(response).to redirect_to(save_progress_path(form.form_id, form.form_slug, mode:))
       end

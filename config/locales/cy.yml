@@ -91,6 +91,11 @@ cy:
           attributes:
             already_saved:
               blank: Dewiswch ‘Ydw’ os ydych chi eisiau disodli’r fersiwn sydd wedi’i harbed
+        continue_with_one_login_input:
+          attributes:
+            continue_with_this_one_login:
+              blank: Dewiswch ‘Ydw’ i barhau gyda’r GOV.UK One Login hyn
+              inclusion: Dewiswch ‘Ydw’ i barhau gyda’r GOV.UK One Login hyn
         copy_of_answers_input:
           attributes:
             copy_of_answers:
@@ -223,6 +228,7 @@ cy:
       cookie_preferences_updated: Rydych wedi gosod eich dewisiadau cwcis.
       file_removed: Mae eich ffeil wedi’i thynnu
       file_uploaded: Mae eich ffeil wedi’i huwchlwytho
+      signed_out: Rydych wedi cael eich allgofnodi
       title: Llwyddiant
   continue: Parhau
   cookie_banner:
@@ -467,12 +473,18 @@ cy:
       new:
         body_html: "<p>Byddwn yn anfon dolen atoch drwy e-bost fel y gallwch barhau i lenwi’r ffurflen pan fyddwch yn barod.</p><p>Byddwn yn ei anfon i’r cyfeiriad e-bost rydych yn ei ddefnyddio i fewngofnodi gyda GOV.UK One Login.</p><p>Byddwn yn dileu eich ffurflen wedi’i harbed ar ôl 30 diwrnod.</p>"
         continue_to_one_login_button: Parhau i GOV.UK One Login
-        signed_in_body_html: "<p>Byddwn yn anfon dolen atoch drwy e-bost fel y gallwch barhau i lenwi’r ffurflen pan fyddwch yn barod.</p><p>Byddwn yn ei anfon i’r cyfeiriad e-bost rydych yn ei ddefnyddio i fewngofnodi gyda GOV.UK One Login: %{email}.</p><p>Byddwn yn dileu eich ffurflen wedi’i harbed ar ôl 30 diwrnod.</p>"
+        sign_in_again_title: Mewngofnodi i GOV.UK One Login gwahanol
         title: Defnyddio GOV.UK One Login i arbed eich cynnydd
       show:
         body_html: "<p>Rydym wedi anfon dolen i %{email} fel y gallwch barhau i lenwi’r ffurflen pan fyddwch yn barod. Dyma’r cyfeiriad e-bost rydych yn ei ddefnyddio i fewngofnodi gyda GOV.UK One Login.</p><p>Byddwn yn dileu eich ffurflen wedi’i harbed ar %{deletion_date}.</p>"
         continue_button: Parhau i lenwi’r ffurflen
         title: Mae eich cynnydd wedi’i arbed
+      signed_in:
+        body_html: |
+          <p>Byddwn yn anfon dolen atoch drwy e-bost fel y gallwch barhau i lenwi’r ffurflen pan fyddwch yn barod.</p>
+          <p>Byddwn yn ei anfon i’r cyfeiriad e-bost rydych yn ei ddefnyddio i fewngofnodi gyda GOV.UK One Login: <strong>%{email}</strong>.</p>
+          <p>Byddwn yn dileu eich ffurflen wedi’i harbed ar ôl 30 diwrnod.</p>
+        title: Defnyddio GOV.UK One Login i arbed eich cynnydd
   gov_uk_forms: GOV.UK Forms
   govuk_components:
     govuk_summary_list:
@@ -488,6 +500,9 @@ cy:
     error:
       message_prefix: Gwall
     hint:
+      continue_with_one_login_input:
+        continue_with_this_one_login_options:
+          'no': Gallwch fewngofnodi eto heb golli eich atebion
       email_confirmation_input:
         send_confirmation: Byddwn ond yn defnyddio’r cyfeiriad e-bost rydych yn ei ddarparu yma i anfon cadarnhad bod eich ffurflen wedi’i chyflwyno’n llwyddiannus. Ni fydd yn cynnwys copi o’ch atebion.
       resume_options_input:
@@ -497,6 +512,10 @@ cy:
       add_another_answer_input:
         options:
           'no': Na
+          'yes': Ydw
+      continue_with_one_login_input:
+        continue_with_this_one_login_options:
+          'no': Na, allgofnodi a defnyddio GOV.UK One Login gwahanol
           'yes': Ydw
       copy_of_answers_input:
         options:
@@ -516,6 +535,8 @@ cy:
           continue_saved: Na, parhau i lenwi ffurflen sydd wedi'i harbed
           start_new: Ydw, dechrau ffurflen newydd
     legend:
+      continue_with_one_login_input:
+        continue_with_this_one_login: Ydych chi eisiau parhau gyda’r GOV.UK One Login hyn?
       email_confirmation_input:
         send_confirmation: Ydych chi eisiau derbyn e-bost yn cadarnhau bod eich ffurflen wedi’i chyflwyno?
   language_name: Cymraeg

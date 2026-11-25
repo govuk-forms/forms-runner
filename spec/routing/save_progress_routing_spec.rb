@@ -21,9 +21,16 @@ RSpec.describe Forms::SaveProgressController, type: :routing do
       end
     end
 
+    describe "#save_progress_sign_in_again" do
+      it "routes to #sign_in_again" do
+        expect(get: save_progress_sign_in_again_path(mode: "form", form_id: 999, form_slug: "valid-slug"))
+          .to route_to("forms/save_progress#sign_in_again", mode: "form", form_id: "999", form_slug: "valid-slug")
+      end
+    end
+
     describe "#create" do
       it "routes POST to #create" do
-        expect(post: save_progress_path(mode: "form", form_id: 999, form_slug: "valid-slug"))
+        expect(post: create_save_progress_path(mode: "form", form_id: 999, form_slug: "valid-slug"))
           .to route_to("forms/save_progress#create", mode: "form", form_id: "999", form_slug: "valid-slug")
       end
     end

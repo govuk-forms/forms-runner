@@ -7,19 +7,18 @@ module Forms
     def new
       @back_link = continue_path
 
-      unless auth_service.logged_in?
-        auth_service.store_return_params(
-          form: current_context.form,
-          mode:,
-          locale: locale_param,
-          return_to: Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:save_progress],
-        )
-        return
-      end
+      return render_signed_in if auth_service.logged_in?
 
-      @one_login_email = auth_service.email
-      saved = find_saved_progress
-      render_already_saved(saved) if saved
+      store_save_progress_return_params
+    end
+
+    def sign_in_again
+      return redirect_to(save_progress_path(current_context.form.id, current_context.form.form_slug)) if auth_service.logged_in?
+
+      @back_link = continue_path
+      @sign_in_again = true
+      store_save_progress_return_params
+      render :new
     end
 
     def after_sign_in
@@ -37,6 +36,11 @@ module Forms
 
     def create
       return redirect_to(save_progress_path(current_context.form.id, current_context.form.form_slug)) unless auth_service.logged_in?
+
+      @continue_with_one_login_input = ContinueWithOneLoginInput.new(continue_with_one_login_input_params)
+      return render_signed_in(status: :unprocessable_content) unless @continue_with_one_login_input.valid?
+
+      return sign_out_and_sign_in_again unless @continue_with_one_login_input.continue?
 
       saved = find_saved_progress
       return render_already_saved(saved) if saved
@@ -84,6 +88,38 @@ module Forms
 
     def already_saved_input_params
       params.fetch(:already_saved_input, ActionController::Parameters.new).permit(:already_saved)
+    end
+
+    def store_save_progress_return_params
+      auth_service.store_return_params(
+        form: current_context.form,
+        mode:,
+        locale: locale_param,
+        return_to: Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:save_progress],
+      )
+    end
+
+    def sign_out_and_sign_in_again
+      auth_service.store_return_params(
+        form: current_context.form,
+        mode:,
+        locale: locale_param,
+        return_to: Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:sign_in_again_to_save],
+      )
+
+      EventLogger.log({ event: "sign_in_with_different_one_login_to_save" })
+      redirect_to auth_service.logout_redirect_uri(omniauth_logged_out_url), allow_other_host: true
+    end
+
+    def render_signed_in(status: :ok)
+      @back_link = continue_path
+      @one_login_email = auth_service.email
+      @continue_with_one_login_input ||= ContinueWithOneLoginInput.new
+      render :signed_in, status:
+    end
+
+    def continue_with_one_login_input_params
+      params.fetch(:continue_with_one_login_input, ActionController::Parameters.new).permit(:continue_with_this_one_login)
     end
 
     def save_progress_and_redirect

@@ -53,6 +53,10 @@ module Users
       end
 
       EventLogger.log({ event: "logged_out_of_one_login" })
+      if auth_service.return_to == Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:sign_in_again_to_save]
+        return redirect_to save_progress_sign_in_again_path(**auth_service.form_path_params), success: t("banner.success.signed_out", locale:)
+      end
+
       redirect_to one_login_signed_out_url(locale), allow_other_host: true
     end
 

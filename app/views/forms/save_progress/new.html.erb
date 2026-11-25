@@ -1,4 +1,5 @@
-<% set_page_title(form_title(form_name: @current_context.form.name, page_name: t('.title'), mode: @mode)) %>
+<% title = @sign_in_again ? t('.sign_in_again_title') : t('.title') %>
+<% set_page_title(form_title(form_name: @current_context.form.name, page_name: title, mode: @mode)) %>
 
 <% content_for :back_link do %>
     <%= link_to t("forms.back"), @back_link, class: "govuk-back-link" %>
@@ -6,26 +7,14 @@
 
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
-    <h1 class="govuk-heading-l"><%= t('.title') %></h1>
+    <h1 class="govuk-heading-l"><%= title %></h1>
 
-    <% if @one_login_email.present? %>
-      <%= t('.signed_in_body_html', email: @one_login_email) %>
+    <%= t('.body_html') %>
 
-      <%= govuk_button_to(
-            t("continue"),
-            save_progress_path(@form.id, @form.form_slug),
-            method: :post,
-            form: { data: { turbo: false } },
-          ) %>
-    <% else %>
-      <%= t('.body_html') %>
-
-      <%= govuk_button_to(
-            t('.continue_to_one_login_button'),
-            "/auth/govuk_one_login",
-            method: :post,
-            form: { data: { turbo: false } },
-          ) %>
-    <% end %>
+    <%= govuk_button_to(
+          t('.continue_to_one_login_button'),
+          "/auth/govuk_one_login",
+          method: :post,
+        ) %>
   </div>
 </div>
