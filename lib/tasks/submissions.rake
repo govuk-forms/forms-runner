@@ -81,32 +81,10 @@ namespace :submissions do
 
     deliveries.each do |delivery|
       puts ""
-      puts "Delivery #{delivery.id} (#{delivery.delivery_method}, #{delivery.delivery_schedule})"
-      puts "  status: #{delivery.status}"
-      puts "  delivery_reference: #{delivery.delivery_reference.presence || '(none, the email was not sent by SES)'}"
-      %i[batch_begin_at created_at last_attempt_at delivered_at failed_at failure_reason].each do |attribute|
-        value = delivery.public_send(attribute)
-        puts "  #{attribute}: #{value}" if value.present?
-      end
+      print_delivery_details(delivery)
 
-      if delivery.failure_reason == "bounced" && delivery.failure_details.present?
-        bounce = delivery.failure_details
-        puts "  bounce: #{bounce['bounceType']}/#{bounce['bounceSubType']} at #{bounce['timestamp']}"
-        Array(bounce["bouncedRecipients"]).each do |recipient|
-          puts "  bounced recipient: #{recipient['emailAddress']}, action: #{recipient['action']}, status: #{recipient['status']}, diagnostic code: #{recipient['diagnosticCode']}"
-        end
-      end
-
-      # Solid Queue is in a separate database, so match on the delivery's GlobalID in the serialized job arguments
-      delivery_global_id = delivery.to_global_id.to_s
-      failed_jobs = SolidQueue::Job.joins(:failed_execution)
-                                   .includes(:failed_execution)
-                                   .where("arguments LIKE ?", "%\"#{SolidQueue::Job.sanitize_sql_like(delivery_global_id)}\"%")
-
-      failed_jobs.each do |job|
-        failed_execution = job.failed_execution
-        puts "  failed job: #{job.active_job_id} (#{job.class_name}) failed at #{failed_execution.created_at}"
-        puts "    error: #{failed_execution.exception_class}: #{failed_execution.message.to_s.truncate(500)}"
+      solid_queue_jobs_for_delivery(delivery).joins(:failed_execution).includes(:failed_execution).find_each do |job|
+        print_failed_delivery_job(job)
       end
     end
   end
@@ -333,4 +311,34 @@ end
 
 def immediate_delivery_job_class(delivery)
   delivery.s3? ? SendS3SubmissionJob : SendSubmissionJob
+end
+
+def print_delivery_details(delivery)
+  puts "Delivery #{delivery.id} (#{delivery.delivery_method}, #{delivery.delivery_schedule})"
+  puts "  status: #{delivery.status}"
+  puts "  delivery_reference: #{delivery.delivery_reference.presence || '(none, the email was not sent by SES)'}"
+  %i[batch_begin_at created_at last_attempt_at delivered_at failed_at failure_reason].each do |attribute|
+    value = delivery.public_send(attribute)
+    puts "  #{attribute}: #{value}" if value.present?
+  end
+
+  if delivery.failure_reason == "bounced" && delivery.failure_details.present?
+    bounce = delivery.failure_details
+    puts "  bounce: #{bounce['bounceType']}/#{bounce['bounceSubType']} at #{bounce['timestamp']}"
+    Array(bounce["bouncedRecipients"]).each do |recipient|
+      puts "  bounced recipient: #{recipient['emailAddress']}, action: #{recipient['action']}, status: #{recipient['status']}, diagnostic code: #{recipient['diagnosticCode']}"
+    end
+  end
+end
+
+def print_failed_delivery_job(job)
+  failed_execution = job.failed_execution
+  puts "  failed job: #{job.active_job_id} (#{job.class_name}) failed at #{failed_execution.created_at}"
+  puts "    error: #{failed_execution.exception_class}: #{failed_execution.message.to_s.truncate(500)}"
+end
+
+def solid_queue_jobs_for_delivery(delivery)
+  # Solid Queue is in a separate database, so match on the delivery's GlobalID in the serialized job arguments
+  delivery_global_id = delivery.to_global_id.to_s
+  SolidQueue::Job.where("arguments LIKE ?", "%\"#{SolidQueue::Job.sanitize_sql_like(delivery_global_id)}\"%")
 end
