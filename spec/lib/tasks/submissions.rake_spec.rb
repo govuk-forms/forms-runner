@@ -243,9 +243,8 @@ RSpec.describe "submissions.rake", type: :task do
       context "when the delivery has both delivered_at and failed_at set and is considered bounced" do
         let!(:delivery) { create :delivery, :failed_after_delivery, submissions: [submission], delivery_reference: delivery_reference }
 
-        it "clears the bounced status and marks the delivery as delivered" do
-          task.invoke(*args)
-          delivery.reload
+        it "clears the bounced status and keeps the time SES delivered the email" do
+          expect { task.invoke(*args) }.not_to(change { delivery.reload.delivered_at })
           expect(delivery.failed_at).to be_nil
           expect(delivery.failure_reason).to be_nil
           expect(delivery.delivered?).to be true

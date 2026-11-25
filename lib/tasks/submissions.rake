@@ -336,8 +336,7 @@ def immediate_delivery_job_class(delivery)
 end
 
 # We disregard bounces when the email was delivered but the mailbox sent an automatic reply, such as an out of office
-# message, so mark the delivery as delivered. Only failed deliveries are disregarded, so the current time is always
-# after any failure.
+# message, so mark the delivery as delivered. Keep the time SES told us the email was delivered, if it did.
 def disregard_bounce!(delivery)
-  delivery.update!(delivered_at: Time.current, failed_at: nil, failure_reason: nil)
+  delivery.update!(delivered_at: delivery.delivered_at || Time.current, failed_at: nil, failure_reason: nil)
 end
