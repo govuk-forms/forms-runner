@@ -450,7 +450,7 @@ en:
         title: Remove your file
     resume_options:
       show:
-        title: What do you want to do?
+        title: Do you want to start a new form?
     review_file:
       show:
         check_file: Check your uploaded file
@@ -513,8 +513,8 @@ en:
           'yes': 'Yes'
       resume_options_input:
         options:
-          continue_saved: Continue filling in a saved form
-          start_new: Start a new form
+          continue_saved: No, continue filling in a saved form
+          start_new: Yes, start a new form
     legend:
       email_confirmation_input:
         send_confirmation: Do you want to get an email confirming your form has been submitted?

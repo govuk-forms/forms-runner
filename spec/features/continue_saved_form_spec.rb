@@ -98,16 +98,16 @@ feature "Continue a saved form", type: :feature do
 
   def when_i_visit_the_form_start_page
     visit form_path(mode: "form", form_id: 1, form_slug: form.form_slug)
-    expect(page.find("h1")).to have_text "What do you want to do?"
+    expect(page.find("h1")).to have_text "Do you want to start a new form?"
   end
 
   def and_i_choose_to_continue_filling_in_a_saved_form
-    choose "Continue filling in a saved form"
+    choose "No, continue filling in a saved form"
     click_button "Continue"
   end
 
   def and_i_choose_to_start_a_new_form
-    choose "Start a new form"
+    choose "Yes, start a new form"
     click_button "Continue"
   end
 
