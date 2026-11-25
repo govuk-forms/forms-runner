@@ -228,25 +228,27 @@ RSpec.describe "submissions.rake", type: :task do
           task.invoke(*args)
         end
 
-        it "clears the bounced status" do
-          task.invoke(*args)
-          delivery.reload
-          expect(delivery.failed_at).to be_nil
-          expect(delivery.failure_reason).to be_nil
-          expect(delivery.reload.pending?).to be true
+        it "clears the bounced status and marks the delivery as delivered" do
+          freeze_time do
+            task.invoke(*args)
+            delivery.reload
+            expect(delivery.failed_at).to be_nil
+            expect(delivery.failure_reason).to be_nil
+            expect(delivery.delivered_at).to eq Time.current
+            expect(delivery.delivered?).to be true
+          end
         end
       end
 
       context "when the delivery has both delivered_at and failed_at set and is considered bounced" do
         let!(:delivery) { create :delivery, :failed_after_delivery, submissions: [submission], delivery_reference: delivery_reference }
 
-        it "clears the bounced status" do
+        it "clears the bounced status and marks the delivery as delivered" do
           task.invoke(*args)
           delivery.reload
           expect(delivery.failed_at).to be_nil
           expect(delivery.failure_reason).to be_nil
-          expect(delivery.delivered_at).not_to be_nil
-          expect(delivery.reload.delivered?).to be true
+          expect(delivery.delivered?).to be true
         end
       end
 
@@ -342,6 +344,13 @@ RSpec.describe "submissions.rake", type: :task do
                .and change { early_matching_delivery.reload.failure_reason }.to(nil)
                .and change { late_matching_delivery.reload.failed_at }.to(nil)
                .and change { late_matching_delivery.reload.failure_reason }.to(nil)
+      end
+
+      it "marks matched deliveries as delivered" do
+        task.invoke(*valid_args)
+
+        expect(early_matching_delivery.reload.delivered?).to be true
+        expect(late_matching_delivery.reload.delivered?).to be true
       end
 
       it "does not update non-matching deliveries or submissions" do

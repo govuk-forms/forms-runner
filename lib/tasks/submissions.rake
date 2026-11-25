@@ -156,7 +156,7 @@ namespace :submissions do
       next
     end
 
-    delivery.update!(failed_at: nil, failure_reason: nil)
+    disregard_bounce!(delivery)
     Rails.logger.info "Disregarded bounce of delivery with delivery_reference #{delivery_reference}"
   end
 
@@ -198,7 +198,7 @@ namespace :submissions do
       if dry_run
         Rails.logger.info "Would disregard bounce of delivery with delivery_reference #{delivery.delivery_reference} which was created at #{delivery.created_at}"
       else
-        delivery.update!(failed_at: nil, failure_reason: nil)
+        disregard_bounce!(delivery)
         Rails.logger.info "Disregarded bounce of delivery with delivery_reference #{delivery.delivery_reference}"
       end
     end
@@ -333,4 +333,11 @@ end
 
 def immediate_delivery_job_class(delivery)
   delivery.s3? ? SendS3SubmissionJob : SendSubmissionJob
+end
+
+# We disregard bounces when the email was delivered but the mailbox sent an automatic reply, such as an out of office
+# message, so mark the delivery as delivered. Only failed deliveries are disregarded, so the current time is always
+# after any failure.
+def disregard_bounce!(delivery)
+  delivery.update!(delivered_at: Time.current, failed_at: nil, failure_reason: nil)
 end
