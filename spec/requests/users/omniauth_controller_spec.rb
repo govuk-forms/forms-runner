@@ -367,6 +367,18 @@ RSpec.describe Users::OmniauthController, type: :request do
         it "redirects to the save progress sign in again page" do
           expect(response).to redirect_to(save_progress_sign_in_again_path(mode:, form_id:, form_slug:, locale:))
         end
+
+        it "displays a success banner in the locale stored in the session" do
+          expect(flash[:success]).to eq(I18n.t("banner.success.signed_out", locale: :cy))
+        end
+
+        context "when the locale is nil" do
+          let(:locale) { nil }
+
+          it "displays a success banner in the default locale" do
+            expect(flash[:success]).to eq(I18n.t("banner.success.signed_out", locale: :en))
+          end
+        end
       end
     end
 

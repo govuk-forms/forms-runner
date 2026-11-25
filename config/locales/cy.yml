@@ -228,6 +228,7 @@ cy:
       cookie_preferences_updated: Rydych wedi gosod eich dewisiadau cwcis.
       file_removed: Mae eich ffeil wedi’i thynnu
       file_uploaded: Mae eich ffeil wedi’i huwchlwytho
+      signed_out: Rydych wedi cael eich allgofnodi
       title: Llwyddiant
   continue: Parhau
   cookie_banner:
@@ -481,7 +482,7 @@ cy:
       signed_in:
         body_html: |
           <p>Byddwn yn anfon dolen atoch drwy e-bost fel y gallwch barhau i lenwi’r ffurflen pan fyddwch yn barod.</p>
-          <p>Byddwn yn ei anfon i’r cyfeiriad e-bost rydych yn ei ddefnyddio i fewngofnodi gyda GOV.UK One Login: %{email}.</p>
+          <p>Byddwn yn ei anfon i’r cyfeiriad e-bost rydych yn ei ddefnyddio i fewngofnodi gyda GOV.UK One Login: <strong>%{email}</strong>.</p>
           <p>Byddwn yn dileu eich ffurflen wedi’i harbed ar ôl 30 diwrnod.</p>
         title: Defnyddio GOV.UK One Login i arbed eich cynnydd
   gov_uk_forms: GOV.UK Forms
