@@ -89,6 +89,79 @@ namespace :submissions do
     end
   end
 
+  # Lists the immediate deliveries counted by the form.submission.delivery.oldest_undelivered.age metric, to help work
+  # out why they haven't been delivered.
+  #
+  # It prints a summary of why the deliveries are undelivered and which forms they are for, followed by the details of
+  # the oldest deliveries, including their timestamps, any failure details and any delivery jobs for them.
+  #
+  # The arguments match the attributes of the metric. They default to "form" and "email", and the number of oldest
+  # deliveries to show defaults to 10.
+  #
+  # Example:
+  #
+  #   submissions:list_undelivered_deliveries
+  #   submissions:list_undelivered_deliveries[form,email,20]
+  #
+  desc "List undelivered immediate deliveries, as counted by the oldest undelivered delivery age metric"
+  task :list_undelivered_deliveries, %i[mode delivery_method limit] => :environment do |_, args|
+    mode = args[:mode].presence || "form"
+    delivery_method = args[:delivery_method].presence || "email"
+    limit = Integer(args[:limit].presence || 10, exception: false)
+
+    usage_message = "usage: rake submissions:list_undelivered_deliveries[<mode>,<delivery_method>,<limit>]".freeze
+    unless mode.in?(DeliveryMetricsJob::MODES) && delivery_method.in?(Delivery.delivery_methods.values) && limit&.positive?
+      abort usage_message
+    end
+
+    # This matches the query DeliveryMetricsJob uses to record the metric
+    undelivered = Delivery.immediate.undelivered
+                          .joins(:submissions)
+                          .where(submissions: { mode: }, delivery_method:)
+
+    total = undelivered.count
+    puts "#{total} undelivered immediate #{delivery_method} deliveries for submissions with mode #{mode}"
+    next if total.zero?
+
+    puts ""
+    puts "By reason:"
+    undelivered.map { |delivery| undelivered_delivery_summary_reason(delivery) }
+               .tally
+               .sort_by { |_, count| -count }
+               .each { |reason, count| puts "  #{reason}: #{count}" }
+
+    puts ""
+    puts "By form (top 10):"
+    undelivered.group("submissions.form_id")
+               .count
+               .sort_by { |_, count| -count }
+               .first(10)
+               .each { |form_id, count| puts "  form #{form_id}: #{count}" }
+
+    oldest_deliveries = undelivered.preload(:submissions).order("submissions.created_at").limit(limit)
+
+    puts ""
+    puts "Oldest #{oldest_deliveries.length}:"
+
+    oldest_deliveries.each do |delivery|
+      submission = delivery.submissions.first
+      jobs = solid_queue_jobs_for_delivery(delivery).order(:created_at).to_a
+
+      puts ""
+      puts "Submission #{submission.reference} for form #{submission.form_id} (#{safe_form_name(submission) || 'unknown form name'}) created at #{submission.created_at}, #{age_in_words(submission.created_at)} ago"
+      print_delivery_details(delivery, indent: "  ")
+
+      puts "    no delivery jobs found, finished jobs are cleared from the queue database" if jobs.empty?
+      jobs.each do |job|
+        if job.failed?
+          print_failed_delivery_job(job, indent: "  ")
+        else
+          puts "    job: #{job.active_job_id} (#{job.class_name}) #{job.status || 'unknown status'}, created at #{job.created_at}#{", scheduled at #{job.scheduled_at}" if job.scheduled_at.present?}"
+        end
+      end
+    end
+  end
+
   desc "Retry failed deliveries"
   task :retry_failed_deliveries, %i[form_id] => :environment do |_, args|
     form_id = args[:form_id]
@@ -313,32 +386,55 @@ def immediate_delivery_job_class(delivery)
   delivery.s3? ? SendS3SubmissionJob : SendSubmissionJob
 end
 
-def print_delivery_details(delivery)
-  puts "Delivery #{delivery.id} (#{delivery.delivery_method}, #{delivery.delivery_schedule})"
-  puts "  status: #{delivery.status}"
-  puts "  delivery_reference: #{delivery.delivery_reference.presence || '(none, the email was not sent by SES)'}"
+def print_delivery_details(delivery, indent: "")
+  puts "#{indent}Delivery #{delivery.id} (#{delivery.delivery_method}, #{delivery.delivery_schedule})"
+  puts "#{indent}  status: #{delivery.status}"
+  puts "#{indent}  delivery_reference: #{delivery.delivery_reference.presence || '(none, the email was not sent by SES)'}"
   %i[batch_begin_at created_at last_attempt_at delivered_at failed_at failure_reason].each do |attribute|
     value = delivery.public_send(attribute)
-    puts "  #{attribute}: #{value}" if value.present?
+    puts "#{indent}  #{attribute}: #{value}" if value.present?
   end
 
   if delivery.failure_reason == "bounced" && delivery.failure_details.present?
     bounce = delivery.failure_details
-    puts "  bounce: #{bounce['bounceType']}/#{bounce['bounceSubType']} at #{bounce['timestamp']}"
+    puts "#{indent}  bounce: #{bounce['bounceType']}/#{bounce['bounceSubType']} at #{bounce['timestamp']}"
     Array(bounce["bouncedRecipients"]).each do |recipient|
-      puts "  bounced recipient: #{recipient['emailAddress']}, action: #{recipient['action']}, status: #{recipient['status']}, diagnostic code: #{recipient['diagnosticCode']}"
+      puts "#{indent}  bounced recipient: #{recipient['emailAddress']}, action: #{recipient['action']}, status: #{recipient['status']}, diagnostic code: #{recipient['diagnosticCode']}"
     end
   end
 end
 
-def print_failed_delivery_job(job)
+def print_failed_delivery_job(job, indent: "")
   failed_execution = job.failed_execution
-  puts "  failed job: #{job.active_job_id} (#{job.class_name}) failed at #{failed_execution.created_at}"
-  puts "    error: #{failed_execution.exception_class}: #{failed_execution.message.to_s.truncate(500)}"
+  puts "#{indent}  failed job: #{job.active_job_id} (#{job.class_name}) failed at #{failed_execution.created_at}"
+  puts "#{indent}    error: #{failed_execution.exception_class}: #{failed_execution.message.to_s.truncate(500)}"
 end
 
 def solid_queue_jobs_for_delivery(delivery)
   # Solid Queue is in a separate database, so match on the delivery's GlobalID in the serialized job arguments
   delivery_global_id = delivery.to_global_id.to_s
   SolidQueue::Job.where("arguments LIKE ?", "%\"#{SolidQueue::Job.sanitize_sql_like(delivery_global_id)}\"%")
+end
+
+# A reason that can be worked out without looking up the delivery's jobs, so it can be used for every undelivered
+# delivery
+def undelivered_delivery_summary_reason(delivery)
+  return "bounced" if delivery.failed? && delivery.failure_reason == "bounced"
+  return "failed (#{delivery.failure_reason})" if delivery.failed?
+  return "sent, but not confirmed as delivered" if delivery.delivery_reference.present?
+
+  "not sent"
+end
+
+def safe_form_name(submission)
+  submission.form_name
+rescue StandardError
+  nil
+end
+
+def age_in_words(time)
+  total_minutes = ((Time.current - time) / 60).to_i
+  days, remaining_minutes = total_minutes.divmod(24 * 60)
+  hours, minutes = remaining_minutes.divmod(60)
+  "#{days}d #{hours}h #{minutes}m"
 end

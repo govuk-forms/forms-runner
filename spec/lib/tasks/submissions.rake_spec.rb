@@ -68,6 +68,39 @@ RSpec.describe "submissions.rake", type: :task do
     end
   end
 
+  describe "submissions:list_undelivered_deliveries" do
+    subject(:task) do
+      Rake::Task["submissions:list_undelivered_deliveries"]
+    end
+
+    def create_delivery(*traits, mode: "form", **attributes)
+      submission = create(:submission, mode:)
+      create(:delivery, *traits, submissions: [submission], **attributes)
+    end
+
+    it "only counts the deliveries counted by the metric" do
+      create_delivery(:pending)
+      create_delivery(:delivered)
+      create_delivery(:pending, mode: "preview-live")
+      create_delivery(:pending, delivery_method: "s3")
+      create(:delivery, :pending, :daily_scheduled_delivery, submissions_count: 1)
+
+      expect { task.invoke }.to output(a_string_including("1 undelivered immediate email deliveries for submissions with mode form\n")).to_stdout
+    end
+
+    it "prints the failure details and failed delivery jobs for a delivery" do
+      delivery = create_delivery(:failed, failure_reason: "smtp_error")
+      job = create :solid_queue_job, arguments: { "arguments" => [{ "_aj_globalid" => delivery.to_global_id.to_s }] }
+      create :solid_queue_failed_execution, job:, error: { "exception_class" => "StandardError", "message" => "Illegal address" }
+
+      expect { task.invoke }.to output(
+        a_string_including("failure_reason: smtp_error\n")
+          .and(a_string_including("failed job: #{job.active_job_id}"))
+          .and(a_string_including("error: StandardError: Illegal address")),
+      ).to_stdout
+    end
+  end
+
   describe "submissions:check_delivery_statuses" do
     subject(:task) do
       Rake::Task["submissions:check_delivery_statuses"]
