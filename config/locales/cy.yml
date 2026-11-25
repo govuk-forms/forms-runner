@@ -450,7 +450,7 @@ cy:
         title: Tynnu’ch ffeil
     resume_options:
       show:
-        title: Beth ydych chi eisiau ei wneud?
+        title: Ydych chi eisiau dechrau ffurflen newydd?
     review_file:
       show:
         check_file: Gwiriwch y ffeil sydd wedi’i huwchlwytho
@@ -513,8 +513,8 @@ cy:
           'yes': Ydw
       resume_options_input:
         options:
-          continue_saved: Parhau i lenwi ffurflen sydd wedi’i harbed
-          start_new: Dechrau ffurflen newydd
+          continue_saved: Na, parhau i lenwi ffurflen sydd wedi'i harbed
+          start_new: Ydw, dechrau ffurflen newydd
     legend:
       email_confirmation_input:
         send_confirmation: Ydych chi eisiau derbyn e-bost yn cadarnhau bod eich ffurflen wedi’i chyflwyno?
