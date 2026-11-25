@@ -23,14 +23,14 @@
   "devDependencies": {
     "autoprefixer": "^10.6.2",
     "esbuild": "0.28.2",
-    "jsdom": "^31.0.0",
-    "postcss": "^8.5.32",
-    "sass": "^1.108.1",
+    "jsdom": "^31.0.1",
+    "postcss": "^8.5.33",
+    "sass": "^1.108.2",
     "snazzy": "^9.0.0",
     "standard": "^17.1.2",
     "stylelint": "^17.13.0",
     "stylelint-config-gds": "^3.0.0",
-    "vite": "^8.3.7",
+    "vite": "^8.3.8",
     "vite-plugin-ruby": "^5.2.6",
     "vitest": "^5.1.0"
   },
