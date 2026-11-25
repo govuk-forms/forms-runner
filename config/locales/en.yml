@@ -91,6 +91,11 @@ en:
           attributes:
             already_saved:
               blank: Select ‘Yes’ if you want to replace the saved version of the form
+        continue_with_one_login_input:
+          attributes:
+            continue_with_this_one_login:
+              blank: Select ‘Yes’ to continue with this GOV.UK One Login
+              inclusion: Select ‘Yes’ to continue with this GOV.UK One Login
         copy_of_answers_input:
           attributes:
             copy_of_answers:

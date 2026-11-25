@@ -91,6 +91,11 @@ cy:
           attributes:
             already_saved:
               blank: Dewiswch ‘Ydw’ os ydych chi eisiau disodli’r fersiwn sydd wedi’i harbed
+        continue_with_one_login_input:
+          attributes:
+            continue_with_this_one_login:
+              blank: Dewiswch ‘Ydw’ i barhau gyda’r GOV.UK One Login hyn
+              inclusion: Dewiswch ‘Ydw’ i barhau gyda’r GOV.UK One Login hyn
         copy_of_answers_input:
           attributes:
             copy_of_answers:
