@@ -1,0 +1,24 @@
+<% set_page_title(form_title(form_name: @current_context.form.name, page_name: t('.title'), mode: @mode, error: @continue_with_one_login_input.errors.any?)) %>
+
+<% content_for :back_link do %>
+    <%= link_to t("forms.back"), @back_link, class: "govuk-back-link" %>
+<% end %>
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    <%= form_with(model: @continue_with_one_login_input, url: create_save_progress_path(@form.id, @form.form_slug), method: :post) do |f| %>
+      <% if @continue_with_one_login_input.errors.any? %>
+        <%= f.govuk_error_summary(t("error_summary_title")) %>
+      <% end %>
+
+      <h1 class="govuk-heading-l"><%= t('.title') %></h1>
+      <%= t('.body_html', email: @one_login_email) %>
+      <%= f.govuk_radio_buttons_fieldset :continue_with_this_one_login, legend: { tag: 'h2', size: 'm' } do %>
+        <%= f.govuk_radio_button :continue_with_this_one_login, "yes", link_errors: true %>
+        <%= f.govuk_radio_button :continue_with_this_one_login, "no" %>
+      <% end %>
+
+      <%= f.govuk_submit t("continue") %>
+    <% end %>
+  </div>
+</div>

@@ -7,19 +7,14 @@ module Forms
     def new
       @back_link = continue_path
 
-      unless auth_service.logged_in?
-        auth_service.store_return_params(
-          form: current_context.form,
-          mode:,
-          locale: locale_param,
-          return_to: Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:save_progress],
-        )
-        return
-      end
+      return render_signed_in if auth_service.logged_in?
 
-      @one_login_email = auth_service.email
-      saved = find_saved_progress
-      render_already_saved(saved) if saved
+      auth_service.store_return_params(
+        form: current_context.form,
+        mode:,
+        locale: locale_param,
+        return_to: Store::ReturnFromOneLoginStore::RETURN_TO_VALUES[:save_progress],
+      )
     end
 
     def after_sign_in
@@ -84,6 +79,13 @@ module Forms
 
     def already_saved_input_params
       params.fetch(:already_saved_input, ActionController::Parameters.new).permit(:already_saved)
+    end
+
+    def render_signed_in(status: :ok)
+      @back_link = continue_path
+      @one_login_email = auth_service.email
+      @continue_with_one_login_input ||= ContinueWithOneLoginInput.new
+      render :signed_in, status:
     end
 
     def save_progress_and_redirect

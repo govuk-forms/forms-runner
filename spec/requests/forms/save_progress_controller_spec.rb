@@ -155,9 +155,10 @@ RSpec.describe Forms::SaveProgressController, type: :request do
         expect(response).to have_http_status(:ok)
       end
 
-      it "renders the page with the button to save progress" do
-        expect(response).to render_template(:new)
+      it "renders the page asking whether to continue with the signed in GOV.UK One Login" do
+        expect(response).to render_template(:signed_in)
         expect(response.body).to include("test@example.com")
+        expect(response.body).to include("Do you want to continue with this GOV.UK One Login?")
       end
 
       context "when the user already has saved answers for the form" do
@@ -166,39 +167,13 @@ RSpec.describe Forms::SaveProgressController, type: :request do
                  user_id: "user-sub-123",
                  form_id: form.form_id,
                  answers: { "1" => { "text" => "previous answer" } },
-                 mode:,
-                 updated_at: Time.zone.local(2026, 5, 6, 12, 32))
+                 mode:)
 
           get save_progress_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
         end
 
-        it "shows when the answers were last saved" do
-          expect(response.body).to include("You last saved this form at 12:32pm on 6 May 2026.")
-        end
-
-        it "has a back link to the next page in the form" do
-          expect(back_link_href).to eq check_your_answers_path(form_id: form.form_id, form_slug: form.form_slug, mode:)
-        end
-      end
-
-      context "when the user has saved answers for the form in a different mode" do
-        before do
-          create(:incomplete_submission,
-                 user_id: "user-sub-123",
-                 form_id: form.form_id,
-                 answers: { "1" => { "text" => "previous answer" } },
-                 mode: "preview-live")
-
-          get save_progress_path(mode:, form_id: form.form_id, form_slug: form.form_slug)
-        end
-
-        it "renders the page with the button to save progress" do
-          expect(response).to render_template(:new)
-        end
-
-        it "does not show the already saved page" do
-          expect(response).not_to render_template(:already_saved)
-          expect(response.body).not_to include("You already have a saved version of this form")
+        it "renders the page asking whether to continue with the signed in GOV.UK One Login" do
+          expect(response).to render_template(:signed_in)
         end
       end
     end

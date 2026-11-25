@@ -472,12 +472,17 @@ en:
       new:
         body_html: "<p>We’ll email you a link so you can continue filling in the form when you’re ready.</p><p>We’ll send it to the email address you use to sign in with GOV.UK One Login.</p><p>We’ll delete your saved form after 30 days.</p>"
         continue_to_one_login_button: Continue to GOV.UK One Login
-        signed_in_body_html: "<p>We’ll email you a link so you can continue filling in the form when you’re ready.</p><p>We’ll send it to the email address you use to sign in with GOV.UK One Login: %{email}.</p><p>We’ll delete your saved form after 30 days.</p>"
         title: Use GOV.UK One Login to save your progress
       show:
         body_html: "<p>We’ve sent a link to %{email} so you can continue filling in the form when you are ready. This is the email address you use to sign in with GOV.UK One Login.</p><p>We’ll delete your saved form on %{deletion_date}.</p>"
         continue_button: Continue filling the form
         title: Your progress has been saved
+      signed_in:
+        body_html: |
+          <p>We’ll email you a link so you can continue filling in the form when you’re ready.</p>
+          <p>We’ll send it to the email address you use to sign in with GOV.UK One Login: %{email}.</p>
+          <p>We’ll delete your saved form after 30 days.</p>"
+        title: Use GOV.UK One Login to save your progress
   gov_uk_forms: GOV.UK Forms
   govuk_components:
     govuk_summary_list:
@@ -493,6 +498,9 @@ en:
     error:
       message_prefix: Error
     hint:
+      continue_with_one_login_input:
+        continue_with_this_one_login_options:
+          'no': You can sign in again without losing your answers
       email_confirmation_input:
         send_confirmation: We’ll only use the email address you provide here to send a confirmation that your form’s been successfully submitted. It will not contain a copy of your answers.
       resume_options_input:
@@ -502,6 +510,10 @@ en:
       add_another_answer_input:
         options:
           'no': 'No'
+          'yes': 'Yes'
+      continue_with_one_login_input:
+        continue_with_this_one_login_options:
+          'no': No, sign out and use a different GOV.UK One Login
           'yes': 'Yes'
       copy_of_answers_input:
         options:
@@ -521,6 +533,8 @@ en:
           continue_saved: Continue filling in a saved form
           start_new: Start a new form
     legend:
+      continue_with_one_login_input:
+        continue_with_this_one_login: Do you want to continue with this GOV.UK One Login?
       email_confirmation_input:
         send_confirmation: Do you want to get an email confirming your form has been submitted?
   language_name: English
