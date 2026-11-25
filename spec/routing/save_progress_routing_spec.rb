@@ -23,7 +23,7 @@ RSpec.describe Forms::SaveProgressController, type: :routing do
 
     describe "#create" do
       it "routes POST to #create" do
-        expect(post: save_progress_path(mode: "form", form_id: 999, form_slug: "valid-slug"))
+        expect(post: create_save_progress_path(mode: "form", form_id: 999, form_slug: "valid-slug"))
           .to route_to("forms/save_progress#create", mode: "form", form_id: "999", form_slug: "valid-slug")
       end
     end

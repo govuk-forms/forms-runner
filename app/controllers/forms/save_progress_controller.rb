@@ -33,6 +33,14 @@ module Forms
     def create
       return redirect_to(save_progress_path(current_context.form.id, current_context.form.form_slug)) unless auth_service.logged_in?
 
+      @continue_with_one_login_input = ContinueWithOneLoginInput.new(continue_with_one_login_input_params)
+      return render_signed_in(status: :unprocessable_content) unless @continue_with_one_login_input.valid?
+
+      unless @continue_with_one_login_input.continue?
+        # TODO: sign the user out of GOV.UK One Login so they can sign in with a different account
+        return
+      end
+
       saved = find_saved_progress
       return render_already_saved(saved) if saved
 
@@ -86,6 +94,10 @@ module Forms
       @one_login_email = auth_service.email
       @continue_with_one_login_input ||= ContinueWithOneLoginInput.new
       render :signed_in, status:
+    end
+
+    def continue_with_one_login_input_params
+      params.fetch(:continue_with_one_login_input, ActionController::Parameters.new).permit(:continue_with_this_one_login)
     end
 
     def save_progress_and_redirect
