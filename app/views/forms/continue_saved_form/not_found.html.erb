@@ -1,4 +1,4 @@
-<% set_page_title(form_title(form_name: @current_context.form.name, page_name: t('.title'), mode: @mode)) %>
+<% set_page_title(form_title(form_name: @current_context.form.name, page_name: t('.title'), mode: @mode, error: @start_new_form_input.errors.any?)) %>
 
 <% content_for :back_link do %>
   <%= link_to t("forms.back"), resume_options_path(@form.id, @form.form_slug), class: "govuk-back-link" %>
@@ -6,10 +6,18 @@
 
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
-    <h1 class="govuk-heading-l"><%= t('.title') %></h1>
+    <%= form_with(model: @start_new_form_input, url: submit_continue_saved_form_not_found_path(@form.id, @form.form_slug), method: :post) do |f| %>
+      <% if @start_new_form_input.errors.any? %>
+        <%= f.govuk_error_summary(t("error_summary_title")) %>
+      <% end %>
 
-    <%= t('.body_html') %>
+      <h1 class="govuk-heading-l"><%= t('.title') %></h1>
 
-    <%= govuk_button_link_to t('.start_new_form_button'), form_step_path(@form.id, @form.form_slug, @form.start_page) %>
+      <%= t('.body_html') %>
+
+      <%= f.govuk_collection_radio_buttons :start_new_form, StartNewFormInput::OPTIONS, :to_s, legend: { tag: 'h2', size: 'm' } %>
+
+      <%= f.govuk_submit t("continue") %>
+    <% end %>
   </div>
 </div>
