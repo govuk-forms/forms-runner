@@ -20,8 +20,7 @@ module Forms
   private
 
     def start_new_form
-      current_context.clear
-      current_context.clear_submission_details
+      current_context.start_new_form
 
       redirect_to form_step_path(current_context.form.id, current_context.form.form_slug, current_context.form.start_page)
     end
