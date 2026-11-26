@@ -13,7 +13,7 @@
 
       <h1 class="govuk-heading-l"><%= t('.title') %></h1>
 
-      <%= t('.body_html') %>
+      <%= t('.body_html', email: @email) %>
 
       <%= f.govuk_collection_radio_buttons :start_new_form, StartNewFormInput::OPTIONS, :to_s, legend: { tag: 'h2', size: 'm' } %>
 

@@ -26,7 +26,7 @@ module Forms
       return redirect_to(continue_saved_form_path(current_context.form.id, current_context.form.form_slug)) unless auth_service.logged_in?
 
       @start_new_form_input = StartNewFormInput.new(start_new_form_input_params)
-      return render(:not_found, status: :unprocessable_content) unless @start_new_form_input.valid?
+      return render_not_found(status: :unprocessable_content) unless @start_new_form_input.valid?
 
       return sign_out_and_sign_in_again unless @start_new_form_input.start_new_form?
 
@@ -44,7 +44,12 @@ module Forms
       current_context.start_new_form
 
       @start_new_form_input = StartNewFormInput.new
-      render :not_found, status: :not_found
+      render_not_found(status: :not_found)
+    end
+
+    def render_not_found(status:)
+      @email = auth_service.email
+      render :not_found, status:
     end
 
     def sign_out_and_sign_in_again

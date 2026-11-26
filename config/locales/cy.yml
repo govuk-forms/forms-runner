@@ -425,12 +425,13 @@ cy:
         title: Mewngofnodi i’ch GOV.UK One Login
       not_found:
         body_html: |
-          <p class="govuk-body">Gallai hyn fod oherwydd:</p>
+          <p>Gallai hyn fod oherwydd:</p>
           <ul class="govuk-list govuk-list--bullet">
             <li>rydych wedi arbed eich cynnydd gan ddefnyddio GOV.UK One Login gwahanol</li>
             <li>mae wedi bod yn fwy na 30 diwrnod ers i chi arbed y ffurflen</li>
             <li>ni wnaethoch arbed eich cynnydd ar gyfer y ffurflen hon</li>
           </ul>
+          <p>Rydych wedi mewngofnodi i GOV.UK One Login gyda’r cyfeiriad e-bost <strong>%{email}</strong>.</p>
         title: Nid ydym wedi gallu ddod o hyd i’ch ffurflen wedi’i harbed
     continue_to_one_login:
       show:

@@ -12,6 +12,7 @@ describe "forms/continue_saved_form/not_found.html.erb" do
     assign(:form, form)
     assign(:mode, mode)
     assign(:start_new_form_input, start_new_form_input)
+    assign(:email, "test@example.com")
 
     allow(view).to receive_messages(resume_options_path:, submit_continue_saved_form_not_found_path: submit_path)
 
@@ -28,6 +29,11 @@ describe "forms/continue_saved_form/not_found.html.erb" do
 
   it "has a back link to the page asking whether to start a new form or continue a saved one" do
     expect(view.content_for(:back_link)).to have_link(I18n.t("forms.back"), href: resume_options_path)
+  end
+
+  it "shows the email address the user is signed into GOV.UK One Login with" do
+    expect(rendered).to have_css("p", text: "You're signed into GOV.UK One Login with the email address test@example.com.")
+    expect(rendered).to have_css("strong", text: "test@example.com")
   end
 
   it "has a form that posts to the not found submit path" do

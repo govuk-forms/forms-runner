@@ -425,12 +425,13 @@ en:
         title: Sign in to your GOV.UK One Login
       not_found:
         body_html: |
-          <p class="govuk-body">This could be because:</p>
+          <p>This could be because:</p>
           <ul class="govuk-list govuk-list--bullet">
             <li>you saved your progress using a different GOV.UK One Login</li>
             <li>it has been more than 30 days since you saved the form</li>
             <li>you did not save your progress for this form</li>
           </ul>
+          <p>You're signed into GOV.UK One Login with the email address <strong>%{email}</strong>.</p>
         title: We could not find your saved form
     continue_to_one_login:
       show:

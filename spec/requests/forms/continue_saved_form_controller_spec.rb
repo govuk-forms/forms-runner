@@ -94,6 +94,10 @@ RSpec.describe Forms::ContinueSavedFormController, type: :request do
         it "asks whether the user wants to start a new form" do
           expect(response.body).to include(I18n.t("helpers.legend.start_new_form_input.start_new_form"))
         end
+
+        it "shows the email address the user is signed in with" do
+          expect(response.body).to include("<strong>test@example.com</strong>")
+        end
       end
     end
   end
@@ -179,6 +183,10 @@ RSpec.describe Forms::ContinueSavedFormController, type: :request do
           expect(response).to have_http_status(:unprocessable_content)
           expect(response).to render_template(:not_found)
           expect(response.body).to include(I18n.t("activemodel.errors.models.start_new_form_input.attributes.start_new_form.blank"))
+        end
+
+        it "shows the email address the user is signed in with" do
+          expect(response.body).to include("<strong>test@example.com</strong>")
         end
       end
     end
