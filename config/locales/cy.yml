@@ -213,6 +213,11 @@ cy:
           attributes:
             resume_options:
               blank: Dewiswch os ydych am ddechrau ffurflen newydd neu barhau i lenwi ffurflen sydd wedi’i harbed
+        start_new_form_input:
+          attributes:
+            start_new_form:
+              blank: Dewiswch ‘Ydw’ i ddechrau ffurflen newydd
+              inclusion: Dewiswch ‘Ydw’ i ddechrau ffurflen newydd
   autocomplete:
     assistive_hint: 'Pan fo canlyniadau awtolenwi ar gael, defnyddiwch y saethau i fyny ac i lawr i adolygu a defnyddiwch ‘enter’ i ddewis. Defnyddwyr dyfeisiau cyffwrdd: chwiliwch drwy gyffwrdd neu sweipio'
     no_results: Dim canlyniadau wedi’u canfod

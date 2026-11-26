@@ -213,6 +213,11 @@ en:
           attributes:
             resume_options:
               blank: Select if you want to start a new form or continue filling in a saved form
+        start_new_form_input:
+          attributes:
+            start_new_form:
+              blank: Select ‘Yes’ to start a new form
+              inclusion: Select ‘Yes’ to start a new form
   autocomplete:
     assistive_hint: When autocomplete results are available use up and down arrows to review and enter to select.  Touch device users, explore by touch or with swipe gestures.
     no_results: No results found
