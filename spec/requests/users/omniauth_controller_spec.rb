@@ -380,6 +380,30 @@ RSpec.describe Users::OmniauthController, type: :request do
           end
         end
       end
+
+      context "when the user is signing out to continue a saved form with a different GOV.UK One Login" do
+        let(:return_to) { "sign_in_again_to_continue_saved_form" }
+
+        it "clears the auth details on the session" do
+          expect(store).not_to have_key("auth")
+        end
+
+        it "redirects to the continue saved form sign in page" do
+          expect(response).to redirect_to(continue_saved_form_path(mode:, form_id:, form_slug:, locale:))
+        end
+
+        it "displays a success banner in the locale stored in the session" do
+          expect(flash[:success]).to eq(I18n.t("banner.success.signed_out", locale: :cy))
+        end
+
+        context "when the locale is nil" do
+          let(:locale) { nil }
+
+          it "displays a success banner in the default locale" do
+            expect(flash[:success]).to eq(I18n.t("banner.success.signed_out", locale: :en))
+          end
+        end
+      end
     end
 
     context "when the return from one login params are not set on the session" do
