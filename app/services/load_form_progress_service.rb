@@ -9,8 +9,7 @@ class LoadFormProgressService
     incomplete_submission = IncompleteSubmission.find_by(user_id: @user_id, form_id: @current_context.form.id, mode: @mode.to_s)
     return nil unless incomplete_submission
 
-    @current_context.clear
-    @current_context.clear_submission_details
+    @current_context.start_new_form
 
     answers = answers_without_missing_files(incomplete_submission.answers)
     @current_context.load_answers(answers)

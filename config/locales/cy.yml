@@ -213,6 +213,11 @@ cy:
           attributes:
             resume_options:
               blank: Dewiswch os ydych am ddechrau ffurflen newydd neu barhau i lenwi ffurflen sydd wedi’i harbed
+        start_new_form_input:
+          attributes:
+            start_new_form:
+              blank: Dewiswch ‘Ydw’ i ddechrau ffurflen newydd
+              inclusion: Dewiswch ‘Ydw’ i ddechrau ffurflen newydd
   autocomplete:
     assistive_hint: 'Pan fo canlyniadau awtolenwi ar gael, defnyddiwch y saethau i fyny ac i lawr i adolygu a defnyddiwch ‘enter’ i ddewis. Defnyddwyr dyfeisiau cyffwrdd: chwiliwch drwy gyffwrdd neu sweipio'
     no_results: Dim canlyniadau wedi’u canfod
@@ -420,13 +425,13 @@ cy:
         title: Mewngofnodi i’ch GOV.UK One Login
       not_found:
         body_html: |
-          <p class="govuk-body">Gallai hyn fod oherwydd:</p>
+          <p>Gallai hyn fod oherwydd:</p>
           <ul class="govuk-list govuk-list--bullet">
             <li>rydych wedi arbed eich cynnydd gan ddefnyddio GOV.UK One Login gwahanol</li>
             <li>mae wedi bod yn fwy na 30 diwrnod ers i chi arbed y ffurflen</li>
             <li>ni wnaethoch arbed eich cynnydd ar gyfer y ffurflen hon</li>
           </ul>
-        start_new_form_button: Dechrau ffurflen newydd
+          <p>Rydych wedi mewngofnodi i GOV.UK One Login gyda’r cyfeiriad e-bost <strong>%{email}</strong>.</p>
         title: Nid ydym wedi gallu ddod o hyd i’ch ffurflen wedi’i harbed
     continue_to_one_login:
       show:
@@ -534,11 +539,17 @@ cy:
         options:
           continue_saved: Na, parhau i lenwi ffurflen sydd wedi'i harbed
           start_new: Ydw, dechrau ffurflen newydd
+      start_new_form_input:
+        start_new_form_options:
+          'no': Na, mewngofnodi gyda GOV.UK One Login gwahanol
+          'yes': Ydw, dechrau ffurflen newydd
     legend:
       continue_with_one_login_input:
         continue_with_this_one_login: Ydych chi eisiau parhau gyda’r GOV.UK One Login hyn?
       email_confirmation_input:
         send_confirmation: Ydych chi eisiau derbyn e-bost yn cadarnhau bod eich ffurflen wedi’i chyflwyno?
+      start_new_form_input:
+        start_new_form: Ydych chi eisiau dechrau ffurflen newydd?
   language_name: Cymraeg
   language_switcher:
     nav_label: Cyfieithiadau

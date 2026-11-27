@@ -213,6 +213,11 @@ en:
           attributes:
             resume_options:
               blank: Select if you want to start a new form or continue filling in a saved form
+        start_new_form_input:
+          attributes:
+            start_new_form:
+              blank: Select ‘Yes’ to start a new form
+              inclusion: Select ‘Yes’ to start a new form
   autocomplete:
     assistive_hint: When autocomplete results are available use up and down arrows to review and enter to select.  Touch device users, explore by touch or with swipe gestures.
     no_results: No results found
@@ -420,13 +425,13 @@ en:
         title: Sign in to your GOV.UK One Login
       not_found:
         body_html: |
-          <p class="govuk-body">This could be because:</p>
+          <p>This could be because:</p>
           <ul class="govuk-list govuk-list--bullet">
             <li>you saved your progress using a different GOV.UK One Login</li>
             <li>it has been more than 30 days since you saved the form</li>
             <li>you did not save your progress for this form</li>
           </ul>
-        start_new_form_button: Start a new form
+          <p>You're signed into GOV.UK One Login with the email address <strong>%{email}</strong>.</p>
         title: We could not find your saved form
     continue_to_one_login:
       show:
@@ -534,11 +539,17 @@ en:
         options:
           continue_saved: No, continue filling in a saved form
           start_new: Yes, start a new form
+      start_new_form_input:
+        start_new_form_options:
+          'no': No, sign in with a different GOV.UK One Login
+          'yes': Yes, start a new form
     legend:
       continue_with_one_login_input:
         continue_with_this_one_login: Do you want to continue with this GOV.UK One Login?
       email_confirmation_input:
         send_confirmation: Do you want to get an email confirming your form has been submitted?
+      start_new_form_input:
+        start_new_form: Do you want to start a new form?
   language_name: English
   language_switcher:
     nav_label: Translations

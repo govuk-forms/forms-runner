@@ -35,6 +35,11 @@ module Flow
       :en
     end
 
+    def start_new_form
+      clear
+      clear_submission_details
+    end
+
     def save_step(step, locale: :en, context: nil)
       return false unless step.valid?(context)
 

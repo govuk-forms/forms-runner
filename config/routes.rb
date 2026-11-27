@@ -43,6 +43,7 @@ Rails.application.routes.draw do
       post "what-do-you-want-to-do" => "forms/resume_options#continue", as: :resume_options_continue
       get "continue-saved-form" => "forms/continue_saved_form#new", as: :continue_saved_form
       get "continue-saved-form/signed-in" => "forms/continue_saved_form#signed_in", as: :continue_saved_form_signed_in
+      post "continue-saved-form/not-found" => "forms/continue_saved_form#submit_not_found", as: :submit_continue_saved_form_not_found
       get "/save-your-progress" => "forms/save_progress#new", as: :save_progress
       get "/save-your-progress/after-sign-in" => "forms/save_progress#after_sign_in", as: :save_progress_after_sign_in
       get "/save-your-progress/sign-in-again" => "forms/save_progress#sign_in_again", as: :save_progress_sign_in_again

@@ -139,9 +139,7 @@ feature "Continue a saved form", type: :feature do
     expect(page.find("h1")).to have_text "We could not find your saved form"
   end
 
-  def when_i_choose_to_start_a_new_form
-    click_link "Start a new form"
-  end
+  alias_method :when_i_choose_to_start_a_new_form, :and_i_choose_to_start_a_new_form
 
   def then_i_see_the_first_question_with_no_answer
     expect(page.find("h1")).to have_text first_question_text

@@ -19,6 +19,7 @@ module Store
       continue_saved_form: "continue_saved_form",
       signed_out: "signed_out",
       sign_in_again_to_save: "sign_in_again_to_save",
+      sign_in_again_to_continue_saved_form: "sign_in_again_to_continue_saved_form",
     }.freeze
 
     def initialize(store)

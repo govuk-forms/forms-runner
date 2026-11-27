@@ -55,6 +55,25 @@ RSpec.describe Flow::Context do
     end
   end
 
+  describe "#start_new_form" do
+    let(:context_instance) { described_class.new(form:, form_document:, store: {}) }
+
+    before do
+      context_instance.load_answers({ "1" => { "text" => "an answer" } })
+      context_instance.set_submission_reference("ABC123")
+
+      context_instance.start_new_form
+    end
+
+    it "clears the answers" do
+      expect(context_instance.answers).to be_blank
+    end
+
+    it "clears the submission details" do
+      expect(context_instance.get_submission_reference).to be_nil
+    end
+  end
+
   describe "#save_step" do
     let(:answer_store) { instance_double(Store::SessionAnswerStore) }
     let(:step) { instance_double(Step) }
